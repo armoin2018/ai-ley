@@ -1,0 +1,71 @@
+site_name: {{PROJECT_TITLE}}
+site_description: {{PROJECT_DESCRIPTION}}
+site_url: {{PROJECT_URL}}
+repo_url: {{PROJECT_REPO_URL}}
+repo_name: {{ORG}}/{{PROJECT_NAME}}
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search
+  - git-revision-date-localized:
+      enable_creation_date: true
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Configuration: getting-started/configuration.md
+  - Guides:
+    - User Guide: guides/user-guide.md
+    - API Reference: guides/api-reference.md
+  - About:
+    - Changelog: about/changelog.md
+    - Contributing: about/contributing.md

@@ -1,0 +1,112 @@
+@startuml RunPlanWorkflow
+!theme plain
+title Execute PLAN.md Workflow
+
+start
+
+:Load project/PLAN.md;
+note right: Core execution plan
+
+partition "Load Standards" {
+  :Load .github/copilot-instructions.md;
+  note left: Mandatory standards
+  
+  :Load .github/instructions/**/*.md;
+  note right: Project-specific instructions
+  
+  :Load .github/personas/**/*.md;
+  note left: Role-specific behaviors
+}
+
+partition "Plan Execution" {
+  repeat
+    :Select next step from PLAN.md;
+    note right: Follow defined sequence
+    
+    :Read step details;
+    note left
+      - Instructions to follow
+      - Personas to apply
+      - Expected outputs
+    end note
+    
+    :Apply relevant personas;
+    note right
+      - Decision-making style
+      - Quality standards
+      - Review criteria
+    end note
+    
+    :Follow step instructions;
+    note left: Execute required actions
+    
+    :Deliver outputs;
+    note right
+      - Code changes
+      - Documentation
+      - Configuration
+    end note
+    
+    if (Suggestions identified?) then (yes)
+      :Append to SUGGESTIONS.md;
+      note left: Enhancement opportunities
+    else (no)
+    endif
+    
+    if (Missing resources?) then (yes)
+      :Create missing assets;
+      note right
+        - Instructions under .github/instructions/
+        - Personas under .github/personas/
+      end note
+    else (no)
+    endif
+    
+    if (Bugs discovered?) then (yes)
+      :Log to BUGS.md;
+      note left: Defects and issues
+    else (no)
+    endif
+    
+    :Mark step complete;
+    note right: Update status
+    
+  repeat while (More steps?) is (yes)
+  -> no;
+}
+
+partition "Post-Execution Check" {
+  if (New requirements in files?) then (yes)
+    :Check SUGGESTIONS.md;
+    :Check BUGS.md;
+    note left: New items requiring planning
+    
+    :Run build-plan command;
+    note right: Integrate changes into new plan
+  else (no)
+  endif
+}
+
+partition "Status Update" {
+  :Update HISTORY.md;
+  note left
+    - Version number
+    - Start/end times
+    - Steps completed
+    - Steps in progress
+    - New assets created
+    - Blocking issues
+  end note
+}
+
+:Execution complete;
+note right
+  - Project files updated
+  - Standards applied
+  - Quality maintained
+  - Status documented
+end note
+
+stop
+
+@enduml

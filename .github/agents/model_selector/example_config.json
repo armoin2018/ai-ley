@@ -1,0 +1,77 @@
+{
+  "models": {
+    "gpt-4": {
+      "provider": "openai",
+      "temperature": 0.3,
+      "max_tokens": 8192,
+      "cost_per_token": 0.03,
+      "capabilities": ["reasoning", "analysis", "code", "complex_tasks"],
+      "api_endpoint": "https://api.openai.com/v1/chat/completions",
+      "enabled": true
+    },
+    "gpt-3.5-turbo": {
+      "provider": "openai",
+      "temperature": 0.5,
+      "max_tokens": 4096,
+      "cost_per_token": 0.002,
+      "capabilities": ["general", "fast", "cost_effective"],
+      "api_endpoint": "https://api.openai.com/v1/chat/completions",
+      "enabled": true
+    },
+    "claude-3-sonnet": {
+      "provider": "anthropic",
+      "temperature": 0.7,
+      "max_tokens": 4096,
+      "cost_per_token": 0.003,
+      "capabilities": ["creative", "balanced", "reasoning"],
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "enabled": true
+    }
+  },
+  "routing_rules": {
+    "expert": {
+      "analytical": "gpt-4",
+      "creative": "claude-3-sonnet",
+      "technical": "gpt-4",
+      "default": "gpt-4"
+    },
+    "high": {
+      "analytical": "gpt-4",
+      "creative": "claude-3-sonnet",
+      "technical": "gpt-4",
+      "default": "gpt-4"
+    },
+    "moderate": {
+      "analytical": "claude-3-sonnet",
+      "creative": "claude-3-sonnet",
+      "technical": "gpt-3.5-turbo",
+      "default": "gpt-3.5-turbo"
+    },
+    "simple": {
+      "analytical": "gpt-3.5-turbo",
+      "creative": "claude-3-sonnet",
+      "technical": "gpt-3.5-turbo",
+      "default": "gpt-3.5-turbo"
+    }
+  },
+  "execution_settings": {
+    "default_timeout": 60,
+    "max_retries": 3,
+    "retry_delay": 1.0,
+    "max_concurrent_tasks": 5,
+    "cost_tracking_enabled": true,
+    "history_retention_days": 30
+  },
+  "cost_constraints": {
+    "daily_budget_limit": 100.0,
+    "per_task_limit": 5.0,
+    "warning_threshold": 0.8
+  },
+  "logging": {
+    "enabled": true,
+    "level": "INFO",
+    "file_path": "./logs/model_selector.log",
+    "include_task_content": false,
+    "include_model_responses": false
+  }
+}

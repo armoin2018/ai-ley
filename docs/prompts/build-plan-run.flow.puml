@@ -1,0 +1,211 @@
+@startuml BuildPlanRunWorkflow
+!theme plain
+title Complete Build-Plan-Run Workflow
+
+start
+
+:Load ASK.md;
+note right: Primary source of goals and ideas
+
+partition "Phase 1: ASK to Requirements" {
+  :Load existing files;
+  note left
+    - project/REQUIREMENTS.md
+    - project/SUGGESTIONS.md  
+    - project/BUGS.md
+  end note
+  
+  :Analyze complexity & scope;
+  note right: Use GPT-4 for analysis
+  
+  :Generate requirements;
+  note left: Use Claude-3-Opus for thorough analysis
+  
+  :Ask discovery questions;
+  note right
+    - Problem definition
+    - Target users
+    - Core functionality
+    - Success criteria
+  end note
+  
+  :Create business case;
+  note left
+    - Business case
+    - Financial estimates
+    - Revenue projections
+    - Pitch deck
+  end note
+  
+  :Memory checkpoint;
+  note right: Clear temporary data
+}
+
+partition "Phase 2: Creative Enhancement" {
+  :Innovation analysis;
+  note left: Use Claude-3-Sonnet for creativity
+  
+  :Generate improvements;
+  note right
+    - Creative alternatives
+    - UX optimizations
+    - Technical innovations
+  end note
+  
+  :Stakeholder value analysis;
+  note left
+    - Additional value props
+    - Scalability considerations
+    - Competitive advantages
+  end note
+}
+
+partition "Phase 3: Resource Discovery" {
+  :Index existing resources;
+  note right
+    - Instructions index
+    - Personas index
+  end note
+  
+  :Identify missing resources;
+  note left: Gap analysis
+  
+  if (Missing personas/instructions?) then (yes)
+    :Generate missing resources;
+    note right
+      - Create personas
+      - Create instructions
+    end note
+  else (no)
+  endif
+  
+  :Optimize resources;
+  note left: Review and improve existing
+  
+  :Memory checkpoint;
+}
+
+partition "Phase 4: Architecture & Design" {
+  :Architecture analysis;
+  note right: Use GPT-4 for architecture
+  
+  :Generate PlantUML diagrams;
+  note left
+    - Data flow
+    - Sequence diagrams
+    - ERD
+    - Component diagrams
+    - Deployment diagrams
+  end note
+  
+  :Create documentation;
+  note right
+    - Architecture README
+    - Technology stack
+    - Design patterns
+    - API specifications
+  end note
+  
+  :Validate architecture;
+  note left: Check against requirements
+  
+  :Memory checkpoint;
+}
+
+partition "Phase 5: Intelligent Planning" {
+  :Integrate requirements;
+  note right: Merge suggestions and bugs
+  
+  :Generate epic structure;
+  note left
+    - Epics with business value
+    - Stories with acceptance criteria
+    - Tasks with specific actions
+  end note
+  
+  :Create JIRA CSV;
+  note right: Import-ready format
+  
+  :Generate Gantt chart;
+  note left: PlantUML timeline
+  
+  :Resource allocation;
+  note right: Team and persona mapping
+  
+  :Validate plan;
+  note left: Check dependencies
+  
+  :Memory checkpoint;
+}
+
+partition "Phase 6: Execution" {
+  repeat
+    :Select next task;
+    note right: Check dependencies
+    
+    :Analyze task complexity;
+    note left: Use TaskAnalyzer
+    
+    :Select optimal model;
+    note right: Use ModelRouter
+    
+    :Execute task;
+    note left
+      - Apply personas
+      - Follow instructions
+      - Implement solution
+    end note
+    
+    :Validate quality;
+    note right
+      - Run tests
+      - Check acceptance criteria
+    end note
+    
+    :Update status;
+    note left: Mark task complete
+    
+    if (Story complete?) then (yes)
+      :Run story tests;
+      :Commit changes;
+    else (no)
+    endif
+    
+    if (Epic complete?) then (yes)
+      :Run epic validation;
+      :Integration tests;
+    else (no)
+    endif
+    
+  repeat while (More tasks?) is (yes)
+  -> no;
+}
+
+partition "Phase 7: Optimization & Cleanup" {
+  :System health check;
+  note right: Performance analysis
+  
+  :Resource optimization;
+  note left: Consolidate resources
+  
+  :Knowledge base update;
+  note right: Update indexes
+  
+  :Final cleanup;
+  note left: Remove temp files
+  
+  :Generate final report;
+  note right: Project summary
+}
+
+:Updated project files;
+note left
+  - REQUIREMENTS.md
+  - PLAN.md
+  - HISTORY.md
+  - Enhanced personas/instructions
+end note
+
+stop
+
+@enduml

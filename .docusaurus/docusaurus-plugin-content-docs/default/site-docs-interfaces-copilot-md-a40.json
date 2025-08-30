@@ -1,0 +1,20 @@
+{
+  "id": "interfaces/copilot",
+  "title": "copilot",
+  "description": "",
+  "source": "@site/docs/interfaces/copilot.md",
+  "sourceDirName": "interfaces",
+  "slug": "/interfaces/copilot",
+  "permalink": "/docs/interfaces/copilot",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/your-org/agentic-template/tree/main/docs/interfaces/copilot.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Claude Integration",
+    "permalink": "/docs/interfaces/claude"
+  }
+}

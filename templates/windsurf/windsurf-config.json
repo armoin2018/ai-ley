@@ -1,0 +1,20 @@
+{
+  "name": "Agentic Template - Windsurf",
+  "version": "1.0.0",
+  "description": "Windsurf configuration for agentic development workflows",
+  "instructions": {
+    "base": "./instructions/",
+    "personas": "./personas/",
+    "prompts": "./prompts/"
+  },
+  "features": {
+    "autoComplete": true,
+    "codeGeneration": true,
+    "contextAware": true
+  },
+  "settings": {
+    "maxTokens": 4096,
+    "temperature": 0.7,
+    "topP": 0.9
+  }
+}

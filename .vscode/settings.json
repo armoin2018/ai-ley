@@ -1,0 +1,84 @@
+{
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  
+  "eslint.validate": [
+    "javascript",
+    "typescript"
+  ],
+  "eslint.format.enable": true,
+  
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+  
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+  
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+  
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.wordWrap": "on",
+    "editor.rulers": [100]
+  },
+  
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+  
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/coverage": true,
+    "**/.git": true,
+    "**/.DS_Store": true
+  },
+  
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/coverage": true
+  },
+  
+  "files.associations": {
+    "*.md": "markdown"
+  },
+  
+  "editor.rulers": [100],
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.wordWrapColumn": 100,
+  
+  "jest.jestCommandLine": "npm test",
+  "jest.autoRun": "off",
+  
+  "typescript.preferences.quoteStyle": "single",
+  "cSpell.words": [
+    "Charmbracelet",
+    "chatmode",
+    "chatmodes",
+    "imgs",
+    "libc",
+    "RAII"
+  ]
+}

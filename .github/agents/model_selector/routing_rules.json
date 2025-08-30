@@ -1,0 +1,26 @@
+{
+  "expert": {
+    "analytical": "claude-4-sonnet",
+    "creative": "claude-4-sonnet",
+    "technical": "claude-4-sonnet",
+    "default": "claude-4-sonnet"
+  },
+  "high": {
+    "analytical": "claude-4-sonnet",
+    "creative": "claude-4-sonnet",
+    "technical": "gpt-4.1",
+    "default": "gpt-4.1"
+  },
+  "moderate": {
+    "analytical": "claude-4-sonnet",
+    "creative": "claude-4-sonnet",
+    "technical": "gpt-4.1",
+    "default": "gpt-4-turbo"
+  },
+  "simple": {
+    "analytical": "gpt-4.1",
+    "creative": "gpt-4.1",
+    "technical": "gpt-4-turbo",
+    "default": "gpt-4-turbo"
+  }
+}

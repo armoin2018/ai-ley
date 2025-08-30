@@ -1,0 +1,122 @@
+{
+  "gpt-5": {
+    "name": "gpt-5",
+    "provider": "openai",
+    "temperature": 0.2,
+    "max_tokens": 16384,
+    "cost_per_token": 0.06,
+    "capabilities": ["reasoning", "analysis", "code", "very_complex_tasks", "multimodal"]
+  },
+  "gpt-5-mini": {
+    "name": "gpt-5-mini",
+    "provider": "openai",
+    "temperature": 0.5,
+    "max_tokens": 8192,
+    "cost_per_token": 0.01,
+    "capabilities": ["general", "fast", "cost_effective"]
+  },
+  "gpt-4.1": {
+    "name": "gpt-4.1",
+    "provider": "openai",
+    "temperature": 0.3,
+    "max_tokens": 8192,
+    "cost_per_token": 0.035,
+    "capabilities": ["reasoning", "analysis", "code"]
+  },
+  "gpt-4-turbo": {
+    "name": "gpt-4-turbo",
+    "provider": "openai",
+    "temperature": 0.25,
+    "max_tokens": 8192,
+    "cost_per_token": 0.02,
+    "capabilities": ["fast", "reasoning", "cost_effective"]
+  },
+  "gpt-4": {
+    "name": "gpt-4",
+    "provider": "openai",
+    "temperature": 0.3,
+    "max_tokens": 8192,
+    "cost_per_token": 0.03,
+    "capabilities": ["reasoning", "analysis", "code", "complex_tasks"]
+  },
+  "gpt-3.5-turbo": {
+    "name": "gpt-3.5-turbo",
+    "provider": "openai",
+    "temperature": 0.5,
+    "max_tokens": 4096,
+    "cost_per_token": 0.002,
+    "capabilities": ["general", "fast", "cost_effective"]
+  },
+  "claude-4-opus": {
+    "name": "claude-4-opus",
+    "provider": "anthropic",
+    "temperature": 0.25,
+    "max_tokens": 65536,
+    "cost_per_token": 0.04,
+    "capabilities": ["reasoning", "analysis", "creative", "expert", "longform"]
+  },
+  "claude-4-sonnet": {
+    "name": "claude-4-sonnet",
+    "provider": "anthropic",
+    "temperature": 0.4,
+    "max_tokens": 32768,
+    "cost_per_token": 0.02,
+    "capabilities": ["creative", "balanced", "reasoning", "assistant"]
+  },
+  "claude-3.7-sonnet": {
+    "name": "claude-3.7-sonnet",
+    "provider": "anthropic",
+    "temperature": 0.5,
+    "max_tokens": 16384,
+    "cost_per_token": 0.01,
+    "capabilities": ["balanced", "fast", "reasoning"]
+  },
+  "claude-3.5-sonnet": {
+    "name": "claude-3.5-sonnet",
+    "provider": "anthropic",
+    "temperature": 0.6,
+    "max_tokens": 8192,
+    "cost_per_token": 0.005,
+    "capabilities": ["fast", "cost_effective", "creative"]
+  },
+  "claude-3-opus": {
+    "name": "claude-3-opus",
+    "provider": "anthropic",
+    "temperature": 0.3,
+    "max_tokens": 4096,
+    "cost_per_token": 0.015,
+    "capabilities": ["reasoning", "analysis", "creative", "expert"]
+  },
+  "claude-3-sonnet": {
+    "name": "claude-3-sonnet",
+    "provider": "anthropic",
+    "temperature": 0.7,
+    "max_tokens": 4096,
+    "cost_per_token": 0.003,
+    "capabilities": ["creative", "balanced", "reasoning"]
+  },
+  "claude-3-haiku": {
+    "name": "claude-3-haiku",
+    "provider": "anthropic",
+    "temperature": 0.5,
+    "max_tokens": 4096,
+    "cost_per_token": 0.00025,
+    "capabilities": ["fast", "cost_effective", "simple_tasks"]
+  },
+  "gemini-2.5-pro": {
+    "name": "gemini-2.5-pro",
+    "provider": "google",
+    "temperature": 0.35,
+    "max_tokens": 32768,
+    "cost_per_token": 0.0025,
+    "capabilities": ["multimodal", "reasoning", "analysis", "longform"]
+  },
+  "gemini-pro": {
+    "name": "gemini-pro",
+    "provider": "google",
+    "temperature": 0.4,
+    "max_tokens": 4096,
+    "cost_per_token": 0.001,
+    "capabilities": ["multimodal", "reasoning", "analysis"]
+  }
+}

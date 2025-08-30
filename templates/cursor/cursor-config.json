@@ -1,0 +1,20 @@
+{
+  "name": "Agentic Template - Cursor",
+  "version": "1.0.0", 
+  "description": "Cursor configuration for agentic development workflows",
+  "instructions": {
+    "base": "./instructions/",
+    "personas": "./personas/",
+    "prompts": "./prompts/"
+  },
+  "features": {
+    "aiChat": true,
+    "codeCompletion": true,
+    "contextualHelp": true
+  },
+  "settings": {
+    "model": "claude-3-sonnet",
+    "maxTokens": 4096,
+    "temperature": 0.7
+  }
+}

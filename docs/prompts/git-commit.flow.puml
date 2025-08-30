@@ -1,0 +1,105 @@
+@startuml GitCommitWorkflow
+!theme plain
+title Git Commit Process
+
+start
+
+:Check current git status;
+note right: !`git status`
+
+:Review changes;
+note left
+  - Staged changes
+  - Unstaged changes
+  - Current branch
+  - Recent commits
+end note
+
+partition "Analyze Changes" {
+  :Get git diff;
+  note right: !`git diff HEAD`
+  
+  :Identify change types;
+  note left
+    - New features
+    - Bug fixes
+    - Documentation
+    - Refactoring
+    - Breaking changes
+  end note
+  
+  :Determine scope;
+  note right
+    - Files affected
+    - Components impacted
+    - Feature areas
+  end note
+}
+
+partition "Stage Changes" {
+  if (Files need staging?) then (yes)
+    :Run git add;
+    note left: Stage relevant files
+  else (no)
+    :Files already staged;
+  endif
+  
+  :Verify staged changes;
+  note right: Confirm what will be committed
+}
+
+partition "Create Commit Message" {
+  :Determine commit type;
+  note left
+    - feat: new feature
+    - fix: bug fix
+    - docs: documentation
+    - style: formatting
+    - refactor: code restructuring
+    - test: adding tests
+    - chore: maintenance
+  end note
+  
+  :Write subject line;
+  note right
+    - Start with type
+    - Brief description
+    - Present tense
+    - No period
+  end note
+  
+  if (Complex changes?) then (yes)
+    :Add detailed body;
+    note left
+      - Explain what and why
+      - Reference issues
+      - Breaking changes
+    end note
+  else (no)
+  endif
+  
+  if (Breaking changes?) then (yes)
+    :Add BREAKING CHANGE;
+    note right: Describe impact
+  else (no)
+  endif
+}
+
+partition "Execute Commit" {
+  :Run git commit;
+  note left: Apply staged changes
+  
+  :Verify commit created;
+  note right: Check commit hash and message
+}
+
+:Commit completed;
+note left
+  - Changes recorded
+  - Message follows conventions
+  - History updated
+end note
+
+stop
+
+@enduml

@@ -1,0 +1,74 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Server",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/server.ts",
+      "runtimeArgs": ["--loader", "tsx/esm"],
+      "env": {
+        "NODE_ENV": "development",
+        "PORT": "8080"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "restart": true,
+      "protocol": "inspector",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "name": "Debug MCP Server",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/mcp.ts",
+      "runtimeArgs": ["--loader", "tsx/esm"],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "restart": true,
+      "protocol": "inspector",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "name": "Debug Tests",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["--runInBand", "--no-coverage"],
+      "env": {
+        "NODE_ENV": "test"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "protocol": "inspector",
+      "windows": {
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+      }
+    },
+    {
+      "name": "Debug Current Test File",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["--runInBand", "--no-coverage", "${relativeFile}"],
+      "env": {
+        "NODE_ENV": "test"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "protocol": "inspector",
+      "windows": {
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+      }
+    }
+  ]
+}

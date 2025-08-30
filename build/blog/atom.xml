@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="atom.xsl"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://your-docusaurus-site.example.com/blog</id>
+    <title>Agentic Template Blog</title>
+    <updated>2025-08-12T00:00:00.000Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://your-docusaurus-site.example.com/blog"/>
+    <subtitle>Agentic Template Blog</subtitle>
+    <icon>https://your-docusaurus-site.example.com/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[welcome]]></title>
+        <id>https://your-docusaurus-site.example.com/blog/2025/08/12/welcome</id>
+        <link href="https://your-docusaurus-site.example.com/blog/2025/08/12/welcome"/>
+        <updated>2025-08-12T00:00:00.000Z</updated>
+    </entry>
+</feed>

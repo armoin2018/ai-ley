@@ -1,0 +1,82 @@
+# External Resources Repository Mapping
+# This file defines external repositories and their folder mappings for the pull-repo command
+#
+# Structure:
+# repos:
+#   repo-key:
+#     url: "git repository URL"
+#     subfolder: "subfolder in target project where resources will be placed"
+#     folders: ["list", "of", "folders", "to", "copy", "from", "repo"]
+#
+# Usage:
+# python provision.py pull-repo --repo <repo-key> --target-dir /path/to/client/project
+#
+# This will:
+# 1. Clone/update the repo to .external_repo_cache/<repo-key>/
+# 2. Copy specified folders to /path/to/client/project/<subfolder>/<folder>/
+
+# repos:
+# Example configuration for external prompt/instruction repositories
+#
+# awesome-prompts:
+#   url: "https://github.com/example/awesome-prompts.git"
+#   subfolder: "external"  # Where to place resources in the client project
+#   folders:
+#     - "prompts"
+#     - "instructions"
+#     - "chatmodes"
+#
+# ai-instructions:
+#   url: "https://github.com/example/ai-instructions.git"
+#   subfolder: "resources"
+#   folders:
+#     - "instructions"
+#     - "personas"
+# Usage:
+# python provision.py pull-repo --repo awesome-prompts --target-dir /path/to/client/project
+#
+# This will:
+# 1. Clone/update the repo to .external_repo_cache/awesome-prompts/
+# 2. Copy specified folders to /path/to/client/project/external/prompts, etc.
+
+repos:
+  agentic-chatmodes:
+    url: 'https://github.com/armoin2018/agentic-chatmodes.git'
+    subfolder: 'external/armoin'
+    folders:
+      - 'chatmodes'
+
+  # Private Repo
+  _agentic-chatmodes:
+    url: 'https://github.com/armoin2018/_agentic-chatmodes.git'
+    subfolder: 'external/armoin'
+    folders:
+      - 'chatmodes'
+
+  copilot-prompts:
+    url: 'https://github.com/pnp/copilot-prompts.git'
+    subfolder: 'external/pnp'
+    folders:
+      - 'samples'
+
+  awesome-copilot:
+    url: 'https://github.com/github/awesome-copilot.git'
+    subfolder: 'external/github'
+    folders:
+      - 'chatmodes'
+      - 'instructions'
+      - 'prompts'
+
+  awesome-copilot-instructions:
+    url: 'https://github.com/Code-and-Sorts/awesome-copilot-instructions.git'
+    subfolder: 'external/Code-and-Sorts'
+    folders:
+      - 'chatmodes'
+      - 'instructions'
+      - 'prompts'
+
+  awesome-copilot-chatmodes:
+    url: 'https://github.com/dfinke/awesome-copilot-chatmodes.git'
+    subfolder: 'external/dfinke'
+    folders:
+      - 'chatmodes'

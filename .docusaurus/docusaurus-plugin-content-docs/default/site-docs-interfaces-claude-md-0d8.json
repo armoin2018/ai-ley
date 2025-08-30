@@ -1,0 +1,26 @@
+{
+  "id": "interfaces/claude",
+  "title": "Claude Integration",
+  "description": "This section documents Claude-specific skillsets and Chat commands.",
+  "source": "@site/docs/interfaces/claude.md",
+  "sourceDirName": "interfaces",
+  "slug": "/interfaces/claude",
+  "permalink": "/docs/interfaces/claude",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/your-org/agentic-template/tree/main/docs/interfaces/claude.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Claude Integration"
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "getting-started",
+    "permalink": "/docs/getting-started"
+  },
+  "next": {
+    "title": "copilot",
+    "permalink": "/docs/interfaces/copilot"
+  }
+}

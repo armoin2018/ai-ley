@@ -1,0 +1,5 @@
+This is a test prompt file to verify the Claude renaming logic.
+
+# Test Prompt
+
+This should be copied to .claude/commands/test-prompt when provisioning Claude.

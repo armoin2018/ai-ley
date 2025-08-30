@@ -1,0 +1,55 @@
+---
+# Application Configuration
+app_name: 'myapp'
+app_version: '1.0.0'
+app_port: 8080
+app_user: 'appuser'
+app_group: 'appgroup'
+app_home: '/opt/{{ app_name }}'
+
+# Environment
+environment: 'production'
+log_level: 'INFO'
+
+# Database Configuration
+database_host: 'db-01'
+database_port: 5432
+database_name: '{{ app_name }}_prod'
+database_user: '{{ app_name }}_user'
+
+# Redis Configuration
+redis_host: 'db-01'
+redis_port: 6379
+redis_db: 0
+
+# Nginx Configuration
+nginx_sites:
+  - server_name: '{{ app_name }}.example.com'
+    root: '{{ app_home }}/public'
+    index: 'index.html'
+    location_blocks:
+      - location: '/'
+        proxy_pass: 'http://app_servers'
+        proxy_set_header:
+          - 'Host $host'
+          - 'X-Real-IP $remote_addr'
+          - 'X-Forwarded-For $proxy_add_x_forwarded_for'
+
+# Docker Configuration
+enable_docker: true
+docker_compose_version: '2.20.0'
+
+# SSL Configuration
+ssl_enabled: true
+ssl_certificate_path: '/etc/ssl/certs/{{ app_name }}.crt'
+ssl_private_key_path: '/etc/ssl/private/{{ app_name }}.key'
+
+# Backup Configuration
+backup_enabled: true
+backup_schedule: '0 2 * * *' # Daily at 2 AM
+backup_retention_days: 30
+
+# Monitoring
+enable_monitoring: true
+prometheus_port: 9090
+grafana_port: 3000

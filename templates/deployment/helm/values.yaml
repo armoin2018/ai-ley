@@ -1,0 +1,227 @@
+# Default values for myapp
+# This is a YAML-formatted file.
+
+# Application Configuration
+app:
+  name: myapp
+  version: '1.0.0'
+
+# Image Configuration
+image:
+  repository: myregistry/myapp
+  tag: '1.0.0'
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+# Deployment Configuration
+replicaCount: 2
+
+# Service Configuration
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  annotations: {}
+
+# Ingress Configuration
+ingress:
+  enabled: true
+  className: 'nginx'
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: 'letsencrypt-prod'
+  hosts:
+    - host: myapp.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: myapp-tls
+      hosts:
+        - myapp.example.com
+
+# Resource Configuration
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+# Autoscaling Configuration
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Vertical Pod Autoscaling
+vpa:
+  enabled: false
+  updateMode: 'Auto'
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# Health Checks
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# Environment Variables
+env:
+  - name: NODE_ENV
+    value: 'production'
+  - name: LOG_LEVEL
+    value: 'info'
+
+# Environment Variables from ConfigMap
+envFrom:
+  - configMapRef:
+      name: myapp-config
+
+# Environment Variables from Secret
+envFromSecret:
+  - secretRef:
+      name: myapp-secrets
+
+# ConfigMap Data
+configMap:
+  data:
+    database_host: 'postgresql'
+    database_port: '5432'
+    redis_host: 'redis-master'
+    redis_port: '6379'
+
+# Secret Data (base64 encoded)
+secrets:
+  data:
+    database_password: ''
+    redis_password: ''
+    jwt_secret: ''
+
+# Persistent Storage
+persistence:
+  enabled: false
+  storageClass: ''
+  accessMode: ReadWriteOnce
+  size: 8Gi
+  annotations: {}
+
+# Security Context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+
+# Pod Security Context
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+
+# Service Account
+serviceAccount:
+  create: true
+  name: ''
+  annotations: {}
+
+# RBAC Configuration
+rbac:
+  create: true
+  rules: []
+
+# Network Policy
+networkPolicy:
+  enabled: false
+  ingress: []
+  egress: []
+
+# Monitoring Configuration
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    path: /metrics
+    port: http
+
+# Logging Configuration
+logging:
+  enabled: true
+  level: 'info'
+  format: 'json'
+
+# Node Selection
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity Rules
+affinity: {}
+
+# Pod Anti-Affinity
+podAntiAffinity:
+  enabled: true
+  type: soft # soft or hard
+
+# Init Containers
+initContainers: []
+
+# Sidecar Containers
+sidecars: []
+
+# Volume Mounts
+volumeMounts: []
+
+# Volumes
+volumes: []
+
+# Dependencies Configuration
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: 'changeme'
+    username: 'myapp'
+    password: 'changeme'
+    database: 'myapp'
+  primary:
+    persistence:
+      enabled: true
+      size: 8Gi
+
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: 'changeme'
+  master:
+    persistence:
+      enabled: true
+      size: 8Gi
+
+nginx:
+  enabled: false

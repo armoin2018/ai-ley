@@ -1,0 +1,69 @@
+{
+  "/blog-4c0": {
+    "__comp": "a6aa9e1f",
+    "__context": {
+      "plugin": "36994c47"
+    },
+    "sidebar": "814f3328",
+    "items": [
+      {
+        "content": "81a20b72"
+      }
+    ],
+    "__props": "c15d9823"
+  },
+  "/blog/2025/08/12/welcome-480": {
+    "__comp": "ccc49370",
+    "__context": {
+      "data": {
+        "blogMetadata": "acecf23e"
+      },
+      "plugin": "36994c47"
+    },
+    "sidebar": "814f3328",
+    "content": "b7eb4dec"
+  },
+  "/blog/archive-182": {
+    "__comp": "9e4087bc",
+    "__context": {
+      "plugin": "36994c47"
+    },
+    "__props": "f81c1134"
+  },
+  "/docs-9cf": {
+    "__comp": "5e95c892",
+    "__context": {
+      "plugin": "aba21aa0"
+    }
+  },
+  "/docs-7c2": {
+    "__comp": "a7bd4aaa",
+    "__props": "0058b4c6"
+  },
+  "/docs-131": {
+    "__comp": "a94703ab"
+  },
+  "/docs/getting-started-2a1": {
+    "__comp": "17896441",
+    "content": "d589d3a7"
+  },
+  "/docs/interfaces/claude-a38": {
+    "__comp": "17896441",
+    "content": "0d8d294e"
+  },
+  "/docs/interfaces/copilot-69c": {
+    "__comp": "17896441",
+    "content": "a4040f6e"
+  },
+  "/docs/intro-61d": {
+    "__comp": "17896441",
+    "content": "0e384e19"
+  },
+  "/-e5f": {
+    "__comp": "1df93b7f",
+    "__context": {
+      "plugin": "a7456010"
+    },
+    "config": "5e9f5e1a"
+  }
+}

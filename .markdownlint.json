@@ -1,0 +1,43 @@
+{
+  "default": true,
+  "MD013": false,
+  "MD033": {
+    "allowed_elements": ["h1", "h4", "p", "a", "img", "hr", "br", "div"]
+  },
+  "MD059": false,
+  "MD041": { "front_matter_title": ".*" },
+  "overrides": [
+    {
+      "files": [
+        "README*.md",
+        "docs/**/*.md"
+      ],
+      "rules": {
+        "MD013": {
+          "line_length": 100,
+          "code_blocks": false
+        },
+        "MD033": {
+          "allowed_elements": ["h1", "h4", "p", "a", "img", "hr", "br", "div"]
+        },
+        "MD059": false
+      }
+    },
+    {
+      "files": "**/*instructions.md",
+      "rules": {
+        "MD041": false,
+        "MD025": false,
+        "MD013": false
+      }
+    },
+    {
+      "files": "**/*.prompt.md",
+      "rules": {
+        "MD041": false,
+        "MD025": false,
+        "MD013": false
+      }
+    }
+  ]
+}

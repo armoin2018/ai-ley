@@ -1,0 +1,24 @@
+{
+  "id": "getting-started",
+  "title": "getting-started",
+  "description": "",
+  "source": "@site/docs/getting-started.md",
+  "sourceDirName": ".",
+  "slug": "/getting-started",
+  "permalink": "/docs/getting-started",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/your-org/agentic-template/tree/main/docs/getting-started.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "intro",
+    "permalink": "/docs/intro"
+  },
+  "next": {
+    "title": "Claude Integration",
+    "permalink": "/docs/interfaces/claude"
+  }
+}

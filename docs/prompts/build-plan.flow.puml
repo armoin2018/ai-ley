@@ -1,0 +1,174 @@
+@startuml BuildPlanWorkflow
+!theme plain
+title Build Implementation Plan from Requirements
+
+start
+
+:Load project/REQUIREMENTS.md;
+note right: Core requirements input
+
+partition "1. Refine Requirements" {
+  if (project/SUGGESTIONS.md exists?) then (yes)
+    :Integrate suggestions;
+    note left: Add to requirements
+  else (no)
+  endif
+  
+  if (project/BUGS.md exists?) then (yes)
+    :Account for bugs;
+    note right: Refine requirements
+  else (no)
+  endif
+  
+  :Update REQUIREMENTS.md;
+  note left: Include all items
+  
+  :Log to HISTORY.md;
+  note right: Traceability tracking
+  
+  :Clean suggestion/bug files;
+  note left: Remove integrated items
+}
+
+partition "2. Load Reference Materials" {
+  :Load .github/copilot-instructions.md;
+  note right: Mandatory compliance
+  
+  :Create/update instructions index;
+  note left: Summarize all instructions
+  
+  :Create/update personas index;
+  note right: Summarize all personas
+  
+  :Load reference indexes;
+  note left: Memory efficient mapping
+}
+
+partition "3. Parse and Map Requirements" {
+  :Identify requirement types;
+  note right
+    - Functional
+    - Non-functional  
+    - Compliance
+  end note
+  
+  :Match with guidance;
+  note left: Map to personas/instructions
+  
+  if (Missing personas?) then (yes)
+    :Create new personas;
+    note right: Use personas template
+  else (no)
+  endif
+  
+  if (Missing instructions?) then (yes)
+    :Create new instructions;
+    note left: Use instruction templates
+  else (no)
+  endif
+  
+  :Check dependencies;
+  note right
+    - Use WHITELIST.md
+    - Avoid BLACKLIST.md
+    - Log to REVIEW.md
+  end note
+  
+  if (Enhancements found?) then (yes)
+    :Add to SUGGESTIONS.md;
+  else (no)
+  endif
+  
+  if (Issues found?) then (yes)
+    :Add to BUGS.md;
+  else (no)
+  endif
+}
+
+partition "4. Create Plan Structure" {
+  :Create Epics;
+  note left
+    - High-level business goals
+    - Priority and effort
+    - Dependencies
+    - Acceptance criteria
+  end note
+  
+  :Create Stories for each Epic;
+  note right
+    - User story format
+    - Acceptance criteria
+    - Story points
+    - Persona assignments
+  end note
+  
+  :Create Tasks for each Story;
+  note left
+    - Specific deliverables
+    - Instructions reference
+    - Context directories
+    - Complexity level
+  end note
+  
+  :Assign model recommendations;
+  note right
+    - Analysis type
+    - Creative needs
+    - Technical complexity
+  end note
+}
+
+partition "5. Validation" {
+  :Check requirement coverage;
+  note left: Ensure all requirements mapped
+  
+  if (Unmapped requirements?) then (yes)
+    :Flag unclear paths;
+    note right: Mark for clarification
+  else (no)
+  endif
+  
+  :Validate task sizing;
+  note left: 1-3 day deliverables
+  
+  :Check persona/instruction refs;
+  note right: Verify all exist
+}
+
+partition "6. Delivery" {
+  :Create project/PLAN.md;
+  note left: Detailed step-by-step plan
+  
+  :Update project/CHANGELOG.md;
+  note right: Major progress updates
+  
+  :Update project/HISTORY.md;
+  note left: Detailed progress tracking
+  
+  if (New suggestions?) then (yes)
+    :Update SUGGESTIONS.md;
+  else (no)
+  endif
+  
+  if (New bugs?) then (yes)
+    :Update BUGS.md;
+  else (no)
+  endif
+  
+  if (Compliance updates?) then (yes)
+    :Update instruction files;
+  else (no)
+  endif
+}
+
+:Complete actionable plan;
+note right
+  - Organized by Epics/Stories/Tasks
+  - Clear persona assignments
+  - Instruction references
+  - Model recommendations
+end note
+
+stop
+
+@enduml

@@ -1,0 +1,51 @@
+# .github/workflows/pages-docusaurus.yml
+name: Docusaurus to GitHub Pages
+on:
+  push:
+    branches: [main] # or: [ template-claude, template-copilot ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          # Ensures repo-based baseUrl in config resolves correctly in CI
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

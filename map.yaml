@@ -1,0 +1,65 @@
+# Project types define the base project structure
+project_types:
+  docusaurus:
+    name: 'Docusaurus Documentation Site'
+    description: 'React-based documentation website with MDX support'
+    files:
+      - from: templates/projects/docusaurus/package.json
+        to: package.json
+      - from: templates/projects/docusaurus/docusaurus.config.ts
+        to: docusaurus.config.ts
+      - from: templates/projects/docusaurus/tsconfig.json
+        to: tsconfig.json
+      - from: templates/projects/docusaurus/sidebars.ts
+        to: sidebars.ts
+      - from: templates/projects/docusaurus/src/
+        to: src/
+      - from: templates/projects/docusaurus/static/
+        to: static/
+      - from: templates/projects/docusaurus/.gitignore
+        to: .gitignore
+  mkdocs:
+    name: 'MkDocs Documentation Site'
+    description: 'Python-based documentation with Material theme'
+    files:
+      - from: templates/projects/mkdocs/mkdocs.yml
+        to: mkdocs.yml
+      - from: templates/projects/mkdocs/requirements.txt
+        to: requirements.txt
+      - from: templates/projects/mkdocs/docs/
+        to: docs/
+      - from: templates/projects/mkdocs/.gitignore
+        to: .gitignore
+  minimal:
+    name: 'Minimal Project'
+    description: 'Basic project structure with only essential files'
+    files:
+      - from: templates/projects/minimal/.gitignore
+        to: .gitignore
+      - from: templates/projects/minimal/README.md
+        to: README.md
+
+# AI assistant targets
+targets:
+  claude-code:
+    copies:
+      - from: templates/claude-code/
+        to: .claude/
+      - from: common/instructions/
+        to: .claude/agents/instructions/
+      - from: common/personas/
+        to: .claude/agents/personas/
+  copilot:
+    copies:
+      - from: templates/copilot/
+        to: .github/
+      - from: common/instructions/
+        to: .github/instructions/
+      - from: common/personas/
+        to: .github/personas/
+      - from: templates/copilot/copilot/chatmodes/
+        to: .github/copilot/chatmodes/
+# Optional text substitution tokens used in target files:
+template_vars:
+  ORG: 'Acme'
+  OWNER_EMAIL: 'dev@acme.com'

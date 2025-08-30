@@ -1,0 +1,105 @@
+@startuml BuildRequirementsWorkflow
+!theme plain
+title Build or Refine Requirements from ASK
+
+start
+
+:Load project/ASK.md;
+note right: Primary input of goals and ideas
+
+if (project/REQUIREMENTS.md exists?) then (yes)
+  :Load existing REQUIREMENTS.md;
+  note left: Existing requirements to merge
+else (no)
+  :No existing requirements;
+  note right: Fresh start
+endif
+
+partition "Merge and Reconcile" {
+  :Address all ASK.md points;
+  note left: Ensure nothing is lost
+  
+  :Remove redundancies;
+  note right: Eliminate conflicts
+  
+  :Clarify ambiguous items;
+  note left: Make testable and clear
+  
+  :Organize into sections;
+  note right
+    - Overview
+    - Functional Requirements
+    - Non-Functional Requirements
+    - Compliance & Standards
+    - Acceptance Criteria
+  end note
+}
+
+partition "Refine for Production" {
+  :Use clear, testable language;
+  note left: Specific and measurable
+  
+  :Assign unique IDs;
+  note right: R1, R2, R3... format
+  
+  :Separate requirement types;
+  note left
+    - Functional vs Non-functional
+    - Business vs Technical
+  end note
+  
+  :Add acceptance criteria;
+  note right: Measurable outcomes
+  
+  if (Personas/Instructions available?) then (yes)
+    :Map to relevant files;
+    note left: Reference appropriate guidance
+  else (no)
+  endif
+}
+
+partition "Validation" {
+  :Check ASK.md coverage;
+  note right: Ensure all items addressed
+  
+  if (Items need clarification?) then (yes)
+    :Add [TODO: ...] markers;
+    note left: Flag for follow-up
+  else (no)
+  endif
+  
+  if (Reference files exist?) then (yes)
+    :Verify alignment;
+    note right
+      - .github/copilot-instructions.md
+      - .github/instructions/**/*.md
+      - .github/personas/**/*.md
+    end note
+  else (no)
+  endif
+}
+
+partition "Delivery" {
+  :Create/update REQUIREMENTS.md;
+  note left: Complete production-ready document
+  
+  if (Changes made?) then (yes)
+    :Create REQUIREMENTS-CHANGELOG.md;
+    note right: Summarize major changes
+  else (no)
+    :No changelog needed;
+  endif
+}
+
+:Updated REQUIREMENTS.md;
+note left
+  - Clear, testable requirements
+  - Unique identifiers
+  - Organized sections
+  - Measurable acceptance criteria
+  - Reference mappings
+end note
+
+stop
+
+@enduml

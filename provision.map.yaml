@@ -1,0 +1,187 @@
+# provision.map.yaml
+# Configuration for mapping source and target files/folders for different AI tools
+# This file enables multiple concurrent AI tools by specifying source locations and rename patterns
+
+ai_tools:
+  claude-code:
+    name: 'Claude Code'
+    target_base: '.claude'
+
+    # File mappings for Claude Code
+    mappings:
+      - source: 'templates/claude-code/'
+        target: '' # Root of .claude/
+
+      - source: 'common/instructions/'
+        target: 'agents/instructions/'
+
+      - source: 'common/personas/'
+        target: 'agents/personas/'
+
+      # Prompts handling with special rules
+      - source: 'common/prompts/'
+        target: 'commands/'
+        file_transforms:
+          - from_extension: '.prompt.md'
+            to_extension: '.md' # Remove .prompt extension
+          - preserve_others: true # Keep .puml and other files as-is
+
+    # Git repository integrations for claude-code
+    git_repo_mappings:
+      shared-prompts:
+        mappings:
+          - source: 'claude-commands/'
+            target: 'commands/shared/'
+            file_transforms:
+              - from_extension: '.prompt'
+                to_extension: ''
+              - preserve_others: true
+
+  copilot:
+    name: 'GitHub Copilot'
+    target_base: '.github'
+
+    # File mappings for Copilot
+    mappings:
+      - source: 'templates/copilot/'
+        target: '' # Root of .github/
+
+      - source: 'common/instructions/'
+        target: 'instructions/'
+
+      - source: 'common/personas/'
+        target: 'personas/'
+
+      # Prompts handling - copy all files as-is
+      - source: 'common/prompts/'
+        target: 'prompts/'
+        file_transforms:
+          - preserve_all: true # Keep all files including .puml
+
+    # Git repository integrations for copilot
+    git_repo_mappings:
+      shared-prompts:
+        mappings:
+          - source: 'prompts/'
+            target: 'prompts/shared/'
+            file_transforms:
+              - preserve_all: true
+
+      common-workflows:
+        mappings:
+          - source: 'github-workflows/'
+            target: 'workflows/'
+            file_transforms:
+              - from_pattern: "workflow-(.+)\\.yml"
+                to_pattern: 'copilot-$1.yml'
+              - preserve_others: true
+
+# Git repositories to clone and integrate
+git_repos:
+  architecture-center:
+    url: 'https://github.com/MicrosoftDocs/architecture-center.git'
+    subfolder: 'external/microsoft'
+    branch: 'main'
+    cache_dir: '.git_repo_cache'
+    folders:
+      - 'docs'
+
+  agentic-chatmodes:
+    url: 'https://github.com/armoin2018/agentic-chatmodes.git'
+    subfolder: 'external/armoin'
+    branch: 'main'
+    cache_dir: '.git_repo_cache'
+    folders:
+      - 'chatmodes'
+
+  # Private Repo
+  _agentic-chatmodes:
+    url: 'https://github.com/armoin2018/_agentic-chatmodes.git'
+    subfolder: 'external/armoin'
+    branch: 'main'
+    cache_dir: '.git_repo_cache'
+    folders:
+      - 'chatmodes'
+
+  copilot-prompts:
+    url: 'https://github.com/pnp/copilot-prompts.git'
+    subfolder: 'external/pnp'
+    branch: 'main'
+    cache_dir: '.git_repo_cache'
+    folders:
+      - 'samples'
+
+  awesome-copilot:
+    url: 'https://github.com/github/awesome-copilot.git'
+    subfolder: 'external/github'
+    branch: 'main'
+    cache_dir: '.git_repo_cache'
+    folders:
+      - 'chatmodes'
+      - 'instructions'
+      - 'prompts'
+
+  awesome-copilot-instructions:
+    url: 'https://github.com/Code-and-Sorts/awesome-copilot-instructions.git'
+    subfolder: 'external/Code-and-Sorts'
+    branch: 'main'
+    cache_dir: '.git_repo_cache'
+    folders:
+      - 'chatmodes'
+      - 'instructions'
+      - 'prompts'
+
+  awesome-copilot-chatmodes:
+    url: 'https://github.com/dfinke/awesome-copilot-chatmodes.git'
+    subfolder: 'external/dfinke'
+    branch: 'main'
+    cache_dir: '.git_repo_cache'
+    folders:
+      - 'chatmodes'
+
+# Global settings
+settings:
+  # When true, removes target directories before copying
+  clean_target_dirs: false
+
+  # When true, creates backup of existing files
+  backup_existing: false
+
+  # When true, overwrites existing files during git repo integration (default: true)
+  overwrite_existing_files: true
+
+  # Priority order when multiple prompts sources exist
+  prompts_source_priority:
+    - 'common/prompts'
+
+  # File extensions to treat as text files for variable substitution
+  text_extensions:
+    - '.md'
+    - '.yml'
+    - '.yaml'
+    - '.json'
+    - '.js'
+    - '.ts'
+    - '.py'
+    - '.prompt'
+
+  # Binary extensions to copy as-is
+  binary_extensions:
+    - '.png'
+    - '.jpg'
+    - '.jpeg'
+    - '.gif'
+    - '.ico'
+    - '.pdf'
+
+# Concurrent provisioning support
+concurrent_support:
+  enabled: true
+
+  # Conflict resolution when multiple AI tools target the same file
+  conflict_resolution: 'error' # Options: "error", "overwrite", "skip", "backup"
+
+  # Files that can be shared between AI tools
+  shared_files:
+    - '.gitignore'
+    - 'README.md'

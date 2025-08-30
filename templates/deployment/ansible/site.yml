@@ -1,0 +1,57 @@
+---
+- name: Deploy Application Infrastructure
+  hosts: all
+  gather_facts: true
+  become: true
+
+  pre_tasks:
+    - name: Update system packages
+      package:
+        name: '*'
+        state: latest
+      when: ansible_os_family == "RedHat"
+
+    - name: Update apt cache
+      apt:
+        update_cache: true
+      when: ansible_os_family == "Debian"
+
+  roles:
+    - role: common
+      tags: [common, base]
+
+    - role: docker
+      tags: [docker, containers]
+      when: enable_docker | default(true)
+
+    - role: nginx
+      tags: [nginx, web]
+      when: enable_nginx | default(true)
+
+    - role: database
+      tags: [database, db]
+      when: enable_database | default(false)
+
+    - role: app
+      tags: [app, application]
+
+    - role: monitoring
+      tags: [monitoring, observability]
+      when: enable_monitoring | default(false)
+
+  post_tasks:
+    - name: Verify application health
+      uri:
+        url: 'http://{{ ansible_default_ipv4.address }}:{{ app_port | default(8080) }}/health'
+        method: GET
+        status_code: 200
+      register: health_check
+      retries: 5
+      delay: 10
+      tags: [health, validation]
+
+    - name: Display deployment status
+      debug:
+        msg: 'Application successfully deployed and healthy'
+      when: health_check is succeeded
+      tags: [health, validation]

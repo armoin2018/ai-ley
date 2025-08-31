@@ -4,10 +4,10 @@ title Build or Refine Requirements from ASK
 
 start
 
-:Load project/ASK.md;
+:Load .project/ASK.md;
 note right: Primary input of goals and ideas
 
-if (project/REQUIREMENTS.md exists?) then (yes)
+if (.project/REQUIREMENTS.md exists?) then (yes)
   :Load existing REQUIREMENTS.md;
   note left: Existing requirements to merge
 else (no)

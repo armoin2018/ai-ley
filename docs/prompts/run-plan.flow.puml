@@ -4,7 +4,7 @@ title Execute PLAN.md Workflow
 
 start
 
-:Load project/PLAN.md;
+:Load .project/PLAN.md;
 note right: Core execution plan
 
 partition "Load Standards" {

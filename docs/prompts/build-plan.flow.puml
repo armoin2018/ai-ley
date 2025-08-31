@@ -4,17 +4,17 @@ title Build Implementation Plan from Requirements
 
 start
 
-:Load project/REQUIREMENTS.md;
+:Load .project/REQUIREMENTS.md;
 note right: Core requirements input
 
 partition "1. Refine Requirements" {
-  if (project/SUGGESTIONS.md exists?) then (yes)
+  if (.project/SUGGESTIONS.md exists?) then (yes)
     :Integrate suggestions;
     note left: Add to requirements
   else (no)
   endif
   
-  if (project/BUGS.md exists?) then (yes)
+  if (.project/BUGS.md exists?) then (yes)
     :Account for bugs;
     note right: Refine requirements
   else (no)
@@ -136,13 +136,13 @@ partition "5. Validation" {
 }
 
 partition "6. Delivery" {
-  :Create project/PLAN.md;
+  :Create .project/PLAN.md;
   note left: Detailed step-by-step plan
   
-  :Update project/CHANGELOG.md;
+  :Update .project/CHANGELOG.md;
   note right: Major progress updates
   
-  :Update project/HISTORY.md;
+  :Update .project/HISTORY.md;
   note left: Detailed progress tracking
   
   if (New suggestions?) then (yes)

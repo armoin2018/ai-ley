@@ -1,0 +1,233 @@
+# ai-ley.map.yaml
+# Configuration for mapping source and target files/folders for different AI tools
+# This file enables multiple concurrent AI tools by specifying source locations and rename patterns
+
+# Documentation handler references migrated from map.yaml
+doc_handler:
+  docusaurus:
+    name: 'Docusaurus Documentation Site'
+    description: 'React-based documentation website with MDX support'
+    files:
+      - from: .ai-ley/projects/docusaurus/package.json
+        to: package.json
+      - from: .ai-ley/projects/docusaurus/docusaurus.config.ts
+        to: docusaurus.config.ts
+      - from: .ai-ley/projects/docusaurus/tsconfig.json
+        to: tsconfig.json
+      - from: .ai-ley/projects/docusaurus/sidebars.ts
+        to: sidebars.ts
+      - from: .ai-ley/projects/docusaurus/src/
+        to: src/
+      - from: .ai-ley/projects/docusaurus/static/
+        to: static/
+      - from: .ai-ley/projects/docusaurus/.gitignore
+        to: .gitignore
+  mkdocs:
+    name: 'MkDocs Documentation Site'
+    description: 'Python-based documentation with Material theme'
+    files:
+      - from: .ai-ley/projects/mkdocs/mkdocs.yml
+        to: mkdocs.yml
+      - from: .ai-ley/projects/mkdocs/requirements.txt
+        to: requirements.txt
+      - from: .ai-ley/projects/mkdocs/docs/
+        to: docs/
+      - from: .ai-ley/projects/mkdocs/.gitignore
+        to: .gitignore
+  minimal:
+    name: 'Minimal Project'
+    description: 'Basic project structure with only essential files'
+    files:
+      - from: .ai-ley/projects/minimal/.gitignore
+        to: .gitignore
+      - from: .ai-ley/projects/minimal/README.md
+        to: README.md
+
+# Template variables for substitution
+template_vars:
+  ORG: 'Acme'
+  OWNER_EMAIL: 'dev@acme.com'
+
+ai_tools:
+  claude-code:
+    name: 'Claude Code'
+    target_base: '.claude'
+
+    # File mappings for Claude Code
+    mappings:
+      - source: '.ai-ley/claude-code/'
+        target: '' # Root of .claude/
+
+      - source: '.ai-ley/common/instructions/'
+        target: 'agents/instructions/'
+
+      - source: '.ai-ley/common/personas/'
+        target: 'agents/personas/'
+
+      # Prompts handling with special rules
+      - source: '.ai-ley/common/prompts/'
+        target: 'commands/'
+        file_transforms:
+          - from_extension: '.prompt.md'
+            to_extension: '.md' # Remove .prompt extension
+          - preserve_others: true # Keep .puml and other files as-is
+
+    # Git repository integrations for claude-code
+    git_repo_mappings:
+      shared-prompts:
+        mappings:
+          - source: 'claude-commands/'
+            target: 'commands/shared/'
+            file_transforms:
+              - from_extension: '.prompt'
+                to_extension: ''
+              - preserve_others: true
+
+  copilot:
+    name: 'GitHub Copilot'
+    target_base: '.github'
+
+    # File mappings for Copilot
+    mappings:
+      - source: '.ai-ley/copilot/'
+        target: '' # Root of .github/
+
+      - source: '.ai-ley/common/instructions/'
+        target: 'instructions/'
+
+      - source: '.ai-ley/common/personas/'
+        target: 'personas/'
+
+      # Prompts handling - copy all files as-is
+      - source: '.ai-ley/common/prompts/'
+        target: 'prompts/'
+        file_transforms:
+          - preserve_all: true # Keep all files including .puml
+
+    # Git repository integrations for copilot
+    git_repo_mappings:
+      shared-prompts:
+        mappings:
+          - source: 'prompts/'
+            target: 'prompts/shared/'
+            file_transforms:
+              - preserve_all: true
+
+      common-workflows:
+        mappings:
+          - source: 'github-workflows/'
+            target: 'workflows/'
+            file_transforms:
+              - from_pattern: "workflow-(.+)\\.yml"
+                to_pattern: 'copilot-$1.yml'
+              - preserve_others: true
+
+# Git repositories to clone and integrate
+git_repos:
+  architecture-center:
+    url: 'https://github.com/MicrosoftDocs/architecture-center.git'
+    subfolder: 'external/microsoft'
+    branch: 'main'
+    cache_dir: '.git_repo_cache'
+    folders:
+      - 'docs'
+
+  agentic-chatmodes:
+    url: 'https://github.com/armoin2018/agentic-chatmodes.git'
+    subfolder: 'external/armoin'
+    branch: 'main'
+    cache_dir: '.git_repo_cache'
+    folders:
+      - 'chatmodes'
+
+  # Private Repo
+  _agentic-chatmodes:
+    url: 'https://github.com/armoin2018/_agentic-chatmodes.git'
+    subfolder: 'external/armoin'
+    branch: 'main'
+    cache_dir: '.git_repo_cache'
+    folders:
+      - 'chatmodes'
+
+  copilot-prompts:
+    url: 'https://github.com/pnp/copilot-prompts.git'
+    subfolder: 'external/pnp'
+    branch: 'main'
+    cache_dir: '.git_repo_cache'
+    folders:
+      - 'samples'
+
+  awesome-copilot:
+    url: 'https://github.com/github/awesome-copilot.git'
+    subfolder: 'external/github'
+    branch: 'main'
+    cache_dir: '.git_repo_cache'
+    folders:
+      - 'chatmodes'
+      - 'instructions'
+      - 'prompts'
+
+  awesome-copilot-instructions:
+    url: 'https://github.com/Code-and-Sorts/awesome-copilot-instructions.git'
+    subfolder: 'external/Code-and-Sorts'
+    branch: 'main'
+    cache_dir: '.git_repo_cache'
+    folders:
+      - 'chatmodes'
+      - 'instructions'
+      - 'prompts'
+
+  awesome-copilot-chatmodes:
+    url: 'https://github.com/dfinke/awesome-copilot-chatmodes.git'
+    subfolder: 'external/dfinke'
+    branch: 'main'
+    cache_dir: '.git_repo_cache'
+    folders:
+      - 'chatmodes'
+
+# Global settings
+settings:
+  # When true, removes target directories before copying
+  clean_target_dirs: false
+
+  # When true, creates backup of existing files
+  backup_existing: false
+
+  # When true, overwrites existing files during git repo integration (default: true)
+  overwrite_existing_files: true
+
+  # Priority order when multiple prompts sources exist
+  prompts_source_priority:
+    - '.ai-ley/common/prompts'
+
+  # File extensions to treat as text files for variable substitution
+  text_extensions:
+    - '.md'
+    - '.yml'
+    - '.yaml'
+    - '.json'
+    - '.js'
+    - '.ts'
+    - '.py'
+    - '.prompt'
+
+  # Binary extensions to copy as-is
+  binary_extensions:
+    - '.png'
+    - '.jpg'
+    - '.jpeg'
+    - '.gif'
+    - '.ico'
+    - '.pdf'
+
+# Concurrent provisioning support
+concurrent_support:
+  enabled: true
+
+  # Conflict resolution when multiple AI tools target the same file
+  conflict_resolution: 'error' # Options: "error", "overwrite", "skip", "backup"
+
+  # Files that can be shared between AI tools
+  shared_files:
+    - '.gitignore'
+    - 'README.md'

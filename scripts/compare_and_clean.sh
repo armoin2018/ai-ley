@@ -2,11 +2,11 @@
 
 # Array of directory pairs: "source_dir target_dir file_extension"
 DIR_PAIRS=(
-    "../.claude/agents/instructions ../common/instructions md"
-    "../.claude/agents/personas ../common/personas md"
-    "../.github/instructions ../common/instructions md"
-    "../.github/personas ../common/personas md"
-    "../.github/copilot/chatmodes ../templates/copilot/copilot/chatmodes md"
+    "../.claude/agents/instructions ../.ai-ley/common/instructions md"
+    "../.claude/agents/personas ../.ai-ley/common/personas md"
+    "../.github/instructions ../.ai-ley/common/instructions md"
+    "../.github/personas ../.ai-ley/common/personas md"
+    "../.github/copilot/chatmodes ../.ai-ley/copilot/copilot/chatmodes md"
 )
 
 for pair in "${DIR_PAIRS[@]}"; do

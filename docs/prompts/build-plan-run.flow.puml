@@ -10,9 +10,9 @@ note right: Primary source of goals and ideas
 partition "Phase 1: ASK to Requirements" {
   :Load existing files;
   note left
-    - project/REQUIREMENTS.md
-    - project/SUGGESTIONS.md  
-    - project/BUGS.md
+    - .project/REQUIREMENTS.md
+    - .project/SUGGESTIONS.md  
+    - .project/BUGS.md
   end note
   
   :Analyze complexity & scope;

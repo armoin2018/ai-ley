@@ -7,7 +7,7 @@
 
 ## Executive Summary
 
-This index provides systematic quality assessment and scoring for all instruction files in the agentic AI system, following the comprehensive review methodology specified in `update-instructions.prompt.md`. Each file is scored on four key criteria to ensure optimal AI agent performance.
+This index provides systematic quality assessment and scoring for all instruction files in the agentic AI system, following the comprehensive review methodology specified in `.ai-ley/shared/prompts/update-instructions.md`. Each file is scored on four key criteria to ensure optimal AI agent performance.
 
 **Scoring Framework**:
 

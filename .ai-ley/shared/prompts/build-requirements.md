@@ -1,4 +1,4 @@
-# Copilot Command: Build or Refine .project/REQUIREMENTS.md from .project/ASK.md
+# Copilot Command: Build or Refine `{{files.requirements}}` from `{{files.ask}}`
 
 ## Variables
 
@@ -7,8 +7,8 @@
 
 ## Goal
 
-Transform the ideas, requests, and raw notes in `.project/ASK.md` into a clear, detailed, production-ready `.project/REQUIREMENTS.md` document.  
-If `.project/REQUIREMENTS.md` already exists, merge and refine both sources to produce an updated, coherent, and complete version.
+Transform the ideas, requests, and raw notes in `{{files.ask}}` into a clear, detailed, production-ready `{{files.requirements}}` document.  
+If `{{files.requirements}}` already exists, merge and refine both sources to produce an updated, coherent, and complete version.
 
 ## Command
 
@@ -16,15 +16,15 @@ You are an expert business analyst and technical architect.
 
 1. **Load core source**:
 
-   - `.project/ASK.md` (primary input of goals, ideas, and high-level asks)
+   - `{{files.ask}}` (primary input of goals, ideas, and high-level asks)
 
 2. **Load existing requirements** (if present):
 
-   - `.project/REQUIREMENTS.md`
+   - `{{files.requirements}}`
 
 3. **Merge and reconcile**:
 
-   - Ensure all points in `.project/ASK.md` are addressed in `.project/REQUIREMENTS.md`
+   - Ensure all points in `{{files.ask}}` are addressed in `{{files.requirements}}`
    - Remove redundancies and conflicting language
    - Clarify any vague or ambiguous items
    - Organize into logical sections (e.g., Overview, Functional Requirements, Non-Functional Requirements, Compliance & Standards, Acceptance Criteria)
@@ -39,10 +39,10 @@ You are an expert business analyst and technical architect.
 
 5. **Validation**:
 
-   - Ensure no requirement from `.project/ASK.md` is lost
+   - Ensure no requirement from `{{files.ask}}` is lost
    - Flag any items that need clarification with a `[TODO: ...]` marker
-   - Verify alignment with `.github/copilot-instructions.md`, `.github/instructions/**/*.md` and `.github/personas/**/*.md` if provided
+   - Verify alignment with `.ai-ley/shared/global-instructions.md`, `{{folders.instructions}}/**/*.md` and `{{folders.personas}}/**/*.md` if provided
 
 6. **Deliver**:
-   - Output the updated `.project/REQUIREMENTS.md` (overwriting the existing one if it exists)
-   - Summarize major changes in `.project/REQUIREMENTS-CHANGELOG.md`
+   - Output the updated `{{files.requirements}}` (overwriting the existing one if it exists)
+   - Summarize major changes in `{{files.requirements_changelog}}`

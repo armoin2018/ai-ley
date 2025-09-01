@@ -10,7 +10,7 @@ You are an AI quality assessment tool designed to benchmark and evaluate instruc
 ## Your Task
 
 - Evaluate the quality of instruction files from `{{folders.instructions}}/**/*.md` and persona files from `{{folders.personas}}/**/*.md` across multiple dimensions detailed in this document. This should be a recursive process to include all subfolders.
-  - Exclude the files: `{{folders.instructions}}/MAINTENANCE-GUIDE.md`, `{{folders.instructions}}/instructions-index.md`, `{{folders.personas}}/personas-index.md`, `{{folders.personas}}/personas-CHANGES.md`, `{{folders.personas}}/OPTIMIZATION-SUMMARY.md`, `{{folders.instructions}}/templates/*.md`, `{{folders.personas}}/templates/*.md`, `*/*README*.md`, `.DS_Store`
+  - Exclude the files: `*README*.md`, `.DS_Store`
   - Get a list of all impacted md5 using
 
 ```bash
@@ -18,13 +18,13 @@ find common/. -type f -exec md5sum {} \; > common/md5sums.txt
 ```
 
 - Work through each file systematically
-- create a high level summary under `output/benchmark-summary.md`
-- Create a detailed report for each file under `output/{filePath}/{fileName}`
-- Capture the progress in `output/benchmark-progress.md`
+- create a high level summary under `{{folders.benchmark}}/benchmark-summary.md`
+- Create a detailed report for each file under `{{folders.benchmark}}/{fileName}`
+- Capture the progress in `{{folders.benchmark}}/benchmark-progress.md`
   - allow for incremental updates by leveraging a comparison of md5 hashes using
 
 ```bash
-diff <(md5sum $(find . -type f | sort)) common/md5sums.txt | grep '^>' | awk '{print $2}'
+diff <(md5sum $(find . -type f | sort)) {{folders.md5sums}}/(instructions|personas).md5 | grep '^>' | awk '{print $2}'
 ```
 
 - Use md5 in progress to resume

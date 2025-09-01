@@ -22,9 +22,9 @@ Transform raw ideas from ASK through requirements, planning, and execution with 
 ## Project Structure
 
 ```
-project/plan/
-├── README.md                           # Project overview and navigation
-├── business/                           # Business case and financial documents
+.project/
+├── PLAN.md                            # Project overview and navigation
+├── business/                          # Business case and financial documents
 │   ├── business-case.md               # Detailed business case
 │   ├── financial-estimates.md         # Cost estimates and projections
 │   ├── revenue-projections.md         # Revenue and ROI analysis
@@ -76,9 +76,9 @@ You are a senior AI architect, product manager, and implementation specialist wi
 
 **Actions**:
 
-- Load `project/ASK.md` (primary source of goals and ideas)
-- Load existing `project/REQUIREMENTS.md` (if present)
-- Load `project/SUGGESTIONS.md` and `project/BUGS.md` for context
+- Load `{{files.ask}}` (primary source of goals and ideas)
+- Load existing `{{files.requirements}}` (if present)
+- Load `{{files.suggestions}}` and `{{files.bugs}}` for context
 - Analyze complexity and scope of the request
 ```
 
@@ -122,9 +122,9 @@ You are a senior AI architect, product manager, and implementation specialist wi
 ```markdown
 **Model Selection**: Analytical/Expert - Use Claude-3-Opus for comprehensive business analysis
 
-**Create project/plan/business/ structure and documents**:
+**Create `{{folders.plan}}/business/` structure and documents**:
 
-**Business Case (project/plan/business/business-case.md)**:
+**Business Case (`{{folders.plan}}/business/business-case.md`)**:
 
 - Executive Summary
 - Problem Statement and Market Opportunity
@@ -135,7 +135,7 @@ You are a senior AI architect, product manager, and implementation specialist wi
 - Success Metrics and KPIs
 - Recommendations and Next Steps
 
-**Financial Estimates (project/plan/business/financial-estimates.md)**:
+**Financial Estimates (`{{folders.plan}}/business/financial-estimates.md`)**:
 
 - Development Cost Breakdown
   - Personnel costs (by role and duration)
@@ -147,7 +147,7 @@ You are a senior AI architect, product manager, and implementation specialist wi
 - Break-even analysis
 - Sensitivity analysis for key variables
 
-**Revenue Projections (project/plan/business/revenue-projections.md)**:
+**Revenue Projections (`{{folders.plan}}/business/revenue-projections.md`)**:
 
 - Revenue Model Definition
 - Market Size and Penetration Assumptions
@@ -157,7 +157,7 @@ You are a senior AI architect, product manager, and implementation specialist wi
 - ROI Analysis and Payback Period
 - Scenario Analysis (Conservative, Expected, Optimistic)
 
-**Pitch Document (project/plan/business/pitch-deck.md)**:
+**Pitch Document (`{{folders.plan}}/business/pitch-deck.md`)**:
 
 - Problem and Market Opportunity (slides 1-3)
 - Solution and Product Demo (slides 4-6)
@@ -172,8 +172,8 @@ You are a senior AI architect, product manager, and implementation specialist wi
 ```markdown
 **Actions**:
 
-- Save requirements to `project/REQUIREMENTS.md`
-- Create `project/REQUIREMENTS-CHANGELOG.md` with changes
+- Save requirements to `{{files.requirements}}`
+- Create `{{files.requirements_changelog}}` with changes
 - Clear temporary analysis data to optimize memory
 ```
 
@@ -196,9 +196,9 @@ You are a senior AI architect, product manager, and implementation specialist wi
 
 **Outputs**:
 
-- Add suggestions to `project/SUGGESTIONS.md`
-- Flag potential risks to `project/BUGS.md` (preventive)
-- Update `project/REQUIREMENTS.md` with approved enhancements
+- Add suggestions to `{{files.suggestions}}`
+- Flag potential risks to `{{files.bugs}}` (preventive)
+- Update `{{files.requirements}}` with approved enhancements
 ```
 
 ### Step 2.2: Stakeholder Value Analysis
@@ -231,11 +231,11 @@ You are a senior AI architect, product manager, and implementation specialist wi
 
 **Actions**:
 
-- CREATE or UPDATE `.github/instructions/instructions-index.md`
-  - Summarize all `.md` files under `.github/instructions/**/*.md`
+- CREATE or UPDATE `{{files.indexes.instructions}}`
+  - Summarize all `.md` files under `{{folders.instructions}}/**/*.md`
   - Create searchable index with capabilities and use cases
-- CREATE or UPDATE `.github/personas/personas-index.md`
-  - Summarize all `.md` files under `.github/personas/**/*.md`
+- CREATE or UPDATE `{{files.indexes.personas}}`
+  - Summarize all `.md` files under `{{folders.personas}}/**/*.md`
   - Create mapping of personas to skills and domains
 ```
 
@@ -268,21 +268,21 @@ You are a senior AI architect, product manager, and implementation specialist wi
 
 **Persona Creation**:
 
-- Use template `.github/personas/templates/personas-template.md`
-- Create comprehensive personas under `.github/personas/**/*.md`
+- Use template `{{folders.templates.personas}}/common.md`
+- Create comprehensive personas under `{{folders.personas}}/**/*.md`
 - Include skills, responsibilities, quality standards, and decision criteria
 
 **Instruction Creation**:
 
-- Use related template under `.github/instructions/templates/*.md`
-- Create detailed instructions under `.github/instructions/**/*.md`
+- Use related template under `{{folders.templates.instructions}}/*.md`
+- Create detailed instructions under `{{folders.instructions}}/**/*.md`
 - Include best practices, examples, and quality gates
 
 **Validation**:
 
 - Test generated resources against requirements
 - Update indexes with new resources
-- Log creation activity to `project/HISTORY.md`
+- Log creation activity to `{{files.history}}`
 ```
 
 ### Step 3.4: Resource Optimization
@@ -332,12 +332,12 @@ You are a senior AI architect, product manager, and implementation specialist wi
 - Define technology stack and platform decisions
 - Create high-level system architecture overview
 
-**Create project/plan/architecture/ structure**:
+**Create `{{folders.architecture}}/` structure**:
 
-- `project/plan/architecture/README.md` - Architecture overview and navigation
-- `project/plan/architecture/technology-stack.md` - Technology decisions and rationale
-- `project/plan/architecture/design-patterns.md` - Architectural patterns and principles
-- `project/plan/architecture/api-specifications.md` - API design and contracts
+- `{{folders.architecture}}/README.md` - Architecture overview and navigation
+- `{{folders.architecture}}/technology-stack.md` - Technology decisions and rationale
+- `{{folders.architecture}}/design-patterns.md` - Architectural patterns and principles
+- `{{folders.architecture}}/api-specifications.md` - API design and contracts
 ```
 
 ### Step 4.2: PlantUML Diagram Generation
@@ -345,7 +345,7 @@ You are a senior AI architect, product manager, and implementation specialist wi
 ````markdown
 **Model Selection**: Technical/High - Use GPT-4 for technical diagram creation
 
-**Create project/plan/architecture/diagrams/ with PlantUML files**:
+**Create `{{folders.architecture}}/diagrams/` with PlantUML files**:
 
 **Data Flow Diagram (data-flow.puml)**:
 
@@ -507,7 +507,7 @@ BS -> CC : Cache Operations
 ```markdown
 **Model Selection**: Technical/High - Use GPT-4 for comprehensive documentation
 
-**Architecture README (project/plan/architecture/README.md)**:
+**Architecture README (`{{folders.architecture}}//README.md`)**:
 - System Overview and Context
 - Architecture Principles and Decisions
 - Component Interaction Patterns
@@ -517,7 +517,7 @@ BS -> CC : Cache Operations
 - Monitoring and Observability
 - Future Architecture Evolution
 
-**Technology Stack (project/plan/architecture/technology-stack.md)**:
+**Technology Stack (`{{folders.architecture}}/technology-stack.md`)**:
 - Frontend Technologies and Rationale
 - Backend Technologies and Frameworks
 - Database and Storage Solutions
@@ -526,7 +526,7 @@ BS -> CC : Cache Operations
 - Development and Testing Tools
 - Security and Monitoring Stack
 
-**Design Patterns (project/plan/architecture/design-patterns.md)**:
+**Design Patterns (`{{folders.architecture}}/design-patterns.md`)**:
 - Architectural Patterns Applied
 - Design Principles and Guidelines
 - Code Organization Patterns
@@ -535,7 +535,7 @@ BS -> CC : Cache Operations
 - Performance Optimization Patterns
 - Security Implementation Patterns
 
-**API Specifications (project/plan/architecture/api-specifications.md)**:
+**API Specifications (`{{folders.architecture}}/api-specifications.md`)**:
 - REST API Design Guidelines
 - GraphQL Schema (if applicable)
 - Authentication and Authorization
@@ -589,10 +589,10 @@ BS -> CC : Cache Operations
 
 **Actions**:
 
-- Integrate suggestions from `project/SUGGESTIONS.md` into requirements
-- Address bugs/issues from `project/BUGS.md` in planning
+- Integrate suggestions from `{{files.suggestions}}` into requirements
+- Address bugs/issues from `{{files.bugs}}` in planning
 - Clear integrated items from suggestion and bug files
-- Log integration activity to `project/HISTORY.md` for traceability
+- Log integration activity to `{{files.history}}` for traceability
 ```
 
 ### Step 5.2: Epic-Story-Task Structure Generation
@@ -600,9 +600,9 @@ BS -> CC : Cache Operations
 ````markdown
 **Model Selection**: Technical/Expert - Use GPT-4 for detailed planning
 
-**Create project/plan/epics/ structure with proper hierarchy**:
+**Create `{{folders.plan}}/epics/` structure with proper hierarchy**:
 
-**Epic Structure (project/plan/epics/epic-XXX-[name]/README.md)**:
+**Epic Structure (`({{folders.plan}}/epics/epic-XXX-[name]/README.md`)**:
 
 ```markdown
 # Epic XXX: [EPIC NAME]
@@ -646,14 +646,14 @@ BS -> CC : Cache Operations
 
 **Recommended Models by Task Type**:
 
-- Planning/Analysis: Claude-3-Opus (Expert/Analytical)
-- Implementation: GPT-4 (High/Technical)
-- Testing: GPT-3.5-Turbo (Moderate/Technical)
-- Documentation: Claude-3-Sonnet (Moderate/Creative)
+- Planning/Analysis: Claude-4-Sonnet (Expert/Analytical)
+- Implementation: Claude-4-Sonnet (High/Technical)
+- Testing: Claude-4-Sonnet (Moderate/Technical)
+- Documentation: Claude-4-Sonnet (Moderate/Creative)
 ```
 ````
 
-**Story Structure (project/plan/epics/epic-XXX/story-XXX-[name]/README.md)**:
+**Story Structure (`{{folders.plan}}/epics/epic-XXX/story-XXX-[name]/README.md`)**:
 
 ```markdown
 # Story XXX: [STORY NAME]
@@ -711,7 +711,7 @@ BS -> CC : Cache Operations
 - [ ] Security review completed
 ```
 
-**Task Structure (project/plan/epics/epic-XXX/story-XXX/task-XXX-[name].md)**:
+**Task Structure (`{{folders.plan}}/epics/epic-XXX/story-XXX/task-XXX-[name].md`)**:
 
 ```markdown
 # Task XXX: [TASK NAME]
@@ -747,7 +747,7 @@ BS -> CC : Cache Operations
 
 **Complexity**: [Simple/Moderate/High/Expert]
 **Style**: [Analytical/Creative/Technical/Default]
-**Recommended Model**: [GPT-4/Claude-3-Sonnet/etc.]
+**Recommended Model**: [GPT-5/GPT-4/Claude-4-Sonnet/etc.]
 **Reasoning**: [Why this model is optimal]
 
 ## Implementation Steps
@@ -777,7 +777,7 @@ BS -> CC : Cache Operations
 ```markdown
 **Model Selection**: Technical/Moderate - Use GPT-3.5-Turbo for data formatting
 
-**Create project/plan/planning/jira-import.csv**:
+**Create (`{{folders.plan}}/planning/jira-import.csv`)**:
 ```csv
 Summary,Issue Type,Priority,Description,Epic Link,Story Points,Assignee,Labels,Components,Fix Version,Sprint,Acceptance Criteria,Dependencies
 "EPIC: Foundation Infrastructure",Epic,High,"Establish core project infrastructure and development environment",,"16",,"infrastructure,foundation",,"1.0.0",,"Epic-level infrastructure in place","None"
@@ -812,7 +812,7 @@ Summary,Issue Type,Priority,Description,Epic Link,Story Points,Assignee,Labels,C
 ```markdown
 **Model Selection**: Technical/High - Use GPT-4 for project scheduling
 
-**Create project/plan/planning/gantt-chart.puml**:
+**Create (`{{folders.plan}}/planning/gantt-chart.puml`)**:
 ```plantuml
 @startgantt
 !theme plain
@@ -887,7 +887,7 @@ milestone happens at [Deployment Phase]'s end
 ```markdown
 **Model Selection**: Analytical/Moderate - Use Claude-3-Sonnet for resource planning
 
-**Create project/plan/planning/resource-allocation.md**:
+**Create (`{{folders.plan}}/planning/resource-allocation.md`)**:
 
 **Team Structure and Assignments**:
 - **Technical Lead**: Architecture design, complex implementation tasks
@@ -928,9 +928,9 @@ milestone happens at [Deployment Phase]'s end
 
 - Verify all referenced personas exist
 - Verify all referenced instructions exist
-- Check dependencies against `project/WHITELIST.md`
-- Avoid blacklisted items from `project/BLACKLIST.md`
-- Log new dependencies to `project/REVIEW.md`
+- Check dependencies against `{{files.whitelist}}`
+- Avoid blacklisted items from `{{files.blacklist}}`
+- Log new dependencies to `{{files.review}}`
 
 **Quality Checks**:
 
@@ -955,8 +955,8 @@ milestone happens at [Deployment Phase]'s end
 
 **Outputs**:
 
-- Optimized `project/PLAN.md`
-- Updated `project/CHANGELOG.md` for major updates
+- Optimized `{{files.plan}}`
+- Updated `{{files.changelog}}` for major updates
 - Risk assessment and mitigation plans
 ```
 
@@ -982,7 +982,7 @@ milestone happens at [Deployment Phase]'s end
 
 1. **Task Selection and Model Routing**
 
-   - Navigate to `project/plan/epics/epic-XXX/story-XXX/`
+   - Navigate to `{{folders.plan}}/epics/epic-XXX/story-XXX/`
    - Select next available task (check dependencies)
    - Analyze task complexity, style, and requirements using TaskAnalyzer
    - Route to optimal model using ModelRouter
@@ -1016,7 +1016,7 @@ milestone happens at [Deployment Phase]'s end
 
 4. **Task Execution Steps**
 
-   - Read task file: `project/plan/epics/epic-XXX/story-XXX/task-XXX-[name].md`
+   - Read task file: `{{folders.plan}}/epics/epic-XXX/story-XXX/task-XXX-[name].md`
    - Verify prerequisites and dependencies
    - Plan implementation approach based on task acceptance criteria
    - Apply relevant persona and instruction files
@@ -1028,14 +1028,14 @@ milestone happens at [Deployment Phase]'s end
 5. **Story Completion Protocol**
 
    - When all tasks under story are `[x]`
-   - Update story `README.md` status to "Completed"
+   - Update story `{{files.plan}}` status to "Completed"
    - Run story-level tests and validation
    - Review against story acceptance criteria
    - If all criteria met, proceed to commit
 
 6. **Epic Completion Protocol**
    - When all stories under epic are `[x]`
-   - Update epic `README.md` status to "Completed"
+   - Update epic `{{files.plan}}` status to "Completed"
    - Run epic-level integration tests
    - Validate against epic business value and success metrics
    - Generate epic completion report
@@ -1047,7 +1047,7 @@ git commit -m "feat: implement user authentication system" \
            -m "- Completes TASK-012: password hashing" \
            -m "- Adds bcrypt with salt rounds" \
            -m "- Includes unit tests for edge cases" \
-           -m "Related to STORY-003 in project/plan/epics/epic-001/"
+           -m "Related to STORY-003 in {{folders.plan}}/epics/epic-001/"
 ```
 
 **Quality Gates by Level**:
@@ -1182,7 +1182,7 @@ git commit -m "feat: implement user authentication system" \
 **Step 5.2.4: Issue Detection and Resolution**
 - Monitor for bugs, performance issues, or integration problems
 - Attempt automatic resolution using appropriate model selection
-- Log unresolved issues to `project/BUGS.md`
+- Log unresolved issues to `{{files.bugs}}`
 - Escalate critical issues to user
 
 **Step 5.2.5: Progress Tracking**
@@ -1267,7 +1267,7 @@ git commit -m "feat: implement user authentication system" \
 - Identify opportunities for enhancement
 - Generate optimization suggestions
 - Document lessons learned
-- Update `project/SUGGESTIONS.md` with improvements
+- Update `{{files.suggestions}}` with improvements
 
 **Issue Management**:
 **Model Selection**: Analytical/High - Use GPT-4 for problem resolution
@@ -1276,7 +1276,7 @@ git commit -m "feat: implement user authentication system" \
 
 - Detect bugs, performance issues, integration problems
 - Attempt intelligent resolution using appropriate models
-- Document issues in `project/BUGS.md`
+- Document issues in `{{files.bugs}}`
 - Track resolution progress and outcomes
 ```
 
@@ -1338,8 +1338,8 @@ git commit -m "feat: implement user authentication system" \
 
 **Knowledge Artifacts**:
 
-- Updated `.github/instructions/instructions-index.md`
-- Updated `.github/personas/personas-index.md`
+- Updated `{{files.indexes.instructions}}`
+- Updated `{{files.indexes.personas}}`
 - Enhanced templates and examples
 - Documented patterns and anti-patterns
 ```
@@ -1380,8 +1380,8 @@ git commit -m "feat: implement user authentication system" \
 
 **Final Deliverables**:
 
-- Updated `project/HISTORY.md` with complete timeline
-- Final `project/CHANGELOG.md` with all changes
+- Updated `{{files.history}}` with complete timeline
+- Final `{{files.changelog}}` with all changes
 - Project completion summary and metrics
 - Recommendations for future enhancements
 ```
@@ -1501,12 +1501,12 @@ git commit -m "feat: implement user authentication system" \
 ```markdown
 **Core Artifacts**:
 
-- `project/REQUIREMENTS.md` - Complete, tested requirements
-- `project/PLAN.md` - Executed development plan
-- `project/HISTORY.md` - Complete execution timeline
-- `project/CHANGELOG.md` - User-facing change summary
-- Updated `.github/personas/**/*.md` - Enhanced personas
-- Updated `.github/instructions/**/*.md` - Enhanced instructions
+- `{{files.requirements}}` - Complete, tested requirements
+- `{{files.plan}}` - Executed development plan
+- `{{files.history}}` - Complete execution timeline
+- `{{files.changelog}}` - User-facing change summary
+- Updated `{{folders.personas}}/**/*.md` - Enhanced personas
+- Updated `{{folders.instructions}}/**/*.md` - Enhanced instructions
 
 **Quality Artifacts**:
 

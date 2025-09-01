@@ -9,14 +9,14 @@
 
 Given:
 
-- A requirements specification (`.project/REQUIREMENTS.md`)
-- Project Standards reference file (`.github/copilot-instructions.md`)
-- Reference Personas (`.github/personas/index-personas.md`)
-- Reference Instructions (`.github/instructions/index-instructions.md`)
+- A requirements specification (`{{files.requirements}}`)
+- Project Standards reference file (`.ai-ley/shared/global-instructions.md`)
+- Reference Personas (`{{files.indexes.personas}}`)
+- Reference Instructions (`{{files.indexes.instructions}}`)
 
 Produce:
 
-- A detailed step-by-step, actionable (`.project/PLAN.md`)
+- A detailed step-by-step, actionable (`{{files.plan}}`)
 - Organized into **phases, milestones, and tasks**
 - Utilize Agile methodology with Epics, Stories and Sprints
 - Each Step should reference the necessary Personas and Instruction files needed to complete the tasks.
@@ -26,38 +26,38 @@ Produce:
 
 You are a senior solutions architect and project planner.
 
-1. \**Refine `.project/REQUIREMENTS.md` to include `.project/*SUGGESTIONS.md`and`.project/BUGS.md`
+1. \*\*Refine `{{files.requirements}}` to include `{{files.suggestions}}`and`{{files.bugs}}`
 
-   - If any `.project/*SUGGESTIONS.md` file exists, integrate it into the `.project/REQUIREMENTS.md`
-   - If any `.project/BUGS.md` file exists, refine the details in the `.project/REQUIREMENTS.md` to account for the BUG
-   - Once items are integrated into the `.project/REQUIREMENTS.md` remove them from the `.project/BUGS.md` or `.project/*SUGGESTIONS.md`
-   - Ensure Traceability of the bugs and suggestions using references and logging them to the `.project/HISTORY.md`
+   - If any `{{files.suggestions}}` file exists, integrate it into the `{{files.requirements}}`
+   - If any `{{files.bugs}}` file exists, refine the details in the `{{files.requirements}}` to account for the BUG
+   - Once items are integrated into the `{{files.requirements}}` remove them from the `{{files.bugs}}` or `{{files.suggestions}}`
+   - Ensure Traceability of the bugs and suggestions using references and logging them to the `{{files.history}}`
 
 2. **Load core requirements** from:
 
-   - `.project/REQUIREMENTS.md`
+   - `{{files.requirements}}`
 
 3. **Summarize Reference materials**
 
-   - CREATE or UPDATE a `.github/instructions/instructions-index.md` that will be used ot summarize all `.md` files under `.github/instructions/**/*.md`
-   - CREATE or UPDATE a `.github/personas/personas-index.md` that will be used ot summarize all `.md` files under `.github/personas/**/*.md`
+   - CREATE or UPDATE a `{{files.indexes.instructions}}` that will be used ot summarize all `.md` files under `{{folders.instructions}}/**/*.md`
+   - CREATE or UPDATE a `{{files.indexes.personas}}` that will be used ot summarize all `.md` files under `{{folders.personas}}/**/*.md`
 
 4. **Load supplemental reference materials**:
 
-   - If any `.github/copilot-instructions.md` exists, treat it as a mandatory compliance guide
-   - If any `.github/instructions/instructions-index.md` exits, use it as a memory efficient way to map the instructions to the task
-   - If any `.github/personas/personas-index.md` exits, use it as a memory efficient way to map the personas to the task
+   - If any `.ai-ley/shared/global-instructions.md` exists, treat it as a mandatory compliance guide
+   - If any `{{files.indexes.instructions}}` exits, use it as a memory efficient way to map the instructions to the task
+   - If any `{{files.indexes.personas}}` exits, use it as a memory efficient way to map the personas to the task
 
 5. **Parse and map**:
    - Identify functional, non-functional, and compliance requirements
    - Match them with relevant instruction and persona guidance
-   - If any required personas are missing use the template `.github/personas/templates/personas-template.md` to create a new persona under `.github/personas/**/*.md`
-   - If any required instructions are missing use the related template under `.github/instructions/templates/*.md` to create a new instruction under `.github/instructions/**/*.md`
-   - If any recommendations for enhancements please add them to `.project/SUGGESTIONS.md`
-   - If any bugs are found for remediation please update `.project/BUGS.md`
-   - Utilize the `.project/WHITELIST.md` for trusted dependencies
-   - Avoid use of `.project/BLACKLIST.md` items for untrusted dependencies
-   - Log new dependencies to `.project/REVIEW.md` for requested items
+   - If any required personas are missing use the template `{{folders.templates.personas}}/common.md` to create a new persona under `{{folders.personas}}/**/*.md`
+   - If any required instructions are missing use the related template under `{{folders.templates.instructions}}/*.md` to create a new instruction under `{{folders.instructions}}/**/*.md`
+   - If any recommendations for enhancements please add them to `{{files.suggestions}}`
+   - If any bugs are found for remediation please update `{{files.bugs}}`
+   - Utilize the `{{files.whitelist}}` for trusted dependencies
+   - Avoid use of `{{files.blacklist}}` items for untrusted dependencies
+   - Log new dependencies to `{{files.review}}` for requested items
 6. **Plan output format example**:
    - Create Epics, Stories and Tasks in the following format
 
@@ -83,17 +83,17 @@ You are a senior solutions architect and project planner.
 
 **Tasks**:
 
-- [ ] Create `.project/HISTORY.md` with version tracking format (YYYY.MM.DD-#####)
-- [ ] Create `.project/SUGGESTIONS.md` for code review enhancement logging
-- [ ] Set up `diff/` directory structure for patch/rollback management
+- [ ] Create `{{files.history}}` with version tracking format (YYYY.MM.DD-#####)
+- [ ] Create `{{files.suggestions}}` for code review enhancement logging
+- [ ] Set up `{{folders.diff}}` directory structure for patch/rollback management
 - [ ] Initialize version tracking system with current state (2025.08.10-00001)
 
 **Acceptance Criteria**:
 
-- .project/HISTORY.md follows YYYY.MM.DD-##### format with build references
-- .project/SUGGESTIONS.md has structured template for enhancement tracking
-- diff/ directory contains versioning infrastructure
-- All files referenced in .github/copilot-instructions.md exist
+- `{{files.history}}` follows YYYY.MM.DD-##### format with build references
+- `{{files.suggestions}}` has structured template for enhancement tracking
+- `{{folders.diff}}` directory contains versioning infrastructure
+- All files referenced in `.ai-ley/shared/global-instructions.md` exist
 ```
 
 7. **Validation**:
@@ -102,10 +102,10 @@ You are a senior solutions architect and project planner.
    - Flag any requirement with unclear implementation path
 
 8. **Deliver**:
-   - One detailed and actionable step-by-step plan in `.project/PLAN.md`
+   - One detailed and actionable step-by-step plan in `{{files.plan}}`
    - Keep each task small enough to be deliverable in 1–3 days
-   - Additional suggestions captured in `.project/SUGGESTIONS.md`
-   - Additional bugs capture in `.project/BUGS.md`
-   - Updates to `.github/copilot-instructions.md`, `.github/personas/**/*.md`, or `.github/instructions/**/*.md` when needed
-   - Updated `.project/CHANGELOG.md` for tracking progress for major updates for users
-   - Updated `.project/HISTORY.md` for tracking the progress through the project to allow for continue and resume of `.project/PLAN.md`
+   - Additional suggestions captured in `{{files.suggestions}}`
+   - Additional bugs capture in `{{files.bugs}}`
+   - Updates to `.ai-ley/shared/global-instructions.md`, `{{folders.personas}}/**/*.md`, or `{{folders.instructions}}/**/*.md` when needed
+   - Updated `{{files.changelog}}` for tracking progress for major updates for users
+   - Updated `{{files.history}}` for tracking the progress through the project to allow for continue and resume of `{{files.plan}}`

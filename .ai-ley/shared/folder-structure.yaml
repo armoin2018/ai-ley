@@ -6,11 +6,12 @@ folders:
   tests: .project/tests
   performance: .project/tests/performance
   plan: .project/plan
-  docs: docs
-  wiki: wiki
-  architecture: wiki/architecture
-  api: wiki/api
+  docs: src/docs
+  wiki: src/wiki
+  architecture: .project/plan/architecture
+  api: src/wiki/api
   diff: .project/diff
+  md5sums: .ai-ley/shared/md5sums
   assets:
     base: src/assets
     js: src/assets/js
@@ -30,13 +31,17 @@ files:
   license: LICENSE
   contributing: CONTRIBUTING.md
   code_of_conduct: CODE_OF_CONDUCT.md
-  changelog: CHANGELOG.md
+  changelog: .project/CHANGELOG.md
+  whitelist: .project/WHITELIST.md
+  blacklist: .project/BLACKLIST.md
+  review: .project/REVIEW.md
   history: HISTORY.md
   requirements: .project/REQUIREMENTS.md
   requirements_changelog: .project/REQUIREMENTS-CHANGELOG.md
   ask: .project/ASK.md
   suggestions: .project/SUGGESTIONS.md
   bugs: .project/BUGS.md
+  errors: .project/ERRORS.md
   plan: .project/PLAN.md
   instructions: .ai-ley/shared/global-instructions.md
   tests: .project/tests/README.md

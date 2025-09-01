@@ -16,15 +16,15 @@ You are a senior implementation engineer and quality gatekeeper.
 
 1. **Load core execution plan**:
 
-   - `project/PLAN.md`
+   - `{{files.plan}}`
 
 2. **Load supplemental standards**:
 
-   - `.github/copilot-instructions.md` (mandatory standards)
-   - `.github/instructions/**/*.md` (project-specific instructions)
-   - `.github/personas/**/*.md` (role-specific behaviors and review styles)
+   - `.ai-ley/shared/global-instructions.md` (mandatory standards)
+   - `{{folders.instructions}}/**/*.md` (project-specific instructions)
+   - `{{folders.personas}}/**/*.md` (role-specific behaviors and review styles)
 
-3. **For each step in PLAN.md**:
+3. **For each step in (`{{files.plan}}`)**:
 
    - Follow the step’s defined **instructions**
    - Apply the relevant **personas** for decision-making, coding, and reviews
@@ -32,18 +32,18 @@ You are a senior implementation engineer and quality gatekeeper.
 
 4. **During execution**:
 
-   - If you have **suggestions or recommendations** → append them to `project/SUGGESTIONS.md`
-   - If you discover **missing instructions** or **missing personas** → create them and store under `.github/instructions/**/*.md` or `.github/personas/**/*.md`
-   - If you find any **bugs or defects** → log them in `project/BUGS.md`
+   - If you have **suggestions or recommendations** → append them to `{{files.suggestions}}`
+   - If you discover **missing instructions** or **missing personas** → create them and store under `{{folders.instructions}}/**/*.md` or `{{folders.personas}}/**/*.md`
+   - If you find any **bugs or defects** → log them in `{{files.bugs}}`
 
 5. **Post-execution check**:
 
-   - If `project/SUGGESTIONS.md` or `project/BUGS.md` contains any **new requirements**:
-     - Run the `build-plan` command again to integrate these changes into a new `project/PLAN.md`
+   - If `{{files.suggestions}}` or `{{files.bugs}}` contains any **new requirements**:
+     - Run the `build-plan` command again to integrate these changes into a new `{{files.plan}}`
 
 6. **Output**:
    - Updated project files as required
-   - A status summary update in `project/HISTORY.md` listing:
+   - A status summary update in `{{files.history}}` listing:
      - Version
      - Start Time
      - Steps completed

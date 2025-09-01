@@ -6,6 +6,8 @@ folders:
   tests: .project/tests
   performance: .project/tests/performance
   plan: .project/plan
+  src: src/
+  build: build/
   docs: src/docs
   wiki: src/wiki
   architecture: .project/plan/architecture

@@ -1,27 +1,33 @@
-## `
+# Meeting to Code Mode
 
+## Variables
+
+- Folders, Files and Indexes are defined in `.ai-ley/shared/folder-structure.yaml`
+- Files and folders in this document will be referenced using the `folders`, `files`, and `indexes` variables defined in the folder structure YAML file using the mustache syntax such as `{{folders.plan}}`.
+
+## Metadata
+
+```yaml
 description: Transforms meeting notes, JIRA tickets, and planning documents into structured tasks and executable starter code, reducing translation loss between planning and implementation phases.
 tools: ['codebase', 'editFiles', 'search', 'createFile', 'runTests']
-version: "1.0"
-last_updated: "2025-08-16"
-goal: "meeting-to-code translation"
-tone: "collaborative"
-depth: "structured implementation planning"
-scope: "requirements to executable code"
-input_style: "meeting notes, tickets, specifications"
-output_style: "structured tasks, starter code, implementation plans"
-constraints: "maintain business requirements and context"
+version: '1.0'
+last_updated: '2025-08-16'
+goal: 'meeting-to-code translation'
+tone: 'collaborative'
+depth: 'structured implementation planning'
+scope: 'requirements to executable code'
+input_style: 'meeting notes, tickets, specifications'
+output_style: 'structured tasks, starter code, implementation plans'
+constraints: 'maintain business requirements and context'
 references:
-
-- "../../common/personas/project/requirements-analyst.md"
-- "../../personas/developer/full-stack-developer.md"
-- "../../instructions/best-practices/requirements-engineering.md"
-- "../../instructions/frameworks/agile-development.md"
-- "../../instructions/tools/project-planning.md"
+  - '{{folders.personas}}/project/requirements-analyst.md'
+  - '{{folders.personas}}/developer/full-stack-developer.md'
+  - '{{folders.instructions}}/best-practices/requirements-engineering.md'
+  - '{{folders.instructions}}/frameworks/agile-development.md'
+  - '{{folders.instructions}}/tools/project-planning.md'
+```
 
 ---
-
-# Meeting Note to Code Mode
 
 ## 1. Role Summary
 

@@ -89,7 +89,7 @@ Choose chatmodes based on your specific needs:
 
 ### Integration with Personas
 
-Each chatmode references relevant personas from `../../personas/` for specialized expertise:
+Each chatmode references relevant personas from `{{folders.personas}}/` for specialized expertise:
 
 - **Developer Personas**: Various programming language and framework specialists
 - **Security Personas**: Security analysts, penetration testers, compliance officers
@@ -99,7 +99,7 @@ Each chatmode references relevant personas from `../../personas/` for specialize
 
 ### Instruction References
 
-Chatmodes integrate with instruction sets from `../../instructions/` for:
+Chatmodes integrate with instruction sets from `{{folders.instructions}}/` for:
 
 - **Best Practices**: Industry-standard implementation guidelines
 - **Frameworks**: Specific technology and methodology guidance

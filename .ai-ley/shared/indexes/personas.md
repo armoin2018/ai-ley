@@ -15,7 +15,7 @@ This comprehensive index catalogs all available AI personas organized by domain 
 |---------|-------------|
 | [Confluent Administrator](administrator/confluent-administrator.md) | Apache Kafka and Confluent platform administration |
 | [Database Administrator](administrator/database-administrator.md) | Enterprise database systems and performance optimization |
-| [Databricks Administrator](administrator/databricks-adminsitrator.md) | Databricks platform and Apache Spark administration |
+| [Databricks Administrator](administrator/databricks-administrator.md) | Databricks platform and Apache Spark administration |
 | [Linux Administrator](administrator/linux-administrator.md) | Linux system administration and DevOps |
 | [SharePoint Administrator](administrator/sharepoint-administrator.md) | Microsoft SharePoint administration and collaboration |
 | [Snowflake Administrator](administrator/snowflake-administrator.md) | Snowflake cloud data platform administration |
@@ -390,7 +390,8 @@ All personas maintain:
 
 ## Metadata
 
-- **Total Personas**: 200+
-- **Last Updated**: 2025-08-15
-- **Template Version**: 1.0
+- **Total Personas**: 243 (as of 2025-09-02)
+- **Last Updated**: 2025-09-02
+- **Template Version**: 2.0
 - **Maintenance Schedule**: Quarterly updates
+- **Recent Enhancements**: Crypto Trader persona optimization, structural fixes applied

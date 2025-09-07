@@ -1,5 +1,17 @@
 ---
-applyTo: "**/*.py,**/*.pyw"
+agentMode: general
+applyTo: '**/*.py,**/*.pyw'
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.999396'
+summaryScore: 3.0
+title: Python.Instructions
+version: 1.0.0
 ---
 
 # Python Programming Instructions

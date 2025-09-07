@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.820242'
+summaryScore: 3.0
+title: Speech To Text Expert
+version: 1.0.0
+---
+
 # Persona: Speech-to-Text Implementation Expert
 
 ## 1. Role Summary

@@ -1,8 +1,17 @@
 ---
-applyTo: 'truffle, truffle-cli'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Truffle v5.11+ with Ganache and modern Solidity'
+agentMode: framework-specific
+applyTo: truffle, truffle-cli
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Truffle v5.11+ with Ganache and modern Solidity
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.041260'
+summaryScore: 3.0
+title: Truffle.Instructions
+version: 1.0.0
 ---
 
 # Truffle Framework Instructions for AI Agents

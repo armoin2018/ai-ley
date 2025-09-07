@@ -1,30 +1,37 @@
 ---
-title: 'ESLint JavaScript Code Quality and Linting Tool Instructions'
-description: 'Comprehensive guide for using ESLint to maintain code quality, consistency, and best practices in JavaScript/TypeScript projects'
-category: 'Development Tools'
-author: 'AI Assistant'
-tags:
-  [
-    'eslint',
-    'linting',
-    'code-quality',
-    'javascript',
-    'typescript',
-    'static-analysis',
-    'development-tools',
-  ]
-version: '1.0'
-last_updated: '2025-01-09'
+agentMode: general
 applyTo:
-  - '**/*.js'
-  - '**/*.jsx'
-  - '**/*.ts'
-  - '**/*.tsx'
-  - '**/*.vue'
-  - '**/*.svelte'
-  - '**/eslint.config.js'
-  - '**/.eslintrc.*'
-  - '**/package.json'
+- '**/*.js'
+- '**/*.jsx'
+- '**/*.ts'
+- '**/*.tsx'
+- '**/*.vue'
+- '**/*.svelte'
+- '**/eslint.config.js'
+- '**/.eslintrc.*'
+- '**/package.json'
+author: AI Assistant
+category: Development Tools
+description: Comprehensive guide for using ESLint to maintain code quality, consistency,
+  and best practices in JavaScript/TypeScript projects
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.931923'
+last_updated: '2025-01-09'
+summaryScore: 3.0
+tags:
+- eslint
+- linting
+- code-quality
+- javascript
+- typescript
+- static-analysis
+- development-tools
+title: ESLint JavaScript Code Quality and Linting Tool Instructions
+version: '1.0'
 ---
 
 # ESLint JavaScript Code Quality and Linting Tool Instructions

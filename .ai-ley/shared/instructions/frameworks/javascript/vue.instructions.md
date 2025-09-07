@@ -1,8 +1,17 @@
 ---
-applyTo: 'vue, vue.js, vuejs'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Vue 3 composition API and modern patterns'
+agentMode: framework-specific
+applyTo: vue, vue.js, vuejs
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Vue 3 composition API and modern patterns
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.076331'
+summaryScore: 3.0
+title: Vue.Instructions
+version: 1.0.0
 ---
 
 # Vue.js Framework Instructions for AI Agents

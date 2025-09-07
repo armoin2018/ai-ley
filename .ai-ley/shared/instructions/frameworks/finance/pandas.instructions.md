@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-02T23:59:04.745448'
+summaryScore: 3.0
+title: Pandas.Instructions
+version: 1.0.0
+---
+
 Title: pandas (Finance) — AI Agent Data Handling Guide
 
 Scope
@@ -18,4 +34,3 @@ Testing
 AI Assistant Guidelines
 - Always enforce timezone/index hygiene; avoid SettingWithCopy pitfalls.
 - Provide memory/perf estimates and chunking strategies; prefer vectorized solutions.
-

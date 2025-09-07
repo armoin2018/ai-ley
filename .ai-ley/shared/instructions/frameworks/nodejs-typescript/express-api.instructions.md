@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.090985'
+summaryScore: 3.0
+title: Express Api.Instructions
+version: 1.0.0
+---
+
 # GitHub Copilot Instructions
 
 These instructions define how GitHub Copilot should assist with this Node.js TypeScript Express API project. The goal is to ensure consistent, high-quality code generation aligned with our conventions, Express best practices, and TypeScript standards.

@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-02T23:59:04.735701'
+summaryScore: 3.0
+title: Git.Instructions
+version: 1.0.0
+---
+
 # Git Version Control Instructions
 
 ## Tool Overview

@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.062063'
+summaryScore: 3.0
+title: Lean Engine.Instructions
+version: 1.0.0
+---
+
 Title: Lean Engine — AI Agent Trading System Guide
 
 Scope
@@ -36,4 +52,3 @@ See also
 - [frameworks/finance/ta-lib.instructions.md](../finance/ta-lib.instructions.md) — Reliable technical indicators with warmup handling
 - [frameworks/finance/alphalens.instructions.md](../finance/alphalens.instructions.md) — Factor evaluation (IC, quantiles, turnover)
 - [frameworks/finance/pandas.instructions.md](../finance/pandas.instructions.md) — Time-series hygiene and data handling
-

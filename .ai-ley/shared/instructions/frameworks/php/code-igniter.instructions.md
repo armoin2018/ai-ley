@@ -1,8 +1,17 @@
 ---
-applyTo: 'codeigniter, codeigniter4, ci4'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on CodeIgniter 4.x with modern PHP 8.0+ features and MVC architecture'
+agentMode: framework-specific
+applyTo: codeigniter, codeigniter4, ci4
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on CodeIgniter 4.x with modern PHP 8.0+ features and MVC architecture
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.034610'
+summaryScore: 3.0
+title: Code Igniter.Instructions
+version: 1.0.0
 ---
 
 # CodeIgniter Framework Instructions for AI Agents

@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.722886'
+summaryScore: 3.0
+title: Fortran Developer
+version: 1.0.0
+---
+
 # Persona: Fortran Developer
 
 ## 1. Role Summary

@@ -1,8 +1,17 @@
 ---
-applyTo: 'next, next.js, nextjs'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Next.js 14+ App Router and modern patterns'
+agentMode: framework-specific
+applyTo: next, next.js, nextjs
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Next.js 14+ App Router and modern patterns
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.071779'
+summaryScore: 3.0
+title: Next Js.Instructions
+version: 1.0.0
 ---
 
 # Next.js Framework Instructions for AI Agents

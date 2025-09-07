@@ -1,8 +1,17 @@
 ---
-applyTo: 'chainlink, chainlink-contracts, chainlink-functions'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Chainlink v2.x with modern oracle patterns and hybrid smart contracts'
+agentMode: framework-specific
+applyTo: chainlink, chainlink-contracts, chainlink-functions
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Chainlink v2.x with modern oracle patterns and hybrid smart contracts
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.037337'
+summaryScore: 3.0
+title: Chainlink.Instructions
+version: 1.0.0
 ---
 
 # Chainlink Framework Instructions for AI Agents

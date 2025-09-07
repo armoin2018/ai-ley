@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.007511'
+summaryScore: 3.0
+title: Easylanguage.Instructions
+version: 1.0.0
+---
+
 # EasyLanguage — AI Assistant Guidelines (TradeStation/MultiCharts)
 
 Purpose: Author and evaluate trading strategies/indicators within broker/platform environments while preventing lookahead and ensuring reproducibility.

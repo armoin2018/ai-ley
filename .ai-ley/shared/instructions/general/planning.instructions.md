@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.986522'
+summaryScore: 3.0
+title: Planning.Instructions
+version: 1.0.0
+---
+
 # Software Project Planning Instructions
 
 ## Overview
@@ -62,7 +78,7 @@
   1. Estimate optimistic (best case) duration/effort
   2. Estimate pessimistic (worst case) duration/effort
   3. Estimate most likely (realistic) duration/effort
-  4. Calculate expected value: (Optimistic + 4×Most Likely + Pessimistic) ÷ 6
+  4. Calculate expected value: (Optimistic + 4Ã—Most Likely + Pessimistic) Ã· 6
 - **Success Metrics**: Estimates fall within confidence intervals on completed work
 
 ### Process Integration

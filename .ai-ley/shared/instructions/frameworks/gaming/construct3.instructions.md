@@ -1,8 +1,18 @@
 ---
-applyTo: 'construct3, construct-3, c3p, c3addon'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Construct 3 visual scripting, event sheets, and modern 2D game development'
+agentMode: framework-specific
+applyTo: construct3, construct-3, c3p, c3addon
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Construct 3 visual scripting, event sheets, and modern 2D game
+  development
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.012853'
+summaryScore: 3.0
+title: Construct3.Instructions
+version: 1.0.0
 ---
 
 # Construct 3 Framework Instructions for AI Agents

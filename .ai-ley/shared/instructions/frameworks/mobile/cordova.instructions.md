@@ -1,28 +1,35 @@
 ---
-title: 'Apache Cordova Mobile Development Framework Instructions'
-description: 'Comprehensive guide for Apache Cordova hybrid mobile app development using web technologies for iOS, Android, and other platforms'
-category: 'Mobile Frameworks'
-
-tags:
-  [
-    'cordova',
-    'phonegap',
-    'hybrid',
-    'mobile',
-    'cross-platform',
-    'web-to-mobile',
-    'ionic',
-    'javascript',
-  ]
-version: '1.0'
-last_updated: '2025-08-14'
+agentMode: general
 applyTo:
-  - '**/config.xml'
-  - '**/cordova/**'
-  - '**/platforms/**'
-  - '**/plugins/**'
-  - '**/www/**'
-  - '**/hooks/**'
+- '**/config.xml'
+- '**/cordova/**'
+- '**/platforms/**'
+- '**/plugins/**'
+- '**/www/**'
+- '**/hooks/**'
+author: AI-LEY
+category: Mobile Frameworks
+description: Comprehensive guide for Apache Cordova hybrid mobile app development
+  using web technologies for iOS, Android, and other platforms
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.054055'
+last_updated: '2025-08-14'
+summaryScore: 3.0
+tags:
+- cordova
+- phonegap
+- hybrid
+- mobile
+- cross-platform
+- web-to-mobile
+- ionic
+- javascript
+title: Apache Cordova Mobile Development Framework Instructions
+version: '1.0'
 ---
 
 # Apache Cordova Mobile Development Framework Instructions

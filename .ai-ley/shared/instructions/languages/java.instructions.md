@@ -1,5 +1,17 @@
 ---
-applyTo: "**/*.java"
+agentMode: general
+applyTo: '**/*.java'
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.993301'
+summaryScore: 3.0
+title: Java.Instructions
+version: 1.0.0
 ---
 
 # Java Programming Instructions

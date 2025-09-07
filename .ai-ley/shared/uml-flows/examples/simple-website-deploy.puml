@@ -1,0 +1,48 @@
+@startuml SimpleWebsiteDeploy
+title "🌐 Simple Website Deployment"
+
+' Description: Basic website deployment for beginners
+' Author: AI-LEY Community
+' Tags: website, deploy, beginner, simple
+
+start
+:📝 Update website content;
+note right
+  Action: Edit HTML/CSS files
+  Directory: /website/src
+end note
+
+:🔍 Check for broken links;
+note right
+  Command: npm run check-links
+  Timeout: 120s
+end note
+
+if (🔗 Links working?) then (yes)
+  :📦 Build static files;
+  note right
+    Command: npm run build
+    Output: /website/dist
+  end note
+  
+  :🚀 Deploy to web server;
+  note right
+    Command: rsync -av dist/ user@server:/var/www/html/
+    Timeout: 300s
+  end note
+  
+  :✅ Verify deployment;
+  note right
+    Command: curl -f https://mywebsite.com
+    Expected: 200 OK
+  end note
+  
+  :🎉 Website is live!;
+  
+else (no)
+  :🔧 Fix broken links;
+  :📝 Update content;
+endif
+
+stop
+@enduml

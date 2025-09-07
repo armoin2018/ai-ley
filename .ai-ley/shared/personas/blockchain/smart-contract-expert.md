@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.797169'
+summaryScore: 3.0
+title: Smart Contract Expert
+version: 1.0.0
+---
+
 # Persona: Smart Contract Expert
 
 ## 1. Role Summary

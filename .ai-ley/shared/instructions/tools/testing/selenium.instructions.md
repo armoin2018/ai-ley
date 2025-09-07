@@ -1,27 +1,34 @@
 ---
-title: 'Selenium Web Browser Automation Testing Instructions'
-description: 'Comprehensive guide for using Selenium WebDriver for automated web testing, browser automation, and end-to-end testing across multiple browsers'
-category: 'Testing Tools'
-
-tags:
-  [
-    'selenium',
-    'webdriver',
-    'browser-automation',
-    'e2e-testing',
-    'cross-browser',
-    'web-testing',
-    'automation',
-  ]
-version: '1.0'
-last_updated: '2025-08-14'
+agentMode: general
 applyTo:
-  - '**/selenium/**'
-  - '**/test/**/*selenium*'
-  - '**/tests/**/*selenium*'
-  - '**/e2e/**'
-  - '**/*webdriver*'
-  - '**/selenium.config.*'
+- '**/selenium/**'
+- '**/test/**/*selenium*'
+- '**/tests/**/*selenium*'
+- '**/e2e/**'
+- '**/*webdriver*'
+- '**/selenium.config.*'
+author: AI-LEY
+category: Testing Tools
+description: Comprehensive guide for using Selenium WebDriver for automated web testing,
+  browser automation, and end-to-end testing across multiple browsers
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.950302'
+last_updated: '2025-08-14'
+summaryScore: 3.0
+tags:
+- selenium
+- webdriver
+- browser-automation
+- e2e-testing
+- cross-browser
+- web-testing
+- automation
+title: Selenium Web Browser Automation Testing Instructions
+version: '1.0'
 ---
 
 # Selenium Web Browser Automation Testing Instructions

@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-02T23:59:04.747931'
+summaryScore: 3.0
+title: Pymc3.Instructions
+version: 1.0.0
+---
+
 # PyMC (PyMC3/4) — AI Assistant Guidelines (Finance)
 
 Purpose: Bayesian time-series and hierarchical models for alpha estimation and risk with rigorous priors and posterior checks.

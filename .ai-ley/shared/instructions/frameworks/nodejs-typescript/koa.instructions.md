@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.079687'
+summaryScore: 3.0
+title: Koa.Instructions
+version: 1.0.0
+---
+
 Title: Koa (Node.js) — AI Agent Implementation Guide
 
 Use cases
@@ -23,4 +39,3 @@ AI Assistant Guidelines
 - Prefer NestJS for enterprise defaults; propose Koa only when minimalism is required.
 - Always generate an error-handling middleware, request validation, and security headers.
 - Provide OpenAPI if API surface is non-trivial; include smoke tests.
-

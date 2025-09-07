@@ -1,8 +1,17 @@
 ---
-applyTo: 'gatsby, gatsby.js'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Gatsby 5+ with GraphQL and modern static site generation'
+agentMode: framework-specific
+applyTo: gatsby, gatsby.js
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Gatsby 5+ with GraphQL and modern static site generation
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.089527'
+summaryScore: 3.0
+title: Gatsby.Instructions
+version: 1.0.0
 ---
 
 # Gatsby Framework Instructions for AI Agents

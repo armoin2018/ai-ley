@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.855787'
+summaryScore: 3.0
+title: Macro Economist
+version: 1.0.0
+---
+
 # Persona: Macro Economist
 
 ## 1. Role Summary

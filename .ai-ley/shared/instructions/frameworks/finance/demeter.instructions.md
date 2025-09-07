@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.057406'
+summaryScore: 3.0
+title: Demeter.Instructions
+version: 1.0.0
+---
+
 # Demeter — AI Assistant Guidelines (DeFi/AMM Strategy Framework)
 
 Purpose: Research and simulate AMM/liquidity strategies with price/fee modeling, impermanent loss analysis, and on-chain data hygiene.

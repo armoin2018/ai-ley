@@ -1,30 +1,38 @@
 ---
-title: 'Unreal Engine Game Development Instructions'
-description: 'Comprehensive guide for Unreal Engine game development using Blueprint visual scripting and C++ programming for AAA game creation'
-version: '1.0.0'
-last_updated: '2025-08-15'
-
-tags:
-  [
-    'game-engine',
-    'unreal-engine',
-    'blueprint',
-    'cpp',
-    'visual-scripting',
-    'aaa-games',
-    '3d-graphics',
-    'cross-platform',
-  ]
-category: 'Framework'
-subcategory: 'Gaming'
+agentMode: general
 applies_to:
-  - '**/*.uproject'
-  - '**/Source/**/*.h'
-  - '**/Source/**/*.cpp'
-  - '**/Content/**/*.uasset'
-  - '**/Blueprints/**/*.uasset'
-  - '**/Config/**/*.ini'
-  - '**/Plugins/**/*.uplugin'
+- '**/*.uproject'
+- '**/Source/**/*.h'
+- '**/Source/**/*.cpp'
+- '**/Content/**/*.uasset'
+- '**/Blueprints/**/*.uasset'
+- '**/Config/**/*.ini'
+- '**/Plugins/**/*.uplugin'
+applyTo: general
+author: AI-LEY
+category: Framework
+description: Comprehensive guide for Unreal Engine game development using Blueprint
+  visual scripting and C++ programming for AAA game creation
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.015463'
+last_updated: '2025-08-15'
+subcategory: Gaming
+summaryScore: 3.0
+tags:
+- game-engine
+- unreal-engine
+- blueprint
+- cpp
+- visual-scripting
+- aaa-games
+- 3d-graphics
+- cross-platform
+title: Unreal Engine Game Development Instructions
+version: 1.0.0
 ---
 
 # Unreal Engine Game Development Instructions

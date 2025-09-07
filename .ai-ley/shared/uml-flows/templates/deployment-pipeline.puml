@@ -1,0 +1,76 @@
+@startuml DeploymentPipeline
+title "🚀 Deployment Pipeline - Full CI/CD Workflow"
+
+' Description: Complete deployment pipeline with testing, building, and rollback capabilities
+' Author: AI-LEY Community
+' Tags: deployment, ci-cd, automation, production
+
+start
+:📥 Pull latest code;
+note right
+  Command: git pull origin main
+  Directory: /project/root
+  Timeout: 60s
+end note
+
+if (🔍 Code quality check?) then (pass)
+  :🧪 Run unit tests;
+  note right
+    Command: npm test
+    Timeout: 300s
+  end note
+  
+  if (✅ All tests pass?) then (yes)
+    :📦 Build application;
+    note right
+      Command: npm run build
+      Timeout: 600s
+    end note
+    
+    :🚀 Deploy to staging;
+    note right
+      Command: npm run deploy:staging
+      Environment: staging
+    end note
+    
+    :🔍 Health check staging;
+    note right
+      Command: curl -f https://staging.app.com/health
+      Timeout: 30s
+    end note
+    
+    if (💚 Staging healthy?) then (yes)
+      :🎉 Deploy to production;
+      note right
+        Command: npm run deploy:production
+        Environment: production
+      end note
+      
+      :📧 Notify team of success;
+      note right
+        API: POST /api/notifications
+        Message: Deployment successful
+      end note
+      
+    else (no)
+      :🔄 Rollback staging;
+      :🚨 Alert DevOps team;
+    endif
+    
+  else (no)
+    :❌ Report test failures;
+    note right
+      Command: npm run test:report
+      API: POST /api/test-reports
+    end note
+    
+    :📊 Generate test coverage;
+  endif
+  
+else (fail)
+  :🚫 Block deployment;
+  :📋 Create quality report;
+endif
+
+stop
+@enduml

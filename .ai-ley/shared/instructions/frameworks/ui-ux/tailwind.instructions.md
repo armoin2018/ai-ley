@@ -1,8 +1,17 @@
 ---
-applyTo: 'tailwind, tailwindcss, tailwind-css'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Tailwind CSS utility-first framework for custom designs'
+agentMode: framework-specific
+applyTo: tailwind, tailwindcss, tailwind-css
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Tailwind CSS utility-first framework for custom designs
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.049378'
+summaryScore: 3.0
+title: Tailwind.Instructions
+version: 1.0.0
 ---
 
 # Tailwind CSS Framework Instructions for AI Agents

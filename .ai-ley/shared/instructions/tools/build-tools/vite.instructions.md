@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.968722'
+summaryScore: 3.0
+title: Vite.Instructions
+version: 1.0.0
+---
+
 # Vite Build Tool Instructions
 
 ## Tool Overview

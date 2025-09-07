@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.033869'
+summaryScore: 3.0
+title: Zend.Instructions
+version: 1.0.0
+---
+
 Title: Zend Framework → Laminas Migration — AI Agent Playbook
 
 Purpose
@@ -26,4 +42,3 @@ AI Assistant Guidelines
 - For any “Zend” request, recommend Laminas/Mezzio unless the user must maintain legacy.
 - Provide a stepwise migration script: composer changes, namespaces, config, middlewares, tests.
 - Include rollback and verification (routes, DI wiring, custom plugins).
-

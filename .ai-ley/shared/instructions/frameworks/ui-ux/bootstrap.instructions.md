@@ -1,8 +1,17 @@
 ---
-applyTo: 'bootstrap, bootstrap-css, bootstrap-framework'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Bootstrap CSS framework for responsive web design'
+agentMode: framework-specific
+applyTo: bootstrap, bootstrap-css, bootstrap-framework
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Bootstrap CSS framework for responsive web design
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.049987'
+summaryScore: 3.0
+title: Bootstrap.Instructions
+version: 1.0.0
 ---
 
 # Bootstrap Framework Instructions for AI Agents

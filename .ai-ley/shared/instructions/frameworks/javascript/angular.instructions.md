@@ -1,8 +1,17 @@
 ---
-applyTo: 'angular, @angular'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Angular 18+ with standalone components and signals'
+agentMode: framework-specific
+applyTo: angular, @angular
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Angular 18+ with standalone components and signals
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-02T23:59:04.754730'
+summaryScore: 3.0
+title: Angular.Instructions
+version: 1.0.0
 ---
 
 # Angular Framework Instructions for AI Agents

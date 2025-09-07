@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.991809'
+summaryScore: 3.0
+title: Fortran.Instructions
+version: 1.0.0
+---
+
 Title: Fortran — AI Agent Implementation Guide
 
 Use cases
@@ -25,4 +41,3 @@ AI Assistant Guidelines
 - Only suggest Fortran when performance-critical numerics or legacy integration is explicit.
 - Generate fpm project skeletons; include CI with compiler matrix.
 - Provide C-ABI stubs if interop is requested; document calling conventions.
-

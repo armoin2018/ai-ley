@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.967721'
+summaryScore: 3.0
+title: Parcel.Instructions
+version: 1.0.0
+---
+
 `
 ---
 applyTo: "parcel, build-tools, bundler, **/package.json, **/.parcelrc, **/parcel-config.json"

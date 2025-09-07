@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.740285'
+summaryScore: 3.0
+title: Assembly Developer
+version: 1.0.0
+---
+
 # Persona: Assembly Developer
 
 ## 1. Role Summary

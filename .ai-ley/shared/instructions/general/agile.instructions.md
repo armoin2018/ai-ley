@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.989229'
+summaryScore: 3.0
+title: Agile.Instructions
+version: 1.0.0
+---
+
 # Agile Development Instructions
 
 ## Overview
@@ -361,14 +377,14 @@ class AgileMetrics {
 ## What didn't go well? =
 - [Issues and frustrations]
 
-## What should we try next? =¡
+## What should we try next? =Â¡
 - [Experiments and improvements]
 
-## Action Items <¯
+## Action Items <Â¯
 - [ ] Action 1 - Owner: [Name] - Due: [Date]
 - [ ] Action 2 - Owner: [Name] - Due: [Date]
 
-## Metrics Review =Ê
+## Metrics Review =ÃŠ
 - Velocity: [X] story points (vs [Y] planned)
 - Sprint Goal: [Achieved/Partially Achieved/Not Achieved]
 - Cycle Time: [Average] days

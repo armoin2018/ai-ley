@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.996674'
+summaryScore: 3.0
+title: Easyscript.Instructions
+version: 1.0.0
+---
+
 # EasyScript — AI Assistant Guidelines (Internal DSL / Simplified Scripting)
 
 Purpose: Implement lightweight automation or domain-specific logic with a constrained, safe syntax. Favor clarity, determinism, and guardrails.

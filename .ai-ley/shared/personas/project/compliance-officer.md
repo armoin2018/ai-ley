@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-02T23:59:04.734131'
+summaryScore: 3.0
+title: Compliance Officer
+version: 1.0.0
+---
+
 # Persona: Compliance Officer
 
 ## 1. Role Summary

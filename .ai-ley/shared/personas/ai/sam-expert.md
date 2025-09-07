@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.827811'
+summaryScore: 3.0
+title: Sam Expert
+version: 1.0.0
+---
+
 # Persona: SAM Expert
 
 ## 1. Role Summary

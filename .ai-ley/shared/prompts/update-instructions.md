@@ -11,6 +11,61 @@ Systematically scan, analyze, and enhance all instruction files in `{{folders.in
 
 ---
 
+## Execution Strategy
+
+**Batch Processing Approach:**
+
+1. **Small Batches**: Process 5-10 files per session to maintain quality
+2. **Priority Ordering**: Start with high-impact, frequently-used instructions
+3. **Iterative Improvement**: Complete one phase across all files before moving to next
+4. **Validation Checkpoints**: Verify improvements after each batch
+
+**Resource Management:**
+
+- Allocate 15-30 minutes per instruction file for thorough review
+- Focus on high-impact improvements first (accuracy, completeness)
+- Document progress to enable resuming work across sessions
+
+## Progressive Enhancement Levels
+
+**Level 1 - Critical Fixes** (Priority 1)
+
+- Fix broken code examples and syntax errors
+- Add missing YAML frontmatter
+- Remove placeholder content
+- Correct factual inaccuracies
+
+**Level 2 - Structure & Standards** (Priority 2)
+
+- Align with template formatting
+- Standardize section headers and organization
+- Implement consistent cross-referencing
+- Add required metadata fields
+
+**Level 3 - Content Enhancement** (Priority 3)
+
+- Expand superficial sections with detailed guidance
+- Add practical examples and use cases
+- Optimize for AI readability and parsing
+- Create comprehensive cross-reference networks
+
+## Effort Estimation
+
+**Per File Estimates:**
+
+- Simple fixes (Level 1): 5-10 minutes
+- Standard updates (Level 2): 15-25 minutes
+- Major enhancements (Level 3): 30-60 minutes
+
+**Project Phases:**
+
+- Discovery & Scanning: 1-2 hours for entire repository
+- Level 1 fixes: 50% of total files per week
+- Level 2 standardization: 25% of total files per week
+- Level 3 enhancement: 10-15% of total files per week
+
+---
+
 ## Phase 1: Discovery & Scanning
 
 **Automated Directory Scan:**
@@ -49,7 +104,7 @@ Systematically scan, analyze, and enhance all instruction files in `{{folders.in
    - Validate code examples, API references, and tool configurations
    - Check for deprecated practices, outdated syntax, or obsolete technologies
    - Ensure compatibility with modern development environments
-   - **Score: 1-5** (1 = Multiple inaccuracies, 5 = Completely accurate)
+   - Limit examples to what is necessary for understanding, avoiding unnecessary complexity
 
 2. **Relevance & Utility Assessment**
 
@@ -57,7 +112,6 @@ Systematically scan, analyze, and enhance all instruction files in `{{folders.in
    - Assess alignment with modern development practices and methodologies
    - Check for redundancy with other instructions or unnecessary overlap
    - Ensure content directly supports intended use cases
-   - **Score: 1-5** (1 = Low relevance, 5 = Highly relevant and essential)
 
 3. **Completeness & Detail Analysis**
 
@@ -65,7 +119,6 @@ Systematically scan, analyze, and enhance all instruction files in `{{folders.in
    - Assess depth of technical detail and practical guidance
    - Check for missing prerequisites, dependencies, or context
    - Evaluate example quality and comprehensiveness
-   - **Score: 1-5** (1 = Incomplete or superficial, 5 = Comprehensive and detailed)
 
 4. **AI Usability & Integration**
 
@@ -73,14 +126,25 @@ Systematically scan, analyze, and enhance all instruction files in `{{folders.in
    - Verify tone is appropriate for AI processing (clear, directive, unambiguous)
    - Check for proper use of markdown formatting and sections
    - Assess compatibility with AI parsing and understanding
-   - **Score: 1-5** (1 = Poor AI compatibility, 5 = Optimal for AI processing)
 
 5. **Consistency & Standards Compliance**
+
    - Compare against template files in `{{folders.templates.instructions}}/`
    - Verify adherence to established naming conventions and folder structure
    - Check for consistent field names, formatting, and section ordering
    - Ensure proper cross-referencing and metadata inclusion
-   - **Score: 1-5** (1 = Inconsistent format, 5 = Perfect template compliance)
+
+6. **For each instruction file, perform streamlined evaluation:**
+
+**Technical Quality** (Accuracy + Completeness)
+
+- Verify technical details, code examples, and comprehensive coverage
+- **Score: 1-5** (1 = Inaccurate/incomplete, 5 = Accurate and comprehensive)
+
+**AI Usability** (Structure + Consistency + Relevance)
+
+- Assess machine readability, template compliance, and practical utility
+- **Score: 1-5** (1 = Poor AI compatibility, 5 = Optimal for AI processing)
 
 ---
 
@@ -205,8 +269,30 @@ Systematically scan, analyze, and enhance all instruction files in `{{folders.in
 
    - All instruction files in `{{folders.instructions}}/**/*.md` updated and optimized
    - Each file conforming to template standards and quality benchmarks
-   - Improved content accuracy, relevance, and AI usability
+     - Example templates found under `{{folders.templates.instructions}}/*.md`
+   - Improved content accuracy, relevance, clarity, conciseness, and AI usability
    - Consistent formatting and cross-referencing throughout
+   - Add external links to relevant resources if available
+   - Create a header section for each instruction file based on the following format
+
+```yaml
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+  - .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.101198'
+technicalQualityScore: 4.0
+AIUsabilityScore: 4.5
+title: Update Instructions
+version: 1.0.0
+---
+```
 
 2. **Comprehensive Change Documentation**
 
@@ -239,17 +325,40 @@ Systematically scan, analyze, and enhance all instruction files in `{{folders.in
    - Validation reports for template compliance
    - Integration testing results for AI agent compatibility
 
-**Success Criteria:**
+---
 
-- **Minimum Quality Threshold**: All instructions achieve scores ≥ 3.5/5 across all evaluation categories
-- **Coverage Completeness**: 100% of discovered instruction files reviewed and enhanced
-- **Template Compliance**: All files conform to established template standards
+## Success Criteria:
+
+- **Quality Baseline**: 80% of instructions achieve scores ≥ 4/5 in both categories
+- **Template Compliance**: 100% of files include required YAML frontmatter and conform to established template standards
+- **Functionality**: All code examples compile/execute successfully
+- **Coverage Completeness**: 100% of discovered instruction files reviewed and enhanced. Zero empty or placeholder files remain
+- **Integration**: All cross-references resolve correctly
 - **Cross-Reference Integrity**: All internal links and dependencies verified and functional
 - **AI Readiness**: Instructions optimized for AI parsing with consistent structure and clear directives
 
-**Maintenance Schedule:**
+---
+
+## Maintenance Schedule:\*\*
 
 - **Monthly**: Quick scans for outdated content and broken references
 - **Quarterly**: Comprehensive quality assessment and scoring updates
 - **Annually**: Full template compliance review and structural optimization
 - **As-needed**: Immediate updates for critical technology changes or framework updates
+
+## Automation Opportunities
+
+**Automated Tasks:**
+
+- File inventory and basic statistics generation
+- YAML frontmatter validation and standardization
+- Broken link detection and reporting
+- Basic markdown formatting compliance checks
+- MD5 checksum generation
+
+**Manual Review Required:**
+
+- Content accuracy and technical validation
+- Practical utility assessment
+- AI optimization and clarity improvements
+- Cross-reference relationship mapping

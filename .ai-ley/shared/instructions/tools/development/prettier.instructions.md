@@ -1,37 +1,44 @@
 ---
-title: 'Prettier Code Formatter Instructions'
-description: 'Comprehensive guide for using Prettier to automatically format code for consistent style across JavaScript, TypeScript, CSS, HTML, and more'
-category: 'Development Tools'
-author: 'AI Assistant'
-tags:
-  [
-    'prettier',
-    'code-formatter',
-    'javascript',
-    'typescript',
-    'css',
-    'html',
-    'formatting',
-    'development-tools',
-  ]
-version: '1.0'
-last_updated: '2025-01-09'
+agentMode: general
 applyTo:
-  - '**/*.js'
-  - '**/*.jsx'
-  - '**/*.ts'
-  - '**/*.tsx'
-  - '**/*.css'
-  - '**/*.scss'
-  - '**/*.less'
-  - '**/*.html'
-  - '**/*.vue'
-  - '**/*.svelte'
-  - '**/*.json'
-  - '**/*.md'
-  - '**/.prettierrc.*'
-  - '**/prettier.config.*'
-  - '**/package.json'
+- '**/*.js'
+- '**/*.jsx'
+- '**/*.ts'
+- '**/*.tsx'
+- '**/*.css'
+- '**/*.scss'
+- '**/*.less'
+- '**/*.html'
+- '**/*.vue'
+- '**/*.svelte'
+- '**/*.json'
+- '**/*.md'
+- '**/.prettierrc.*'
+- '**/prettier.config.*'
+- '**/package.json'
+author: AI Assistant
+category: Development Tools
+description: Comprehensive guide for using Prettier to automatically format code for
+  consistent style across JavaScript, TypeScript, CSS, HTML, and more
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.930065'
+last_updated: '2025-01-09'
+summaryScore: 3.0
+tags:
+- prettier
+- code-formatter
+- javascript
+- typescript
+- css
+- html
+- formatting
+- development-tools
+title: Prettier Code Formatter Instructions
+version: '1.0'
 ---
 
 # Prettier Code Formatter Instructions

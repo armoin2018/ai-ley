@@ -29,6 +29,9 @@ folders:
 
 files:
   readme: README.md
+  audit-report: .project/AUDIT-REPORT.md
+  test-plan: .project/TEST-PLAN.md
+  health-check: .project/HEALTH-CHECK.md
   gitignore: .gitignore
   license: LICENSE
   contributing: CONTRIBUTING.md
@@ -42,7 +45,10 @@ files:
   requirements_changelog: .project/REQUIREMENTS-CHANGELOG.md
   ask: .project/ASK.md
   suggestions: .project/SUGGESTIONS.md
-  registry: .ai-ley/shared/variables/registry.json
+  instructions-request: .project/INSTRUCTIONS-REQUEST.md
+  personas-request: .project/PERSONAS-REQUEST.md
+  registry: .ai-ley/shared/variables/registry.db
+  registry_json: .ai-ley/shared/variables/registry.json
   bugs: .project/BUGS.md
   errors: .project/ERRORS.md
   plan: .project/PLAN.md

@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.013673'
+summaryScore: 3.0
+title: Phaser.Instructions
+version: 1.0.0
+---
+
 Title: Phaser — AI Agent Game Dev Guide
 
 Use cases
@@ -13,4 +29,3 @@ Tooling
 AI Assistant Guidelines
 - Generate minimal scene scaffolds with preload/create/update; include test harness.
 - Optimize for mobile: texture sizes, input latency, and fixed timestep stability.
-

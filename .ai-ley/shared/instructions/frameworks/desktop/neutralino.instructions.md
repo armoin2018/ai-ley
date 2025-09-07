@@ -1,8 +1,17 @@
 ---
-applyTo: 'neutralino, neutralinojs, neu'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Neutralino 4.0+ for lightweight web-based desktop applications'
+agentMode: framework-specific
+applyTo: neutralino, neutralinojs, neu
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Neutralino 4.0+ for lightweight web-based desktop applications
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.030135'
+summaryScore: 3.0
+title: Neutralino.Instructions
+version: 1.0.0
 ---
 
 # Neutralino Framework Instructions for AI Agents

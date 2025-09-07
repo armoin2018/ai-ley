@@ -1,6 +1,18 @@
 ---
+agentMode: general
 allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*)
+applyTo: general
+author: AI-LEY
 description: Create a git commit
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.102167'
+summaryScore: 3.0
+title: Git Commit
+version: 1.0.0
 ---
 
 ## Context

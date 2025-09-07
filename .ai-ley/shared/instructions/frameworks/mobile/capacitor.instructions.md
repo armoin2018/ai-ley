@@ -1,8 +1,17 @@
 ---
-applyTo: 'capacitor, @capacitor'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Capacitor 5+ for native bridge functionality'
+agentMode: framework-specific
+applyTo: capacitor, @capacitor
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Capacitor 5+ for native bridge functionality
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.050556'
+summaryScore: 3.0
+title: Capacitor.Instructions
+version: 1.0.0
 ---
 
 # Capacitor Framework Instructions for AI Agents

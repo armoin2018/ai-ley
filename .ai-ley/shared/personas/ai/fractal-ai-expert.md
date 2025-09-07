@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.823846'
+summaryScore: 3.0
+title: Fractal Ai Expert
+version: 1.0.0
+---
+
 # Persona: Fractal AI Expert
 
 ## 1. Role Summary

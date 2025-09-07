@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.007907'
+summaryScore: 3.0
+title: Cobol.Instructions
+version: 1.0.0
+---
+
 Title: COBOL — AI Agent Implementation Guide
 
 Scope
@@ -19,4 +35,3 @@ Modernization
 AI Assistant Guidelines
 - Never invent financial rules; require specs; preserve record layouts.
 - Propose safety nets: backups, canaries, and rollback procedures.
-

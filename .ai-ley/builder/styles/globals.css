@@ -1,0 +1,198 @@
+/* styles/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom workflow builder styles */
+:root {
+  --workflow-primary: #3b82f6;
+  --workflow-secondary: #10b981;  
+  --workflow-danger: #ef4444;
+  --workflow-warning: #f59e0b;
+  --workflow-success: #22c55e;
+  --workflow-bg: #f8fafc;
+  --workflow-surface: #ffffff;
+  --workflow-border: #e2e8f0;
+  --workflow-text: #334155;
+  --workflow-muted: #64748b;
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--workflow-bg);
+  color: var(--workflow-text);
+}
+
+/* Workflow canvas styles */
+.workflow-canvas {
+  background-image: 
+    linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+  min-height: 100vh;
+  position: relative;
+}
+
+.workflow-step {
+  @apply bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 cursor-pointer transition-all duration-200;
+  min-width: 160px;
+  min-height: 80px;
+}
+
+.workflow-step:hover {
+  @apply border-blue-300 shadow-md;
+}
+
+.workflow-step.selected {
+  @apply border-blue-500 shadow-lg;
+}
+
+.workflow-step.action {
+  @apply border-l-4 border-l-blue-500;
+}
+
+.workflow-step.decision {
+  @apply border-l-4 border-l-yellow-500 rounded-none;
+  clip-path: polygon(0 50%, 15px 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 15px 100%);
+}
+
+.workflow-step.parallel {
+  @apply border-l-4 border-l-green-500;
+}
+
+/* Toolbar styles */
+.toolbar-button {
+  @apply px-4 py-2 rounded-md bg-white border border-gray-300 hover:bg-gray-50 transition-colors duration-150 flex items-center gap-2;
+}
+
+.toolbar-button.active {
+  @apply bg-blue-50 border-blue-300 text-blue-700;
+}
+
+.toolbar-button.primary {
+  @apply bg-blue-600 text-white border-blue-600 hover:bg-blue-700;
+}
+
+.toolbar-button.success {
+  @apply bg-green-600 text-white border-green-600 hover:bg-green-700;
+}
+
+.toolbar-button.danger {
+  @apply bg-red-600 text-white border-red-600 hover:bg-red-700;
+}
+
+/* PlantUML editor styles */
+.plantuml-editor {
+  font-family: 'JetBrains Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.plantuml-preview {
+  @apply bg-white rounded-lg border border-gray-200 p-4;
+}
+
+/* Execution dashboard styles */
+.execution-step {
+  @apply p-3 border-l-4 mb-2 rounded-r-lg;
+}
+
+.execution-step.pending {
+  @apply border-l-gray-400 bg-gray-50;
+}
+
+.execution-step.running {
+  @apply border-l-blue-500 bg-blue-50;
+  animation: pulse 2s infinite;
+}
+
+.execution-step.completed {
+  @apply border-l-green-500 bg-green-50;
+}
+
+.execution-step.error {
+  @apply border-l-red-500 bg-red-50;
+}
+
+/* Drag and drop styles */
+.drag-over {
+  @apply border-dashed border-2 border-blue-400 bg-blue-50;
+}
+
+.dragging {
+  @apply opacity-75 transform rotate-2;
+}
+
+/* Component palette styles */
+.component-palette {
+  @apply bg-white border-r border-gray-200 p-4 w-64;
+}
+
+.palette-component {
+  @apply p-3 mb-2 bg-gray-50 border border-gray-200 rounded-lg cursor-grab hover:bg-gray-100 transition-colors;
+}
+
+.palette-component:active {
+  @apply cursor-grabbing;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .workflow-canvas {
+    background-size: 15px 15px;
+  }
+  
+  .component-palette {
+    @apply w-full border-r-0 border-b;
+  }
+  
+  .workflow-step {
+    min-width: 120px;
+    min-height: 60px;
+  }
+}
+
+/* Animation utilities */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+.fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

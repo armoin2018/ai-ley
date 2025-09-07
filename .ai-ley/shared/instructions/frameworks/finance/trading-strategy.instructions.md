@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.058806'
+summaryScore: 3.0
+title: Trading Strategy.Instructions
+version: 1.0.0
+---
+
 # trading-strategy — AI Assistant Guidelines (Python library)
 
 Purpose: Research and execute strategies with datasets, pipelines, and execution models while maintaining anti-leakage and auditability.

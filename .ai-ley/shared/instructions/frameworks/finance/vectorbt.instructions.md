@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.056815'
+summaryScore: 3.0
+title: Vectorbt.Instructions
+version: 1.0.0
+---
+
 Title: vectorbt — AI Agent Backtesting Guide
 
 Scope
@@ -12,4 +28,3 @@ Patterns
 AI Assistant Guidelines
 - Always declare data assumptions and evaluation horizon; expose config for fees/slippage.
 - Provide assertions checking for look-ahead and NaN handling.
-

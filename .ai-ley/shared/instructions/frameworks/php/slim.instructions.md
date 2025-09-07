@@ -1,8 +1,17 @@
 ---
-applyTo: 'slim, slim-framework, slim4'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Slim 4.x with PSR standards and modern PHP 8.1+ features'
+agentMode: framework-specific
+applyTo: slim, slim-framework, slim4
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Slim 4.x with PSR standards and modern PHP 8.1+ features
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.031092'
+summaryScore: 3.0
+title: Slim.Instructions
+version: 1.0.0
 ---
 
 # Slim Framework Instructions for AI Agents

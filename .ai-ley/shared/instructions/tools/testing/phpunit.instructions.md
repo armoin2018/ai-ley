@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.944693'
+summaryScore: 3.0
+title: Phpunit.Instructions
+version: 1.0.0
+---
+
 # Tool Instructions Template
 
 ## Tool Overview

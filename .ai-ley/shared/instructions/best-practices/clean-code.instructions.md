@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.093091'
+summaryScore: 3.0
+title: Clean Code.Instructions
+version: 1.0.0
+---
+
 # Clean Code Style Guide (based on Robert C. Martin)
 
 This guide distills core principles from Robert C. Martin’s Clean Code into practical, enforceable rules for daily development. Use this with your language-specific linters and tests. Prefer clarity and correctness over cleverness. Small, focused changes win.

@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-02T23:59:04.740737'
+summaryScore: 3.0
+title: Alphapy.Instructions
+version: 1.0.0
+---
+
 # AlphaPy (Finance) — AI Assistant Guidelines
 
 Purpose: Build ML-based trading signals and portfolios with strict time-aware validation and risk controls.

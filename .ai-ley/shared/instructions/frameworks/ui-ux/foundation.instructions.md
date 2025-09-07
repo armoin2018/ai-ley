@@ -1,30 +1,37 @@
 ---
-title: 'Foundation CSS Framework Instructions'
-description: 'Comprehensive guide for using Foundation CSS framework for responsive, mobile-first web design with advanced UI components and accessibility features'
-category: 'UI/UX Frameworks'
-author: 'AI Assistant'
-tags:
-  [
-    'foundation',
-    'css-framework',
-    'responsive-design',
-    'mobile-first',
-    'accessibility',
-    'ui-components',
-    'sass',
-    'zurb',
-  ]
-version: '1.0'
-last_updated: '2025-01-09'
+agentMode: general
 applyTo:
-  - '**/*.html'
-  - '**/*.css'
-  - '**/*.scss'
-  - '**/*.js'
-  - '**/foundation.config.js'
-  - '**/gulpfile.js'
-  - '**/webpack.config.js'
-  - '**/package.json'
+- '**/*.html'
+- '**/*.css'
+- '**/*.scss'
+- '**/*.js'
+- '**/foundation.config.js'
+- '**/gulpfile.js'
+- '**/webpack.config.js'
+- '**/package.json'
+author: AI Assistant
+category: UI/UX Frameworks
+description: Comprehensive guide for using Foundation CSS framework for responsive,
+  mobile-first web design with advanced UI components and accessibility features
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.047537'
+last_updated: '2025-01-09'
+summaryScore: 3.0
+tags:
+- foundation
+- css-framework
+- responsive-design
+- mobile-first
+- accessibility
+- ui-components
+- sass
+- zurb
+title: Foundation CSS Framework Instructions
+version: '1.0'
 ---
 
 # Foundation CSS Framework Instructions

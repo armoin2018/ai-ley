@@ -1,8 +1,17 @@
 ---
-applyTo: 'svelte, sveltekit'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on SvelteKit and modern Svelte patterns'
+agentMode: framework-specific
+applyTo: svelte, sveltekit
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on SvelteKit and modern Svelte patterns
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.077907'
+summaryScore: 3.0
+title: Svelte.Instructions
+version: 1.0.0
 ---
 
 # Svelte Framework Instructions for AI Agents

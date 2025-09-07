@@ -1,3 +1,18 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.964452'
+summaryScore: 3.0
+title: Bun.Instructions
+version: 1.0.0
+---
 
 # Bun JavaScript Runtime & Package Manager Instructions
 

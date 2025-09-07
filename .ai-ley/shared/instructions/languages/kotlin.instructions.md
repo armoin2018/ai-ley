@@ -1,5 +1,17 @@
 ---
-applyTo: "**/*.{kt,kts}"
+agentMode: general
+applyTo: '**/*.{kt,kts}'
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.009640'
+summaryScore: 3.0
+title: Kotlin.Instructions
+version: 1.0.0
 ---
 
 # Kotlin Programming Instructions

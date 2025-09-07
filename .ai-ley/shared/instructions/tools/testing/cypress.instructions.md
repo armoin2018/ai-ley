@@ -1,8 +1,17 @@
 ---
-applyTo: 'cypress, cypress.io, e2e-testing'
-agentMode: 'tool-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Cypress for end-to-end testing and web application automation'
+agentMode: tool-specific
+applyTo: cypress, cypress.io, e2e-testing
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Cypress for end-to-end testing and web application automation
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-02T23:59:04.737540'
+summaryScore: 3.0
+title: Cypress.Instructions
+version: 1.0.0
 ---
 
 # Cypress Testing Tool Instructions for AI Agents

@@ -1,8 +1,17 @@
 ---
-applyTo: 'electron, electronjs'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Electron 28+ for cross-platform desktop applications'
+agentMode: framework-specific
+applyTo: electron, electronjs
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Electron 28+ for cross-platform desktop applications
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.028509'
+summaryScore: 3.0
+title: Electron.Instructions
+version: 1.0.0
 ---
 
 # Electron Framework Instructions for AI Agents

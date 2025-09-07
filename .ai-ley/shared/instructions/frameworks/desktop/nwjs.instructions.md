@@ -1,8 +1,17 @@
 ---
-applyTo: 'nwjs, nw.js, node-webkit'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on NW.js for web-based desktop applications with Node.js integration'
+agentMode: framework-specific
+applyTo: nwjs, nw.js, node-webkit
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on NW.js for web-based desktop applications with Node.js integration
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.029218'
+summaryScore: 3.0
+title: Nwjs.Instructions
+version: 1.0.0
 ---
 
 # NW.js Framework Instructions for AI Agents

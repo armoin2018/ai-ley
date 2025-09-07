@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.990737'
+summaryScore: 3.0
+title: Documentation.Instructions
+version: 1.0.0
+---
+
 # Documentation Instructions
 
 ## Overview
@@ -154,7 +170,7 @@ project-name --help
 
 -  Feature 1 with brief description
 -  Feature 2 with brief description
-- =ง Feature 3 (coming soon)
+- =ยง Feature 3 (coming soon)
 
 ## Installation
 

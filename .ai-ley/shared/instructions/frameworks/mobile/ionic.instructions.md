@@ -1,8 +1,17 @@
 ---
-applyTo: 'ionic, @ionic'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Ionic 7+ with Angular/React/Vue and Capacitor'
+agentMode: framework-specific
+applyTo: ionic, @ionic
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Ionic 7+ with Angular/React/Vue and Capacitor
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.051937'
+summaryScore: 3.0
+title: Ionic.Instructions
+version: 1.0.0
 ---
 
 # Ionic Framework Instructions for AI Agents

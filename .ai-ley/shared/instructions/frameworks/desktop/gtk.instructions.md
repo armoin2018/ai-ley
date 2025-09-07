@@ -1,8 +1,17 @@
 ---
-applyTo: 'gtk, gtk3, gtk4, libgtk, gi-gtk'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on GTK 4.0+ for modern native Linux desktop applications'
+agentMode: framework-specific
+applyTo: gtk, gtk3, gtk4, libgtk, gi-gtk
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on GTK 4.0+ for modern native Linux desktop applications
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.027116'
+summaryScore: 3.0
+title: Gtk.Instructions
+version: 1.0.0
 ---
 
 # GTK Framework Instructions for AI Agents

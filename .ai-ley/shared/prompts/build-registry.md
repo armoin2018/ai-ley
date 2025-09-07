@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-02T23:59:04.758975'
+summaryScore: 3.0
+title: Build Registry
+version: 1.0.0
+---
+
 # build-registry.md
 
 ## Objective
@@ -11,6 +27,8 @@
 
 ## Steps
 
+### Phase 1
+
 - Scan the following folders recursively
 
   - {{folders.shared}}/personas
@@ -20,6 +38,17 @@
   - {{folders.shared}}/prompts
   - {{folders.shared}}/policies
 
+- Exclude Files
+
+  - README.md
+  - CHANGES.md
+
+- Extract a work list where the md5sum differs from the md5sum stored in the {{files.registry}}
+- Create a worklist under .project/WORKLIST.md
+
+### Phase 2
+
+- iterate through each file in .project/WORKLIST.md
 - Make sure that each file has a header that includes the following elements in yaml format:
 
 ```yaml
@@ -39,16 +68,18 @@ summaryScore: 5
 ---
 ```
 
-- If elements are missing, the file should be analysed and the missing elements should be added to the file
+- If elements are missing, the file should be summarized to complete the frontmatter and the missing elements should be added or updated in the source file.
 
   - Documents should be scored based on completeness and accuracy utilizing the scoring defined in `.ai-ley/shared/prompts/update-(instructions|personas).md`
+  - If the values are not aligned with the guidelines, the document should be revised accordingly.
+  - If the values do not apply, they should be removed or left out of the document.
 
 - if the score is <= 4.5, suggestions should be generated and added to the `{{files.suggestions}}`
+- as progress is made, remove the file from the .project/WORKLIST.md
 
-## Exclude Files
+### Phase 3
 
-- README.md
-- CHANGES.md
+- Generate the JSON registry file at `{{files.registry}}` leveraging the metadata collected in the previous phases.
 
 ## Output
 

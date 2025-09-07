@@ -1,8 +1,17 @@
 ---
-applyTo: 'web3, web3.js, web3js'
-agentMode: 'library-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Web3.js v4.x with TypeScript and modern async patterns'
+agentMode: library-specific
+applyTo: web3, web3.js, web3js
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Web3.js v4.x with TypeScript and modern async patterns
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.039536'
+summaryScore: 3.0
+title: Web3Js.Instructions
+version: 1.0.0
 ---
 
 # Web3.js Library Instructions for AI Agents

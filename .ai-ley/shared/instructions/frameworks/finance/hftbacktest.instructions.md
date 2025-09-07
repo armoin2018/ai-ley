@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.059943'
+summaryScore: 3.0
+title: Hftbacktest.Instructions
+version: 1.0.0
+---
+
 # hftbacktest — AI Assistant Guidelines
 
 Purpose: Ultra-fast event-driven backtests on intraday tick/LOB data with reproducibility and slippage realism.

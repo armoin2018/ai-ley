@@ -1,8 +1,17 @@
 ---
-applyTo: 'three.js, threejs, three, webgl, 3d'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Three.js 3D graphics and WebGL development with modern JavaScript/TypeScript'
+agentMode: framework-specific
+applyTo: three.js, threejs, three, webgl, 3d
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Three.js 3D graphics and WebGL development with modern JavaScript/TypeScript
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.014506'
+summaryScore: 3.0
+title: Three Js.Instructions
+version: 1.0.0
 ---
 
 # Three.js Framework Instructions for AI Agents

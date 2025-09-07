@@ -1,20 +1,36 @@
 ---
-title: 'Expo React Native Development Platform Instructions'
-description: 'Comprehensive guide for building React Native applications with Expo platform, tools, and services for faster mobile development'
-category: 'Mobile Frameworks'
-
-tags:
-  ['expo', 'react-native', 'mobile', 'cross-platform', 'javascript', 'typescript', 'eas', 'snack']
-version: '1.0'
-last_updated: '2025-08-14'
+agentMode: general
 applyTo:
-  - '**/app.json'
-  - '**/app.config.*'
-  - '**/eas.json'
-  - '**/expo/**'
-  - '**/.expo/**'
-  - '**/App.js'
-  - '**/App.tsx'
+- '**/app.json'
+- '**/app.config.*'
+- '**/eas.json'
+- '**/expo/**'
+- '**/.expo/**'
+- '**/App.js'
+- '**/App.tsx'
+author: AI-LEY
+category: Mobile Frameworks
+description: Comprehensive guide for building React Native applications with Expo
+  platform, tools, and services for faster mobile development
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.051259'
+last_updated: '2025-08-14'
+summaryScore: 3.0
+tags:
+- expo
+- react-native
+- mobile
+- cross-platform
+- javascript
+- typescript
+- eas
+- snack
+title: Expo React Native Development Platform Instructions
+version: '1.0'
 ---
 
 # Expo React Native Development Platform Instructions

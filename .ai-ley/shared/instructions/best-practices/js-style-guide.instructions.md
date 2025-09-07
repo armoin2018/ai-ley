@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.095287'
+summaryScore: 3.0
+title: Js Style Guide.Instructions
+version: 1.0.0
+---
+
 # JavaScript Style Guide (Airbnb-based)
 
 This guide codifies how we write modern JavaScript. It’s based on the Airbnb JavaScript Style Guide, adapted with pragmatic defaults and a few project-specific overrides. Follow this guide for all JavaScript in browser and Node contexts.
@@ -304,4 +320,3 @@ Document any extra rules in your repo’s instructions and ensure ESLint rules a
 ---
 
 Questions or proposals? Open a PR that includes rationale, examples, and updated ESLint rules.
-

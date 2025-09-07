@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.994539'
+summaryScore: 3.0
+title: Csharp.Instructions
+version: 1.0.0
+---
+
 C# Coding & Style Guide (with AI Linting Hints)
 
 This guide defines coding standards and best practices for C# projects. These include AI linting hints to automatically enforce style rules and maintain clean, performant, and maintainable code across multiple project types.

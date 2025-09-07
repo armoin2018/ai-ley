@@ -1,30 +1,37 @@
 ---
-title: 'UIKit CSS Framework Instructions'
-description: 'Comprehensive guide for using UIKit CSS framework for modern, lightweight responsive web development with modular components and customizable design'
-category: 'UI/UX Frameworks'
-
-tags:
-  [
-    'uikit',
-    'css-framework',
-    'responsive-design',
-    'modular-components',
-    'lightweight',
-    'customizable',
-    'less',
-    'sass',
-  ]
-version: '1.0'
-last_updated: '2025-08-14'
+agentMode: general
 applyTo:
-  - '**/*.html'
-  - '**/*.css'
-  - '**/*.scss'
-  - '**/*.less'
-  - '**/*.js'
-  - '**/uikit.config.js'
-  - '**/webpack.config.js'
-  - '**/package.json'
+- '**/*.html'
+- '**/*.css'
+- '**/*.scss'
+- '**/*.less'
+- '**/*.js'
+- '**/uikit.config.js'
+- '**/webpack.config.js'
+- '**/package.json'
+author: AI-LEY
+category: UI/UX Frameworks
+description: Comprehensive guide for using UIKit CSS framework for modern, lightweight
+  responsive web development with modular components and customizable design
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.045984'
+last_updated: '2025-08-14'
+summaryScore: 3.0
+tags:
+- uikit
+- css-framework
+- responsive-design
+- modular-components
+- lightweight
+- customizable
+- less
+- sass
+title: UIKit CSS Framework Instructions
+version: '1.0'
 ---
 
 # UIKit CSS Framework Instructions

@@ -1,29 +1,36 @@
 ---
-title: 'Solidity Smart Contract Programming Language Instructions'
-description: 'Comprehensive guide for Solidity smart contract development on Ethereum and EVM-compatible blockchains'
-category: 'Blockchain Frameworks'
-
-tags:
-  [
-    'solidity',
-    'ethereum',
-    'smart-contracts',
-    'blockchain',
-    'defi',
-    'web3',
-    'evm',
-    'hardhat',
-    'truffle',
-  ]
-version: '1.0'
-last_updated: '2025-08-14'
+agentMode: general
 applyTo:
-  - '**/*.sol'
-  - '**/contracts/**'
-  - '**/hardhat.config.*'
-  - '**/truffle-config.*'
-  - '**/foundry.toml'
-  - '**/remappings.txt'
+- '**/*.sol'
+- '**/contracts/**'
+- '**/hardhat.config.*'
+- '**/truffle-config.*'
+- '**/foundry.toml'
+- '**/remappings.txt'
+author: AI-LEY
+category: Blockchain Frameworks
+description: Comprehensive guide for Solidity smart contract development on Ethereum
+  and EVM-compatible blockchains
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.036140'
+last_updated: '2025-08-14'
+summaryScore: 3.0
+tags:
+- solidity
+- ethereum
+- smart-contracts
+- blockchain
+- defi
+- web3
+- evm
+- hardhat
+- truffle
+title: Solidity Smart Contract Programming Language Instructions
+version: '1.0'
 ---
 
 # Solidity Smart Contract Programming Language Instructions

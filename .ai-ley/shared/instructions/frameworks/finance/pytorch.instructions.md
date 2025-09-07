@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-02T23:59:04.743796'
+summaryScore: 3.0
+title: Pytorch.Instructions
+version: 1.0.0
+---
+
 Title: PyTorch (Finance) — AI Agent Modeling Guide
 
 Scope

@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.947839'
+summaryScore: 3.0
+title: Playwright.Instructions
+version: 1.0.0
+---
+
 # Playwright End-to-End Testing Framework Instructions
 
 ## Tool Overview

@@ -1,8 +1,17 @@
 ---
-applyTo: 'react-native, expo'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on React Native with Expo and modern mobile development'
+agentMode: framework-specific
+applyTo: react-native, expo
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on React Native with Expo and modern mobile development
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.085952'
+summaryScore: 3.0
+title: React Native.Instructions
+version: 1.0.0
 ---
 
 # React Native Framework Instructions for AI Agents

@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.753833'
+summaryScore: 3.0
+title: Data Scientist
+version: 1.0.0
+---
+
 # Persona: Data Scientist
 
 ## 1. Role Summary

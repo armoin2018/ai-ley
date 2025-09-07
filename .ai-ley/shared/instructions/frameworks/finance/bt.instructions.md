@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.066017'
+summaryScore: 3.0
+title: Bt.Instructions
+version: 1.0.0
+---
+
 Title: bt — AI Agent Portfolio Backtesting Guide
 
 Scope
@@ -15,4 +31,3 @@ See also
 - [frameworks/finance/zipline-reloaded.instructions.md](../finance/zipline-reloaded.instructions.md) — Calendar-accurate event backtester
 - [frameworks/finance/pyfolio.instructions.md](../finance/pyfolio.instructions.md) — Risk and performance analytics
 - [frameworks/finance/ta-lib.instructions.md](../finance/ta-lib.instructions.md) — Technical indicators with warmup handling
-

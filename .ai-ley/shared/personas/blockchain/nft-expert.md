@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.798952'
+summaryScore: 3.0
+title: Nft Expert
+version: 1.0.0
+---
+
 # Persona: nft expert
 
 ## 1. Role Summary

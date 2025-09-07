@@ -1,8 +1,17 @@
 ---
-applyTo: 'qt, qt5, qt6, pyqt, pyside, qtquick, qml'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Qt 6+ for modern cross-platform native desktop applications'
+agentMode: framework-specific
+applyTo: qt, qt5, qt6, pyqt, pyside, qtquick, qml
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Qt 6+ for modern cross-platform native desktop applications
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.026330'
+summaryScore: 3.0
+title: Qt.Instructions
+version: 1.0.0
 ---
 
 # Qt Framework Instructions for AI Agents

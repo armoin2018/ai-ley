@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-02T23:59:04.751925'
+summaryScore: 3.0
+title: Scipy.Instructions
+version: 1.0.0
+---
+
 # SciPy (Finance) — AI Assistant Guidelines
 
 Purpose: Optimization, statistics, and signal processing for portfolio construction and factor analysis with reproducible, bounded computations.

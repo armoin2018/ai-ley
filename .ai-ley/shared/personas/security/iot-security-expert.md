@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.769374'
+summaryScore: 3.0
+title: Iot Security Expert
+version: 1.0.0
+---
+
 # Persona: iot security expert
 
 ## 1. Role Summary

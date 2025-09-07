@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.061535'
+summaryScore: 3.0
+title: Tradier.Instructions
+version: 1.0.0
+---
+
 # Tradier — AI Assistant Guidelines (Broker API)
 
 Purpose: Integrate with Tradier brokerage for account data and order routing with safety, compliance, and observability.

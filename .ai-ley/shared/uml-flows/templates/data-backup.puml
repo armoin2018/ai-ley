@@ -1,0 +1,78 @@
+@startuml DataBackup
+title "💾 Automated Data Backup Workflow"
+
+' Description: Daily backup procedure with validation and cleanup
+' Author: AI-LEY Community  
+' Tags: backup, data-management, maintenance, automation
+
+start
+:📅 Check backup schedule;
+note right
+  Command: crontab -l | grep backup
+  Schedule: 0 2 * * *
+end note
+
+:🔒 Create database snapshot;
+note right
+  Command: pg_dump -h localhost -U backup_user -d production > backup_$(date +%Y%m%d).sql
+  Directory: /backups/database
+end note
+
+:📁 Compress backup files;
+note right
+  Command: tar -czf backup_$(date +%Y%m%d).tar.gz *.sql
+  Timeout: 1800s
+end note
+
+fork
+  :☁️ Upload to cloud storage;
+  note right
+    Command: aws s3 cp backup_$(date +%Y%m%d).tar.gz s3://backups/
+    Timeout: 3600s
+  end note
+fork again
+  :📂 Copy to local archive;
+  note right
+    Command: cp backup_$(date +%Y%m%d).tar.gz /archive/local/
+    Directory: /archive/local
+  end note
+end fork
+
+:✅ Verify backup integrity;
+note right
+  Command: tar -tzf backup_$(date +%Y%m%d).tar.gz > /dev/null
+  API: POST /api/backup/verify
+end note
+
+if (🔍 Backup valid?) then (yes)
+  :🧹 Clean old backups;
+  note right
+    Command: find /backups -name "*.tar.gz" -mtime +30 -delete
+    Keep: 30 days
+  end note
+  
+  :📊 Update backup log;
+  note right
+    API: POST /api/backup/log
+    Status: success
+  end note
+  
+else (no)
+  :🚨 Alert system admin;
+  note right
+    API: POST /api/alerts
+    Priority: high
+    Message: Backup verification failed
+  end note
+  
+  :🔄 Retry backup process;
+endif
+
+:📧 Send status report;
+note right
+  API: POST /api/notifications
+  Recipients: devops-team@company.com
+end note
+
+stop
+@enduml

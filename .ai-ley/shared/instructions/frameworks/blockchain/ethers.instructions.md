@@ -1,8 +1,17 @@
 ---
-applyTo: 'ethers, ethers.js, ethersjs'
-agentMode: 'library-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Ethers.js v6.x with TypeScript and modern async patterns'
+agentMode: library-specific
+applyTo: ethers, ethers.js, ethersjs
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Ethers.js v6.x with TypeScript and modern async patterns
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.038584'
+summaryScore: 3.0
+title: Ethers.Instructions
+version: 1.0.0
 ---
 
 # Ethers.js Library Instructions for AI Agents

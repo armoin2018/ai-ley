@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.041965'
+summaryScore: 3.0
+title: Openzeppelin.Instructions
+version: 1.0.0
+---
+
 Title: OpenZeppelin — AI Agent Implementation Guide
 
 Use cases
@@ -25,4 +41,3 @@ AI Assistant Guidelines
 - Generate minimal, standard OZ-based contracts; explain risk of deviations.
 - Provide migration, upgrade, and revoke runbooks; include multi-sig governance.
 - Refuse to generate unaudited, complex financial logic without explicit risk acknowledgement.
-

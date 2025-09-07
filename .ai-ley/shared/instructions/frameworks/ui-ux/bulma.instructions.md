@@ -1,5 +1,17 @@
 ---
+agentMode: general
 applyTo: '**/*.html,**/*.css,**/*.scss'
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.044471'
+summaryScore: 3.0
+title: Bulma.Instructions
+version: 1.0.0
 ---
 
 # Bulma CSS Framework Instructions

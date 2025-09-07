@@ -1,3 +1,18 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.962377'
+summaryScore: 3.0
+title: Yarn.Instructions
+version: 1.0.0
+---
 
 # Yarn Package Manager Instructions
 

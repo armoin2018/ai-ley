@@ -1,8 +1,17 @@
 ---
-applyTo: 'symfony, symfony/framework-bundle'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Symfony 7.x with modern PHP 8.3+ features and components'
+agentMode: framework-specific
+applyTo: symfony, symfony/framework-bundle
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Symfony 7.x with modern PHP 8.3+ features and components
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.032806'
+summaryScore: 3.0
+title: Symfony.Instructions
+version: 1.0.0
 ---
 
 # Symfony Framework Instructions for AI Agents

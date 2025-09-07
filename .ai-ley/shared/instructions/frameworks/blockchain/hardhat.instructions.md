@@ -1,19 +1,35 @@
 ---
-title: 'Hardhat Ethereum Development Framework Instructions'
-description: 'Comprehensive guide for Hardhat development environment for Ethereum smart contracts, testing, and deployment'
-category: 'Blockchain Frameworks'
-
-tags:
-  ['hardhat', 'ethereum', 'solidity', 'smart-contracts', 'testing', 'deployment', 'defi', 'web3']
-version: '1.0'
-last_updated: '2025-08-14'
+agentMode: general
 applyTo:
-  - '**/hardhat.config.*'
-  - '**/contracts/**'
-  - '**/test/**'
-  - '**/scripts/**'
-  - '**/tasks/**'
-  - '**/typechain-types/**'
+- '**/hardhat.config.*'
+- '**/contracts/**'
+- '**/test/**'
+- '**/scripts/**'
+- '**/tasks/**'
+- '**/typechain-types/**'
+author: AI-LEY
+category: Blockchain Frameworks
+description: Comprehensive guide for Hardhat development environment for Ethereum
+  smart contracts, testing, and deployment
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.040298'
+last_updated: '2025-08-14'
+summaryScore: 3.0
+tags:
+- hardhat
+- ethereum
+- solidity
+- smart-contracts
+- testing
+- deployment
+- defi
+- web3
+title: Hardhat Ethereum Development Framework Instructions
+version: '1.0'
 ---
 
 # Hardhat Ethereum Development Framework Instructions

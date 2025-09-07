@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.928222'
+summaryScore: 3.0
+title: Cypress.Instructions
+version: 1.0.0
+---
+
 `
 ---
 applyTo: "cypress, **/*.cy.{js,ts}, **/cypress/**"

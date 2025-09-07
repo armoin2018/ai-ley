@@ -1,0 +1,551 @@
+{
+  "test_date": "2025-09-06T15:22:14.480377",
+  "personas_tested": [
+    {
+      "persona_name": "Kafka Developer",
+      "category": "developer",
+      "scenario_results": [
+        {
+          "scenario_name": "Code Review Request",
+          "response_length": 112,
+          "evaluation": {
+            "relevance_score": 4.0,
+            "technical_depth_score": 5.0,
+            "completeness_score": 4.0,
+            "professional_tone_score": 0.0,
+            "overall_score": 3.25,
+            "missing_elements": [
+              "alternative implementations"
+            ],
+            "strengths": [
+              "Strong technical depth",
+              "Comprehensive response"
+            ],
+            "weaknesses": [
+              "Lacks professional structure"
+            ]
+          },
+          "sample_response": "Looking at this Python function, I can identify several areas for improvement:\n\n1. **Performance Optimization**: Use list comprehension instead of explicit loops\n2. **Code Structure**: The filtering a..."
+        },
+        {
+          "scenario_name": "Architecture Design Question",
+          "response_length": 82,
+          "evaluation": {
+            "relevance_score": 4.0,
+            "technical_depth_score": 5.0,
+            "completeness_score": 1.0,
+            "professional_tone_score": 2.5,
+            "overall_score": 3.125,
+            "missing_elements": [
+              "microservices breakdown",
+              "database design",
+              "scalability considerations",
+              "deployment strategies"
+            ],
+            "strengths": [
+              "Strong technical depth"
+            ],
+            "weaknesses": [
+              "Missing key elements"
+            ]
+          },
+          "sample_response": "Thank you for your question. As a Kafka Developer, I can provide insights on this topic.\n\nBased on my expertise in developer, here are my recommendations:\n\n1. First, we should analyze the current situ..."
+        }
+      ],
+      "overall_performance": 3.1875,
+      "strengths": [
+        "Strong technical depth",
+        "Comprehensive response"
+      ],
+      "weaknesses": [
+        "Lacks professional structure",
+        "Missing key elements"
+      ],
+      "recommendations": [
+        "Add more specific examples and implementation details"
+      ]
+    },
+    {
+      "persona_name": "Llm Expert",
+      "category": "ai",
+      "scenario_results": [
+        {
+          "scenario_name": "Model Selection Advice",
+          "response_length": 141,
+          "evaluation": {
+            "relevance_score": 4.0,
+            "technical_depth_score": 5.0,
+            "completeness_score": 5.0,
+            "professional_tone_score": 0.0,
+            "overall_score": 3.5,
+            "missing_elements": [],
+            "strengths": [
+              "Strong technical depth",
+              "Comprehensive response"
+            ],
+            "weaknesses": [
+              "Lacks professional structure"
+            ]
+          },
+          "sample_response": "For a multilingual technical support chatbot, I recommend the following approach:\n\n**Model Architecture**:\n- Base model: Fine-tuned multilingual transformer (mBERT or XLM-RoBERTa)\n- Architecture: Enco..."
+        },
+        {
+          "scenario_name": "RAG Implementation Challenge",
+          "response_length": 82,
+          "evaluation": {
+            "relevance_score": 4.0,
+            "technical_depth_score": 5.0,
+            "completeness_score": 1.0,
+            "professional_tone_score": 2.5,
+            "overall_score": 3.125,
+            "missing_elements": [
+              "retrieval optimization techniques",
+              "query understanding improvements",
+              "embedding strategies",
+              "evaluation methods"
+            ],
+            "strengths": [
+              "Strong technical depth"
+            ],
+            "weaknesses": [
+              "Missing key elements"
+            ]
+          },
+          "sample_response": "Thank you for your question. As a Llm Expert, I can provide insights on this topic.\n\nBased on my expertise in ai, here are my recommendations:\n\n1. First, we should analyze the current situation and re..."
+        }
+      ],
+      "overall_performance": 3.3125,
+      "strengths": [
+        "Strong technical depth",
+        "Comprehensive response"
+      ],
+      "weaknesses": [
+        "Lacks professional structure",
+        "Missing key elements"
+      ],
+      "recommendations": [
+        "Add more specific examples and implementation details"
+      ]
+    },
+    {
+      "persona_name": "Penetration Tester",
+      "category": "security",
+      "scenario_results": [
+        {
+          "scenario_name": "Incident Response Plan",
+          "response_length": 195,
+          "evaluation": {
+            "relevance_score": 4.0,
+            "technical_depth_score": 3.333333333333333,
+            "completeness_score": 5.0,
+            "professional_tone_score": 0.0,
+            "overall_score": 3.083333333333333,
+            "missing_elements": [],
+            "strengths": [
+              "Comprehensive response"
+            ],
+            "weaknesses": [
+              "Lacks professional structure"
+            ]
+          },
+          "sample_response": "Based on the indicators of potential data exfiltration, here's the immediate response protocol:\n\n**IMMEDIATE ACTIONS (0-15 minutes)**:\n1. **Isolate Affected Systems**: Disconnect suspected compromised..."
+        }
+      ],
+      "overall_performance": 3.083333333333333,
+      "strengths": [
+        "Comprehensive response"
+      ],
+      "weaknesses": [
+        "Lacks professional structure"
+      ],
+      "recommendations": [
+        "Add more specific examples and implementation details"
+      ]
+    },
+    {
+      "persona_name": "Openscad Developer",
+      "category": "developer",
+      "scenario_results": [
+        {
+          "scenario_name": "Code Review Request",
+          "response_length": 112,
+          "evaluation": {
+            "relevance_score": 4.0,
+            "technical_depth_score": 5.0,
+            "completeness_score": 4.0,
+            "professional_tone_score": 0.0,
+            "overall_score": 3.25,
+            "missing_elements": [
+              "alternative implementations"
+            ],
+            "strengths": [
+              "Strong technical depth",
+              "Comprehensive response"
+            ],
+            "weaknesses": [
+              "Lacks professional structure"
+            ]
+          },
+          "sample_response": "Looking at this Python function, I can identify several areas for improvement:\n\n1. **Performance Optimization**: Use list comprehension instead of explicit loops\n2. **Code Structure**: The filtering a..."
+        },
+        {
+          "scenario_name": "Architecture Design Question",
+          "response_length": 82,
+          "evaluation": {
+            "relevance_score": 4.0,
+            "technical_depth_score": 5.0,
+            "completeness_score": 1.0,
+            "professional_tone_score": 2.5,
+            "overall_score": 3.125,
+            "missing_elements": [
+              "microservices breakdown",
+              "database design",
+              "scalability considerations",
+              "deployment strategies"
+            ],
+            "strengths": [
+              "Strong technical depth"
+            ],
+            "weaknesses": [
+              "Missing key elements"
+            ]
+          },
+          "sample_response": "Thank you for your question. As a Openscad Developer, I can provide insights on this topic.\n\nBased on my expertise in developer, here are my recommendations:\n\n1. First, we should analyze the current s..."
+        }
+      ],
+      "overall_performance": 3.1875,
+      "strengths": [
+        "Strong technical depth",
+        "Comprehensive response"
+      ],
+      "weaknesses": [
+        "Lacks professional structure",
+        "Missing key elements"
+      ],
+      "recommendations": [
+        "Add more specific examples and implementation details"
+      ]
+    },
+    {
+      "persona_name": "Sql Developer",
+      "category": "developer",
+      "scenario_results": [
+        {
+          "scenario_name": "Code Review Request",
+          "response_length": 112,
+          "evaluation": {
+            "relevance_score": 4.0,
+            "technical_depth_score": 5.0,
+            "completeness_score": 4.0,
+            "professional_tone_score": 0.0,
+            "overall_score": 3.25,
+            "missing_elements": [
+              "alternative implementations"
+            ],
+            "strengths": [
+              "Strong technical depth",
+              "Comprehensive response"
+            ],
+            "weaknesses": [
+              "Lacks professional structure"
+            ]
+          },
+          "sample_response": "Looking at this Python function, I can identify several areas for improvement:\n\n1. **Performance Optimization**: Use list comprehension instead of explicit loops\n2. **Code Structure**: The filtering a..."
+        },
+        {
+          "scenario_name": "Architecture Design Question",
+          "response_length": 82,
+          "evaluation": {
+            "relevance_score": 4.0,
+            "technical_depth_score": 5.0,
+            "completeness_score": 1.0,
+            "professional_tone_score": 2.5,
+            "overall_score": 3.125,
+            "missing_elements": [
+              "microservices breakdown",
+              "database design",
+              "scalability considerations",
+              "deployment strategies"
+            ],
+            "strengths": [
+              "Strong technical depth"
+            ],
+            "weaknesses": [
+              "Missing key elements"
+            ]
+          },
+          "sample_response": "Thank you for your question. As a Sql Developer, I can provide insights on this topic.\n\nBased on my expertise in developer, here are my recommendations:\n\n1. First, we should analyze the current situat..."
+        }
+      ],
+      "overall_performance": 3.1875,
+      "strengths": [
+        "Strong technical depth",
+        "Comprehensive response"
+      ],
+      "weaknesses": [
+        "Lacks professional structure",
+        "Missing key elements"
+      ],
+      "recommendations": [
+        "Add more specific examples and implementation details"
+      ]
+    },
+    {
+      "persona_name": "Compliance Officer",
+      "category": "security",
+      "scenario_results": [
+        {
+          "scenario_name": "Incident Response Plan",
+          "response_length": 195,
+          "evaluation": {
+            "relevance_score": 4.0,
+            "technical_depth_score": 3.333333333333333,
+            "completeness_score": 5.0,
+            "professional_tone_score": 0.0,
+            "overall_score": 3.083333333333333,
+            "missing_elements": [],
+            "strengths": [
+              "Comprehensive response"
+            ],
+            "weaknesses": [
+              "Lacks professional structure"
+            ]
+          },
+          "sample_response": "Based on the indicators of potential data exfiltration, here's the immediate response protocol:\n\n**IMMEDIATE ACTIONS (0-15 minutes)**:\n1. **Isolate Affected Systems**: Disconnect suspected compromised..."
+        }
+      ],
+      "overall_performance": 3.083333333333333,
+      "strengths": [
+        "Comprehensive response"
+      ],
+      "weaknesses": [
+        "Lacks professional structure"
+      ],
+      "recommendations": [
+        "Add more specific examples and implementation details"
+      ]
+    },
+    {
+      "persona_name": "Security Documentation Expert",
+      "category": "security",
+      "scenario_results": [
+        {
+          "scenario_name": "Incident Response Plan",
+          "response_length": 195,
+          "evaluation": {
+            "relevance_score": 4.0,
+            "technical_depth_score": 3.333333333333333,
+            "completeness_score": 5.0,
+            "professional_tone_score": 0.0,
+            "overall_score": 3.083333333333333,
+            "missing_elements": [],
+            "strengths": [
+              "Comprehensive response"
+            ],
+            "weaknesses": [
+              "Lacks professional structure"
+            ]
+          },
+          "sample_response": "Based on the indicators of potential data exfiltration, here's the immediate response protocol:\n\n**IMMEDIATE ACTIONS (0-15 minutes)**:\n1. **Isolate Affected Systems**: Disconnect suspected compromised..."
+        }
+      ],
+      "overall_performance": 3.083333333333333,
+      "strengths": [
+        "Comprehensive response"
+      ],
+      "weaknesses": [
+        "Lacks professional structure"
+      ],
+      "recommendations": [
+        "Add more specific examples and implementation details"
+      ]
+    },
+    {
+      "persona_name": "Clarity Developer",
+      "category": "developer",
+      "scenario_results": [
+        {
+          "scenario_name": "Code Review Request",
+          "response_length": 112,
+          "evaluation": {
+            "relevance_score": 4.0,
+            "technical_depth_score": 5.0,
+            "completeness_score": 4.0,
+            "professional_tone_score": 0.0,
+            "overall_score": 3.25,
+            "missing_elements": [
+              "alternative implementations"
+            ],
+            "strengths": [
+              "Strong technical depth",
+              "Comprehensive response"
+            ],
+            "weaknesses": [
+              "Lacks professional structure"
+            ]
+          },
+          "sample_response": "Looking at this Python function, I can identify several areas for improvement:\n\n1. **Performance Optimization**: Use list comprehension instead of explicit loops\n2. **Code Structure**: The filtering a..."
+        },
+        {
+          "scenario_name": "Architecture Design Question",
+          "response_length": 82,
+          "evaluation": {
+            "relevance_score": 4.0,
+            "technical_depth_score": 5.0,
+            "completeness_score": 1.0,
+            "professional_tone_score": 2.5,
+            "overall_score": 3.125,
+            "missing_elements": [
+              "microservices breakdown",
+              "database design",
+              "scalability considerations",
+              "deployment strategies"
+            ],
+            "strengths": [
+              "Strong technical depth"
+            ],
+            "weaknesses": [
+              "Missing key elements"
+            ]
+          },
+          "sample_response": "Thank you for your question. As a Clarity Developer, I can provide insights on this topic.\n\nBased on my expertise in developer, here are my recommendations:\n\n1. First, we should analyze the current si..."
+        }
+      ],
+      "overall_performance": 3.1875,
+      "strengths": [
+        "Strong technical depth",
+        "Comprehensive response"
+      ],
+      "weaknesses": [
+        "Lacks professional structure",
+        "Missing key elements"
+      ],
+      "recommendations": [
+        "Add more specific examples and implementation details"
+      ]
+    },
+    {
+      "persona_name": "Backtesting Engineer",
+      "category": "finance",
+      "scenario_results": [
+        {
+          "scenario_name": "Risk Assessment Request",
+          "response_length": 82,
+          "evaluation": {
+            "relevance_score": 4.0,
+            "technical_depth_score": 5.0,
+            "completeness_score": 1.0,
+            "professional_tone_score": 2.5,
+            "overall_score": 3.125,
+            "missing_elements": [
+              "market conditions assessment",
+              "diversification evaluation",
+              "volatility considerations",
+              "alternative allocations"
+            ],
+            "strengths": [
+              "Strong technical depth"
+            ],
+            "weaknesses": [
+              "Missing key elements"
+            ]
+          },
+          "sample_response": "Thank you for your question. As a Backtesting Engineer, I can provide insights on this topic.\n\nBased on my expertise in finance, here are my recommendations:\n\n1. First, we should analyze the current s..."
+        }
+      ],
+      "overall_performance": 3.125,
+      "strengths": [
+        "Strong technical depth"
+      ],
+      "weaknesses": [
+        "Missing key elements"
+      ],
+      "recommendations": [
+        "Add more specific examples and implementation details"
+      ]
+    },
+    {
+      "persona_name": "Micro Economist",
+      "category": "finance",
+      "scenario_results": [
+        {
+          "scenario_name": "Risk Assessment Request",
+          "response_length": 82,
+          "evaluation": {
+            "relevance_score": 4.0,
+            "technical_depth_score": 5.0,
+            "completeness_score": 1.0,
+            "professional_tone_score": 2.5,
+            "overall_score": 3.125,
+            "missing_elements": [
+              "market conditions assessment",
+              "diversification evaluation",
+              "volatility considerations",
+              "alternative allocations"
+            ],
+            "strengths": [
+              "Strong technical depth"
+            ],
+            "weaknesses": [
+              "Missing key elements"
+            ]
+          },
+          "sample_response": "Thank you for your question. As a Micro Economist, I can provide insights on this topic.\n\nBased on my expertise in finance, here are my recommendations:\n\n1. First, we should analyze the current situat..."
+        }
+      ],
+      "overall_performance": 3.125,
+      "strengths": [
+        "Strong technical depth"
+      ],
+      "weaknesses": [
+        "Missing key elements"
+      ],
+      "recommendations": [
+        "Add more specific examples and implementation details"
+      ]
+    }
+  ],
+  "summary": {
+    "total_personas": 10,
+    "high_performers": 0,
+    "average_performers": 10,
+    "low_performers": 0,
+    "average_score": 3.1562499999999996,
+    "category_performance": {
+      "developer": {
+        "count": 4,
+        "average_score": 3.1875,
+        "scores": [
+          3.1875,
+          3.1875,
+          3.1875,
+          3.1875
+        ]
+      },
+      "ai": {
+        "count": 1,
+        "average_score": 3.3125,
+        "scores": [
+          3.3125
+        ]
+      },
+      "security": {
+        "count": 3,
+        "average_score": 3.0833333333333335,
+        "scores": [
+          3.083333333333333,
+          3.083333333333333,
+          3.083333333333333
+        ]
+      },
+      "finance": {
+        "count": 2,
+        "average_score": 3.125,
+        "scores": [
+          3.125,
+          3.125
+        ]
+      }
+    }
+  }
+}

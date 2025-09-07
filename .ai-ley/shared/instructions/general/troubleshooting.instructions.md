@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.985695'
+summaryScore: 3.0
+title: Troubleshooting.Instructions
+version: 1.0.0
+---
+
 # Software Troubleshooting Instructions
 
 ## Overview
@@ -734,7 +750,7 @@ lsof -p <pid>
 **Prevention**: Regular performance testing, proactive monitoring, capacity planning
 
 ### Escalation Procedures
-- Technical issues: Senior engineer ’ Team lead ’ Engineering manager
+- Technical issues: Senior engineer Â’ Team lead Â’ Engineering manager
 - Critical incidents: Immediate manager notification + On-call escalation
 - Security incidents: Security team + Legal + Compliance teams
 - Customer-impacting issues: Customer success team notification

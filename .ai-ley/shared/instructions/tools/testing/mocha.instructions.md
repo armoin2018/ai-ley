@@ -1,19 +1,36 @@
 ---
-title: 'Mocha JavaScript Testing Framework Instructions'
-description: 'Comprehensive guide for using Mocha testing framework for JavaScript and Node.js unit testing, integration testing, and test automation'
-category: 'Testing Tools'
-
-tags: ['mocha', 'javascript', 'nodejs', 'testing', 'unit-tests', 'integration-tests', 'bdd', 'tdd']
-version: '1.0'
-last_updated: '2025-08-14'
+agentMode: general
 applyTo:
-  - '**/test/**/*.js'
-  - '**/tests/**/*.js'
-  - '**/*.test.js'
-  - '**/*.spec.js'
-  - '**/mocha.opts'
-  - '**/.mocharc.*'
-  - '**/package.json'
+- '**/test/**/*.js'
+- '**/tests/**/*.js'
+- '**/*.test.js'
+- '**/*.spec.js'
+- '**/mocha.opts'
+- '**/.mocharc.*'
+- '**/package.json'
+author: AI-LEY
+category: Testing Tools
+description: Comprehensive guide for using Mocha testing framework for JavaScript
+  and Node.js unit testing, integration testing, and test automation
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.949427'
+last_updated: '2025-08-14'
+summaryScore: 3.0
+tags:
+- mocha
+- javascript
+- nodejs
+- testing
+- unit-tests
+- integration-tests
+- bdd
+- tdd
+title: Mocha JavaScript Testing Framework Instructions
+version: '1.0'
 ---
 
 # Mocha JavaScript Testing Framework Instructions

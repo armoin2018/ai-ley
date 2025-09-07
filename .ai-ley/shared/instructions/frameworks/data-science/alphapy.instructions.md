@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.019291'
+summaryScore: 3.0
+title: Alphapy.Instructions
+version: 1.0.0
+---
+
 # AlphaPy — AI Assistant Guidelines (ML Pipeline Framework)
 
 Purpose: Supervised learning pipelines for tabular/time-series data with experiment tracking, leakage prevention, and reproducibility.

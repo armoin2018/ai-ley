@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.966381'
+summaryScore: 3.0
+title: Webpack.Instructions
+version: 1.0.0
+---
+
 # Webpack Build Tool Instructions
 
 ## Tool Overview

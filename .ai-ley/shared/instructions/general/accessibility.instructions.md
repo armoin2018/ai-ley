@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.984501'
+summaryScore: 3.0
+title: Accessibility.Instructions
+version: 1.0.0
+---
+
 # Web Accessibility Instructions
 
 ## Overview
@@ -206,7 +222,7 @@ npm run lint:accessibility # ESLint a11y rules
   <h2 id="dialog-title">Confirm Action</h2>
   <p id="dialog-desc">Are you sure you want to delete this item?</p>
   
-  <button type="button" aria-label="Close dialog">×</button>
+  <button type="button" aria-label="Close dialog">Ã—</button>
   <button type="button">Cancel</button>
   <button type="button">Delete</button>
 </div>
@@ -312,7 +328,7 @@ class AccessibleModal {
 }
 
 .status-error::before {
-  content: "  ";
+  content: "Â  ";
   font-weight: bold;
 }
 ```

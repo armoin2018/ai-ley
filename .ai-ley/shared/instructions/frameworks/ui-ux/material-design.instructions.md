@@ -1,18 +1,34 @@
 ---
-title: 'Material Design System Framework Instructions'
-description: "Comprehensive guide for implementing Google's Material Design system across web, mobile, and desktop applications"
-category: 'UI/UX Frameworks'
-
-tags: ['material-design', 'mui', 'material-ui', 'mdc-web', 'design-system', 'components', 'theming']
-version: '1.0'
-last_updated: '2025-08-14'
+agentMode: general
 applyTo:
-  - '**/material/**'
-  - '**/mui/**'
-  - '**/@mui/**'
-  - '**/mdc-web/**'
-  - '**/material-components-web/**'
-  - '**/theme.*'
+- '**/material/**'
+- '**/mui/**'
+- '**/@mui/**'
+- '**/mdc-web/**'
+- '**/material-components-web/**'
+- '**/theme.*'
+author: AI-LEY
+category: UI/UX Frameworks
+description: Comprehensive guide for implementing Google's Material Design system
+  across web, mobile, and desktop applications
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.042811'
+last_updated: '2025-08-14'
+summaryScore: 3.0
+tags:
+- material-design
+- mui
+- material-ui
+- mdc-web
+- design-system
+- components
+- theming
+title: Material Design System Framework Instructions
+version: '1.0'
 ---
 
 # Material Design System Framework Instructions

@@ -1,8 +1,17 @@
 ---
-applyTo: 'nestjs, nest.js, nest'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on NestJS 10+ with TypeScript, decorators, and enterprise patterns'
+agentMode: framework-specific
+applyTo: nestjs, nest.js, nest
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on NestJS 10+ with TypeScript, decorators, and enterprise patterns
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.086701'
+summaryScore: 3.0
+title: Nest Js.Instructions
+version: 1.0.0
 ---
 
 # NestJS Framework Instructions for AI Agents

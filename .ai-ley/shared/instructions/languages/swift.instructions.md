@@ -1,5 +1,17 @@
 ---
-applyTo: "**/*.{swift}"
+agentMode: general
+applyTo: '**/*.{swift}'
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.004674'
+summaryScore: 3.0
+title: Swift.Instructions
+version: 1.0.0
 ---
 
 # Swift Programming Instructions

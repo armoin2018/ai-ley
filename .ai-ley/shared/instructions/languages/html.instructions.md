@@ -1,5 +1,17 @@
 ---
-applyTo: "**/*.html,**/*.htm,**/*.xhtml"
+agentMode: general
+applyTo: '**/*.html,**/*.htm,**/*.xhtml'
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.003833'
+summaryScore: 3.0
+title: Html.Instructions
+version: 1.0.0
 ---
 
 # HTML Coding & Style Guide (with AI Linting Hints)

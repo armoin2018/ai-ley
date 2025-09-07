@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.066478'
+summaryScore: 3.0
+title: Zipline Reloaded.Instructions
+version: 1.0.0
+---
+
 Title: Zipline Reloaded — AI Agent Backtesting Guide
 
 Scope
@@ -22,4 +38,3 @@ See also
 - [frameworks/finance/quantconnect.instructions.md](../finance/quantconnect.instructions.md) — Cloud platform around Lean
 - [frameworks/finance/alphalens.instructions.md](../finance/alphalens.instructions.md) — Factor evaluation on Zipline bundles
 - [frameworks/finance/pyfolio.instructions.md](../finance/pyfolio.instructions.md) — Risk/performance analytics for backtests
-

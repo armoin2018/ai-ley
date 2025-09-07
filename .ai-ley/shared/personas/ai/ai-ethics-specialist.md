@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.832541'
+summaryScore: 3.0
+title: Ai Ethics Specialist
+version: 1.0.0
+---
+
 # Persona: AI Ethics Specialist
 
 ## 1. Role Summary

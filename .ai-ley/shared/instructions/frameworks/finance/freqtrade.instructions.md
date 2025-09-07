@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.061064'
+summaryScore: 3.0
+title: Freqtrade.Instructions
+version: 1.0.0
+---
+
 # Freqtrade — AI Assistant Guidelines (Crypto Trading Bot)
 
 Purpose: Research → backtest → dry-run → live with strict risk controls, data hygiene, and configuration versioning.

@@ -1,8 +1,17 @@
 ---
-applyTo: 'tauri, @tauri-apps'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on Tauri 2.0+ for lightweight native desktop applications'
+agentMode: framework-specific
+applyTo: tauri, @tauri-apps
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on Tauri 2.0+ for lightweight native desktop applications
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.027810'
+summaryScore: 3.0
+title: Tauri.Instructions
+version: 1.0.0
 ---
 
 # Tauri Framework Instructions for AI Agents

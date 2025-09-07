@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.741730'
+summaryScore: 3.0
+title: Mobile Developer
+version: 1.0.0
+---
+
 # Persona: mobile developer
 
 ## 1. Role Summary

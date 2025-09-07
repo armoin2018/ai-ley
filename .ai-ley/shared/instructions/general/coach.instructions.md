@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.988227'
+summaryScore: 3.0
+title: Coach.Instructions
+version: 1.0.0
+---
+
 Title: Coaching Prompts — AI Agent Operating Guide
 
 Purpose
@@ -17,4 +33,3 @@ Boundaries
 AI Assistant Guidelines
 - Provide concise, stepwise coaching plans; confirm constraints; propose metrics.
 - Offer templates for check-ins and retrospectives.
-

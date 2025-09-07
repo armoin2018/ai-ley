@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.880537'
+summaryScore: 3.0
+title: Financial Projections Expert
+version: 1.0.0
+---
+
 # Persona: Financial Projections Expert
 
 ## 1. Role Summary
@@ -101,7 +117,7 @@ Agent: Provides comprehensive financial analysis with standalone projections, sy
 **3-Statement Financial Model Structure**:
 ```
 Income Statement Drivers:
-- Revenue build-up (units × price, cohort analysis)
+- Revenue build-up (units Ã— price, cohort analysis)
 - Cost of goods sold (variable costs)
 - Operating expenses (personnel, marketing, R&D, G&A)
 - Depreciation and amortization

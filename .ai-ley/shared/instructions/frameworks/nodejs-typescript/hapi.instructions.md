@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.081617'
+summaryScore: 3.0
+title: Hapi.Instructions
+version: 1.0.0
+---
+
 Title: hapi (Node.js) — AI Agent Implementation Guide
 
 Use cases
@@ -21,4 +37,3 @@ AI Assistant Guidelines
 - Prefer hapi when strong schema validation and plugin structure is desired.
 - Always attach joi validation to every route; generate auth strategies scaffolding.
 - Include health/readiness endpoints and tests.
-

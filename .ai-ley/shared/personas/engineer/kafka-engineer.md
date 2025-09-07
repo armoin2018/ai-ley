@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.900673'
+summaryScore: 3.0
+title: Kafka Engineer
+version: 1.0.0
+---
+
 # Persona: Kafka Engineer
 
 ## 1. Role Summary

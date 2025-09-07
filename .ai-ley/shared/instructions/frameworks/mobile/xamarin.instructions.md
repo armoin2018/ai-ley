@@ -1,18 +1,35 @@
 ---
-title: 'Xamarin Cross-Platform Mobile Development Instructions'
-description: 'Comprehensive guide for Xamarin cross-platform mobile development with C# and .NET for iOS, Android, and Windows'
-category: 'Mobile Frameworks'
-
-tags: ['xamarin', 'csharp', 'dotnet', 'cross-platform', 'mobile', 'ios', 'android', 'maui']
-version: '1.0'
-last_updated: '2025-08-14'
+agentMode: general
 applyTo:
-  - '**/*.xaml'
-  - '**/*.cs'
-  - '**/App.xaml*'
-  - '**/MainPage.xaml*'
-  - '**/Platforms/**'
-  - '**/MauiProgram.cs'
+- '**/*.xaml'
+- '**/*.cs'
+- '**/App.xaml*'
+- '**/MainPage.xaml*'
+- '**/Platforms/**'
+- '**/MauiProgram.cs'
+author: AI-LEY
+category: Mobile Frameworks
+description: Comprehensive guide for Xamarin cross-platform mobile development with
+  C# and .NET for iOS, Android, and Windows
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.052527'
+last_updated: '2025-08-14'
+summaryScore: 3.0
+tags:
+- xamarin
+- csharp
+- dotnet
+- cross-platform
+- mobile
+- ios
+- android
+- maui
+title: Xamarin Cross-Platform Mobile Development Instructions
+version: '1.0'
 ---
 
 # Xamarin Cross-Platform Mobile Development Instructions

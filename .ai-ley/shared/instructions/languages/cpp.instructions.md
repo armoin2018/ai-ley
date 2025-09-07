@@ -1,5 +1,17 @@
 ---
-applyTo: "**/*.cpp,**/*.hpp,**/*.cc,**/*.cxx,**/*.h"
+agentMode: general
+applyTo: '**/*.cpp,**/*.hpp,**/*.cc,**/*.cxx,**/*.h'
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.002492'
+summaryScore: 3.0
+title: Cpp.Instructions
+version: 1.0.0
 ---
 
 # C++ Programming Instructions

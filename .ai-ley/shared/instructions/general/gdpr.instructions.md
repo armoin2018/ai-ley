@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.991177'
+summaryScore: 3.0
+title: Gdpr.Instructions
+version: 1.0.0
+---
+
 Title: GDPR — AI Agent Compliance Guide
 
 Scope
@@ -30,4 +46,3 @@ AI Assistant Guidelines
 - Refuse to generate designs that store unnecessary PII.
 - Always propose a DSR API surface when personal data is introduced.
 - Include retention config, consent registry integration, and audit logging in designs.
-

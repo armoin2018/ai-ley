@@ -1,29 +1,36 @@
 ---
-title: 'Vue.js Progressive Web Framework Instructions'
-description: 'Comprehensive guide for Vue.js progressive framework with Composition API, TypeScript, and modern development patterns'
-category: 'Frontend Frameworks'
-
-tags:
-  [
-    'vue',
-    'vue3',
-    'composition-api',
-    'javascript',
-    'typescript',
-    'frontend',
-    'spa',
-    'pinia',
-    'router',
-  ]
-version: '1.0'
-last_updated: '2025-08-14'
+agentMode: general
 applyTo:
-  - '**/vue.config.js'
-  - '**/vite.config.*'
-  - '**/*.vue'
-  - '**/package.json'
-  - '**/tsconfig.json'
-  - '**/src/**'
+- '**/vue.config.js'
+- '**/vite.config.*'
+- '**/*.vue'
+- '**/package.json'
+- '**/tsconfig.json'
+- '**/src/**'
+author: AI-LEY
+category: Frontend Frameworks
+description: Comprehensive guide for Vue.js progressive framework with Composition
+  API, TypeScript, and modern development patterns
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.046732'
+last_updated: '2025-08-14'
+summaryScore: 3.0
+tags:
+- vue
+- vue3
+- composition-api
+- javascript
+- typescript
+- frontend
+- spa
+- pinia
+- router
+title: Vue.js Progressive Web Framework Instructions
+version: '1.0'
 ---
 
 # Vue.js Progressive Web Framework Instructions

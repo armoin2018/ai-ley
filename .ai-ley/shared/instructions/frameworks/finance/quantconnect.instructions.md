@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.062952'
+summaryScore: 3.0
+title: Quantconnect.Instructions
+version: 1.0.0
+---
+
 Title: QuantConnect — AI Agent Platform Guide
 
 Scope
@@ -22,4 +38,3 @@ See also
 - [frameworks/finance/pyfolio.instructions.md](../finance/pyfolio.instructions.md) — Performance/risk analysis
 - [frameworks/finance/alphalens.instructions.md](../finance/alphalens.instructions.md) — Factor analytics
 - [frameworks/finance/ta-lib.instructions.md](../finance/ta-lib.instructions.md) — Technical indicators
-

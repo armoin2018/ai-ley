@@ -1,3 +1,19 @@
+---
+agentMode: general
+applyTo: general
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: N/A
+instructionType: general
+keywords: []
+lastUpdated: '2025-09-03T00:04:47.959861'
+summaryScore: 3.0
+title: Yum.Instructions
+version: 1.0.0
+---
+
 `
 ---
 applyTo: "yum, package-management, redhat, centos, fedora, rhel, **/yum.conf, **/yum.repos.d"

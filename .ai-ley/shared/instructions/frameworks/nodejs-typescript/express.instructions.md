@@ -1,8 +1,17 @@
 ---
-applyTo: 'express, express.js, expressjs'
-agentMode: 'framework-specific'
-instructionType: 'guide'
-guidelines: 'Focus on modern Express.js 4.18+ with TypeScript and security best practices'
+agentMode: framework-specific
+applyTo: express, express.js, expressjs
+author: AI-LEY
+description: Awaiting summary.
+extensions:
+- .md
+guidelines: Focus on modern Express.js 4.18+ with TypeScript and security best practices
+instructionType: guide
+keywords: []
+lastUpdated: '2025-09-03T00:04:48.088567'
+summaryScore: 3.0
+title: Express.Instructions
+version: 1.0.0
 ---
 
 # Express.js Framework Instructions for AI Agents

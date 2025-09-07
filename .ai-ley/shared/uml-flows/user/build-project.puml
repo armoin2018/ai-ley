@@ -23,7 +23,7 @@ skinparam activity {
     BorderColor darkred
 }
 
-' Start point
+' Flow starts here
 start
 note right
     **Complete Project Development Lifecycle**
@@ -38,220 +38,98 @@ note right
     **Resources**: Development team, business stakeholders
 end note
 
-' Phase 1: Requirements and Learning
-rectangle "requirements" as step1 {
-    note : **Step 1**: Generate Requirements
-    note : **Input**: {{files.ask}}
-    note : **Command**: `/requirements`
-    note : **Output**: {{files.requirements}}
-}
+' Flow connections 
+start
+:requirements;
+note right: **Step 1** - Generate Requirements from ASK
 
-rectangle "learn" as step2 {
-    note : **Step 2**: Project Learning & Research  
-    note : **Input**: {{files.requirements}}, {{files.plan}}
-    note : **Command**: `/learn`
-    note : **Output**: {{files.suggestions}}
-}
+label step1
+:learn;
+note right: **Step 2** - Project Learning & Research
+:evolve;
+note right: **Step 3** - Evolve Project State
 
-rectangle "evolve" as step3 {
-    note : **Step 3**: Evolve Project
-    note : **Input**: Current project state
-    note : **Command**: `/evolve`  
-    note : **Output**: Updated project components
-}
-
-diamond "Suggestions Empty?" as check1
-note right: Check if {{files.suggestions}} contains content
-
-' Phase 2: Design and Architecture
-rectangle "build-design" as step5 {
-    note : **Step 5**: Build Design
-    note : **Input**: {{files.requirements}}, {{files.plan}}
-    note : **Command**: `/build-design`
-    note : **Output**: System design document
-}
-
-rectangle "build-architecture" as step6 {
-    note : **Step 6**: Build Architecture
-    note : **Input**: Design doc, requirements
-    note : **Command**: `/build-architecture`  
-    note : **Output**: Architecture documentation
-}
-
-rectangle "evolve" as step7 {
-    note : **Step 7**: Evolve with Design
-    note : **Input**: Design + Architecture
-    note : **Command**: `/evolve`
-    note : **Output**: Refined project state
-}
-
-diamond "Suggestions Empty?" as check2
-note right: Validate design completeness
-
-' Phase 3: Planning
-rectangle "plan" as step9 {
-    note : **Step 9**: Create Project Plan
-    note : **Input**: {{files.requirements}}, architecture  
-    note : **Command**: `/plan`
-    note : **Output**: {{files.plan}}
-}
-
-rectangle "evolve" as step10 {
-    note : **Step 10**: Evolve Plan
-    note : **Input**: {{files.plan}}
-    note : **Command**: `/evolve`
-    note : **Output**: Optimized plan
-}
-
-diamond "Suggestions Empty?" as check3
-note right: Ensure plan completeness
-
-' Phase 4: Innovation and Implementation
-rectangle "innovate" as step12 {
-    note : **Step 12**: Innovation Analysis
-    note : **Input**: Current project state
-    note : **Command**: `/innovate`
-    note : **Output**: Innovation opportunities
-}
-
-diamond "Suggestions Empty?" as check4
-note right: Innovation opportunities identified
-
-rectangle "run" as step14 {
-    note : **Step 14**: Execute Implementation
-    note : **Input**: {{files.plan}}
-    note : **Command**: `/run`
-    note : **Output**: Implemented solution
-}
-
-' Phase 5: Testing and Documentation  
-rectangle "build-test-plan" as step15 {
-    note : **Step 15**: Build Test Plan
-    note : **Input**: Implementation details
-    note : **Command**: `/build-test-plan`
-    note : **Output**: Comprehensive testing strategy
-}
-
-rectangle "document" as step16 {
-    note : **Step 16**: Generate Documentation
-    note : **Input**: All project artifacts
-    note : **Command**: `/document markdown all`
-    note : **Output**: Complete project documentation
-}
-
-' Phase 6: Business Development
-fork
-    rectangle "build-business-development" as step17 {
-        note : **Step 17**: Business Development
-        note : **Command**: `/build-business-development`
-        note : **Output**: Partnership strategy
-    }
-fork again
-    rectangle "build-launch-plan" as step18 {
-        note : **Step 18**: Launch Planning
-        note : **Command**: `/build-launch-plan`
-        note : **Output**: Launch strategy
-    }
-fork again
-    rectangle "build-market-research" as step19 {
-        note : **Step 19**: Market Research
-        note : **Command**: `/build-market-research`
-        note : **Output**: Market analysis
-    }
-end fork
-
-' Phase 7: Strategic Business Planning
-fork
-    rectangle "build-marketing-strategy" as step20 {
-        note : **Step 20**: Marketing Strategy
-        note : **Command**: `/build-marketing-strategy`
-        note : **Output**: Marketing plan
-    }
-fork again
-    rectangle "build-revenue-projections" as step21 {
-        note : **Step 21**: Revenue Projections
-        note : **Command**: `/build-revenue-projections`
-        note : **Output**: Financial models
-    }
-fork again
-    rectangle "business-plan" as step22 {
-        note : **Step 22**: Business Plan
-        note : **Command**: `/business-plan`
-        note : **Output**: Comprehensive business plan
-    }
-end fork
-
-' Phase 8: Final Business Documentation
-fork
-    rectangle "go-to-market" as step23 {
-        note : **Step 23**: Go-to-Market Strategy
-        note : **Command**: `/go-to-market`
-        note : **Output**: GTM strategy
-    }
-fork again
-    rectangle "lean-canvas" as step24 {
-        note : **Step 24**: Lean Canvas
-        note : **Command**: `/lean-canvas`
-        note : **Output**: Business model canvas
-    }
-fork again
-    rectangle "pitch-deck" as step25 {
-        note : **Step 25**: Pitch Deck
-        note : **Command**: `/pitch-deck`
-        note : **Output**: Investor presentation
-    }
-end fork
-
-stop
-note right
-    **Project Complete!**
+if ({{files.suggestions}} empty?) then (yes)
+  :build-design;
+  note right: **Step 5** - Build System Design
+  :build-architecture;
+  note right: **Step 6** - Build Architecture
+  :evolve;
+  note right: **Step 7** - Evolve with Design
+  
+  if (Design complete?) then (yes)
+    :plan;
+    note right: **Step 9** - Create Project Plan
+    :evolve;
+    note right: **Step 10** - Evolve Plan
     
-    **Deliverables**:
-    - Complete technical implementation
-    - Comprehensive documentation
-    - Business strategy and plans
-    - Go-to-market materials
-    - Financial projections
-    - Investor-ready pitch deck
-end note
-
-' Flow connections
-step1 -> step2
-step2 -> step3
-step3 -> check1
-check1 -> step1 : No (has suggestions)
-check1 -> step5 : Yes (empty)
-
-step5 -> step6
-step6 -> step7  
-step7 -> check2
-check2 -> step1 : No (has suggestions)
-check2 -> step9 : Yes (empty)
-
-step9 -> step10
-step10 -> check3
-check3 -> step1 : No (has suggestions)
-check3 -> step12 : Yes (empty)
-
-step12 -> check4
-check4 -> step1 : No (has suggestions)
-check4 -> step14 : Yes (empty)
-
-step14 -> step15
-step15 -> step16
-step16 -> step17
-
-step17 -> step20
-step18 -> step21
-step19 -> step22
-
-step20 -> step23
-step21 -> step24
-step22 -> step25
-
-step23 -> stop
-step24 -> stop
-step25 -> stop
+    if (Plan ready?) then (yes)
+      :innovate;
+      note right: **Step 12** - Innovation Analysis
+      
+      if (Innovation reviewed?) then (yes)
+        :run;
+        note right: **Step 14** - Execute Implementation
+        :build-test-plan;
+        note right: **Step 15** - Build Test Plan
+        :document markdown all;
+        note right: **Step 16** - Generate Documentation
+        
+        fork
+          :build-business-development;
+          note right: **Step 17** - Business Development
+        fork again
+          :build-launch-plan;
+          note right: **Step 18** - Launch Planning
+        fork again
+          :build-market-research;
+          note right: **Step 19** - Market Research
+        end fork
+        
+        fork
+          :build-marketing-strategy;
+          note right: **Step 20** - Marketing Strategy
+        fork again
+          :build-revenue-projections;
+          note right: **Step 21** - Revenue Projections
+        fork again
+          :business-plan;
+          note right: **Step 22** - Business Plan
+        end fork
+        
+        fork
+          :go-to-market;
+          note right: **Step 23** - Go-to-Market Strategy
+        fork again
+          :lean-canvas;
+          note right: **Step 24** - Lean Canvas
+        fork again
+          :pitch-deck;
+          note right: **Step 25** - Pitch Deck
+        end fork
+        
+        stop
+        
+      else (no - major changes needed)
+        :Update requirements based on innovations;
+        note right: Innovation requires requirements revision
+        -> step1;
+      endif
+    else (no - plan issues)
+      :Revise requirements for plan issues;
+      note right: Plan gaps require requirements update
+      -> step1;
+    endif
+  else (no - design incomplete)
+    :Revise requirements for design gaps;
+    note right: Design issues require requirements revision
+    -> step1;
+  endif
+else (no - has suggestions)
+  :Refine requirements based on suggestions;
+  note right: Apply learning suggestions to requirements
+  -> step1;
+endif
 
 ' Legend
 legend right

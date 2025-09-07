@@ -42,11 +42,14 @@ files:
   requirements_changelog: .project/REQUIREMENTS-CHANGELOG.md
   ask: .project/ASK.md
   suggestions: .project/SUGGESTIONS.md
+  registry: .ai-ley/shared/variables/registry.json
   bugs: .project/BUGS.md
   errors: .project/ERRORS.md
   plan: .project/PLAN.md
+  todo: .project/TODO.md
   instructions: .ai-ley/shared/global-instructions.md
   tests: .project/tests/README.md
+  performance: .project/PERFORMANCE-SUGGESTIONS.md
   indexes:
     instructions: .ai-ley/shared/indexes/instructions.md
     personas: .ai-ley/shared/indexes/personas.md

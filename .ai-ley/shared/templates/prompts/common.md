@@ -6,7 +6,7 @@ _A short, clear identifier (e.g., `/build-plan` or `/generate-doc`)_
 
 ## Variables
 
-- Folders, Files and Indexes are defined in `.ai-ley/shared/folder-structure.yaml`
+- Folders, Files and Indexes are defined in `.ai-ley/shared/variables/folder-structure.yaml`
 - Files and folders in this document will be referenced using the `folders`, `files`, and `indexes` variables defined in the folder structure YAML file using the mustache syntax such as `{{folders.plan}}`.
 
 ## Overview

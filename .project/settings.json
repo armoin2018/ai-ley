@@ -1,0 +1,27 @@
+{
+    "document": {
+        "enabled": true,
+        "type": "minimal"
+    },
+    "generate": {
+        "business" : {
+            "case": true,
+            "forecast": true,
+            "financial-estimates": true,
+            "business-development": true,
+            "market-research": true,
+            "launch-plan": true,
+            "innovate-model": true,
+            "pitch-deck": true,
+            "go-to-market": true,
+            "business-plan": true,
+            "lean-canvas": true
+
+
+        }
+    },
+    "evolve": {
+        "enabled": true,
+        "type": "incremental"
+    }
+}

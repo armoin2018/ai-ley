@@ -61,5 +61,18 @@ Thumbs.db
 .project/tests
 .project/diff
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
 src/assets/import
 build

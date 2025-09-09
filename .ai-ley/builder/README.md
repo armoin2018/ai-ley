@@ -78,6 +78,31 @@ npm run vercel:deploy
 2. **Configure Actions**: Set up each step with parameters
 3. **Preview**: Watch the PlantUML generate in real-time
 4. **Save & Execute**: Save as `.puml` file and run
+5. **Import/Export**: Load existing workflows or export for sharing
+
+#### File Import/Export
+
+The builder supports importing and exporting workflows in multiple formats:
+
+- **PlantUML Files (`.puml`)**: Import existing PlantUML activity diagrams
+- **JSON Workflows (`.json`)**: Native workflow format with full metadata
+- **Export Options**: Download workflows as JSON or generate PlantUML
+
+```javascript
+// Import workflow via API
+const response = await fetch('/api/workflows/import', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    content: fileContent,
+    fileName: 'my-workflow.puml',
+  }),
+});
+
+// Export workflow client-side
+const dataUri =
+  'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(workflow, null, 2));
+```
 
 ### Example Workflow: Deployment Pipeline
 

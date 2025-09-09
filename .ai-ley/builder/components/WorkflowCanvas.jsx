@@ -14,6 +14,65 @@ const WorkflowCanvas = ({
   const [canvasOffset, setCanvasOffset] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const canvasRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  // Handle file import
+  const handleFileImport = useCallback(async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const content = e.target.result;
+        
+        // Send to API for processing
+        const response = await fetch('/api/workflows/import', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            content,
+            fileName: file.name,
+          }),
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          onWorkflowChange(result.workflow);
+          console.log('✅ Workflow imported successfully');
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (error) {
+        console.error('Failed to import workflow:', error);
+        alert('Failed to import workflow. Please check the file format.');
+      }
+    };
+    
+    reader.readAsText(file);
+    event.target.value = ''; // Reset input
+  }, [onWorkflowChange]);
+
+  // Handle workflow export
+  const handleExport = useCallback(() => {
+    const dataStr = JSON.stringify(workflow, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `${workflow.metadata?.title || 'workflow'}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+  }, [workflow]);
+
+  // Trigger file input
+  const triggerFileImport = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
 
   // Handle drag end for workflow steps
   const handleDragEnd = useCallback((result) => {
@@ -148,15 +207,24 @@ const WorkflowCanvas = ({
         
         <div className="separator w-px h-6 bg-gray-300 mx-2" />
         
-        <button className="toolbar-button">
+        <button className="toolbar-button" onClick={handleExport}>
           <Download size={16} />
           Export
         </button>
         
-        <button className="toolbar-button">
+        <button className="toolbar-button" onClick={triggerFileImport}>
           <Upload size={16} />
           Import
         </button>
+
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".puml,.json"
+          onChange={handleFileImport}
+          style={{ display: 'none' }}
+        />
 
         <div className="flex-1" />
         

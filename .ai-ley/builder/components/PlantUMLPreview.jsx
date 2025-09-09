@@ -1,5 +1,5 @@
 // components/PlantUMLPreview.jsx
-import { Check, Code, Copy, Download, Eye, FileText, Refresh } from 'lucide-react';
+import { Check, Code, Copy, Download, Eye, FileText, RotateCcw } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 const PlantUMLPreview = ({ 
@@ -193,7 +193,7 @@ note "Click 'Add Step' to begin creating your workflow" as N1
               disabled={isGenerating}
               title="Regenerate from workflow"
             >
-              <Refresh size={16} className={isGenerating ? 'animate-spin' : ''} />
+              <RotateCcw size={16} className={isGenerating ? 'animate-spin' : ''} />
             </button>
             
             <button 

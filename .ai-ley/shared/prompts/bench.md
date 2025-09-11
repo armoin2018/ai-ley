@@ -2,16 +2,33 @@
 agentMode: general
 applyTo: general
 author: AI-LEY
-description: Awaiting summary.
+description: Benchmark and evaluate instruction and persona files for effectiveness, clarity, and performance characteristics with flexible input targeting
 extensions:
   - .md
-guidelines: N/A
+guidelines: Support specific file, category, or comprehensive benchmarking modes
 instructionType: general
-keywords: []
-lastUpdated: '2025-09-03T00:04:48.097330'
-summaryScore: 3.0
+keywords: [benchmark, quality, assessment, personas, instructions, performance]
+lastUpdated: '2025-09-11T00:00:00.000000'
+summaryScore: 4.5
 title: Bench
-version: 1.0.0
+version: 2.0.0
+inputs:
+  - name: target
+    type: string
+    description: "Target for benchmarking - can be: specific filename (e.g. 'clean-code-advocate.md'), category ('personas' or 'instructions'), or omit for all files"
+    required: false
+    examples:
+      - 'clean-code-advocate.md'
+      - 'personas'
+      - 'instructions'
+      - '' # benchmark all
+outputs:
+  - name: benchmark_reports
+    description: 'Individual detailed reports for each benchmarked file under {{folders.benchmark}}/{fileName}'
+  - name: benchmark_summary
+    description: 'High-level summary report at {{folders.benchmark}}/benchmark-summary.md'
+  - name: benchmark_progress
+    description: 'Progress tracking file at {{folders.benchmark}}/benchmark-progress.md with md5 hashes'
 ---
 
 ## Variables
@@ -29,27 +46,81 @@ version: 1.0.0
 
 You are an AI quality assessment tool designed to benchmark and evaluate instruction and persona files for their effectiveness, clarity, and performance characteristics.
 
+## Input Processing
+
+The benchmark system supports flexible targeting based on user input:
+
+### Input Modes:
+
+1. **Specific File**: Target a single file by name (e.g., "clean-code-advocate.md")
+2. **Category Mode**: Target all files in a category ("personas" or "instructions")
+3. **Comprehensive Mode**: Benchmark all files when no target is specified
+
+### Target Resolution:
+
+- If a specific filename is provided, search for it in both `{{folders.personas}}` and `{{folders.instructions}}` directories
+- If "personas" is specified, process all files in `{{folders.personas}}/**/*.md`
+- If "instructions" is specified, process all files in `{{folders.instructions}}/**/*.md`
+- If no target or empty string is provided, process both personas and instructions comprehensively
+
 ## Your Task
 
-- Evaluate the quality of instruction files from `{{folders.instructions}}/**/*.md` and persona files from `{{folders.personas}}/**/*.md` across multiple dimensions detailed in this document. This should be a recursive process to include all subfolders.
-  - Exclude the files: `*README*.md`, `.DS_Store`
-  - Get a list of all impacted md5 using
+## Your Task
+
+Based on the provided input target, determine the scope of evaluation:
+
+### File Discovery Process:
+
+1. **Parse Input Target**:
+
+   - If target matches a filename pattern (ends with .md), search for that specific file
+   - If target equals "personas", set scope to personas directory only
+   - If target equals "instructions", set scope to instructions directory only
+   - If target is empty/null, set scope to both directories (comprehensive mode)
+
+2. **File Resolution**:
+
+   - For specific files: Search in both `{{folders.personas}}/**/*.md` and `{{folders.instructions}}/**/*.md`
+   - For category mode: Use appropriate directory based on target
+   - For comprehensive mode: Include all files from both directories recursively
+
+3. **File Processing**:
+
+   - Exclude the files: `*README*.md`, `.DS_Store`, `*template*`, `*example*`
+   - Process all subfolders recursively
+   - Generate MD5 checksums for progress tracking
+
+4. **Output Generation**:
+   - Work through each file systematically
+   - Create a high level summary under `{{folders.benchmark}}/benchmark-summary.md`
+   - Create a detailed report for each file under `{{folders.benchmark}}/{fileName}`
+   - Capture the progress in `{{folders.benchmark}}/benchmark-progress.md`
+
+### MD5 Tracking Commands:
+
+For comprehensive benchmarking:
 
 ```bash
-find common/. -type f -exec md5sum {} \; > common/md5sums.txt
+find {{folders.personas}} {{folders.instructions}} -name "*.md" -not -name "*README*" -not -name "*template*" -not -name "*example*" -type f -exec md5sum {} \; > {{folders.benchmark}}/all-files.md5
 ```
 
-- Work through each file systematically
-- create a high level summary under `{{folders.benchmark}}/benchmark-summary.md`
-- Create a detailed report for each file under `{{folders.benchmark}}/{fileName}`
-- Capture the progress in `{{folders.benchmark}}/benchmark-progress.md`
-  - allow for incremental updates by leveraging a comparison of md5 hashes using
+For personas only:
 
 ```bash
-diff <(md5sum $(find . -type f | sort)) {{folders.md5sums}}/(instructions|personas).md5 | grep '^>' | awk '{print $2}'
+find {{folders.personas}} -name "*.md" -not -name "*README*" -not -name "*template*" -not -name "*example*" -type f -exec md5sum {} \; > {{folders.benchmark}}/personas.md5
 ```
 
-- Use md5 in progress to resume
+For instructions only:
+
+```bash
+find {{folders.instructions}} -name "*.md" -not -name "*README*" -not -name "*template*" -not -name "*example*" -type f -exec md5sum {} \; > {{folders.benchmark}}/instructions.md5
+```
+
+For incremental updates (compare against previous run):
+
+```bash
+diff <(find {{folders.personas}} {{folders.instructions}} -name "*.md" -not -name "*README*" -not -name "*template*" -not -name "*example*" -type f -exec md5sum {} \; | sort) {{folders.benchmark}}/all-files.md5 | grep '^>' | awk '{print $2}'
+```
 
 ### Quality Metrics to Assess:
 
@@ -301,11 +372,64 @@ After evaluating all files, provide a comprehensive summary:
 
 ## Instructions for Use:
 
-1. Run this benchmark on a sample of files or the entire collection
-2. Use consistent evaluation criteria across all files
+### Command Examples:
+
+1. **Benchmark a specific file:**
+
+   ```
+   Target: "clean-code-advocate.md"
+   Result: Benchmarks only the clean-code-advocate.md file (searches both personas and instructions)
+   ```
+
+2. **Benchmark all personas:**
+
+   ```
+   Target: "personas"
+   Result: Benchmarks all .md files in {{folders.personas}} recursively
+   ```
+
+3. **Benchmark all instructions:**
+
+   ```
+   Target: "instructions"
+   Result: Benchmarks all .md files in {{folders.instructions}} recursively
+   ```
+
+4. **Comprehensive benchmark:**
+   ```
+   Target: "" (empty) or no target provided
+   Result: Benchmarks all .md files in both personas and instructions directories
+   ```
+
+### Execution Guidelines:
+
+1. Run this benchmark based on the specified target scope
+2. Use consistent evaluation criteria across all files in scope
 3. Focus on practical usability with Copilot integration
 4. Test actual Copilot performance with and without instructions
 5. Provide actionable feedback for improvements
-6. Track improvements over time by re-running benchmarks
+6. Track improvements over time by re-running benchmarks with MD5 comparison
 
-Begin your assessment with the files in the repository and provide both individual file assessments and the comprehensive summary report optimized for Copilot performance analysis.
+### Progress Resumption:
+
+If benchmarking is interrupted, use the MD5 comparison to identify which files still need processing:
+
+- Check existing progress in `{{folders.benchmark}}/benchmark-progress.md`
+- Compare current file MD5s against stored values
+- Resume processing only files that have changed or are missing from progress
+
+### Output Structure:
+
+```
+{{folders.benchmark}}/
+├── benchmark-summary.md          # High-level summary of all processed files
+├── benchmark-progress.md         # Progress tracking with MD5 hashes
+├── personas.md5                  # MD5 checksums for persona files
+├── instructions.md5              # MD5 checksums for instruction files
+├── all-files.md5                 # MD5 checksums for comprehensive runs
+├── [filename1]-report.md         # Individual file reports
+├── [filename2]-report.md
+└── ...
+```
+
+Begin your assessment based on the provided target input and provide both individual file assessments and the comprehensive summary report optimized for Copilot performance analysis.

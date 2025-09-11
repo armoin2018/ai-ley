@@ -107,18 +107,101 @@ Analyze requirements against available resources and identify gaps:
 
 **Actions**:
 
+- Load and analyze `{{files.indexes.personas}}` to understand available expertise profiles
+- Load and analyze `{{files.indexes.instructions}}` to understand available technical guidance
 - Map requirements to available personas in `{{folders.personas}}`
 - Map requirements to available instructions in `{{folders.instructions}}`
 - Identify missing expertise areas that need personas
 - Identify missing technical guidance that needs instructions
 - Determine external dependencies and third-party integrations
 
-**Resource Mapping**:
+**Resource Mapping Process**:
 
-- Create persona-to-requirement mapping
-- Create instruction-to-requirement mapping
+1. **Parse Index Files**: Extract persona and instruction metadata including:
+
+   - Expertise areas and technical skills
+   - Experience levels and complexity handling
+   - Domain knowledge and specializations
+   - Tool and technology proficiencies
+   - Communication styles and approaches
+
+2. **Requirement Categorization**: Classify each requirement by:
+
+   - Technical complexity (Simple/Moderate/High/Expert)
+   - Domain area (Frontend/Backend/DevOps/Security/Testing/etc.)
+   - Required expertise level
+   - Communication style needed (Analytical/Creative/Technical/Default)
+
+3. **Intelligent Matching Algorithm**: For each requirement:
+   - Score personas based on expertise alignment
+   - Score instructions based on technical relevance
+   - Consider complexity matching (persona experience vs requirement difficulty)
+   - Factor in workload distribution and availability
+   - Select optimal persona-instruction combinations
+
+**Resource Mapping Outputs**:
+
+- Create persona-to-requirement mapping with confidence scores
+- Create instruction-to-requirement mapping with relevance scores
+- Generate resource utilization matrix showing workload distribution
 - Log missing resources to `{{files.review}}` for later generation
-- Estimate effort based on available expertise
+- Estimate effort based on available expertise and optimal assignments
+
+### Step 2.5: Intelligent Resource Matching Algorithm
+
+Implement smart resource assignment using index-based matching:
+
+**Matching Process**:
+
+1. **Index Analysis**: For each persona and instruction in the indexes:
+
+   - Extract skill tags, expertise levels, and domain specializations
+   - Parse complexity ratings and experience indicators
+   - Identify communication styles and working approaches
+   - Note technology stack preferences and proficiencies
+
+2. **Requirement Profiling**: For each identified requirement:
+
+   - Determine required skill set and expertise level
+   - Assess technical complexity and domain knowledge needs
+   - Identify preferred communication and working styles
+   - Map to technology stack and tooling requirements
+
+3. **Scoring Algorithm**: Calculate assignment scores using:
+
+   ```
+   Assignment Score = (Skill_Match * 0.4) + (Experience_Level * 0.3) +
+                     (Domain_Knowledge * 0.2) + (Availability * 0.1)
+
+   Where:
+   - Skill_Match: 0-100 based on required vs available skills
+   - Experience_Level: 0-100 based on complexity match
+   - Domain_Knowledge: 0-100 based on specialization alignment
+   - Availability: 0-100 based on current workload allocation
+   ```
+
+4. **Optimal Assignment Selection**: For each task/story:
+   - Rank all personas by assignment score
+   - Select highest-scoring available persona as primary
+   - Identify secondary personas for review/support roles
+   - Match relevant instructions based on technical requirements
+   - Document selection rationale and confidence level
+
+**Resource Optimization**:
+
+- Balance workload across available personas
+- Ensure critical expertise is not over-allocated
+- Plan for knowledge transfer and mentoring opportunities
+- Identify cross-training needs for better resource utilization
+- Schedule persona availability to minimize conflicts
+
+**Quality Assurance**:
+
+- Validate that complex tasks are assigned to expert-level personas
+- Ensure review assignments include appropriate senior resources
+- Check that all required expertise areas are covered
+- Verify instruction relevance and completeness for each assignment
+- Document any gaps or risks in resource allocation
 
 ### Step 3: Epic Decomposition
 
@@ -222,13 +305,33 @@ Create `{{folders.plan}}/epics/epic-XXX/story-XXX-[name]/README.md` for each sto
 - [ ] [Specific testable condition 2]
 - [ ] [Specific testable condition 3]
 
+## Resource Assignments
+
+**Primary Persona**: `{{folders.personas}}/[best-match-persona].md` (Confidence: X%)
+
+- **Expertise Match**: [Why this persona was selected]
+- **Experience Level**: [Matching complexity level]
+- **Domain Knowledge**: [Relevant specializations]
+
+**Supporting Personas**:
+
+- `{{folders.personas}}/[secondary-persona].md` (For [specific aspect])
+- `{{folders.personas}}/[review-persona].md` (For quality assurance)
+
+**Instructions**:
+
+- `{{folders.instructions}}/[primary-instruction].md` (Relevance: X%)
+- `{{folders.instructions}}/[secondary-instruction].md` (For [specific guidance])
+
+**Context Directories**:
+
+- `{{folders.context}}/[relevant-directories]/`
+
 ## Technical Details
 
-**Personas**: `persona-file.md`
-**Instructions**: `instruction-file.md`
-**Context**: `relevant-directories/`
 **Complexity**: Expert/High/Moderate/Simple
 **Style**: Analytical/Creative/Technical/Default
+**Estimated Hours**: X hours (based on persona experience and task complexity)
 
 ## Tasks
 
@@ -289,32 +392,52 @@ Create `{{folders.plan}}/epics/epic-XXX/story-XXX/task-XXX-[name].md` for each t
 - [ ] [Specific deliverable 2]
 - [ ] [Quality/performance requirement]
 
+## Resource Assignments
+
+**Optimal Persona**: `{{folders.personas}}/[selected-persona].md`
+
+- **Selection Rationale**: [Why this persona was chosen based on index analysis]
+- **Expertise Score**: X/100 (based on skill alignment)
+- **Experience Level**: [Persona's capability vs task complexity]
+
+**Required Instructions**:
+
+- **Primary**: `{{folders.instructions}}/[main-instruction].md` (Relevance: X%)
+- **Secondary**: `{{folders.instructions}}/[supporting-instruction].md` (For [specific aspect])
+
+**Alternative Assignments** (if primary is unavailable):
+
+- **Backup Persona**: `{{folders.personas}}/[alternative-persona].md`
+- **Rationale**: [Why this is a viable alternative]
+
 ## Technical Context
 
 **Files to Modify**: [List of files]
 **Technologies**: [Specific tech stack elements]
 **Patterns**: [Design patterns to apply]
 **Testing Requirements**: [Unit/integration tests needed]
+**Complexity Assessment**: [Simple/Moderate/High/Expert - matching persona capability]
 
 ## Implementation Steps
 
-1. [Step 1 with specific action]
-2. [Step 2 with specific action]
-3. [Step 3 with specific action]
+1. [Step 1 with specific action and persona guidance]
+2. [Step 2 with specific action and instruction reference]
+3. [Step 3 with specific action and quality validation]
 
 ## Quality Gates
 
-- [ ] Code follows project standards
-- [ ] Tests written and passing
-- [ ] Documentation updated
-- [ ] Performance requirements met
-- [ ] Security requirements addressed
+- [ ] Code follows project standards (validated by [persona])
+- [ ] Tests written and passing (guided by [testing-instruction])
+- [ ] Documentation updated (reviewed by [documentation-persona])
+- [ ] Performance requirements met (validated by [performance-instruction])
+- [ ] Security requirements addressed (reviewed by [security-persona])
 
 ## Dependencies
 
 **Prerequisite Tasks**: [Tasks that must complete first]
 **Resource Dependencies**: [External resources needed]
-**Knowledge Dependencies**: [Specific expertise required]
+**Knowledge Dependencies**: [Specific expertise required from index]
+**Persona Dependencies**: [If requires coordination between multiple personas]
 ```
 
 ### Step 6: JIRA Integration Artifacts
@@ -401,69 +524,200 @@ milestone happens at [Epic 2: Core Features]'s end
 
 ### Step 8: Resource Allocation Planning
 
-Create team structure and resource allocation plan:
+Create team structure and resource allocation plan based on intelligent matching:
 
 **Create `{{folders.plan}}/planning/resource-allocation.md`**:
 
 ```markdown
 # Resource Allocation Plan
 
+## Intelligent Resource Matching Summary
+
+**Matching Methodology**: Index-based scoring algorithm with skill alignment, experience level, domain knowledge, and availability factors.
+
+**Overall Assignment Confidence**: X% (average confidence across all assignments)
+
+**Critical Resource Dependencies**: [List any single points of failure or over-allocated experts]
+
+## Persona Assignment Matrix
+
+### Primary Assignments (by Epic/Story)
+
+**Epic 1: Foundation**
+
+- **Story 1.1**: `{{folders.personas}}/devops-engineer.md` (Score: 95/100)
+  - **Rationale**: Perfect match for infrastructure and CI/CD expertise
+  - **Supporting**: `{{folders.personas}}/senior-developer.md` (for code review)
+- **Story 1.2**: `{{folders.personas}}/technical-architect.md` (Score: 92/100)
+  - **Rationale**: High-level design and architectural decision expertise
+
+**Epic 2: Core Features**
+
+- **Story 2.1**: `{{folders.personas}}/backend-developer.md` (Score: 88/100)
+  - **Rationale**: API development and database design specialization
+  - **Supporting**: `{{folders.personas}}/security-specialist.md` (for security review)
+
+### Instruction Mapping by Technical Area
+
+**Infrastructure & DevOps**:
+
+- Primary: `{{folders.instructions}}/cicd-pipeline-setup.md`
+- Secondary: `{{folders.instructions}}/containerization-best-practices.md`
+
+**Backend Development**:
+
+- Primary: `{{folders.instructions}}/api-design-patterns.md`
+- Secondary: `{{folders.instructions}}/database-optimization.md`
+
+**Frontend Development**:
+
+- Primary: `{{folders.instructions}}/react-component-architecture.md`
+- Secondary: `{{folders.instructions}}/responsive-design-principles.md`
+
 ## Team Structure and Roles
 
-**Core Team**:
+**Core Team** (based on available personas):
 
-- **Technical Lead**: Architecture design, complex implementation tasks
-- **Senior Developer**: Core feature development, code reviews
-- **Frontend Developer**: User interface implementation, user experience
-- **Backend Developer**: API development, database design
-- **DevOps Engineer**: Infrastructure, CI/CD, deployment
-- **QA Engineer**: Testing strategy, test automation
-- **Product Manager**: Requirements clarification, stakeholder communication
+- **Technical Lead**: `{{folders.personas}}/technical-architect.md`
 
-## Persona Mapping
+  - **Assignment Confidence**: 95%
+  - **Workload**: Architecture design, complex implementation tasks
+  - **Backup**: `{{folders.personas}}/senior-developer.md`
 
-**Development Roles**:
+- **Senior Developer**: `{{folders.personas}}/senior-developer.md`
 
-- `{{folders.personas}}/technical-architect.md` → Technical Lead
-- `{{folders.personas}}/senior-developer.md` → Senior Developer
-- `{{folders.personas}}/frontend-developer.md` → Frontend Developer
-- `{{folders.personas}}/backend-developer.md` → Backend Developer
-- `{{folders.personas}}/devops-engineer.md` → DevOps Engineer
-- `{{folders.personas}}/qa-engineer.md` → QA Engineer
-- `{{folders.personas}}/product-manager.md` → Product Manager
+  - **Assignment Confidence**: 90%
+  - **Workload**: Core feature development, code reviews
+  - **Specializations**: [Based on persona expertise from index]
+
+- **Frontend Developer**: `{{folders.personas}}/frontend-developer.md`
+
+  - **Assignment Confidence**: 85%
+  - **Workload**: User interface implementation, user experience
+  - **Technology Stack**: [React/Vue/Angular based on persona proficiency]
+
+- **Backend Developer**: `{{folders.personas}}/backend-developer.md`
+
+  - **Assignment Confidence**: 88%
+  - **Workload**: API development, database design
+  - **Specializations**: [Database types and API patterns from index]
+
+- **DevOps Engineer**: `{{folders.personas}}/devops-engineer.md`
+
+  - **Assignment Confidence**: 93%
+  - **Workload**: Infrastructure, CI/CD, deployment
+  - **Tool Proficiency**: [Docker/Kubernetes/Cloud platforms from index]
+
+- **QA Engineer**: `{{folders.personas}}/qa-engineer.md`
+  - **Assignment Confidence**: 87%
+  - **Workload**: Testing strategy, test automation
+  - **Testing Approaches**: [Unit/Integration/E2E based on persona expertise]
 
 ## Sprint Capacity Planning
 
-**Sprint Velocity Estimates**:
+**Sprint Velocity Estimates** (adjusted for persona capabilities):
 
 - Sprint 1 (Foundation): 35 story points
+
+  - **Primary Contributors**: DevOps Engineer (20 pts), Technical Architect (15 pts)
+  - **Resource Utilization**: 85% (accounting for setup overhead)
+
 - Sprint 2 (Core Features): 40 story points
+
+  - **Primary Contributors**: Backend Dev (25 pts), Frontend Dev (15 pts)
+  - **Resource Utilization**: 90% (team ramped up)
+
 - Sprint 3 (Advanced Features): 42 story points
-- Sprint 4 (Integration): 35 story points
-- Sprint 5 (Testing & Polish): 30 story points
+  - **Balanced allocation across all team members**
+  - **Resource Utilization**: 95% (peak efficiency)
 
-**Resource Allocation by Epic**:
+**Resource Allocation by Epic** (based on optimal assignments):
 
-- Epic 1: Technical Lead (50%), Senior Dev (75%), DevOps (100%)
-- Epic 2: Frontend Dev (100%), Backend Dev (100%), QA (50%)
-- Epic 3: All team members (balanced allocation)
+- **Epic 1**: DevOps Engineer (100%), Technical Architect (75%), Senior Dev (50%)
+- **Epic 2**: Backend Dev (100%), Frontend Dev (100%), QA Engineer (75%)
+- **Epic 3**: All team members with balanced workload distribution
+
+## Persona Workload Analysis
+
+**High Utilization Personas** (>80% allocation):
+
+- `{{folders.personas}}/devops-engineer.md`: 95% utilization
+
+  - **Risk**: Single point of failure for infrastructure
+  - **Mitigation**: Cross-train Senior Developer on deployment processes
+
+- `{{folders.personas}}/backend-developer.md`: 90% utilization
+  - **Risk**: API development bottleneck
+  - **Mitigation**: Technical Architect to provide API design support
+
+**Optimal Utilization Personas** (60-80% allocation):
+
+- `{{folders.personas}}/frontend-developer.md`: 75% utilization
+- `{{folders.personas}}/qa-engineer.md`: 70% utilization
+
+**Low Utilization Personas** (<60% allocation):
+
+- `{{folders.personas}}/technical-architect.md`: 55% utilization
+  - **Opportunity**: Available for complex problem-solving and mentoring
+
+## Missing Resource Analysis
+
+**Resource Gaps Identified**:
+
+- **Security Specialist**: No persona available for security-focused tasks
+
+  - **Impact**: Medium - security reviews will need external expertise
+  - **Logged to**: `{{files.review}}` for persona creation
+
+- **Database Administrator**: No dedicated DBA persona available
+  - **Impact**: Low - Backend Developer can handle basic database tasks
+  - **Mitigation**: Technical Architect to provide database design guidance
+
+**Instruction Gaps Identified**:
+
+- **Performance Testing**: No dedicated performance testing instruction
+  - **Impact**: Medium - performance validation may be inconsistent
+  - **Logged to**: `{{files.review}}` for instruction creation
 
 ## Risk Mitigation
 
 **Resource Risks**:
 
-- Cross-training on critical components
-- Buffer time for complex technical tasks
-- Early integration testing points
-- Stakeholder review checkpoints
-- Knowledge sharing sessions
+- **Over-allocation Risk**: DevOps Engineer at 95% utilization
+
+  - **Mitigation**: Prepare backup assignment using Senior Developer
+  - **Monitoring**: Track actual vs estimated effort weekly
+
+- **Knowledge Concentration**: Critical expertise concentrated in few personas
+
+  - **Mitigation**: Schedule knowledge sharing sessions
+  - **Cross-training**: Identify mentoring opportunities
+
+- **Dependency Bottlenecks**: Sequential dependencies may cause delays
+  - **Mitigation**: Plan parallel work streams where possible
+  - **Buffer Time**: Add 15% buffer for complex technical tasks
 
 **Dependency Management**:
 
-- Early identification of external dependencies
-- Backup plans for critical path items
-- Regular dependency review meetings
-- Escalation procedures for blockers
+- **Early identification of external dependencies**
+- **Backup plans for critical path items requiring scarce expertise**
+- **Regular dependency review meetings with persona assignments**
+- **Escalation procedures for persona availability conflicts**
+
+## Quality Assurance Strategy
+
+**Review Assignments** (based on expertise matching):
+
+- **Architecture Reviews**: Technical Architect (100% coverage)
+- **Code Reviews**: Senior Developer + domain-specific personas
+- **Security Reviews**: [External consultant] + Technical Architect
+- **Performance Reviews**: [Performance Testing instruction] + Senior Developer
+
+**Knowledge Transfer Plan**:
+
+- **Persona Shadowing**: Junior personas work with senior on complex tasks
+- **Documentation Requirements**: All personas must document decisions and approaches
+- **Regular Team Syncs**: Share learnings and best practices across personas
 ```
 
 ### Step 9: Architecture and Design Documentation
@@ -623,12 +877,27 @@ Validate the complete plan for quality and feasibility:
 - [ ] All requirements from `{{files.requirements}}` are addressed
 - [ ] Epic-Story-Task hierarchy is logical and complete
 - [ ] Dependencies are properly mapped and realistic
-- [ ] Resource assignments match available personas and instructions
-- [ ] Timeline estimates are reasonable and achievable
-- [ ] Quality gates are comprehensive and measurable
-- [ ] JIRA import file is properly formatted and complete
+- [ ] Resource assignments based on intelligent matching from `{{files.indexes.personas}}` and `{{files.indexes.instructions}}`
+- [ ] Persona assignments include confidence scores and selection rationale
+- [ ] Instruction assignments show relevance scores and technical alignment
+- [ ] Alternative resource assignments documented for high-risk dependencies
+- [ ] Resource utilization balanced across available personas (no >95% allocation)
+- [ ] Missing resources properly logged to `{{files.review}}` for future creation
+- [ ] Timeline estimates account for persona experience levels and capabilities
+- [ ] Quality gates include appropriate persona assignments for reviews
+- [ ] JIRA import file includes persona assignments and instruction references
 - [ ] Gantt chart accurately reflects dependencies and timeline
 - [ ] Business case justifies the investment and approach
+
+**Resource Assignment Validation**:
+
+- [ ] All tasks have primary persona assignments with >70% confidence scores
+- [ ] Complex tasks (Expert level) assigned to personas with appropriate experience
+- [ ] Review tasks include secondary persona assignments for quality assurance
+- [ ] Instruction assignments align with technical requirements and persona capabilities
+- [ ] Workload distribution prevents over-allocation of critical expertise
+- [ ] Backup assignments identified for high-risk or specialized tasks
+- [ ] Cross-training opportunities identified for knowledge transfer
 
 **Optimization Actions**:
 
@@ -663,18 +932,22 @@ Finalize and deliver the complete plan:
 **Plan Completeness**:
 
 - [ ] All requirements addressed in epic-story-task breakdown
-- [ ] Resource needs identified and mapped to personas/instructions
+- [ ] Resource needs identified and mapped using intelligent matching algorithm
+- [ ] Persona assignments based on index analysis with documented confidence scores
+- [ ] Instruction assignments show relevance alignment and technical coverage
 - [ ] Dependencies clearly defined and realistic
-- [ ] Timeline estimates based on team capacity and complexity
-- [ ] Quality standards defined at each level (task, story, epic)
+- [ ] Alternative resource assignments documented for risk mitigation
+- [ ] Timeline estimates based on team capacity, persona experience, and complexity
+- [ ] Quality standards defined at each level with appropriate reviewer assignments
 
 **Plan Quality**:
 
 - [ ] Stories follow proper user story format with acceptance criteria
-- [ ] Tasks are actionable and have clear deliverables
-- [ ] Resource allocation is balanced and realistic
-- [ ] Risk assessment includes mitigation strategies
+- [ ] Tasks are actionable and have clear deliverables with optimal persona assignments
+- [ ] Resource allocation is balanced and realistic based on persona capabilities
+- [ ] Risk assessment includes mitigation strategies and backup resource assignments
 - [ ] Business case supports investment and approach
+- [ ] Missing resources properly identified and logged for future development
 
 **Tool Integration**:
 

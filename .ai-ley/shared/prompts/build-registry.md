@@ -4,7 +4,7 @@ applyTo: general
 author: AI-LEY
 description: Awaiting summary.
 extensions:
-- .md
+  - .md
 guidelines: N/A
 instructionType: general
 keywords: []
@@ -14,16 +14,20 @@ title: Build Registry
 version: 1.0.0
 ---
 
-# build-registry.md
+## Variables
+
+- Folders, Files and Indexes are stored in `.ai-ley/shared/variables/folder-structure.yaml`
+- Files and folders in this document will be referenced using the `folders`, `files`, and `indexes` variables defined in the folder structure YAML file using the mustache syntax such as `{{folders.plan}}`.
+
+## References
+
+- See the `.ai-ley/shared/global-instructions.md` file for global instructions that apply to all commands.
+- Reference applicable personas in `{{folders.personas}}` and instructions in `{{folders.instructions}}` as needed.
+- In the event of conflicting information utilize the `.ai-ley/shared/conflict-resolution.md` guidelines.
 
 ## Objective
 
 - Build a json registry of the personas, instructions, workflows, schemas, prompts, and policies using the
-
-## Variables
-
-- Folders, Files and Indexes are stored in `{{folders.shared}}/folder-structure.yaml`
-- Files and folders in this document will be referenced using the `folders`, `files`, and `indexes` variables defined in the folder structure YAML file using the mustache syntax such as `{{folders.plan}}`
 
 ## Steps
 

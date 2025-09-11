@@ -7,26 +7,18 @@ principles:
   - human-first, win-win framing
   - clarity, simplicity, measurable outcomes
   - explicit assumptions; no follow-up questions
-inputs:
-  - name: requirements_file
-    required: true
-    value: '{{files.requirements}}'
-  - name: plan_file
-    required: true
-    value: '{{files.plan}}'
-  - name: personas_dir
-    required: true
-    value: '{{folders.personas}}'
-  - name: instructions_dir
-    required: true
-    value: '{{folders.instructions}}'
-outputs:
-  - path: '{{folders.plan}}/architecture/design.md'
-    create_dirs: true
-  - path: '{{files.requirements}}'
-    mode: 'update_in_place'
-    create_dirs: false
 ---
+
+## Variables
+
+- Folders, Files and Indexes are stored in `.ai-ley/shared/variables/folder-structure.yaml`
+- Files and folders in this document will be referenced using the `folders`, `files`, and `indexes` variables defined in the folder structure YAML file using the mustache syntax such as `{{folders.plan}}`.
+
+## References
+
+- See the `.ai-ley/shared/global-instructions.md` file for global instructions that apply to all commands.
+- Reference applicable personas in `{{folders.personas}}` and instructions in `{{folders.instructions}}` as needed.
+- In the event of conflicting information utilize the `.ai-ley/shared/conflict-resolution.md` guidelines.
 
 # Instruction
 

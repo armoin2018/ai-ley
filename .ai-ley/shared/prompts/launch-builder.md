@@ -21,6 +21,12 @@ version: 1.0.0
 - Folders, Files and Indexes are stored in `.ai-ley/shared/variables/folder-structure.yaml`
 - Files and folders in this document will be referenced using the `folders`, `files`, and `indexes` variables defined in the folder structure YAML file using the mustache syntax such as `{{folders.plan}}`.
 
+## References
+
+- See the `.ai-ley/shared/global-instructions.md` file for global instructions that apply to all commands.
+- Reference applicable personas in `{{folders.personas}}` and instructions in `{{folders.instructions}}` as needed.
+- In the event of conflicting information utilize the `.ai-ley/shared/conflict-resolution.md` guidelines.
+
 ## Goal
 
 Given:
@@ -225,7 +231,7 @@ You are a system automation specialist and builder orchestration expert with exp
 
 **Status Report Generation**:
 
-````markdown
+`````markdown
 **Step 5.1: Launch Status Report**
 
 **Create Comprehensive Status Report**:
@@ -334,6 +340,8 @@ You are a system automation specialist and builder orchestration expert with exp
 {restart-command}
 ```
 ````
+`````
+
 ````
 
 ## Troubleshooting
@@ -445,7 +453,7 @@ launch-builder
 
 🏁 Starting builder components...
 ✅ Core Engine: Started (v2.1.0)
-✅ Workflow Manager: Started (v1.5.2)  
+✅ Workflow Manager: Started (v1.5.2)
 ✅ Integration Layer: Started (v1.8.1)
 ✅ Monitoring System: Started (v1.3.0)
 
@@ -579,3 +587,4 @@ launch-builder
 - **Error recovery** includes automated diagnosis and correction of common issues
 - **Performance monitoring** establishes baseline metrics and ongoing monitoring
 - **User guidance** provides clear next steps and available capabilities
+````

@@ -16,22 +16,28 @@ version: 1.0.0
 
 # Copilot Command: Generate Project Plan
 
-## Goal
-
-Convert detailed requirements from `{{files.requirements}}` into a comprehensive, actionable project plan using Epic-Story-Task structure with JIRA compatibility, Gantt charts, and intelligent resource allocation. The plan should be immediately executable with clear dependencies, time estimates, and quality gates.
-
 ## Variables
 
 - Folders, Files and Indexes are stored in `.ai-ley/shared/variables/folder-structure.yaml`
 - Files and folders in this document will be referenced using the `folders`, `files`, and `indexes` variables defined in the folder structure YAML file using the mustache syntax such as `{{folders.plan}}`.
 
+## References
+
+- See the `.ai-ley/shared/global-instructions.md` file for global instructions that apply to all commands.
+- Reference applicable personas in `{{folders.personas}}` and instructions in `{{folders.instructions}}` as needed.
+- In the event of conflicting information utilize the `.ai-ley/shared/conflict-resolution.md` guidelines.
+
+## Goal
+
+Convert detailed requirements from `{{files.requirements}}` into a comprehensive, actionable project plan using Epic-Story-Task structure with JIRA compatibility, Gantt charts, and intelligent resource allocation. The plan should be immediately executable with clear dependencies, time estimates, and quality gates.
+
 ## Project Structure
 
-The command creates a comprehensive plan structure under `{{folders.plan}}/`:
+The command creates a comprehensive plan structure:
 
 ```
+{{folders.project}}/PLAN.md
 {{folders.plan}}/
-├── PLAN.md                            # Project overview and navigation
 ├── business/                          # Business case and financial documents
 │   ├── business-case.md               # Detailed business case
 │   ├── financial-estimates.md         # Cost estimates and projections

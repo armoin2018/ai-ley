@@ -1,3 +1,14 @@
+## Variables
+
+- Folders, Files and Indexes are stored in `.ai-ley/shared/variables/folder-structure.yaml`
+- Files and folders in this document will be referenced using the `folders`, `files`, and `indexes` variables defined in the folder structure YAML file using the mustache syntax such as `{{folders.plan}}`.
+
+## References
+
+- See the `.ai-ley/shared/global-instructions.md` file for global instructions that apply to all commands.
+- Reference applicable personas in `{{folders.personas}}` and instructions in `{{folders.instructions}}` as needed.
+- In the event of conflicting information utilize the `.ai-ley/shared/conflict-resolution.md` guidelines.
+
 ## Objective
 
 Transform the structured requirements from **`{{files.requirements}}`** into a **Lean Canvas** format that highlights business model fundamentals.

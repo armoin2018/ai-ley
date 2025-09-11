@@ -29,6 +29,17 @@ version: 1.0.0
 - Folders, Files and Indexes are stored in `.ai-ley/shared/variables/folder-structure.yaml`
 - Files and folders in this document will be referenced using the `folders`, `files`, and `indexes` variables defined in the folder structure YAML file using the mustache syntax such as `{{folders.plan}}`.
 
+## References
+
+- See the `.ai-ley/shared/global-instructions.md` file for global instructions that apply to all commands.
+- Reference applicable personas in `{{folders.personas}}` and instructions in `{{folders.instructions}}` as needed.
+- In the event of conflicting information utilize the `.ai-ley/shared/conflict-resolution.md` guidelines.
+
+## Variables
+
+- Folders, Files and Indexes are stored in `.ai-ley/shared/variables/folder-structure.yaml`
+- Files and folders in this document will be referenced using the `folders`, `files`, and `indexes` variables defined in the folder structure YAML file using the mustache syntax such as `{{folders.plan}}`.
+
 ## Goal
 
 Given:
@@ -91,7 +102,7 @@ You are a market research analyst and strategic insights expert with expertise i
 
 **Market Gap Analysis and Opportunity Identification**:
 
-````markdown
+`````markdown
 **Step 2.1: Market Opportunities and Gap Analysis**
 
 **Comprehensive Market Research and Analysis Framework**:
@@ -244,7 +255,9 @@ timeline
          : {fully-integrated-market-changes}
 ```
 ````
-````
+`````
+
+`````
 
 ## Underserved Market Segments
 
@@ -540,7 +553,7 @@ timeline
 **Expansion Opportunities**: {upsell-cross-sell-potential}
 **Advocacy Potential**: {referral-testimonial-likelihood}
 ```
-````
+`````
 
 ````
 

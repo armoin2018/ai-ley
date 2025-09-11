@@ -21,6 +21,12 @@ version: 1.0.0
 - Folders, Files and Indexes are stored in `.ai-ley/shared/variables/folder-structure.yaml`
 - Files and folders in this document will be referenced using the `folders`, `files`, and `indexes` variables defined in the folder structure YAML file using the mustache syntax such as `{{folders.plan}}`.
 
+## References
+
+- See the `.ai-ley/shared/global-instructions.md` file for global instructions that apply to all commands.
+- Reference applicable personas in `{{folders.personas}}` and instructions in `{{folders.instructions}}` as needed.
+- In the event of conflicting information utilize the `.ai-ley/shared/conflict-resolution.md` guidelines.
+
 ## Goal
 
 Given:
@@ -78,7 +84,7 @@ You are an innovation strategist and business growth expert with expertise in op
 
 **Multi-Dimensional Growth Analysis**:
 
-````markdown
+`````markdown
 **Step 2.1: Strategic Opportunity Scanning**
 
 **Innovation Opportunity Categories**:
@@ -122,7 +128,9 @@ graph LR
     E[Support Functions] --> B
 ```
 ````
-````
+`````
+
+`````
 
 ### Innovation Opportunity Categories
 
@@ -321,7 +329,7 @@ graph LR
 | Current Business   | ${current-y1}      | ${current-y2}      | ${current-y3}      | ${current-total}           | -                   | -                     |
 | **Growth Impact**  | **+{percentage}%** | **+{percentage}%** | **+{percentage}%** | **+${additional-revenue}** | -                   | -                     |
 ```
-````
+`````
 
 ````
 

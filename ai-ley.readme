@@ -1,0 +1,36 @@
+# AI-LEY Project
+
+This project uses the AI-LEY (AI Learning Environment Yielder) framework for AI-assisted development.
+
+## Quick Start
+
+```bash
+# Ask AI to help with your project
+/ask "Your project description here"
+
+# Generate requirements
+/requirements
+
+# Create project plan
+/plan
+
+# Execute the plan
+/run
+```
+
+## AI-LEY Management
+
+```bash
+# Update AI-LEY content
+./ai-ley.py --update
+
+# List available tools
+./ai-ley.py --list
+
+# Contribute improvements back
+./ai-ley.py --contribute
+```
+
+## Documentation
+
+See [.ai-ley/docs/](/.ai-ley/docs/) for complete AI-LEY documentation.

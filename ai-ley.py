@@ -528,8 +528,7 @@ files:
   requirements: .project/REQUIREMENTS.md
   plan: .project/PLAN.md
   
-  # Documentation files
-  readme: README.md
+  # Documentation files  
   changelog: CHANGELOG.md
   
   # Configuration files
@@ -544,49 +543,14 @@ files:
                 f.write(folder_structure_content)
             print(f"✅ Created: {variables_file}")
         
-        # Create basic README if it doesn't exist
-        readme_file = self.base_dir / "README.md"
-        if not readme_file.exists():
-            readme_content = f"""# AI-LEY Project
-
-This project uses the AI-LEY (AI Learning Environment Yielder) framework for AI-assisted development.
-
-## Quick Start
-
-```bash
-# Ask AI to help with your project
-/ask "Your project description here"
-
-# Generate requirements
-/requirements
-
-# Create project plan
-/plan
-
-# Execute the plan
-/run
-```
-
-## AI-LEY Management
-
-```bash
-# Update AI-LEY content
-./ai-ley.py --update
-
-# List available tools
-./ai-ley.py --list
-
-# Contribute improvements back
-./ai-ley.py --contribute
-```
-
-## Documentation
-
-See [.ai-ley/docs/](/.ai-ley/docs/) for complete AI-LEY documentation.
-"""
-            with open(readme_file, 'w', encoding='utf-8') as f:
-                f.write(readme_content)
-            print(f"✅ Created: {readme_file}")
+        # Verify README template exists
+        readme_template_file = Path(__file__).parent / "ai-ley.readme"
+        if readme_template_file.exists():
+            print("📝 README template available in ai-ley.readme")
+        else:
+            print("⚠️  README template (ai-ley.readme) not found")
+        
+        # Note: README.md creation is left to project-specific initialization
 
 
 def main():

@@ -2,7 +2,7 @@
 agentMode: general
 applyTo: seo-analysis
 author: AI-LEY
-description: Comprehensive SEO analysis and audit instruction set for AI agents to perform detailed website optimization assessments with technical, content, and performance analysis including executive summaries, performance metrics, keyword analysis, technical health, backlink profiles, competitive landscape, local SEO, automated tool detection, CLI web access fallbacks, Google ranking scores, content rewording recommendations, lightweight Python development server for proper AJAX loading, markdown document viewer with syntax highlighting, and prioritized action plans
+description: Comprehensive SEO analysis and audit instruction set for AI agents to perform detailed website optimization assessments with technical, content, and performance analysis including executive summaries, performance metrics, keyword analysis, technical health, backlink profiles, competitive landscape, local SEO, automated tool detection, CLI web access fallbacks, Google ranking scores, content rewording recommendations, lightweight Python development server for proper AJAX loading, markdown document viewer with syntax highlighting, website crawling capabilities, per-page analysis scoring, and prioritized action plans
 extensions:
   - .md
 guidelines: Follow Google SEO best practices and current ranking factors
@@ -30,12 +30,19 @@ keywords:
     python-server,
     markdown-viewer,
     ajax-loading,
+    website-crawler,
+    per-page-analysis,
+    crawl-site,
+    analyze-pages,
+    cache-management,
+    robots-txt-compliance,
+    multi-category-scoring,
   ]
-lastUpdated: '2025-10-03T16:30:00.000000'
+lastUpdated: '2025-10-03T20:30:00.000000'
 technicalQualityScore: 5.0
 AIUsabilityScore: 5.0
 title: SEO Report Analysis Instructions
-version: 3.4.0
+version: 3.5.0
 ---
 
 # SEO Analysis & Audit Instructions
@@ -402,6 +409,536 @@ class SEOAnalysisExecutor:
    - Catch tool execution failures
    - Provide alternative methods
    - Log which tools succeeded/failed for user awareness
+
+---
+
+## 4. Website Crawling & Per-Page Analysis
+
+**Phase 6 Enhancement (v3.5.0)**: Complete website crawling and per-page SEO analysis framework for comprehensive site-wide audits.
+
+### Overview
+
+This section introduces automated website crawling and individual page analysis capabilities, enabling AI agents to:
+
+- Crawl entire websites respecting robots.txt and rate limits
+- Extract textual content, metadata, and structural information
+- Cache data for offline analysis and historical comparison
+- Generate detailed per-page SEO reports with specific recommendations
+- Identify patterns and common issues across the entire site
+- Prioritize fixes based on impact and page importance
+
+### 4.1 Website Crawler (`crawl_site.py`)
+
+#### Purpose
+
+Politely crawl target websites to extract comprehensive page data including content, metadata, links, images, and schema markup. All data is cached locally for subsequent analysis.
+
+#### Key Features
+
+- **Robots.txt Compliance**: Automatically loads and respects robots.txt directives
+- **Configurable Depth & Limits**: Control max pages and crawl depth
+- **Rate Limiting**: Built-in delays between requests for ethical crawling
+- **Content Extraction**: Comprehensive HTML parsing for all SEO-relevant elements
+- **Link Discovery**: Follows internal links while respecting domain boundaries
+- **Metadata Collection**: Response times, status codes, content types
+- **Cache Management**: Organized JSON storage for efficient retrieval
+
+#### Installation & Requirements
+
+```bash
+# Install required Python packages
+pip install requests beautifulsoup4 lxml
+
+# Verify installation
+python3 -c "import requests, bs4; print('✓ Dependencies installed')"
+```
+
+#### Usage Examples
+
+**Basic Crawl (Default Settings)**
+
+```bash
+# Crawl website with default limits (100 pages, depth 3)
+python3 crawl_site.py https://example.com
+```
+
+**Custom Configuration**
+
+```bash
+# Crawl 50 pages with max depth of 2
+python3 crawl_site.py https://example.com --max-pages 50 --max-depth 2
+
+# Faster crawling with 0.5s delay (use responsibly)
+python3 crawl_site.py https://example.com --delay 0.5
+
+# Custom output directory
+python3 crawl_site.py https://example.com --output-dir ./seo-audits/example/cache
+```
+
+#### Crawl Configuration Options
+
+| Parameter      | Type    | Default  | Description                      |
+| -------------- | ------- | -------- | -------------------------------- |
+| `url`          | string  | Required | Target website URL to crawl      |
+| `--max-pages`  | integer | 100      | Maximum number of pages to crawl |
+| `--max-depth`  | integer | 3        | Maximum link depth from homepage |
+| `--delay`      | float   | 1.0      | Delay between requests (seconds) |
+| `--output-dir` | string  | Auto     | Output directory for cached data |
+
+#### Output Structure
+
+```
+.project/seo/example.com/2025.10.03/cache/
+├── pages/                      # Individual page JSON files
+│   ├── a1b2c3d4e5f6.json     # URL hash as filename
+│   ├── b2c3d4e5f6a7.json
+│   └── ...
+├── metadata/                   # Response metadata for each page
+│   ├── a1b2c3d4e5f6.json
+│   ├── b2c3d4e5f6a7.json
+│   └── ...
+└── crawl_summary.json         # Overall crawl statistics
+```
+
+#### Page Data Schema
+
+Each cached page file contains:
+
+```json
+{
+  "url": "https://example.com/about",
+  "title": "About Us - Example Company",
+  "title_length": 28,
+  "meta_description": "Learn about Example Company...",
+  "meta_description_length": 142,
+  "canonical_url": "https://example.com/about",
+  "headings": {
+    "h1": ["About Our Company"],
+    "h2": ["Our Mission", "Our Team", "Our Values"],
+    "h3": ["Leadership", "Awards & Recognition"],
+    "h4": [],
+    "h5": [],
+    "h6": []
+  },
+  "word_count": 847,
+  "text_content": "First 5000 characters of visible text...",
+  "internal_links": [
+    {
+      "url": "https://example.com/contact",
+      "text": "Contact Us",
+      "title": "Get in touch"
+    }
+  ],
+  "internal_link_count": 23,
+  "external_links": [
+    {
+      "url": "https://industry-authority.com",
+      "text": "Industry Source",
+      "title": ""
+    }
+  ],
+  "external_link_count": 5,
+  "images": [
+    {
+      "src": "/images/team-photo.jpg",
+      "alt": "Our leadership team",
+      "title": "",
+      "width": "800",
+      "height": "600"
+    }
+  ],
+  "image_count": 12,
+  "images_without_alt": 2,
+  "open_graph": {
+    "title": "About Us - Example Company",
+    "description": "Learn about...",
+    "image": "https://example.com/og-image.jpg"
+  },
+  "twitter_card": {
+    "card": "summary_large_image",
+    "title": "About Us",
+    "description": "..."
+  },
+  "schema_markup": [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Example Company"
+    }
+  ],
+  "crawled_at": "2025-10-03T19:45:23.123456"
+}
+```
+
+#### Crawl Summary Schema
+
+```json
+{
+  "base_url": "https://example.com",
+  "domain": "example.com",
+  "configuration": {
+    "max_pages": 100,
+    "max_depth": 3,
+    "rate_limit": 1.0
+  },
+  "statistics": {
+    "pages_crawled": 87,
+    "pages_failed": 3,
+    "total_time": 142.5,
+    "start_time": "2025-10-03T19:30:00",
+    "end_time": "2025-10-03T19:32:22"
+  },
+  "pages_crawled": [
+    "https://example.com/",
+    "https://example.com/about",
+    ...
+  ],
+  "pages_failed": [
+    "https://example.com/broken-link"
+  ],
+  "total_urls_discovered": 156
+}
+```
+
+### 4.2 Per-Page Analyzer (`analyze_pages.py`)
+
+#### Purpose
+
+Analyze cached page data to generate detailed per-page SEO assessments with specific, actionable recommendations. Scores each page across 7 categories and prioritizes fixes.
+
+#### Key Features
+
+- **Multi-Category Scoring**: Title, meta description, headings, content, links, images, schema
+- **Issue Detection**: Identifies specific problems on each page
+- **Priority Assignment**: CRITICAL, HIGH, MEDIUM, LOW based on overall score
+- **Detailed Recommendations**: Actionable fixes for every identified issue
+- **Export Formats**: CSV for spreadsheets, JSON for automation
+- **Site-Wide Insights**: Common issues and patterns across all pages
+
+#### Usage Examples
+
+**Basic Analysis (CSV Output)**
+
+```bash
+# Analyze all cached pages and generate CSV report
+python3 analyze_pages.py ./cache/example
+```
+
+**JSON Output**
+
+```bash
+# Generate JSON report for automated processing
+python3 analyze_pages.py ./cache/example --format json
+```
+
+**Both Formats**
+
+```bash
+# Generate both CSV and JSON reports
+python3 analyze_pages.py ./cache/example --format both
+```
+
+**Custom Output Path**
+
+```bash
+# Specify output file location
+python3 analyze_pages.py ./cache/example --output ./reports/page-analysis.csv
+```
+
+#### Analysis Options
+
+| Parameter   | Type   | Default  | Description                       |
+| ----------- | ------ | -------- | --------------------------------- |
+| `cache_dir` | string | Required | Directory with cached page data   |
+| `--format`  | enum   | csv      | Output format: csv, json, or both |
+| `--output`  | string | Auto     | Custom output file path           |
+
+#### Scoring System
+
+**Seven Analysis Categories (0-100 scale each):**
+
+1. **Title Tag Score** (Weight: 20%)
+
+   - Length optimization (30-60 characters)
+   - Keyword positioning
+   - Uniqueness and relevance
+   - Brand placement
+
+2. **Meta Description Score** (Weight: 15%)
+
+   - Length optimization (120-158 characters)
+   - Call-to-action presence
+   - Keyword inclusion
+   - Compelling copy
+
+3. **Headings Score** (Weight: 15%)
+
+   - H1 presence and uniqueness
+   - Proper heading hierarchy
+   - Descriptive heading text
+   - No skipped levels
+
+4. **Content Score** (Weight: 25%)
+
+   - Word count sufficiency (300+ minimum, 1000+ ideal)
+   - Content depth and quality
+   - Readability (paragraph length)
+   - Content uniqueness
+
+5. **Links Score** (Weight: 15%)
+
+   - Internal linking quantity (3-100 optimal)
+   - Anchor text quality
+   - External link presence
+   - Link balance
+
+6. **Images Score** (Weight: 5%)
+
+   - Alt tag presence
+   - Image count appropriateness
+   - File size optimization flags
+
+7. **Schema Score** (Weight: 5%)
+   - Schema.org markup presence
+   - Open Graph tags
+   - Twitter Card tags
+
+**Overall Score Calculation:**
+
+```
+Overall = (Title×0.20) + (Meta×0.15) + (Headings×0.15) +
+          (Content×0.25) + (Links×0.15) + (Images×0.05) + (Schema×0.05)
+```
+
+**Priority Assignment:**
+
+- **CRITICAL**: Score < 50 (immediate action required)
+- **HIGH**: Score 50-69 (address within 1-2 weeks)
+- **MEDIUM**: Score 70-84 (optimize within 30 days)
+- **LOW**: Score 85-100 (minor optimizations)
+
+#### CSV Output Format
+
+```csv
+URL,Overall Score,Priority,Title Score,Meta Desc Score,Headings Score,Content Score,Links Score,Images Score,Schema Score,Title Length,Meta Desc Length,Word Count,Internal Links,External Links,Images,Missing Alt Tags,H1 Count,Response Time (s),All Issues
+https://example.com/,72,MEDIUM,85,65,90,60,80,75,40,42,135,1250,45,8,15,2,1,0.85,[TITLE] Title could be longer | [META_DESCRIPTION] No call-to-action | [SCHEMA] No schema.org markup
+https://example.com/about,45,CRITICAL,30,50,40,55,70,60,30,18,98,450,12,3,8,0,2,1.2,[TITLE] CRITICAL: Title too short | [HEADINGS] CRITICAL: Multiple H1 tags | [CONTENT] CRITICAL: Thin content
+```
+
+#### JSON Output Format
+
+```json
+{
+  "analysis_date": "2025-10-03T20:15:30.123456",
+  "cache_directory": "./cache/example",
+  "total_pages": 87,
+  "pages": [
+    {
+      "url": "https://example.com/about",
+      "url_id": "a1b2c3d4e5f6",
+      "overall_score": 45,
+      "priority": "CRITICAL",
+      "scores": {
+        "title": 30,
+        "meta_description": 50,
+        "headings": 40,
+        "content": 55,
+        "links": 70,
+        "images": 60,
+        "schema": 30
+      },
+      "issues": {
+        "title": ["Title too short (18 chars, target: 30-60)"],
+        "meta_description": [
+          "Meta description too short (98 chars, target: 120-158)",
+          "No call-to-action detected"
+        ],
+        "headings": ["CRITICAL: Multiple H1 headings (2) - should have only one"],
+        "content": [
+          "CRITICAL: Thin content (450 words, minimum: 300)",
+          "Content below ideal length (450 words, target: 1000+)"
+        ],
+        "links": ["Few internal links (12) - add more contextual links"],
+        "images": [],
+        "schema": ["No schema.org structured data found", "No Open Graph tags"]
+      },
+      "metadata": {
+        "title": "About",
+        "title_length": 18,
+        "meta_description_length": 98,
+        "word_count": 450,
+        "internal_links": 12,
+        "external_links": 3,
+        "images": 8,
+        "images_without_alt": 0,
+        "h1_count": 2,
+        "response_time": 1.2
+      }
+    }
+  ]
+}
+```
+
+#### Analysis Summary Output
+
+After completing analysis, the script displays:
+
+**Overall Statistics:**
+
+- Average score across all pages
+- Highest and lowest scoring pages
+- Total pages analyzed
+
+**Priority Distribution:**
+
+- Count of CRITICAL priority pages
+- Count of HIGH priority pages
+- Count of MEDIUM priority pages
+- Count of LOW priority pages
+
+**Top 5 Common Issues:**
+
+- Most frequent problems across the site
+- Number of pages affected by each issue
+
+### 4.3 Integrated Workflow
+
+**Complete Site Audit Process:**
+
+```bash
+# Step 1: Crawl the website
+python3 crawl_site.py https://example.com --max-pages 100 --max-depth 3
+
+# Output: .project/seo/example.com/2025.10.03/cache/
+
+# Step 2: Analyze all crawled pages
+python3 analyze_pages.py .project/seo/example.com/2025.10.03/cache --format both
+
+# Output:
+#   - .project/seo/example.com/2025.10.03/page-analysis.csv
+#   - .project/seo/example.com/2025.10.03/page-analysis.json
+
+# Step 3: Review results
+# - Open CSV in Excel/Google Sheets for spreadsheet view
+# - Use JSON for automated processing or custom reporting
+# - Filter by priority to focus on high-impact fixes first
+```
+
+### 4.4 Use Cases & Best Practices
+
+#### Use Case 1: New Website Audit
+
+```bash
+# Comprehensive initial audit
+python3 crawl_site.py https://newclient.com --max-pages 200 --max-depth 4
+python3 analyze_pages.py ./cache/newclient --format both --output ./audits/newclient-initial-audit.csv
+
+# Review CRITICAL and HIGH priority pages first
+# Create action plan sorted by priority and impact
+```
+
+#### Use Case 2: Ongoing SEO Monitoring
+
+```bash
+# Monthly crawl for progress tracking
+python3 crawl_site.py https://example.com --output-dir ./cache/example-$(date +%Y-%m)
+python3 analyze_pages.py ./cache/example-$(date +%Y-%m) --format json
+
+# Compare JSON files month-over-month to track improvements
+# Identify new issues or regressions
+```
+
+#### Use Case 3: Pre-Launch Quality Assurance
+
+```bash
+# Crawl staging environment before launch
+python3 crawl_site.py https://staging.example.com --max-pages 500
+python3 analyze_pages.py ./cache/staging --format csv
+
+# Fix all CRITICAL issues before going live
+# Address HIGH priority issues post-launch
+```
+
+#### Use Case 4: Competitive Analysis
+
+```bash
+# Crawl competitor sites (ethically and legally)
+python3 crawl_site.py https://competitor.com --delay 2.0 --max-pages 50
+python3 analyze_pages.py ./cache/competitor --format json
+
+# Compare scoring patterns
+# Identify content gaps and opportunities
+```
+
+### 4.5 Best Practices
+
+**Crawling Ethics:**
+
+- Always respect robots.txt directives
+- Use appropriate rate limiting (1-2 seconds minimum)
+- Identify your crawler with a proper User-Agent
+- Never crawl sites you don't have permission to analyze
+- Limit max pages to avoid excessive server load
+
+**Analysis Prioritization:**
+
+1. Fix CRITICAL issues first (biggest SEO impact)
+2. Address HIGH priority pages that drive traffic
+3. Batch similar issues across multiple pages
+4. Re-crawl and re-analyze after fixes to verify improvements
+5. Track progress over time with dated cache directories
+
+**Performance Optimization:**
+
+- Crawl during off-peak hours when possible
+- Cache data for offline analysis (no need to re-crawl)
+- Use JSON exports for automated reporting pipelines
+- Filter CSV by priority column for focused review
+- Archive old crawls for historical comparison
+
+**Integration with Main SEO Report:**
+
+- Use per-page data to inform overall site audit
+- Include top 10 worst-performing pages in executive summary
+- Reference common issues found across multiple pages
+- Generate aggregate statistics from per-page scores
+- Create prioritized action plan from CRITICAL/HIGH pages
+
+### 4.6 Troubleshooting
+
+**"No specialized SEO tools detected"**
+
+```bash
+# Install required dependencies
+pip install requests beautifulsoup4 lxml
+```
+
+**"robots.txt blocking crawl"**
+
+- Verify robots.txt rules at https://example.com/robots.txt
+- Check if your IP or User-Agent is disallowed
+- Request permission from site owner if needed
+
+**"Timeout errors during crawl"**
+
+```bash
+# Increase delay between requests
+python3 crawl_site.py https://example.com --delay 2.0
+```
+
+**"Cache directory not found"**
+
+- Ensure crawl completed successfully before running analyzer
+- Verify correct path to cache directory
+- Check crawl_summary.json for crawl statistics
+
+**"Missing page data in analysis"**
+
+- Re-run crawler for failed URLs
+- Check `pages_failed` array in crawl_summary.json
+- Verify pages returned valid HTML (not PDF, images, etc.)
+
+---
 
 ## 5. Meta Tags & Content Element Size Guidelines
 

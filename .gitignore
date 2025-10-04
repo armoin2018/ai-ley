@@ -60,7 +60,7 @@ Thumbs.db
 .ai-ley/external
 .project/tests
 .project/diff
-
+.project/seo
 # Python
 __pycache__/
 *.py[cod]

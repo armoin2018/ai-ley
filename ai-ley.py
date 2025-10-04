@@ -181,12 +181,11 @@ class AILeyManager:
     
     def update_shared_content(self) -> None:
         """Update AI-LEY content from ai-ley repository (shared, builder, docs)."""
-        # Ensure ai-ley repo is fetched
-        if not (self.external_dir / "ai-ley").exists():
-            print("AI-LEY repository not found locally. Fetching...")
-            if not self.fetch_repo("ai-ley"):
-                print("Failed to fetch ai-ley repository.")
-                return
+        # Always fetch/update ai-ley repo first to get latest changes
+        print("Fetching latest changes from ai-ley repository...")
+        if not self.fetch_repo("ai-ley"):
+            print("Failed to fetch ai-ley repository.")
+            return
         
         ai_ley_repo_path = self.external_dir / "ai-ley"
         ai_ley_base = self.base_dir / ".ai-ley"
@@ -277,14 +276,54 @@ class AILeyManager:
         else:
             print(f"Updated {updated_count} files in {dir_name}")
     
+    def fetch_all_external_repos(self) -> None:
+        """Fetch all external repositories from configuration."""
+        git_repos = self.config.get('git_repos', {})
+        
+        if not git_repos:
+            print("No external repositories configured.")
+            return
+        
+        print("\nFetching all external repositories...")
+        success_count = 0
+        fail_count = 0
+        
+        for repo_name in git_repos.keys():
+            if repo_name == "ai-ley":
+                continue  # Skip ai-ley repo as it's handled separately
+            
+            print(f"\n📥 Fetching {repo_name}...")
+            if self.fetch_repo(repo_name):
+                success_count += 1
+            else:
+                fail_count += 1
+        
+        print(f"\n✅ Successfully fetched: {success_count} repositories")
+        if fail_count > 0:
+            print(f"⚠️  Failed to fetch: {fail_count} repositories")
+    
+    def update_all_portable_repos(self) -> None:
+        """Update content from all portable repositories."""
+        git_repos = self.config.get('git_repos', {})
+        portable_repos = [name for name, config in git_repos.items() 
+                         if config.get('portable', False) and name != "ai-ley"]
+        
+        if not portable_repos:
+            print("No portable repositories configured.")
+            return
+        
+        print("\nUpdating content from portable repositories...")
+        for repo_name in portable_repos:
+            print(f"\n📦 Porting content from {repo_name}...")
+            self.port_content(repo_name)
+    
     def contribute_changes(self) -> None:
         """Contribute changes back to ai-ley repository (shared, builder, docs)."""
-        # Ensure ai-ley repo is fetched
-        if not (self.external_dir / "ai-ley").exists():
-            print("AI-LEY repository not found locally. Fetching...")
-            if not self.fetch_repo("ai-ley"):
-                print("Failed to fetch ai-ley repository.")
-                return
+        # Always fetch ai-ley repo first to get latest changes before contributing
+        print("Fetching latest changes from ai-ley repository before contributing...")
+        if not self.fetch_repo("ai-ley"):
+            print("Failed to fetch ai-ley repository.")
+            return
         
         repo_path = self.external_dir / "ai-ley"
         local_ai_ley_base = self.base_dir / ".ai-ley"
@@ -618,7 +657,19 @@ def main():
         elif args.fetch:
             manager.fetch_repo(args.fetch)
         elif args.update:
+            # First update ai-ley content
             manager.update_shared_content()
+            
+            # Then fetch and update all external repositories
+            print("\n" + "="*70)
+            print("Updating external repositories...")
+            print("="*70)
+            manager.fetch_all_external_repos()
+            manager.update_all_portable_repos()
+            
+            print("\n" + "="*70)
+            print("✅ Update complete!")
+            print("="*70)
         elif args.contribute:
             manager.contribute_changes()
         elif args.port:

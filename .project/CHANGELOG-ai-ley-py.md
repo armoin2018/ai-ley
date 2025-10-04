@@ -1,14 +1,15 @@
 # ai-ley.py Changelog
 
-## Updates - October 3, 2025
+## Updates - October 3-4, 2025
 
-### Enhanced Git Fetch Behavior
+### Enhanced Git Fetch Behavior, Root Files & Shared Instructions Updates
 
 #### Changes Made:
 
 1. **`--update` flag improvements:**
 
    - Now **always fetches** the ai-ley repository before checking for changes
+   - **Updates root-level ai-ley.\* files** (ai-ley.py, ai-ley.readme, ai-ley.map.yaml)
    - Fetches **all external repositories** configured in `ai-ley.map.yaml`
    - Automatically updates content from all **portable repositories**
    - Provides clear visual feedback with progress indicators
@@ -20,6 +21,8 @@
    - Reduces risk of overwriting recent changes
 
 3. **New methods added:**
+   - `update_root_ailey_files()` - Updates root-level ai-ley.\* files from repository
+   - `update_shared_md_files()` - Updates global-instructions.md and persona-conflict-flow.md
    - `fetch_all_external_repos()` - Fetches all configured external repositories
    - `update_all_portable_repos()` - Updates content from all portable repos automatically
 
@@ -43,8 +46,10 @@
 # Update now:
 # 1. Fetches ai-ley repo (git pull if exists, git clone if not)
 # 2. Updates shared/builder/docs from ai-ley
-# 3. Fetches ALL external repos from config
-# 4. Ports content from all portable repos
+# 3. Updates root ai-ley.* files (ai-ley.py, ai-ley.readme, ai-ley.map.yaml)
+# 4. Updates shared .md files (global-instructions.md, persona-conflict-flow.md)
+# 5. Fetches ALL external repos from config
+# 6. Ports content from all portable repos
 ./ai-ley.py --update
 
 # Contribute now:
@@ -124,6 +129,27 @@ def update_all_portable_repos(self) -> None:
     # Automatically ports their content using folder mappings
 ```
 
+#### 5. New: `update_root_ailey_files()`
+
+```python
+def update_root_ailey_files(self) -> None:
+    """Update root-level ai-ley.* files from ai-ley repository."""
+    # Updates ai-ley.readme and ai-ley.map.yaml automatically
+    # Notifies about ai-ley.py updates (requires manual update to avoid breaking running script)
+    # Uses MD5 hash comparison to avoid unnecessary updates
+```
+
+#### 6. New: `update_shared_md_files()`
+
+```python
+def update_shared_md_files(self) -> None:
+    """Update global and flow instruction markdown files in .ai-ley/shared/."""
+    # Updates global-instructions.md (system-wide AI instructions)
+    # Updates persona-conflict-flow.md (persona conflict resolution flow)
+    # Uses MD5 hash comparison to avoid unnecessary updates
+    # Critical for keeping AI behavior consistent across updates
+```
+
 ---
 
 ## Example Output
@@ -143,6 +169,21 @@ No updates needed for personas
 Updated 1 files in prompts
 Updated 5 files in builder
 No updates needed for docs
+
+Updating root-level ai-ley.* files...
+✅ Updated: ai-ley.readme
+✓ ai-ley.map.yaml is up to date
+⚠️  ai-ley.py: New version available
+    To update, run: cp .ai-ley/external/ai-ley/ai-ley.py ./ai-ley.py
+    Or manually backup and replace the file.
+
+Updated 1 root-level file(s)
+
+Updating shared markdown files (.ai-ley/shared/*.md)...
+✅ Updated: global-instructions.md
+✓ persona-conflict-flow.md is up to date
+
+Updated 1 shared markdown file(s)
 
 ======================================================================
 Updating external repositories...
@@ -189,7 +230,19 @@ Ported directory: src/templates -> .ai-ley/shared/templates/example
 - Fetching before contributing prevents overwriting recent changes
 - Reduces merge conflicts and failed pull requests
 
-### 4. **Better User Experience**
+### 4. **Keeps Root Files Updated**
+
+- Automatically updates ai-ley.readme (documentation)
+- Automatically updates ai-ley.map.yaml (configuration)
+- Notifies about ai-ley.py updates (safe handling for running script)
+
+### 5. **Keeps Shared Instructions Updated**
+
+- Automatically updates global-instructions.md (AI system behavior)
+- Automatically updates persona-conflict-flow.md (conflict resolution logic)
+- Ensures consistent AI behavior across all projects
+
+### 6. **Better User Experience**
 
 - Clear progress indicators with emoji icons
 - Success/failure summaries
@@ -261,6 +314,10 @@ git_repos:
 6. ✅ Contribute without ai-ley repo (clone first)
 7. ✅ Error handling for inaccessible repos
 8. ✅ Skip patterns maintained (node_modules, .git, etc.)
+9. ✅ Root file updates (ai-ley.readme, ai-ley.map.yaml)
+10. ✅ Safe ai-ley.py update notification (no overwrite while running)
+11. ✅ Shared markdown file updates (global-instructions.md, persona-conflict-flow.md)
+12. ✅ Hash-based update detection for all file types
 
 ---
 
@@ -289,6 +346,69 @@ If you encounter any problems with the new fetch behavior:
 
 ---
 
-**Version:** 1.1.0  
-**Date:** October 3, 2025  
+---
+
+## Root File Update Details
+
+### Files Updated Automatically:
+
+- ✅ **ai-ley.readme** - Documentation and getting started guide
+- ✅ **ai-ley.map.yaml** - Repository configuration and mappings
+
+### Files Requiring Manual Update:
+
+- ⚠️ **ai-ley.py** - The script itself (cannot be updated while running)
+
+  **To update ai-ley.py:**
+
+  ```bash
+  # Option 1: Copy from external repo (after --update)
+  cp .ai-ley/external/ai-ley/ai-ley.py ./ai-ley.py
+
+  # Option 2: Manual backup and replace
+  cp ai-ley.py ai-ley.py.backup
+  cp .ai-ley/external/ai-ley/ai-ley.py ./ai-ley.py
+
+  # Option 3: Fetch and compare manually
+  diff ai-ley.py .ai-ley/external/ai-ley/ai-ley.py
+  ```
+
+### Why ai-ley.py Isn't Auto-Updated:
+
+- **Safety**: Overwriting a running Python script can cause crashes or corruption
+- **User Control**: Allows review of changes before updating
+- **Compatibility**: User can verify their customizations won't break
+
+### Smart Update Logic:
+
+- Uses MD5 hash comparison to detect changes
+- Only updates files that have actually changed
+- Provides clear status for each file (✅ Updated, ✓ Up to date, ⚠️ Action needed)
+
+---
+
+## Shared Markdown File Updates
+
+### Files Updated Automatically:
+
+- ✅ **global-instructions.md** - Core AI system instructions and behavior guidelines
+- ✅ **persona-conflict-flow.md** - Persona conflict resolution workflow
+
+### Why These Files Are Important:
+
+1. **global-instructions.md** - Defines how AI agents should behave across all projects
+2. **persona-conflict-flow.md** - Provides conflict resolution logic when multiple personas interact
+3. **Consistency** - Ensures all projects use the same AI behavior patterns
+4. **Updates** - Gets latest improvements to AI instruction sets automatically
+
+### Location:
+
+- Files are in: `.ai-ley/shared/`
+- Updated during: `./ai-ley.py --update`
+- Uses MD5 hash comparison for efficiency
+
+---
+
+**Version:** 1.3.0  
+**Date:** October 3-4, 2025  
 **Compatibility:** Fully backward compatible with existing installations

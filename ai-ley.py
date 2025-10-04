@@ -193,8 +193,8 @@ class AILeyManager:
         # Update shared content (instructions, personas, prompts)
         source_base = ai_ley_repo_path / ".ai-ley" / "shared"
         target_base = self.shared_dir
-        
-        for content_type in ["instructions", "personas", "prompts"]:
+
+        for content_type in ["indexes", "instructions", "md5sums", "personas", "prompts", "templates", "uml-flows", "variables"]:
             source_dir = source_base / content_type
             target_dir = target_base / content_type
             
@@ -244,6 +244,12 @@ class AILeyManager:
             self._update_directory(source_docs, target_docs, "docs")
         else:
             print("Docs directory not found in source repository")
+        
+        # Update root-level ai-ley.* files
+        self.update_root_ailey_files()
+        
+        # Update shared markdown files (global-instructions.md, persona-conflict-flow.md)
+        self.update_shared_md_files()
     
     def _update_directory(self, source_dir: Path, target_dir: Path, dir_name: str) -> None:
         """Update a complete directory with hash comparison."""
@@ -275,6 +281,112 @@ class AILeyManager:
             print(f"No updates needed for {dir_name}")
         else:
             print(f"Updated {updated_count} files in {dir_name}")
+    
+    def update_root_ailey_files(self) -> None:
+        """Update root-level ai-ley.* files from ai-ley repository."""
+        ai_ley_repo_path = self.external_dir / "ai-ley"
+        
+        if not ai_ley_repo_path.exists():
+            print("AI-LEY repository not found. Cannot update root files.")
+            return
+        
+        print("\nUpdating root-level ai-ley.* files...")
+        
+        # List of root files to update
+        root_files = [
+            "ai-ley.py",
+            "ai-ley.readme",
+            "ai-ley.map.yaml"
+        ]
+        
+        updated_count = 0
+        for filename in root_files:
+            source_file = ai_ley_repo_path / filename
+            target_file = self.base_dir / filename
+            
+            if not source_file.exists():
+                print(f"Source file not found: {filename} (skipping)")
+                continue
+            
+            # Calculate hashes to check if update is needed
+            source_hash = self._calculate_md5_hash(source_file)
+            target_hash = self._calculate_md5_hash(target_file) if target_file.exists() else ""
+            
+            if source_hash != target_hash:
+                # Special handling for ai-ley.py - don't overwrite if this script is running
+                if filename == "ai-ley.py":
+                    print(f"⚠️  {filename}: New version available")
+                    print(f"    To update, run: cp .ai-ley/external/ai-ley/{filename} ./{filename}")
+                    print(f"    Or manually backup and replace the file.")
+                    continue
+                
+                # For other files, update normally
+                try:
+                    shutil.copy2(source_file, target_file)
+                    updated_count += 1
+                    print(f"✅ Updated: {filename}")
+                except Exception as e:
+                    print(f"❌ Failed to update {filename}: {e}")
+            else:
+                print(f"✓ {filename} is up to date")
+        
+        if updated_count > 0:
+            print(f"\nUpdated {updated_count} root-level file(s)")
+        else:
+            print("\nAll root-level files are up to date")
+    
+    def update_shared_md_files(self) -> None:
+        """Update global and flow instruction markdown files in .ai-ley/shared/."""
+        ai_ley_repo_path = self.external_dir / "ai-ley"
+        
+        if not ai_ley_repo_path.exists():
+            print("AI-LEY repository not found. Cannot update shared .md files.")
+            return
+        
+        print("\nUpdating shared markdown files (.ai-ley/shared/*.md)...")
+        
+        # List of shared markdown files to update
+        shared_md_files = [
+            "global-instructions.md",
+            "persona-conflict-flow.md"
+        ]
+        
+        source_shared = ai_ley_repo_path / ".ai-ley" / "shared"
+        target_shared = self.base_dir / ".ai-ley" / "shared"
+        
+        if not source_shared.exists():
+            print("Source .ai-ley/shared directory not found.")
+            return
+        
+        target_shared.mkdir(parents=True, exist_ok=True)
+        
+        updated_count = 0
+        for filename in shared_md_files:
+            source_file = source_shared / filename
+            target_file = target_shared / filename
+            
+            if not source_file.exists():
+                print(f"Source file not found: {filename} (skipping)")
+                continue
+            
+            # Calculate hashes to check if update is needed
+            source_hash = self._calculate_md5_hash(source_file)
+            target_hash = self._calculate_md5_hash(target_file) if target_file.exists() else ""
+            
+            if source_hash != target_hash:
+                try:
+                    shutil.copy2(source_file, target_file)
+                    updated_count += 1
+                    print(f"✅ Updated: {filename}")
+                except Exception as e:
+                    print(f"❌ Failed to update {filename}: {e}")
+            else:
+                print(f"✓ {filename} is up to date")
+        
+        if updated_count > 0:
+            print(f"\nUpdated {updated_count} shared markdown file(s)")
+        else:
+            print("\nAll shared markdown files are up to date")
     
     def fetch_all_external_repos(self) -> None:
         """Fetch all external repositories from configuration."""
@@ -343,8 +455,7 @@ class AILeyManager:
             # Contribute shared content (instructions, personas, prompts)
             source_base = local_ai_ley_base / "shared"
             target_shared_base = target_base / "shared"
-            
-            for content_type in ["instructions", "personas", "prompts"]:
+            for content_type in ["indexes", "instructions", "md5sums", "personas", "prompts", "templates", "uml-flows", "variables"]:
                 source_dir = source_base / content_type
                 target_dir = target_shared_base / content_type
                 

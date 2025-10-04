@@ -1,0 +1,494 @@
+{
+  "seo_audit": {
+    "meta": {
+      "domain": "base-six.com",
+      "url": "https://www.base-six.com",
+      "analysis_date": "2025-10-03",
+      "report_version": "1.0",
+      "analyzed_by": "AI-LEY SEO Expert System",
+      "personas_used": ["seo-expert", "seo-savant"],
+      "analysis_depth": "comprehensive"
+    },
+    "overall_scores": {
+      "total_seo_health": 68,
+      "grade": "C+",
+      "status": "needs_improvement",
+      "category_scores": {
+        "technical_seo": 62,
+        "on_page_content": 71,
+        "user_experience_performance": 58,
+        "content_strategy": 75,
+        "off_page_authority": 45
+      }
+    },
+    "technical_seo": {
+      "score": 62,
+      "grade": "D+",
+      "issues": {
+        "critical": [
+          {
+            "issue": "missing_xml_sitemap",
+            "severity": "critical",
+            "impact": "high",
+            "description": "No XML sitemap found or submitted to search engines"
+          },
+          {
+            "issue": "no_schema_markup",
+            "severity": "critical",
+            "impact": "high",
+            "description": "Zero structured data implementation detected"
+          },
+          {
+            "issue": "missing_canonical_tags",
+            "severity": "high",
+            "impact": "medium",
+            "description": "No canonical tags found, potential duplicate content risk"
+          },
+          {
+            "issue": "no_robots_txt",
+            "severity": "high",
+            "impact": "medium",
+            "description": "Missing robots.txt configuration file"
+          }
+        ],
+        "warnings": [
+          {
+            "issue": "missing_hreflang_tags",
+            "severity": "low",
+            "impact": "low",
+            "description": "No international targeting tags (only issue if planning multi-language)"
+          }
+        ]
+      },
+      "positives": [
+        "https_enabled",
+        "clean_url_structure",
+        "mobile_responsive_design",
+        "cookie_consent_compliance"
+      ],
+      "recommendations": [
+        "Generate and submit XML sitemap immediately",
+        "Implement Product and Organization schema markup",
+        "Add canonical tags to all pages",
+        "Create robots.txt with proper directives"
+      ]
+    },
+    "on_page_seo": {
+      "score": 71,
+      "grade": "C",
+      "title_tags": {
+        "status": "poor",
+        "issues": ["missing_or_generic_titles", "not_optimized_for_keywords", "missing_brand_name"],
+        "recommendations": {
+          "homepage": "Base6 Card Game - Hexagonal Strategy Cards for All Ages | Creative Learning",
+          "shop": "Buy Base6 Card Game - Official Launch Pack | Free Shipping",
+          "rules": "How to Play Base6 - Game Rules & Instructions | Learn in Minutes"
+        }
+      },
+      "meta_descriptions": {
+        "status": "poor",
+        "issues": ["missing_on_key_pages", "not_compelling_for_ctr"],
+        "recommendations": {
+          "homepage": "Discover Base6, the innovative hexagonal card game that sparks creativity, builds strategy skills, and brings families together. Ages 7+. Shop now!",
+          "character_target": "150-160 characters"
+        }
+      },
+      "header_structure": {
+        "h1_present": false,
+        "h2_present": true,
+        "hierarchy_issues": ["missing_h1_homepage"],
+        "recommendation": "Add H1: 'Base6 Card Game - Hexagonal Strategy for Creative Learning'"
+      },
+      "content_quality": {
+        "current_word_count": "estimated_700_words",
+        "target_word_count": "1500_2000_words",
+        "content_depth": "light",
+        "recommendations": [
+          "Expand content with educational benefits research",
+          "Add 'Why Hexagonal Cards?' section",
+          "Include detailed game mechanics explanation",
+          "Add customer testimonials and use cases"
+        ]
+      },
+      "keyword_optimization": {
+        "primary_keywords": ["hexagonal card game", "strategy card game", "educational card game"],
+        "secondary_keywords": ["family game night", "classroom games", "creative learning games"],
+        "long_tail_opportunities": [
+          "best card games for kids ages 7+",
+          "how to teach strategy with card games",
+          "hexagonal card game benefits"
+        ],
+        "current_usage": "minimal",
+        "recommendation": "Strategic integration needed across all content"
+      },
+      "image_optimization": {
+        "status": "poor",
+        "issues": [
+          "svg_placeholders_instead_of_real_images",
+          "missing_alt_tags",
+          "no_webp_format",
+          "no_lazy_loading"
+        ],
+        "recommendations": [
+          "Replace SVG placeholders with actual product images",
+          "Add descriptive alt tags: 'Base6 hexagonal card game demonstration'",
+          "Implement WebP format with fallbacks",
+          "Enable lazy loading for below-fold images"
+        ]
+      }
+    },
+    "performance_metrics": {
+      "score": 58,
+      "grade": "F",
+      "core_web_vitals": {
+        "lcp": {
+          "estimated": "3.5_4.5_seconds",
+          "target": "2.5_seconds",
+          "status": "poor",
+          "primary_issue": "svg_placeholders_blocking_real_image_load"
+        },
+        "fid": {
+          "estimated": "unknown",
+          "target": "100_milliseconds",
+          "status": "needs_testing"
+        },
+        "cls": {
+          "estimated": "high_risk",
+          "target": "0.1",
+          "status": "poor",
+          "primary_issue": "layout_shifts_from_placeholder_to_real_images"
+        }
+      },
+      "mobile_optimization": {
+        "responsive_design": true,
+        "mobile_friendly_test": "needs_separate_testing",
+        "target_mobile_pagespeed": "80_plus"
+      },
+      "recommendations": [
+        "Replace SVG placeholders immediately to fix CLS",
+        "Implement critical CSS inlining",
+        "Defer non-critical JavaScript",
+        "Enable image lazy loading",
+        "Optimize for mobile-first experience"
+      ]
+    },
+    "content_strategy": {
+      "score": 75,
+      "grade": "C+",
+      "intent_satisfaction": {
+        "commercial_intent": "well_addressed",
+        "informational_intent": "partially_addressed",
+        "educational_intent": "needs_depth",
+        "comparison_intent": "missing"
+      },
+      "topic_cluster_opportunity": {
+        "status": "critical_opportunity",
+        "pillar_page": {
+          "title": "Complete Guide to Educational Card Games for Families",
+          "target_length": "2500_3000_words",
+          "focus": "comprehensive_resource"
+        },
+        "cluster_pages": [
+          "10 Benefits of Strategy Card Games for Kids",
+          "How to Choose the Right Card Game for Your Family",
+          "Teacher's Guide: Card Games in the Classroom",
+          "Base6 vs Traditional Card Games: What Makes It Different",
+          "Creative Game Night Ideas with Hexagonal Cards",
+          "Building Cognitive Skills Through Card Game Play",
+          "Age-Appropriate Card Games: From 7 to 70+"
+        ],
+        "expected_impact": "50_100_percent_organic_growth_90_days"
+      },
+      "content_velocity_plan": {
+        "strategy": "publish_10_12_posts_30_days",
+        "focus": "educational_card_games_cluster",
+        "goal": "signal_topical_authority",
+        "expected_result": "rankings_jump_after_trust_threshold"
+      },
+      "internal_linking_architecture": {
+        "current_state": "weak",
+        "target": "strategic_authority_distribution",
+        "implementation": {
+          "pillar_to_clusters": "all_7_cluster_pages",
+          "clusters_to_pillar": "contextual_backlinks",
+          "cluster_cross_references": "relevant_topics",
+          "homepage_to_pillar": "prominent_link"
+        }
+      }
+    },
+    "off_page_authority": {
+      "score": 45,
+      "grade": "F",
+      "domain_authority": {
+        "estimated": "15_20",
+        "scale": "100",
+        "status": "new_domain"
+      },
+      "backlink_profile": {
+        "quality_links": "minimal",
+        "toxic_links": "none_detected",
+        "referring_domains": "very_low",
+        "anchor_diversity": "unknown"
+      },
+      "brand_signals": {
+        "brand_searches": "low_minimal",
+        "social_mentions": "minimal",
+        "online_presence": "limited"
+      },
+      "trust_acceleration_plan": {
+        "phase_1_weeks_1_4": {
+          "quality_links_target": "5_10_links",
+          "sources": [
+            "educational_blogs",
+            "parenting_websites",
+            "board_game_review_sites",
+            "teacher_resource_sites"
+          ]
+        },
+        "phase_2_months_2_3": {
+          "content_velocity": "10_12_posts_30_days",
+          "brand_search_growth": "target_100_percent_increase",
+          "strategic_partnerships": [
+            "educational_youtubers",
+            "teacher_supply_stores",
+            "amazon_influencer_program"
+          ]
+        }
+      },
+      "link_building_priorities": [
+        {
+          "source": "educational_blogs",
+          "domain_authority_range": "40_60",
+          "relevance": "high",
+          "priority": "critical",
+          "effort": "medium"
+        },
+        {
+          "source": "parenting_sites",
+          "domain_authority_range": "50_70",
+          "relevance": "high",
+          "priority": "critical",
+          "effort": "medium"
+        },
+        {
+          "source": "board_game_reviews",
+          "domain_authority_range": "30_50",
+          "relevance": "high",
+          "priority": "high",
+          "effort": "low"
+        },
+        {
+          "source": "local_news_features",
+          "domain_authority_range": "40_60",
+          "relevance": "medium",
+          "priority": "high",
+          "effort": "medium"
+        },
+        {
+          "source": "industry_directories",
+          "domain_authority_range": "20_40",
+          "relevance": "medium",
+          "priority": "medium",
+          "effort": "low"
+        }
+      ]
+    },
+    "serp_features": {
+      "current_presence": {
+        "featured_snippets": 0,
+        "people_also_ask": 0,
+        "knowledge_panel": false,
+        "image_pack": "not_optimized",
+        "shopping_results": "potential_opportunity"
+      },
+      "optimization_targets": [
+        {
+          "feature": "featured_snippet",
+          "target_queries": [
+            "how to play hexagonal card games",
+            "best educational card games for kids",
+            "what are the benefits of strategy card games"
+          ],
+          "implementation": "add_concise_40_60_word_answers_at_top"
+        },
+        {
+          "feature": "people_also_ask",
+          "target_questions": [
+            "What age is Base6 card game for?",
+            "How many players can play Base6?",
+            "Is Base6 educational?",
+            "Where can I buy Base6 cards?"
+          ],
+          "implementation": "create_faq_section_with_schema"
+        },
+        {
+          "feature": "image_pack",
+          "optimization": [
+            "descriptive_filenames",
+            "comprehensive_alt_tags",
+            "image_sitemap_submission"
+          ]
+        },
+        {
+          "feature": "video_snippet",
+          "opportunity": "how_to_play_base6_video",
+          "platform": "youtube",
+          "target_length": "2_3_minutes"
+        }
+      ]
+    },
+    "search_console_strategy": {
+      "setup_status": "not_configured",
+      "priority": "critical",
+      "monitoring_focus": [
+        {
+          "metric": "page_2_3_rankings",
+          "action": "internal_linking_boost_content_expansion",
+          "expected_result": "move_to_page_1_within_30_60_days"
+        },
+        {
+          "metric": "high_impression_low_ctr",
+          "action": "rewrite_title_tags_meta_descriptions",
+          "expected_result": "double_ctr"
+        },
+        {
+          "metric": "almost_ranking_queries",
+          "action": "create_targeted_content",
+          "expected_result": "new_rankings_low_hanging_fruit"
+        }
+      ],
+      "intent_classification_targets": {
+        "informational": "60_percent_educational_content",
+        "commercial": "30_percent_optimize_product_pages",
+        "transactional": "10_percent_strengthen_ctas"
+      }
+    },
+    "implementation_roadmap": {
+      "week_1_2": {
+        "phase": "critical_foundations",
+        "tasks": [
+          "fix_title_tags_meta_descriptions",
+          "implement_product_schema",
+          "create_submit_xml_sitemap",
+          "setup_google_search_console",
+          "replace_svg_placeholders",
+          "add_canonical_tags"
+        ]
+      },
+      "week_3_4": {
+        "phase": "content_cluster_planning",
+        "tasks": [
+          "research_50_plus_keywords",
+          "outline_pillar_page",
+          "outline_7_cluster_pages",
+          "create_internal_linking_blueprint",
+          "design_content_calendar"
+        ]
+      },
+      "month_2": {
+        "phase": "content_velocity_critical",
+        "tasks": [
+          "publish_pillar_page",
+          "publish_6_7_cluster_pages",
+          "implement_strategic_internal_linking",
+          "build_initial_backlinks_5_10",
+          "start_brand_mention_campaign"
+        ]
+      },
+      "month_3": {
+        "phase": "optimization_scaling",
+        "tasks": [
+          "monitor_search_console_quick_wins",
+          "refresh_homepage_expanded_content",
+          "implement_additional_schema_types",
+          "build_10_plus_quality_backlinks",
+          "launch_social_media_distribution",
+          "create_downloadable_teachers_guide"
+        ]
+      }
+    },
+    "success_metrics": {
+      "primary_seo_kpis": {
+        "organic_traffic": {
+          "baseline": "unknown",
+          "30_day_target": "50_percent_increase",
+          "90_day_target": "150_percent_increase"
+        },
+        "keyword_rankings_top_10": {
+          "baseline": "0_5",
+          "30_day_target": "15_20",
+          "90_day_target": "40_60"
+        },
+        "domain_authority": {
+          "baseline": "15_20",
+          "30_day_target": "22_25",
+          "90_day_target": "30_35"
+        },
+        "featured_snippets": {
+          "baseline": 0,
+          "30_day_target": "2_3",
+          "90_day_target": "8_12"
+        },
+        "quality_backlinks": {
+          "baseline": "less_than_5",
+          "30_day_target": "15_20",
+          "90_day_target": "40_50"
+        },
+        "brand_searches": {
+          "baseline": "low",
+          "30_day_target": "100_percent_increase",
+          "90_day_target": "300_percent_increase"
+        }
+      },
+      "behavioral_metrics": {
+        "average_dwell_time": "target_2_minutes_plus",
+        "bounce_rate": "target_less_than_55_percent",
+        "pages_per_session": "target_2_5_plus",
+        "return_visitor_rate": "target_25_percent_plus"
+      },
+      "technical_metrics": {
+        "core_web_vitals": "all_metrics_good_range",
+        "mobile_usability": "zero_errors",
+        "index_coverage": "95_percent_plus_indexed",
+        "crawl_errors": "zero_404s_5xx_errors"
+      }
+    },
+    "seo_savant_insights": {
+      "strategic_principles": [
+        "intent_trumps_keywords",
+        "topic_clusters_beat_isolated_posts",
+        "internal_links_more_powerful_than_most_backlinks",
+        "content_refreshing_roi_superior",
+        "serp_features_more_valuable_than_number_1_alone",
+        "behavioral_signals_influence_rankings",
+        "search_console_hidden_gold_mine",
+        "content_velocity_builds_momentum",
+        "brand_signals_lift_everything",
+        "trust_acceleration_bypasses_sandbox",
+        "schema_ranking_catalyst"
+      ],
+      "key_differentiators": {
+        "systemic_thinking": "ecosystem_level_optimization_vs_tactical_fixes",
+        "intent_focus": "satisfy_underlying_needs_vs_keyword_targeting",
+        "cluster_strategy": "encyclopedia_authority_vs_random_posts",
+        "internal_linking_mastery": "authority_distribution_architecture",
+        "trust_engineering": "accelerate_vs_wait_for_organic_growth"
+      }
+    },
+    "tools_recommended": {
+      "essential_free": [
+        "google_search_console",
+        "google_analytics_4",
+        "screaming_frog_free_version",
+        "schema_org_validator"
+      ],
+      "premium_optional": ["semrush_or_ahrefs", "surfer_seo", "pagespeed_insights_pro"]
+    },
+    "report_limitations": [
+      "no_direct_server_access",
+      "no_historical_analytics_data",
+      "backlink_profile_estimated",
+      "performance_metrics_estimated_without_live_testing"
+    ]
+  }
+}

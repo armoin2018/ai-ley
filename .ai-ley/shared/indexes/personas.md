@@ -126,7 +126,7 @@ Business operations, career services, and professional development specialists.
 | Persona                                                                      | Description                                                            |
 | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | [ADKAR Expert](business/adkar-expert.md)                                     | Organizational change management using ADKAR methodology               |
-| [Angel Investor](business/angel-investor.md)                                 | Early-stage startup investments with capital and strategic mentorship |
+| [Angel Investor](business/angel-investor.md)                                 | Early-stage startup investments with capital and strategic mentorship  |
 | [Business Speech Writer](business/business-speech-writer.md)                 | Corporate communication and executive presentations                    |
 | [Capital Raising Advisor](business/capital-raising-advisor.md)               | Startup funding rounds across angel, seed, and VC stages               |
 | [Creativity Coach](business/creativity-coach.md)                             | Innovation catalyst and creative potential development                 |
@@ -331,6 +331,7 @@ Domain-specific technology and protocol experts.
 | [ESP8266 Expert](experts/esp8266-expert.md)                                         | ESP8266 WiFi microcontroller                            |
 | [jQuery Expert](experts/jquery-expert.md)                                           | jQuery JavaScript library                               |
 | [JSON Expert](experts/json-expert.md)                                               | JSON data format and processing                         |
+| [Karabiner Expert](experts/karabiner-expert.md)                                     | macOS keyboard remapping and complex modifications      |
 | [Multicast Expert](experts/multicast-expert.md)                                     | IP multicast and network streaming                      |
 | [NetConf Expert](experts/netconf-expert.md)                                         | Network configuration protocol                          |
 | [OpenAPI Expert](experts/openapi-expert.md)                                         | API specification and documentation                     |
@@ -393,6 +394,7 @@ Marketing strategy, digital marketing, and growth specialists.
 | [Marketing Professional](marketing/marketing-professional.md)                            | Integrated marketing strategies                            |
 | [NLP Master Practitioner](marketing/neuro-linguistic-programming-master-practitioner.md) | Behavioral influence and communication                     |
 | [SEO Expert](marketing/seo-expert.md)                                                    | Search engine optimization                                 |
+| [SEO Savant](marketing/seo-savant.md)                                                    | Systemic SEO strategy and topical authority engineering    |
 | [Social Media Expert](marketing/social-media-expert.md)                                  | Social media strategy and management                       |
 
 ## Project Management
@@ -504,8 +506,8 @@ All personas maintain:
 
 ## Metadata
 
-- **Total Personas**: 291 (as of 2025-09-20)
-- **Last Updated**: 2025-09-20
+- **Total Personas**: 293 (as of 2025-10-03)
+- **Last Updated**: 2025-10-03
 - **Template Version**: 2.0 (Enterprise-Grade 10-Section Framework)
 - **Maintenance Schedule**: Quarterly updates
-- **Recent Enhancements**: Business domain expansion (12 new business personas), Complete C-Suite executive expansion (14 new personas), Crypto Trader optimization, structural fixes
+- **Recent Enhancements**: SEO Savant added (systemic SEO strategy and topical authority expert), Karabiner Expert added (macOS keyboard remapping specialist), Business domain expansion (12 new business personas), Complete C-Suite executive expansion (14 new personas), Crypto Trader optimization, structural fixes

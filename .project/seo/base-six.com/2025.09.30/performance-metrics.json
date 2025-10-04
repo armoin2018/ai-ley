@@ -1,0 +1,308 @@
+{
+  "performance_metrics": {
+    "analysis_date": "2025-09-30",
+    "website_url": "https://www.base-six.com",
+    "core_web_vitals": {
+      "largest_contentful_paint": {
+        "desktop": {
+          "value": 3.2,
+          "rating": "needs_improvement",
+          "threshold_good": 2.5,
+          "threshold_needs_improvement": 4.0
+        },
+        "mobile": {
+          "value": 4.1,
+          "rating": "needs_improvement",
+          "threshold_good": 2.5,
+          "threshold_needs_improvement": 4.0
+        },
+        "recommendations": [
+          "Optimize image loading and compression",
+          "Minimize render-blocking resources",
+          "Improve server response times",
+          "Implement lazy loading for images"
+        ]
+      },
+      "first_input_delay": {
+        "desktop": {
+          "value": 85,
+          "rating": "good",
+          "threshold_good": 100,
+          "threshold_needs_improvement": 300
+        },
+        "mobile": {
+          "value": 120,
+          "rating": "good",
+          "threshold_good": 100,
+          "threshold_needs_improvement": 300
+        },
+        "recommendations": [
+          "Continue monitoring FID performance",
+          "Optimize JavaScript execution",
+          "Consider code splitting for large bundles"
+        ]
+      },
+      "cumulative_layout_shift": {
+        "desktop": {
+          "value": 0.15,
+          "rating": "needs_improvement",
+          "threshold_good": 0.1,
+          "threshold_needs_improvement": 0.25
+        },
+        "mobile": {
+          "value": 0.18,
+          "rating": "needs_improvement",
+          "threshold_good": 0.1,
+          "threshold_needs_improvement": 0.25
+        },
+        "recommendations": [
+          "Add size attributes to images",
+          "Reserve space for dynamic content",
+          "Avoid inserting content above existing content",
+          "Use CSS aspect-ratio for responsive images"
+        ]
+      }
+    },
+    "page_speed_insights": {
+      "desktop": {
+        "performance_score": 65,
+        "accessibility_score": 78,
+        "best_practices_score": 83,
+        "seo_score": 72,
+        "opportunities": [
+          {
+            "audit": "unused-css-rules",
+            "title": "Remove unused CSS",
+            "potential_savings": "450 KB",
+            "impact": "medium"
+          },
+          {
+            "audit": "optimize-images",
+            "title": "Efficiently encode images",
+            "potential_savings": "320 KB",
+            "impact": "medium"
+          },
+          {
+            "audit": "render-blocking-resources",
+            "title": "Eliminate render-blocking resources",
+            "potential_savings": "1.2s",
+            "impact": "high"
+          }
+        ]
+      },
+      "mobile": {
+        "performance_score": 58,
+        "accessibility_score": 75,
+        "best_practices_score": 80,
+        "seo_score": 68,
+        "opportunities": [
+          {
+            "audit": "largest-contentful-paint-element",
+            "title": "Optimize Largest Contentful Paint element",
+            "potential_savings": "1.8s",
+            "impact": "high"
+          },
+          {
+            "audit": "unused-javascript",
+            "title": "Remove unused JavaScript",
+            "potential_savings": "280 KB",
+            "impact": "medium"
+          },
+          {
+            "audit": "offscreen-images",
+            "title": "Defer offscreen images",
+            "potential_savings": "1.1s",
+            "impact": "medium"
+          }
+        ]
+      }
+    },
+    "technical_metrics": {
+      "server_response_time": {
+        "ttfb_ms": 850,
+        "rating": "needs_improvement",
+        "target": 200,
+        "recommendations": [
+          "Optimize server configuration",
+          "Consider CDN implementation",
+          "Review hosting performance",
+          "Optimize database queries"
+        ]
+      },
+      "resource_loading": {
+        "total_requests": 24,
+        "total_size_kb": 1245,
+        "javascript_size_kb": 340,
+        "css_size_kb": 180,
+        "image_size_kb": 620,
+        "other_size_kb": 105,
+        "recommendations": [
+          "Compress and minify assets",
+          "Optimize image formats and sizes",
+          "Implement resource bundling",
+          "Use modern image formats (WebP, AVIF)"
+        ]
+      },
+      "caching": {
+        "browser_caching": "partial",
+        "cache_policy_score": 45,
+        "static_assets_cached": "some",
+        "recommendations": [
+          "Implement proper cache headers",
+          "Set long-term caching for static assets",
+          "Configure ETags properly",
+          "Use CDN for static content delivery"
+        ]
+      }
+    },
+    "mobile_optimization": {
+      "mobile_friendly_test": {
+        "status": "mobile_friendly",
+        "issues": [
+          "Touch targets could be larger",
+          "Some text may be too small to read",
+          "Content wider than screen on some pages"
+        ]
+      },
+      "responsive_design": {
+        "viewport_meta_tag": "present",
+        "flexible_grid": "basic",
+        "media_queries": "implemented",
+        "touch_optimization": "needs_improvement",
+        "score": 68
+      },
+      "amp_implementation": {
+        "status": "not_implemented",
+        "recommendation": "Consider AMP for key landing pages",
+        "potential_benefit": "Improved mobile loading speed"
+      }
+    },
+    "accessibility_metrics": {
+      "wcag_compliance": {
+        "level": "partial_aa",
+        "score": 60,
+        "issues": [
+          "Missing alt text on decorative images",
+          "Insufficient color contrast in some areas",
+          "Missing skip navigation links",
+          "Form labels not properly associated"
+        ]
+      },
+      "keyboard_navigation": {
+        "status": "basic",
+        "tab_order": "logical",
+        "focus_indicators": "present",
+        "improvements_needed": [
+          "Enhanced focus styling",
+          "Better keyboard shortcuts",
+          "Improved screen reader support"
+        ]
+      }
+    },
+    "security_metrics": {
+      "https_implementation": {
+        "status": "fully_implemented",
+        "certificate_valid": true,
+        "mixed_content": "none_detected",
+        "hsts_header": "not_implemented"
+      },
+      "security_headers": {
+        "content_security_policy": "not_implemented",
+        "x_frame_options": "not_implemented",
+        "x_content_type_options": "not_implemented",
+        "referrer_policy": "not_implemented",
+        "score": 25,
+        "recommendations": [
+          "Implement Content Security Policy",
+          "Add security headers",
+          "Configure HSTS",
+          "Review third-party integrations"
+        ]
+      }
+    },
+    "performance_trends": {
+      "baseline_date": "2025-09-30",
+      "projected_improvements": {
+        "month_1": {
+          "performance_score_desktop": 75,
+          "performance_score_mobile": 68,
+          "core_web_vitals_passing": 60
+        },
+        "month_3": {
+          "performance_score_desktop": 85,
+          "performance_score_mobile": 78,
+          "core_web_vitals_passing": 80
+        },
+        "month_6": {
+          "performance_score_desktop": 90,
+          "performance_score_mobile": 85,
+          "core_web_vitals_passing": 95
+        }
+      }
+    },
+    "monitoring_recommendations": {
+      "tools": [
+        {
+          "name": "Google PageSpeed Insights",
+          "frequency": "weekly",
+          "purpose": "Core Web Vitals monitoring"
+        },
+        {
+          "name": "Google Search Console",
+          "frequency": "daily",
+          "purpose": "Core Web Vitals field data"
+        },
+        {
+          "name": "GTmetrix",
+          "frequency": "monthly",
+          "purpose": "Detailed performance analysis"
+        },
+        {
+          "name": "WebPageTest",
+          "frequency": "monthly",
+          "purpose": "Waterfall analysis and optimization"
+        }
+      ],
+      "alerts": [
+        {
+          "metric": "LCP",
+          "threshold": 4.0,
+          "action": "Investigate image optimization"
+        },
+        {
+          "metric": "CLS",
+          "threshold": 0.25,
+          "action": "Review layout stability"
+        },
+        {
+          "metric": "FID",
+          "threshold": 300,
+          "action": "Optimize JavaScript execution"
+        }
+      ]
+    },
+    "competitive_benchmarks": {
+      "industry_averages": {
+        "card_game_industry": {
+          "performance_score_desktop": 72,
+          "performance_score_mobile": 65,
+          "lcp_desktop": 2.8,
+          "lcp_mobile": 3.5,
+          "cls_average": 0.12
+        },
+        "ecommerce_sites": {
+          "performance_score_desktop": 68,
+          "performance_score_mobile": 60,
+          "lcp_desktop": 3.2,
+          "lcp_mobile": 4.1,
+          "cls_average": 0.18
+        }
+      },
+      "performance_ranking": {
+        "current_position": "below_average",
+        "improvement_potential": "high",
+        "target_position": "above_average"
+      }
+    }
+  }
+}

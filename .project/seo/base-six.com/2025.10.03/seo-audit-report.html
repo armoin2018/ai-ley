@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base6 SEO Audit Report - Interactive Dashboard</title>
+    
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Marked.js for markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
+    
+    <style>
+        /* CSS SECTION - Professional Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #0ea5e9;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-bg: #1e293b;
+            --light-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--light-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        /* Header Section */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header-meta {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            opacity: 0.95;
+        }
+        
+        .header-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Navigation */
+        .nav {
+            background: var(--card-bg);
+            border-bottom: 2px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 2rem;
+            overflow-x: auto;
+        }
+        
+        .nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .nav-link:hover {
+            background: var(--light-bg);
+            color: var(--primary-color);
+        }
+        
+        .nav-link.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Overall Score Dashboard */
+        .score-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .score-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .score-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+        
+        .score-card-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .score-value {
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        
+        .score-grade {
+            font-size: 1.25rem;
+            font-weight: 600;
+            opacity: 0.8;
+        }
+        
+        .score-bar {
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+        
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease-out;
+        }
+        
+        /* Color Classes */
+        .score-excellent { color: var(--success-color); }
+        .score-good { color: #10b981; }
+        .score-fair { color: var(--warning-color); }
+        .score-poor { color: var(--danger-color); }
+        
+        .bg-excellent { background: var(--success-color); }
+        .bg-good { background: #10b981; }
+        .bg-fair { background: var(--warning-color); }
+        .bg-poor { background: var(--danger-color); }
+        
+        /* Section Content */
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .content-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .content-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .content-card h3 {
+            font-size: 1.25rem;
+            margin: 1.5rem 0 1rem 0;
+            color: var(--text-primary);
+        }
+        
+        /* Issue Lists */
+        .issue-list {
+            list-style: none;
+        }
+        
+        .issue-item {
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid;
+            background: var(--light-bg);
+        }
+        
+        .issue-item.critical {
+            border-color: var(--danger-color);
+            background: #fef2f2;
+        }
+        
+        .issue-item.high {
+            border-color: var(--warning-color);
+            background: #fffbeb;
+        }
+        
+        .issue-item.medium {
+            border-color: var(--secondary-color);
+            background: #f0f9ff;
+        }
+        
+        .issue-item.low {
+            border-color: var(--success-color);
+            background: #f0fdf4;
+        }
+        
+        .issue-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .issue-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge-critical {
+            background: var(--danger-color);
+            color: white;
+        }
+        
+        .badge-high {
+            background: var(--warning-color);
+            color: white;
+        }
+        
+        .badge-medium {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .badge-low {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .issue-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 2rem 0;
+        }
+        
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        
+        .data-table th {
+            background: var(--light-bg);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-table tr:hover {
+            background: var(--light-bg);
+        }
+        
+        /* Collapsible Sections */
+        .collapsible {
+            cursor: pointer;
+            padding: 1rem;
+            background: var(--light-bg);
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        
+        .collapsible:hover {
+            background: var(--border-color);
+        }
+        
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            padding: 0 1rem;
+        }
+        
+        .collapsible-content.active {
+            max-height: 2000px;
+            padding: 1rem;
+        }
+        
+        .arrow {
+            transition: transform 0.3s;
+        }
+        
+        .arrow.active {
+            transform: rotate(90deg);
+        }
+        
+        /* Recommendations Grid */
+        .recommendation-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .recommendation-card {
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid var(--primary-color);
+            background: var(--light-bg);
+        }
+        
+        .recommendation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .recommendation-title {
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+        
+        .recommendation-meta {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .meta-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+        }
+        
+        /* Documentation Section Styles */
+        .doc-button {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--border-color);
+            background: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            color: var(--text-primary);
+        }
+        
+        .doc-button:hover {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .doc-button.active {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .markdown-content {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            min-height: 400px;
+            max-height: 800px;
+            overflow-y: auto;
+        }
+        
+        .markdown-content .loading {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 3rem;
+            font-size: 1.1rem;
+        }
+        
+        .markdown-content .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        
+        /* Markdown Typography */
+        .markdown-content h1 {
+            font-size: 2rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        .markdown-content h2 {
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+        
+        .markdown-content h3 {
+            font-size: 1.25rem;
+            margin-top: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .markdown-content p {
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+        
+        .markdown-content ul,
+        .markdown-content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .markdown-content li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .markdown-content code {
+            background: var(--light-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #e11d48;
+        }
+        
+        .markdown-content pre {
+            background: var(--dark-bg);
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+        
+        .markdown-content pre code {
+            background: transparent;
+            padding: 0;
+            color: inherit;
+        }
+        
+        .markdown-content blockquote {
+            border-left: 4px solid var(--primary-color);
+            padding-left: 1rem;
+            margin-left: 0;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        
+        .markdown-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+        
+        .markdown-content th,
+        .markdown-content td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+        
+        .markdown-content th {
+            background: var(--light-bg);
+            font-weight: 600;
+        }
+        
+        .markdown-content tr:nth-child(even) {
+            background: #f9fafb;
+        }
+        
+        .markdown-content a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .markdown-content a:hover {
+            text-decoration: underline;
+        }
+        
+        .markdown-content hr {
+            border: none;
+            border-top: 2px solid var(--border-color);
+            margin: 2rem 0;
+        }
+        
+        .markdown-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        /* Print Styles */
+        @media print {
+            .nav, .header { display: none; }
+            .section { display: block !important; }
+            .score-card { break-inside: avoid; }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .score-dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .doc-button {
+                flex: 1 1 auto;
+                min-width: 120px;
+            }
+            
+            .markdown-content {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER SECTION -->
+    <header class="header">
+        <div class="header-content">
+            <h1>🚀 SEO Audit Report - Base6 Card Game</h1>
+            <div class="header-meta">
+                <div class="header-meta-item">
+                    <span>🌐</span>
+                    <span id="domain-name">Loading...</span>
+                </div>
+                <div class="header-meta-item">
+                    <span>📅</span>
+                    <span id="analysis-date">Loading...</span>
+                </div>
+                <div class="header-meta-item">
+                    <span>🤖</span>
+                    <span id="analyzed-by">AI-LEY SEO Expert System</span>
+                </div>
+                <div class="header-meta-item">
+                    <span>👥</span>
+                    <span id="personas">SEO Expert + SEO Savant</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- NAVIGATION -->
+    <nav class="nav">
+        <div class="nav-content">
+            <button class="nav-link active" onclick="showSection('overview')">📊 Overview</button>
+            <button class="nav-link" onclick="showSection('technical')">⚙️ Technical SEO</button>
+            <button class="nav-link" onclick="showSection('content')">📝 Content</button>
+            <button class="nav-link" onclick="showSection('performance')">⚡ Performance</button>
+            <button class="nav-link" onclick="showSection('strategy')">🎯 Strategy</button>
+            <button class="nav-link" onclick="showSection('authority')">🔗 Authority</button>
+            <button class="nav-link" onclick="showSection('serp')">🎖️ SERP Features</button>
+            <button class="nav-link" onclick="showSection('roadmap')">🗺️ Roadmap</button>
+            <button class="nav-link" onclick="showSection('docs')">📚 Documentation</button>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container">
+        <!-- OVERVIEW SECTION -->
+        <section id="overview" class="section active">
+            <div class="score-dashboard">
+                <div class="score-card">
+                    <div class="score-card-title">Overall SEO Health</div>
+                    <div class="score-value score-fair" id="overall-score">--</div>
+                    <div class="score-grade" id="overall-grade">--</div>
+                    <div class="score-bar">
+                        <div class="score-bar-fill bg-fair" id="overall-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="score-card">
+                    <div class="score-card-title">Technical SEO</div>
+                    <div class="score-value" id="technical-score">--</div>
+                    <div class="score-grade" id="technical-grade">--</div>
+                    <div class="score-bar">
+                        <div class="score-bar-fill" id="technical-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="score-card">
+                    <div class="score-card-title">On-Page Content</div>
+                    <div class="score-value" id="content-score">--</div>
+                    <div class="score-grade" id="content-grade">--</div>
+                    <div class="score-bar">
+                        <div class="score-bar-fill" id="content-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="score-card">
+                    <div class="score-card-title">UX & Performance</div>
+                    <div class="score-value" id="performance-score">--</div>
+                    <div class="score-grade" id="performance-grade">--</div>
+                    <div class="score-bar">
+                        <div class="score-bar-fill" id="performance-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="score-card">
+                    <div class="score-card-title">Content Strategy</div>
+                    <div class="score-value" id="strategy-score">--</div>
+                    <div class="score-grade" id="strategy-grade">--</div>
+                    <div class="score-bar">
+                        <div class="score-bar-fill" id="strategy-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="score-card">
+                    <div class="score-card-title">Off-Page Authority</div>
+                    <div class="score-value" id="authority-score">--</div>
+                    <div class="score-grade" id="authority-grade">--</div>
+                    <div class="score-bar">
+                        <div class="score-bar-fill" id="authority-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="chart-grid">
+                <div class="content-card">
+                    <h2>📊 Category Scores Breakdown</h2>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="content-card">
+                    <h2>🎯 Score Distribution</h2>
+                    <div class="chart-container">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Critical Issues Summary -->
+            <div class="content-card">
+                <h2>🚨 Critical Issues Summary</h2>
+                <div id="critical-issues-summary"></div>
+            </div>
+        </section>
+
+        <!-- TECHNICAL SEO SECTION -->
+        <section id="technical" class="section">
+            <div class="content-card">
+                <h2>⚙️ Technical SEO Analysis</h2>
+                <div id="technical-content"></div>
+            </div>
+        </section>
+
+        <!-- CONTENT SECTION -->
+        <section id="content" class="section">
+            <div class="content-card">
+                <h2>📝 On-Page Content Analysis</h2>
+                <div id="content-content"></div>
+            </div>
+        </section>
+
+        <!-- PERFORMANCE SECTION -->
+        <section id="performance" class="section">
+            <div class="content-card">
+                <h2>⚡ Performance & User Experience</h2>
+                <div id="performance-content"></div>
+            </div>
+        </section>
+
+        <!-- STRATEGY SECTION -->
+        <section id="strategy" class="section">
+            <div class="content-card">
+                <h2>🎯 Content Strategy</h2>
+                <div id="strategy-content"></div>
+            </div>
+        </section>
+
+        <!-- AUTHORITY SECTION -->
+        <section id="authority" class="section">
+            <div class="content-card">
+                <h2>🔗 Off-Page Authority</h2>
+                <div id="authority-content"></div>
+            </div>
+        </section>
+
+        <!-- SERP FEATURES SECTION -->
+        <section id="serp" class="section">
+            <div class="content-card">
+                <h2>🎖️ SERP Features Strategy</h2>
+                <div id="serp-content"></div>
+            </div>
+        </section>
+
+        <!-- ROADMAP SECTION -->
+        <section id="roadmap" class="section">
+            <div class="content-card">
+                <h2>🗺️ 90-Day Implementation Roadmap</h2>
+                <div id="roadmap-content"></div>
+            </div>
+            
+            <div class="content-card">
+                <h2>📈 Success Metrics & KPIs</h2>
+                <div id="metrics-content"></div>
+            </div>
+        </section>
+
+        <!-- DOCUMENTATION SECTION (MARKDOWN VIEWER) -->
+        <section id="docs" class="section">
+            <div class="content-card">
+                <h2>📚 Documentation Files</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    Select a markdown file to view its contents below. All documentation is rendered with 
+                    GitHub Flavored Markdown support including tables, code blocks, and task lists.
+                </p>
+                
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                    <button class="doc-button active" onclick="loadMarkdownFile('README.md')">
+                        📖 README
+                    </button>
+                    <button class="doc-button" onclick="loadMarkdownFile('seo-audit-summary.md')">
+                        📊 Executive Summary
+                    </button>
+                    <button class="doc-button" onclick="loadMarkdownFile('seo-analysis.md')">
+                        🔍 Detailed Analysis
+                    </button>
+                </div>
+                
+                <div id="markdown-viewer" class="markdown-content">
+                    <div class="loading">Loading documentation...</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- JAVASCRIPT SECTION -->
+    <script>
+        // Load JSON data
+        let seoData = null;
+        
+        // Load the JSON file
+        fetch('technical-analysis.json')
+            .then(response => response.json())
+            .then(data => {
+                seoData = data.seo_audit;
+                initializeDashboard();
+            })
+            .catch(error => {
+                console.error('Error loading JSON:', error);
+                alert('Error loading SEO data. Please ensure technical-analysis.json is in the same directory.');
+            });
+        
+        // Initialize dashboard with data
+        function initializeDashboard() {
+            if (!seoData) return;
+            
+            // Update header metadata
+            document.getElementById('domain-name').textContent = seoData.meta.domain;
+            document.getElementById('analysis-date').textContent = seoData.meta.analysis_date;
+            
+            // Update overall scores
+            updateScoreCards();
+            
+            // Create charts
+            createCategoryChart();
+            createRadarChart();
+            
+            // Populate sections
+            populateCriticalIssues();
+            populateTechnicalSection();
+            populateContentSection();
+            populatePerformanceSection();
+            populateStrategySection();
+            populateAuthoritySection();
+            populateSerpSection();
+            populateRoadmapSection();
+            populateMetricsSection();
+        }
+        
+        // Update score cards with animations
+        function updateScoreCards() {
+            const scores = seoData.overall_scores;
+            
+            // Overall score
+            updateScoreCard('overall', scores.total_seo_health, scores.grade);
+            
+            // Category scores
+            updateScoreCard('technical', scores.category_scores.technical_seo, seoData.technical_seo.grade);
+            updateScoreCard('content', scores.category_scores.on_page_content, seoData.on_page_seo.grade);
+            updateScoreCard('performance', scores.category_scores.user_experience_performance, seoData.performance_metrics.grade);
+            updateScoreCard('strategy', scores.category_scores.content_strategy, seoData.content_strategy.grade);
+            updateScoreCard('authority', scores.category_scores.off_page_authority, seoData.off_page_authority.grade);
+        }
+        
+        function updateScoreCard(id, score, grade) {
+            const scoreEl = document.getElementById(`${id}-score`);
+            const gradeEl = document.getElementById(`${id}-grade`);
+            const barEl = document.getElementById(`${id}-bar`);
+            
+            // Determine color class
+            const colorClass = getScoreColorClass(score);
+            
+            // Animate score
+            animateValue(scoreEl, 0, score, 1000);
+            scoreEl.className = `score-value ${colorClass}`;
+            
+            gradeEl.textContent = grade;
+            
+            // Animate progress bar
+            setTimeout(() => {
+                barEl.style.width = score + '%';
+                barEl.className = `score-bar-fill bg-${colorClass.replace('score-', '')}`;
+            }, 200);
+        }
+        
+        function animateValue(element, start, end, duration) {
+            const range = end - start;
+            const increment = range / (duration / 16);
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= end) {
+                    current = end;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.round(current);
+            }, 16);
+        }
+        
+        function getScoreColorClass(score) {
+            if (score >= 80) return 'score-excellent';
+            if (score >= 70) return 'score-good';
+            if (score >= 50) return 'score-fair';
+            return 'score-poor';
+        }
+        
+        // Navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Create Category Chart
+        function createCategoryChart() {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            const scores = seoData.overall_scores.category_scores;
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Technical SEO', 'Content', 'Performance', 'Strategy', 'Authority'],
+                    datasets: [{
+                        label: 'SEO Score',
+                        data: [
+                            scores.technical_seo,
+                            scores.on_page_content,
+                            scores.user_experience_performance,
+                            scores.content_strategy,
+                            scores.off_page_authority
+                        ],
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(239, 68, 68, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(34, 197, 94, 1)',
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(34, 197, 94, 1)',
+                            'rgba(239, 68, 68, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '/100';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Score: ' + context.parsed.y + '/100';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Create Radar Chart
+        function createRadarChart() {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            const scores = seoData.overall_scores.category_scores;
+            
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Technical', 'Content', 'Performance', 'Strategy', 'Authority'],
+                    datasets: [{
+                        label: 'Current Score',
+                        data: [
+                            scores.technical_seo,
+                            scores.on_page_content,
+                            scores.user_experience_performance,
+                            scores.content_strategy,
+                            scores.off_page_authority
+                        ],
+                        fill: true,
+                        backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                        borderColor: 'rgba(37, 99, 235, 1)',
+                        pointBackgroundColor: 'rgba(37, 99, 235, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(37, 99, 235, 1)'
+                    }, {
+                        label: 'Target (80)',
+                        data: [80, 80, 80, 80, 80],
+                        fill: true,
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderColor: 'rgba(16, 185, 129, 0.5)',
+                        borderDash: [5, 5],
+                        pointBackgroundColor: 'rgba(16, 185, 129, 0.5)',
+                        pointBorderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Populate Critical Issues
+        function populateCriticalIssues() {
+            const container = document.getElementById('critical-issues-summary');
+            const issues = seoData.technical_seo.issues.critical;
+            
+            let html = '<ul class="issue-list">';
+            issues.forEach(issue => {
+                html += `
+                    <li class="issue-item critical">
+                        <div class="issue-title">
+                            <span class="issue-badge badge-critical">${issue.severity}</span>
+                            <span>${formatIssueTitle(issue.issue)}</span>
+                        </div>
+                        <div class="issue-description">${issue.description}</div>
+                    </li>
+                `;
+            });
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+        
+        // Populate Technical Section
+        function populateTechnicalSection() {
+            const container = document.getElementById('technical-content');
+            const tech = seoData.technical_seo;
+            
+            let html = `
+                <h3>Critical Issues</h3>
+                <ul class="issue-list">
+            `;
+            
+            tech.issues.critical.forEach(issue => {
+                html += `
+                    <li class="issue-item critical">
+                        <div class="issue-title">
+                            <span class="issue-badge badge-critical">${issue.severity}</span>
+                            <span>${formatIssueTitle(issue.issue)}</span>
+                        </div>
+                        <div class="issue-description">
+                            <strong>Impact:</strong> ${issue.impact}<br>
+                            ${issue.description}
+                        </div>
+                    </li>
+                `;
+            });
+            
+            html += '</ul><h3>✅ Positives</h3><ul>';
+            tech.positives.forEach(positive => {
+                html += `<li>✓ ${formatIssueTitle(positive)}</li>`;
+            });
+            
+            html += '</ul><h3>💡 Recommendations</h3><ul>';
+            tech.recommendations.forEach(rec => {
+                html += `<li>${rec}</li>`;
+            });
+            html += '</ul>';
+            
+            container.innerHTML = html;
+        }
+        
+        // Populate Content Section
+        function populateContentSection() {
+            const container = document.getElementById('content-content');
+            const content = seoData.on_page_seo;
+            
+            let html = `
+                <h3>Title Tags Analysis</h3>
+                <p><strong>Status:</strong> <span class="issue-badge badge-high">${content.title_tags.status}</span></p>
+                <h4>Issues:</h4>
+                <ul>
+            `;
+            
+            content.title_tags.issues.forEach(issue => {
+                html += `<li>${formatIssueTitle(issue)}</li>`;
+            });
+            
+            html += '</ul><h4>Recommended Title Tags:</h4><ul>';
+            
+            for (const [page, title] of Object.entries(content.title_tags.recommendations)) {
+                if (page !== 'character_target') {
+                    html += `<li><strong>${page}:</strong> "${title}"</li>`;
+                }
+            }
+            
+            html += `
+                </ul>
+                
+                <h3>Meta Descriptions</h3>
+                <p><strong>Status:</strong> <span class="issue-badge badge-high">${content.meta_descriptions.status}</span></p>
+                <h4>Recommended Meta Descriptions:</h4>
+                <ul>
+            `;
+            
+            for (const [page, desc] of Object.entries(content.meta_descriptions.recommendations)) {
+                if (page !== 'character_target') {
+                    html += `<li><strong>${page}:</strong> "${desc}"</li>`;
+                }
+            }
+            
+            html += `
+                </ul>
+                <p><em>Target: ${content.meta_descriptions.recommendations.character_target}</em></p>
+                
+                <h3>Header Structure</h3>
+                <p>H1 Present: ${content.header_structure.h1_present ? '✅ Yes' : '❌ No'}</p>
+                <p>H2 Present: ${content.header_structure.h2_present ? '✅ Yes' : '❌ No'}</p>
+                <h4>Issues:</h4>
+                <ul>
+            `;
+            
+            content.header_structure.hierarchy_issues.forEach(issue => {
+                html += `<li>${formatIssueTitle(issue)}</li>`;
+            });
+            
+            html += `
+                </ul>
+                <p><strong>Recommendation:</strong> ${content.header_structure.recommendation}</p>
+                
+                <h3>Image Optimization</h3>
+                <p><strong>Status:</strong> <span class="issue-badge badge-critical">${content.image_optimization.status}</span></p>
+                <h4>Issues:</h4>
+                <ul>
+            `;
+            
+            content.image_optimization.issues.forEach(issue => {
+                html += `<li>${formatIssueTitle(issue)}</li>`;
+            });
+            
+            html += '</ul><h4>Recommendations:</h4><ul>';
+            
+            content.image_optimization.recommendations.forEach(rec => {
+                html += `<li>${rec}</li>`;
+            });
+            
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+        
+        // Populate Performance Section
+        function populatePerformanceSection() {
+            const container = document.getElementById('performance-content');
+            const perf = seoData.performance_metrics;
+            
+            let html = `
+                <h3>Core Web Vitals</h3>
+                <div class="recommendation-grid">
+                    <div class="recommendation-card">
+                        <div class="recommendation-header">
+                            <div class="recommendation-title">LCP (Largest Contentful Paint)</div>
+                            <span class="issue-badge badge-critical">${perf.core_web_vitals.lcp.status}</span>
+                        </div>
+                        <p><strong>Estimated:</strong> ${perf.core_web_vitals.lcp.estimated}</p>
+                        <p><strong>Target:</strong> ${perf.core_web_vitals.lcp.target}</p>
+                        <p><strong>Primary Issue:</strong> ${formatIssueTitle(perf.core_web_vitals.lcp.primary_issue)}</p>
+                    </div>
+                    
+                    <div class="recommendation-card">
+                        <div class="recommendation-header">
+                            <div class="recommendation-title">CLS (Cumulative Layout Shift)</div>
+                            <span class="issue-badge badge-critical">${perf.core_web_vitals.cls.status}</span>
+                        </div>
+                        <p><strong>Estimated:</strong> ${perf.core_web_vitals.cls.estimated}</p>
+                        <p><strong>Target:</strong> ${perf.core_web_vitals.cls.target}</p>
+                        <p><strong>Primary Issue:</strong> ${formatIssueTitle(perf.core_web_vitals.cls.primary_issue)}</p>
+                    </div>
+                </div>
+                
+                <h3>Mobile Optimization</h3>
+                <p>Responsive Design: ${perf.mobile_optimization.responsive_design ? '✅ Yes' : '❌ No'}</p>
+                <p>Target Mobile PageSpeed: ${perf.mobile_optimization.target_mobile_pagespeed}</p>
+                
+                <h3>💡 Recommendations</h3>
+                <ul>
+            `;
+            
+            perf.recommendations.forEach(rec => {
+                html += `<li>${rec}</li>`;
+            });
+            
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+        
+        // Populate Strategy Section
+        function populateStrategySection() {
+            const container = document.getElementById('strategy-content');
+            const strategy = seoData.content_strategy;
+            
+            let html = `
+                <h3>Topic Cluster Opportunity</h3>
+                <div class="recommendation-card">
+                    <h4>Pillar Page</h4>
+                    <p><strong>Title:</strong> ${strategy.topic_cluster_opportunity.pillar_page.title}</p>
+                    <p><strong>Target Length:</strong> ${strategy.topic_cluster_opportunity.pillar_page.target_length} words</p>
+                    <p><strong>Focus:</strong> ${formatIssueTitle(strategy.topic_cluster_opportunity.pillar_page.focus)}</p>
+                </div>
+                
+                <h4>Cluster Pages (7 Total)</h4>
+                <ul>
+            `;
+            
+            strategy.topic_cluster_opportunity.cluster_pages.forEach(page => {
+                html += `<li>${page}</li>`;
+            });
+            
+            html += `
+                </ul>
+                <p><strong>Expected Impact:</strong> ${formatIssueTitle(strategy.topic_cluster_opportunity.expected_impact)}</p>
+                
+                <h3>Content Velocity Plan</h3>
+                <div class="recommendation-card">
+                    <p><strong>Strategy:</strong> ${formatIssueTitle(strategy.content_velocity_plan.strategy)}</p>
+                    <p><strong>Focus:</strong> ${formatIssueTitle(strategy.content_velocity_plan.focus)}</p>
+                    <p><strong>Goal:</strong> ${formatIssueTitle(strategy.content_velocity_plan.goal)}</p>
+                    <p><strong>Expected Result:</strong> ${formatIssueTitle(strategy.content_velocity_plan.expected_result)}</p>
+                </div>
+                
+                <h3>Internal Linking Architecture</h3>
+                <p><strong>Current State:</strong> ${strategy.internal_linking_architecture.current_state}</p>
+                <p><strong>Target:</strong> ${formatIssueTitle(strategy.internal_linking_architecture.target)}</p>
+                <h4>Implementation:</h4>
+                <ul>
+                    <li><strong>Pillar to Clusters:</strong> ${formatIssueTitle(strategy.internal_linking_architecture.implementation.pillar_to_clusters)}</li>
+                    <li><strong>Clusters to Pillar:</strong> ${formatIssueTitle(strategy.internal_linking_architecture.implementation.clusters_to_pillar)}</li>
+                    <li><strong>Cluster Cross-References:</strong> ${formatIssueTitle(strategy.internal_linking_architecture.implementation.cluster_cross_references)}</li>
+                    <li><strong>Homepage to Pillar:</strong> ${formatIssueTitle(strategy.internal_linking_architecture.implementation.homepage_to_pillar)}</li>
+                </ul>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        // Populate Authority Section
+        function populateAuthoritySection() {
+            const container = document.getElementById('authority-content');
+            const authority = seoData.off_page_authority;
+            
+            let html = `
+                <h3>Domain Authority</h3>
+                <p><strong>Estimated:</strong> ${authority.domain_authority.estimated}/100</p>
+                <p><strong>Status:</strong> <span class="issue-badge badge-high">${formatIssueTitle(authority.domain_authority.status)}</span></p>
+                
+                <h3>Trust Acceleration Plan</h3>
+                <h4>Phase 1 (Weeks 1-4)</h4>
+                <div class="recommendation-card">
+                    <p><strong>Quality Links Target:</strong> ${authority.trust_acceleration_plan.phase_1_weeks_1_4.quality_links_target}</p>
+                    <p><strong>Sources:</strong></p>
+                    <ul>
+            `;
+            
+            authority.trust_acceleration_plan.phase_1_weeks_1_4.sources.forEach(source => {
+                html += `<li>${formatIssueTitle(source)}</li>`;
+            });
+            
+            html += `
+                    </ul>
+                </div>
+                
+                <h4>Phase 2 (Months 2-3)</h4>
+                <div class="recommendation-card">
+                    <p><strong>Content Velocity:</strong> ${authority.trust_acceleration_plan.phase_2_months_2_3.content_velocity}</p>
+                    <p><strong>Brand Search Growth:</strong> ${formatIssueTitle(authority.trust_acceleration_plan.phase_2_months_2_3.brand_search_growth)}</p>
+                    <p><strong>Strategic Partnerships:</strong></p>
+                    <ul>
+            `;
+            
+            authority.trust_acceleration_plan.phase_2_months_2_3.strategic_partnerships.forEach(partner => {
+                html += `<li>${formatIssueTitle(partner)}</li>`;
+            });
+            
+            html += `
+                    </ul>
+                </div>
+                
+                <h3>Link Building Priorities</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Source</th>
+                            <th>DA Range</th>
+                            <th>Relevance</th>
+                            <th>Priority</th>
+                            <th>Effort</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            authority.link_building_priorities.forEach(link => {
+                const priorityClass = link.priority === 'critical' ? 'badge-critical' : 
+                                     link.priority === 'high' ? 'badge-high' : 'badge-medium';
+                html += `
+                    <tr>
+                        <td>${formatIssueTitle(link.source)}</td>
+                        <td>${link.domain_authority_range}</td>
+                        <td>${link.relevance}</td>
+                        <td><span class="issue-badge ${priorityClass}">${link.priority}</span></td>
+                        <td>${link.effort}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        // Populate SERP Section
+        function populateSerpSection() {
+            const container = document.getElementById('serp-content');
+            const serp = seoData.serp_features;
+            
+            let html = `
+                <h3>Current SERP Presence</h3>
+                <ul>
+                    <li>Featured Snippets: ${serp.current_presence.featured_snippets}</li>
+                    <li>People Also Ask: ${serp.current_presence.people_also_ask}</li>
+                    <li>Knowledge Panel: ${serp.current_presence.knowledge_panel ? 'Yes' : 'No'}</li>
+                    <li>Image Pack: ${formatIssueTitle(serp.current_presence.image_pack)}</li>
+                    <li>Shopping Results: ${formatIssueTitle(serp.current_presence.shopping_results)}</li>
+                </ul>
+                
+                <h3>Optimization Targets</h3>
+            `;
+            
+            serp.optimization_targets.forEach(target => {
+                html += `
+                    <div class="recommendation-card">
+                        <h4>${formatIssueTitle(target.feature)}</h4>
+            `;
+                
+                if (target.target_queries) {
+                    html += '<p><strong>Target Queries:</strong></p><ul>';
+                    target.target_queries.forEach(query => {
+                        html += `<li>${query}</li>`;
+                    });
+                    html += '</ul>';
+                }
+                
+                if (target.target_questions) {
+                    html += '<p><strong>Target Questions:</strong></p><ul>';
+                    target.target_questions.forEach(q => {
+                        html += `<li>${q}</li>`;
+                    });
+                    html += '</ul>';
+                }
+                
+                if (target.implementation) {
+                    if (typeof target.implementation === 'string') {
+                        html += `<p><strong>Implementation:</strong> ${formatIssueTitle(target.implementation)}</p>`;
+                    } else {
+                        html += '<p><strong>Implementation:</strong></p><ul>';
+                        target.implementation.forEach(impl => {
+                            html += `<li>${formatIssueTitle(impl)}</li>`;
+                        });
+                        html += '</ul>';
+                    }
+                }
+                
+                if (target.optimization) {
+                    html += '<p><strong>Optimization:</strong></p><ul>';
+                    target.optimization.forEach(opt => {
+                        html += `<li>${formatIssueTitle(opt)}</li>`;
+                    });
+                    html += '</ul>';
+                }
+                
+                if (target.opportunity) {
+                    html += `<p><strong>Opportunity:</strong> ${formatIssueTitle(target.opportunity)}</p>`;
+                }
+                
+                html += '</div>';
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Populate Roadmap Section
+        function populateRoadmapSection() {
+            const container = document.getElementById('roadmap-content');
+            const roadmap = seoData.implementation_roadmap;
+            
+            let html = '';
+            
+            for (const [period, data] of Object.entries(roadmap)) {
+                html += `
+                    <div class="recommendation-card">
+                        <h3>${formatPeriod(period)}</h3>
+                        <p><strong>Phase:</strong> ${formatIssueTitle(data.phase)}</p>
+                        <h4>Tasks:</h4>
+                        <ul>
+                `;
+                
+                data.tasks.forEach(task => {
+                    html += `<li>${formatIssueTitle(task)}</li>`;
+                });
+                
+                html += '</ul></div>';
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        // Populate Metrics Section
+        function populateMetricsSection() {
+            const container = document.getElementById('metrics-content');
+            const metrics = seoData.success_metrics;
+            
+            let html = `
+                <h3>Primary SEO KPIs</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Baseline</th>
+                            <th>30-Day Target</th>
+                            <th>90-Day Target</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            for (const [metric, values] of Object.entries(metrics.primary_seo_kpis)) {
+                html += `
+                    <tr>
+                        <td><strong>${formatIssueTitle(metric)}</strong></td>
+                        <td>${formatIssueTitle(values.baseline)}</td>
+                        <td>${formatIssueTitle(values['30_day_target'])}</td>
+                        <td>${formatIssueTitle(values['90_day_target'])}</td>
+                    </tr>
+                `;
+            }
+            
+            html += `
+                    </tbody>
+                </table>
+                
+                <h3>Behavioral Metrics</h3>
+                <ul>
+            `;
+            
+            for (const [metric, target] of Object.entries(metrics.behavioral_metrics)) {
+                html += `<li><strong>${formatIssueTitle(metric)}:</strong> ${formatIssueTitle(target)}</li>`;
+            }
+            
+            html += `
+                </ul>
+                
+                <h3>Technical Metrics</h3>
+                <ul>
+            `;
+            
+            for (const [metric, target] of Object.entries(metrics.technical_metrics)) {
+                html += `<li><strong>${formatIssueTitle(metric)}:</strong> ${formatIssueTitle(target)}</li>`;
+            }
+            
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+        
+        // Utility function to format snake_case to Title Case
+        function formatIssueTitle(str) {
+            if (typeof str !== 'string') return str;
+            return str
+                .replace(/_/g, ' ')
+                .replace(/\b\w/g, char => char.toUpperCase());
+        }
+        
+        // Utility function to format period strings
+        function formatPeriod(period) {
+            return period
+                .replace(/_/g, ' ')
+                .replace(/\b\w/g, char => char.toUpperCase())
+                .replace(/(\d+)/g, ' $1');
+        }
+        
+        // ============================================
+        // MARKDOWN DOCUMENTATION VIEWER
+        // ============================================
+        
+        // Configure marked.js for GitHub Flavored Markdown
+        if (typeof marked !== 'undefined') {
+            marked.setOptions({
+                gfm: true,
+                breaks: true,
+                headerIds: true,
+                mangle: false,
+                sanitize: false
+            });
+        }
+        
+        // Load and render markdown file
+        function loadMarkdownFile(filename) {
+            const viewer = document.getElementById('markdown-viewer');
+            const buttons = document.querySelectorAll('.doc-button');
+            
+            // Update active button
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show loading state
+            viewer.innerHTML = '<div class="loading">Loading ' + filename + '...</div>';
+            
+            // Fetch the markdown file
+            fetch(filename)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('File not found: ' + filename);
+                    }
+                    return response.text();
+                })
+                .then(markdownText => {
+                    // Render markdown to HTML using marked.js
+                    if (typeof marked !== 'undefined') {
+                        const htmlContent = marked.parse(markdownText);
+                        viewer.innerHTML = htmlContent;
+                    } else {
+                        // Fallback if marked.js didn't load
+                        viewer.innerHTML = '<pre>' + markdownText + '</pre>';
+                    }
+                })
+                .catch(error => {
+                    viewer.innerHTML = `
+                        <div class="error">
+                            <strong>⚠️ Error Loading File</strong>
+                            <p>${error.message}</p>
+                            <p><strong>Troubleshooting:</strong></p>
+                            <ul>
+                                <li>Make sure you're running the Python server: <code>python3 serve_report.py</code></li>
+                                <li>Access the report via: <code>http://localhost:8000/seo-audit-report.html</code></li>
+                                <li>Ensure all markdown files are in the same directory as this HTML file</li>
+                            </ul>
+                        </div>
+                    `;
+                });
+        }
+        
+        // Auto-load README.md when documentation tab is first opened
+        let docsInitialized = false;
+        const originalShowSection = showSection;
+        showSection = function(sectionId) {
+            originalShowSection(sectionId);
+            
+            // Auto-load README when docs section is opened for first time
+            if (sectionId === 'docs' && !docsInitialized) {
+                docsInitialized = true;
+                loadMarkdownFile('README.md');
+            }
+        };
+    </script>
+</body>
+</html>

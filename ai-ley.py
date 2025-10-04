@@ -388,34 +388,57 @@ class AILeyManager:
         else:
             print("\nAll shared markdown files are up to date")
     
-    def fetch_all_external_repos(self) -> None:
-        """Fetch all external repositories from configuration."""
+    def fetch_all_external_repos(self) -> List[str]:
+        """Fetch all external repositories from configuration (only if they already exist).
+        
+        Returns:
+            List of repository names that were successfully fetched/updated.
+        """
         git_repos = self.config.get('git_repos', {})
         
         if not git_repos:
             print("No external repositories configured.")
-            return
+            return []
         
-        print("\nFetching all external repositories...")
-        success_count = 0
+        print("\nFetching existing external repositories...")
+        updated_repos = []
         fail_count = 0
+        skipped_count = 0
         
         for repo_name in git_repos.keys():
             if repo_name == "ai-ley":
                 continue  # Skip ai-ley repo as it's handled separately
             
+            repo_path = self.external_dir / repo_name
+            
+            # Only fetch if the repository already exists locally
+            if not repo_path.exists():
+                print(f"⏭️  Skipping {repo_name} (not yet cloned locally)")
+                skipped_count += 1
+                continue
+            
             print(f"\n📥 Fetching {repo_name}...")
             if self.fetch_repo(repo_name):
-                success_count += 1
+                updated_repos.append(repo_name)
             else:
                 fail_count += 1
         
+        success_count = len(updated_repos)
         print(f"\n✅ Successfully fetched: {success_count} repositories")
+        if skipped_count > 0:
+            print(f"⏭️  Skipped (not yet cloned): {skipped_count} repositories")
         if fail_count > 0:
             print(f"⚠️  Failed to fetch: {fail_count} repositories")
+        
+        return updated_repos
     
-    def update_all_portable_repos(self) -> None:
-        """Update content from all portable repositories."""
+    def update_all_portable_repos(self, updated_repos: Optional[List[str]] = None) -> None:
+        """Update content from portable repositories that were fetched.
+        
+        Args:
+            updated_repos: List of repository names that were fetched/updated.
+                          If None, will port from all existing portable repos.
+        """
         git_repos = self.config.get('git_repos', {})
         portable_repos = [name for name, config in git_repos.items() 
                          if config.get('portable', False) and name != "ai-ley"]
@@ -424,10 +447,29 @@ class AILeyManager:
             print("No portable repositories configured.")
             return
         
-        print("\nUpdating content from portable repositories...")
+        # Filter to only repos that exist locally and were updated (if list provided)
+        repos_to_port = []
         for repo_name in portable_repos:
+            repo_path = self.external_dir / repo_name
+            
+            # Skip if repo doesn't exist locally
+            if not repo_path.exists():
+                continue
+            
+            # If updated_repos list provided, only port those that were updated
+            if updated_repos is not None and repo_name not in updated_repos:
+                continue
+            
+            repos_to_port.append(repo_name)
+        
+        if not repos_to_port:
+            print("\nNo portable repositories to update.")
+            return
+        
+        print("\nUpdating content from portable repositories...")
+        for repo_name in repos_to_port:
             print(f"\n📦 Porting content from {repo_name}...")
-            self.port_content(repo_name)
+            self.port_content(repo_name, skip_fetch=True)
     
     def contribute_changes(self) -> None:
         """Contribute changes back to ai-ley repository (shared, builder, docs)."""
@@ -544,8 +586,13 @@ class AILeyManager:
         
         return changes_made
     
-    def port_content(self, repo_name: str) -> None:
-        """Port content from a portable repository."""
+    def port_content(self, repo_name: str, skip_fetch: bool = False) -> None:
+        """Port content from a portable repository.
+        
+        Args:
+            repo_name: Name of the repository to port content from.
+            skip_fetch: If True, skip fetching the repo if it doesn't exist locally.
+        """
         git_repos = self.config.get('git_repos', {})
         
         if repo_name not in git_repos:
@@ -561,6 +608,9 @@ class AILeyManager:
         repo_path = self.external_dir / repo_name
         
         if not repo_path.exists():
+            if skip_fetch:
+                print(f"Repository '{repo_name}' not found locally. Skipping.")
+                return
             print(f"Repository '{repo_name}' not found locally. Fetching...")
             if not self.fetch_repo(repo_name):
                 return
@@ -775,8 +825,8 @@ def main():
             print("\n" + "="*70)
             print("Updating external repositories...")
             print("="*70)
-            manager.fetch_all_external_repos()
-            manager.update_all_portable_repos()
+            updated_repos = manager.fetch_all_external_repos()
+            manager.update_all_portable_repos(updated_repos)
             
             print("\n" + "="*70)
             print("✅ Update complete!")

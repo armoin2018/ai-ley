@@ -2,10 +2,113 @@
 
 This guide defines universal coding standards and project management workflows to account for clarity, traceability, compliance, and coordination practices for multi-language development projects. The following guidelines outline how requirements, plans, instructions, personas, documentation, testing and library usage are managed.
 
+## Prompt Engineering & Request Processing
+
+**Active Persona**: Expert Prompt Engineer (`.ai-ley/shared/personas/engineer/expert-prompt-engineer.md`)
+
+### Intelligent Request Decomposition
+
+Before processing any user request, engage the **Expert Prompt Engineer** persona to:
+
+1. **Analyze Request Complexity**
+
+   - Assess scope, technical depth, and interdependencies
+   - Identify potential bottlenecks (token limits, context windows, processing constraints)
+   - Estimate resource requirements and processing time
+
+2. **Decompose Into Manageable Chunks**
+
+   - Break requests into logical, independently processable units
+   - Define clear boundaries based on:
+     - **File boundaries**: Process one file at a time for file operations
+     - **Function/class boundaries**: Handle individual components separately
+     - **Feature boundaries**: Implement one feature per processing pass
+     - **Documentation boundaries**: Generate docs section by section
+     - **Test boundaries**: Write tests module by module
+   - Ensure each chunk has clear input requirements and output expectations
+
+3. **Leverage Resource Indexes**
+
+   - Use `.ai-ley/shared/indexes/instructions.md` for rapid instruction selection
+   - Use `.ai-ley/shared/indexes/personas.md` for optimal persona identification
+   - Cross-reference relevant instructions under `.ai-ley/shared/instructions/**/*.md`
+   - Select specialized personas from `.ai-ley/shared/personas/**/*.md`
+
+4. **Multi-Pass Processing Strategy**
+
+   - **Pass 1: Analysis & Planning**
+     - Parse user request and extract requirements
+     - Identify relevant personas, instructions, and tools
+     - Create execution plan with chunking strategy
+     - Estimate resource needs per chunk
+   - **Pass 2: Execution (Iterative)**
+     - Process each chunk sequentially
+     - Maintain context between chunks through:
+       - Consistent naming conventions
+       - Proper imports and dependencies
+       - Architectural pattern preservation
+     - Validate integration after each chunk
+     - Provide progress updates showing completed/remaining chunks
+   - **Pass 3: Integration & Verification**
+     - Verify cross-chunk compatibility
+     - Run integration tests
+     - Ensure consistency across all deliverables
+     - Generate comprehensive summary
+
+5. **Automatic Recovery & Resumption**
+
+   - If a chunk fails due to size/complexity:
+     - Further subdivide the failing chunk
+     - Retry with smaller scope
+     - Track partial progress for resumption
+   - Maintain state between interruptions
+   - Support resuming from last successful checkpoint
+
+6. **Context Window Management**
+   - Monitor token usage throughout processing
+   - Clear non-essential context between logical chunks
+   - Preserve critical architectural decisions and patterns
+   - Reset memory strategically to prevent context pollution
+
+### Prompt Reconstruction Framework
+
+When formulating prompts for AI systems:
+
+1. **Clarity & Specificity**
+
+   - State objectives explicitly with measurable success criteria
+   - Provide concrete examples and expected outputs
+   - Define scope boundaries and exclusions
+
+2. **Contextual Enrichment**
+
+   - Reference relevant instruction files by path
+   - Cite applicable personas and their expertise domains
+   - Include architectural patterns and standards
+
+3. **Structured Input Format**
+
+   ```
+   **Objective**: [Clear goal statement]
+   **Context**: [Background information, constraints, dependencies]
+   **Personas**: [Relevant expert personas from indexes]
+   **Instructions**: [Applicable instruction files]
+   **Expected Output**: [Format, structure, deliverables]
+   **Success Criteria**: [Measurable validation points]
+   **Chunking Strategy**: [If applicable, breakdown approach]
+   ```
+
+4. **Iterative Refinement**
+   - Start with broad strokes, refine iteratively
+   - Validate understanding after each pass
+   - Adjust strategy based on intermediate results
+
 ## Variables
 
 - Folders, Files and Indexes are defined in `.ai-ley/shared/variables/folder-structure.yaml`
 - Files and folders in this document will be referenced using the `folders`, `files`, and `indexes` variables defined in the folder structure YAML file using the mustache syntax such as `{{folders.plan}}`.
+- Instruction files are indexed in `.ai-ley/shared/indexes/instructions.md` with quality scores and keywords for rapid selection
+- Personas are cataloged in `.ai-ley/shared/indexes/personas.md` organized by domain expertise
 
 ## Requirements
 

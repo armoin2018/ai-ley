@@ -159,6 +159,7 @@ You are a senior implementation engineer, quality gatekeeper, and execution spec
 - Update task status in `task-XXX-[name].md` immediately upon completion
 - Update progress in parent story `README.md`
 - Update progress in parent epic `README.md`
+- Update overall epic story progress dashboard
 - Log execution details to `{{files.history}}`
 - Track actual vs. estimated effort for future planning
 
@@ -167,15 +168,52 @@ You are a senior implementation engineer, quality gatekeeper, and execution spec
 ```markdown
 # Task Execution Log - [DATE/TIME]
 
+## Overall Epic Story Progress
+
+### Project Overview
+
+- **Total Epics**: [X] ([Y] completed, [Z] in progress, [A] not started)
+- **Total Stories**: [X] ([Y] completed, [Z] in progress, [A] not started)
+- **Total Tasks**: [X] ([Y] completed, [Z] in progress, [A] not started)
+- **Overall Completion**: [X]% complete
+- **Estimated Completion**: [Date based on velocity]
+
+### Epic-Level Progress
+
+| Epic ID  | Epic Name   | Stories | Completed | In Progress | Not Started | % Complete | Status         |
+| -------- | ----------- | ------- | --------- | ----------- | ----------- | ---------- | -------------- |
+| EPIC-001 | [Epic Name] | 5       | 3         | 1           | 1           | 60%        | 🟡 In Progress |
+| EPIC-002 | [Epic Name] | 3       | 3         | 0           | 0           | 100%       | ✅ Complete    |
+| EPIC-003 | [Epic Name] | 7       | 0         | 1           | 6           | 5%         | 🟡 In Progress |
+| EPIC-004 | [Epic Name] | 4       | 0         | 0           | 4           | 0%         | ⏸️ Not Started |
+
+### Current Epic Details: [EPIC-XXX - Epic Name]
+
+- **Epic Progress**: [X/Y] stories completed ([Z]%)
+- **Story Breakdown**:
+  - ✅ Story-001: [Story Name] (100% - [X] tasks completed)
+  - 🟡 Story-002: [Story Name] (60% - [X/Y] tasks completed)
+  - ⏸️ Story-003: [Story Name] (0% - not started)
+- **Epic Velocity**: [X] story points/week
+- **Epic Timeline**: Started [Date], Est. Completion [Date]
+- **Epic Blockers**: [List any impediments]
+
 ## Current Task
 
 - **Task ID**: TASK-XXX
-- **Story**: [Parent Story Name]
-- **Epic**: [Parent Epic Name]
+- **Story**: [Parent Story Name] (Story-XXX)
+- **Epic**: [Parent Epic Name] (Epic-XXX)
 - **Status**: In Progress/Completed
 - **Progress**: [X]% complete
 - **Estimated Hours**: X hours
 - **Actual Hours**: X hours (if completed)
+
+### Task Position in Story
+
+- **Story Progress**: Task [X] of [Y] ([Z]% complete)
+- **Previous Tasks**: [List of completed tasks]
+- **Remaining Tasks**: [List of pending tasks]
+- **Dependencies**: [List dependencies and their status]
 
 ## Implementation Details
 
@@ -191,6 +229,14 @@ You are a senior implementation engineer, quality gatekeeper, and execution spec
 - **Test Coverage**: [Percentage and gaps]
 - **Performance Impact**: [Measurements if applicable]
 - **Documentation**: [Updates made]
+
+## Sprint Context (if applicable)
+
+- **Sprint**: Sprint [Number]
+- **Sprint Goal**: [Sprint objective]
+- **Sprint Progress**: [X/Y] story points completed
+- **Days Remaining**: [X] days
+- **At Risk Items**: [List items at risk]
 ```
 
 ### Step 5: Story Completion Validation
@@ -356,12 +402,74 @@ During execution, actively identify:
 - **Task Progress**: [X/Y tasks completed]
 - **Story Points**: [X/Y points completed]
 
+## Epic Story Progress Through Sprint
+
+### Visual Progress Dashboard
+```
+
+📊 Epic Story Completion Status
+
+EPIC-001: User Authentication ████████████████████░░ 90% (9/10 stories)
+├─ Story-001: Login Flow ████████████████████ 100% ✅
+├─ Story-002: Registration ████████████████████ 100% ✅
+├─ Story-003: Password Reset ████████████████████ 100% ✅
+├─ Story-004: OAuth Integration ████████████████████ 100% ✅
+├─ Story-005: 2FA Setup ████████████████████ 100% ✅
+├─ Story-006: Session Mgmt ████████████████████ 100% ✅
+├─ Story-007: Security Audit ████████████████████ 100% ✅
+├─ Story-008: User Profiles ████████████████████ 100% ✅
+├─ Story-009: Role Management ████████████████████ 100% ✅
+└─ Story-010: Audit Logging ░░░░░░░░░░░░░░░░░░░░ 0% ⏸️
+
+EPIC-002: Data Pipeline ██████████████░░░░░░ 70% (7/10 stories)
+├─ Story-011: Data Ingestion ████████████████████ 100% ✅
+├─ Story-012: ETL Processing ████████████████████ 100% ✅
+├─ Story-013: Data Validation ████████████████████ 100% ✅
+├─ Story-014: Storage Layer ████████████████████ 100% ✅
+├─ Story-015: Query API ████████████████████ 100% ✅
+├─ Story-016: Caching Layer ████████████████████ 100% ✅
+├─ Story-017: Monitoring ████████████████████ 100% ✅
+├─ Story-018: Error Handling ████████████░░░░░░░░ 60% 🟡 (3/5 tasks)
+├─ Story-019: Performance Opt ░░░░░░░░░░░░░░░░░░░░ 0% ⏸️
+└─ Story-020: Documentation ░░░░░░░░░░░░░░░░░░░░ 0% ⏸️
+
+EPIC-003: Reporting System ████░░░░░░░░░░░░░░░░ 20% (2/10 stories)
+├─ Story-021: Report Builder ████████████████████ 100% ✅
+├─ Story-022: Chart Rendering ████████████████████ 100% ✅
+├─ Story-023: Export Functions ████████░░░░░░░░░░░░ 40% 🟡 (2/5 tasks)
+├─ Story-024: Scheduled Reports ░░░░░░░░░░░░░░░░░░░░ 0% ⏸️
+├─ Story-025: Dashboard UI ░░░░░░░░░░░░░░░░░░░░ 0% ⏸️
+├─ Story-026: Access Controls ░░░░░░░░░░░░░░░░░░░░ 0% ⏸️
+├─ Story-027: Email Delivery ░░░░░░░░░░░░░░░░░░░░ 0% ⏸️
+├─ Story-028: Report History ░░░░░░░░░░░░░░░░░░░░ 0% ⏸️
+├─ Story-029: Templates ░░░░░░░░░░░░░░░░░░░░ 0% ⏸️
+└─ Story-030: Performance Test ░░░░░░░░░░░░░░░░░░░░ 0% ⏸️
+
+📈 Overall Progress: ████████░░░░░░░░░░░░ 60% (18/30 stories completed)
+
+```
+
+### Detailed Story Tracking
+| Story ID | Story Name | Epic | Tasks | Complete | In Progress | Status | Est. | Act. | Variance |
+|----------|------------|------|-------|----------|-------------|--------|------|------|----------|
+| STY-001 | Login Flow | E-001 | 5/5 | 5 | 0 | ✅ | 8h | 7h | -1h |
+| STY-002 | Registration | E-001 | 6/6 | 6 | 0 | ✅ | 10h | 12h | +2h |
+| STY-018 | Error Handling | E-002 | 3/5 | 3 | 1 | 🟡 | 8h | 6h | -2h |
+| STY-023 | Export Functions | E-003 | 2/5 | 2 | 1 | 🟡 | 12h | 10h | -2h |
+
 ## Velocity Metrics
 
 - **Daily Completion Rate**: [Average tasks/day]
+- **Story Completion Rate**: [Average stories/sprint]
+- **Epic Completion Rate**: [Epics completed/month]
 - **Quality Metrics**: [Bug rate, test coverage, review scores]
 - **Efficiency Metrics**: [Actual vs. estimated effort]
 - **Blockers**: [Current impediments and resolution plans]
+
+## Epic-Level Health Indicators
+- **On Track**: [X] epics (green) - meeting timeline and quality goals
+- **At Risk**: [Y] epics (yellow) - minor delays or quality concerns
+- **Blocked**: [Z] epics (red) - significant impediments requiring attention
 
 ## Resource Utilization
 

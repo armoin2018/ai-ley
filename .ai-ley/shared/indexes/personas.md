@@ -301,7 +301,7 @@ Engineering specialists across various technical domains.
 | [Databricks Engineer](engineer/databricks-engineer.md)             | Databricks platform and Spark engineering                                                                        |
 | [DevOps Engineer](engineer/devops-engineer.md)                     | Infrastructure automation and deployment                                                                         |
 | [Drone Swarm Developer](engineer/drone-swarm-developer.md)         | Multi-drone systems and swarm intelligence                                                                       |
-| [Expert Prompt Engineer](engineer/expert-prompt-engineer.md)       | AI prompt design and optimization                                                                                |
+| [Expert Prompt Engineer](engineer/expert-prompt-engineer.md)       | Advanced AI prompt optimization, instruction/persona detection, and intelligent system orchestration             |
 | [Frontend Engineer](engineer/frontend-engineer.md)                 | User interface and web application development                                                                   |
 | [Firewall Engineer](engineer/firewall-engineer.md)                 | Network security and firewall management                                                                         |
 | [Ham Radio Operator](engineer/ham-radio-operator.md)               | Amateur radio and emergency communications                                                                       |
@@ -506,8 +506,8 @@ All personas maintain:
 
 ## Metadata
 
-- **Total Personas**: 293 (as of 2025-10-03)
-- **Last Updated**: 2025-10-03
+- **Total Personas**: 293 (as of 2025-10-16)
+- **Last Updated**: 2025-10-16
 - **Template Version**: 2.0 (Enterprise-Grade 10-Section Framework)
 - **Maintenance Schedule**: Quarterly updates
-- **Recent Enhancements**: SEO Savant added (systemic SEO strategy and topical authority expert), Karabiner Expert added (macOS keyboard remapping specialist), Business domain expansion (12 new business personas), Complete C-Suite executive expansion (14 new personas), Crypto Trader optimization, structural fixes
+- **Recent Enhancements**: Expert Prompt Engineer enhanced with advanced NLP capabilities, automatic instruction/persona detection, and intelligent system orchestration (2025-10-16), SEO Savant added (systemic SEO strategy and topical authority expert), Karabiner Expert added (macOS keyboard remapping specialist), Business domain expansion (12 new business personas), Complete C-Suite executive expansion (14 new personas), Crypto Trader optimization, structural fixes

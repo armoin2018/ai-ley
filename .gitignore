@@ -74,5 +74,12 @@ ENV/
 env.bak/
 venv.bak/
 
-src/assets/import
+src/
+.project/
 build
+
+
+# AI-Ley generated files and directories
+# Core AI-Ley
+
+.cache/

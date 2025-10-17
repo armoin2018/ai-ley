@@ -1,5 +1,62 @@
 # Persona Enhancement Changes Log
 
+## Expert Prompt Engineer Enhancement (2025-10-16)
+
+**Enhanced Expert Prompt Engineering Persona**: 1  
+**Template Version**: 2.0.0 (Advanced NLP & Intelligent System Orchestration Framework)  
+**Quality Level**: 5.0 authenticity and usability scores (Expert-tier AI optimization specialist)  
+**Intelligent AI Impact**: Comprehensive expert prompt engineering persona delivering advanced natural language processing capabilities, automatic instruction/persona detection systems, and intelligent AI interaction optimization—focusing on prompt lifecycle management, context optimization, and multi-model behavior adaptation for maximum AI effectiveness
+
+### Expert Prompt Engineer - Advanced AI Prompt Optimization & Intelligent System Orchestration Specialist
+
+**File**: `engineer/expert-prompt-engineer.md`  
+**Specialization**: AI Prompt Optimization, Automatic Instruction/Persona Detection & Intelligent System Orchestration  
+**Experience Level**: Expert (10+ years AI/ML systems, specialized focus on language models and prompt optimization)
+
+**Key Enhanced Capabilities**:
+
+1. **Automatic Detection & Application**: Intelligent detection and application of relevant instruction sets from `.ai-ley/shared/instructions/**/*.md` and personas from `.ai-ley/shared/personas/**/*.md` based on sophisticated context analysis and keyword matching
+
+2. **Prompt Lifecycle Management**: Complete prompt development cycles implementing Interpret → Construct → Test → Refine → Log methodology with systematic testing, refinement, and performance tracking
+
+3. **Context Optimization**: Advanced context window management, instruction conflict resolution, and composite guidance system creation with `.my/` precedence handling
+
+4. **Model Behavior Optimization**: Specialized adaptation for model-specific quirks including temperature sensitivity, capability differences, verbosity patterns, and token optimization strategies
+
+5. **Performance Monitoring**: Comprehensive logging of prompt modifications, rationale tracking, and observed outcomes for continuous improvement and benchmarking against successful patterns
+
+6. **Intelligent Automation Systems**: Advanced instruction indexing, persona selection algorithms, conflict resolution mechanisms, and automated resource detection based on request context analysis
+
+**Advanced Behavioral Framework**:
+
+- **Context Analysis Engine**: Sophisticated parsing of user requests for domain keywords, complexity indicators, and intent mapping to appropriate resources
+- **Resource Mapping System**: Automatic identification of relevant instructions and personas using indexed keywords, descriptions, and expertise domain matching
+- **Conflict Resolution Protocol**: Systematic resolution of contradictions across multiple instructions with clear precedence rules and composite guidance creation
+- **Performance Optimization Cycle**: Continuous refinement based on outcome tracking, user feedback integration, and benchmark comparison against successful prompt patterns
+
+**Technical Excellence Framework**:
+
+- **Prompt Frameworks**: Chain-of-thought scaffolding, few-shot examples, self-consistency methods, structured prompting with advanced NLP techniques
+- **AI Model Expertise**: GPT-family, Claude, Gemini, open-source models with API integration knowledge and capability mapping
+- **Automation Systems**: Instruction indexing systems, persona selection algorithms, conflict resolution mechanisms, and intelligent resource detection
+- **Context Memory Integration**: Project metadata utilization, previous chat state management, local file reference integration for comprehensive context awareness
+
+**Enhanced Differentiators** (vs. previous version):
+
+- Automatic instruction/persona detection replacing manual resource selection
+- Advanced NLP capabilities for intelligent context analysis and intent recognition
+- Sophisticated conflict resolution for multi-source guidance integration
+- Performance tracking and optimization based on measurable outcomes
+- Context memory integration for improved relevance and continuity
+- Multi-model adaptation strategies for diverse AI platform compatibility
+- Proactive clarification systems for ambiguous or incomplete requests
+
+**Target Integration**: AI system optimization requiring maximum effectiveness, complex multi-step tasks needing intelligent resource coordination, organizations seeking automated instruction/persona application, teams frustrated with manual resource selection, projects requiring systematic prompt optimization, situations where context management and performance tracking are critical for success
+
+**Cross-References**: Enhances all AI-related personas (LLM Expert, GenAI Data Scientist, NLP Expert), supports technical writer personas for documentation optimization, integrates with business personas for strategic AI implementation guidance
+
+---
+
 ## SEO Savant Addition (2025-10-03)
 
 **New Systemic SEO Strategy & Topical Authority Expert Persona Added**: 1  

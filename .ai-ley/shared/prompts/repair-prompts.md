@@ -57,6 +57,7 @@ You are a project maintenance specialist and automation engineer.
 
 - Check `.github/prompts/` for existing `.prompt.md` files
 - Check `.claude/commands/` for existing `.md` files
+- Check `.cursor/commands/` for existing `.md` files
 - Check `.opencode/commands/` for existing `.md` files
 - Compare against the master list to identify missing references
 - Validate that existing reference files have correct content format
@@ -106,6 +107,7 @@ For each missing file in `.opencode/commands/{command-name}.md`:
 
 - Create `.github/prompts/` directory if it doesn't exist
 - Create `.claude/commands/` directory if it doesn't exist
+- Create `.cursor/commands/` directory if it doesn't exist
 - Create `.opencode/commands/` directory if it doesn't exist
 - Verify proper file permissions and structure
 
@@ -145,6 +147,7 @@ OpenCode References:
 📁 Directories Verified:
 ✅ .github/prompts/
 ✅ .claude/commands/
+✅ .cursor/commands/
 ✅ .opencode/commands/
 
 🎯 All prompt references synchronized successfully!
@@ -167,6 +170,7 @@ Found 12 prompt files
 📋 Auditing reference files...
 - GitHub: 8 existing, 4 missing
 - Claude: 10 existing, 2 missing
+- Cursor: 7 existing, 3 missing
 - OpenCode: 5 existing, 7 missing
 
 ✅ Creating missing reference files...
@@ -204,6 +208,7 @@ Found 12 prompt files
 - Source: `.ai-ley/shared/prompts/build-plan.md`
 - GitHub: `.github/prompts/build-plan.prompt.md`
 - Claude: `.claude/commands/build-plan.md`
+- Cursor: `.cursor/commands/build-plan.md`
 - OpenCode: `.opencode/commands/build-plan.md`
 
 ### Error Handling

@@ -670,8 +670,16 @@ class AILeyManager:
             ".ai-ley/builder",
             ".ai-ley/docs",
             ".ai-ley/external",
+            ".my",
+            ".my/prompts",
+            ".my/templates",
+            ".my/uml-flows",
+            ".my/variables",
+            ".my/instructions",
+            ".my/personas",
             ".github/prompts",
             ".claude/commands",
+            ".cursor/commands",
             ".opencode/commands",
             ".project/plan",
             ".project/tests",
@@ -699,6 +707,273 @@ class AILeyManager:
         print("   1. Run: ./ai-ley.py --list (to see available repositories)")
         print("   2. Run: ./ai-ley.py --update (to sync latest content)")
         print("   3. Start building with: /ask 'Your project idea'")
+
+    def init_project_directory(self) -> None:
+        """Initialize .project/ directory with clean structure and essential files."""
+        print("🧹 Initializing .project/ directory...")
+        
+        project_dir = self.base_dir / ".project"
+        
+        # Files to preserve
+        preserve_files = {
+            "WHITELIST.md",
+            "BLACKLIST.md",
+            "settings.json"
+        }
+        
+        # Create .project directory if it doesn't exist
+        project_dir.mkdir(exist_ok=True)
+        
+        # Backup preserved files if they exist
+        preserved_content = {}
+        for filename in preserve_files:
+            file_path = project_dir / filename
+            if file_path.exists():
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        preserved_content[filename] = f.read()
+                    print(f"📋 Preserved: {filename}")
+                except Exception as e:
+                    print(f"⚠️  Could not read {filename}: {e}")
+        
+        # Clear the .project directory (but preserve the directory itself)
+        try:
+            for item in project_dir.iterdir():
+                if item.is_file():
+                    item.unlink()
+                    print(f"🗑️  Removed file: {item.name}")
+                elif item.is_dir():
+                    shutil.rmtree(item)
+                    print(f"🗑️  Removed directory: {item.name}")
+        except Exception as e:
+            print(f"⚠️  Error clearing .project/ directory: {e}")
+        
+        # Restore preserved files
+        for filename, content in preserved_content.items():
+            file_path = project_dir / filename
+            try:
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(content)
+                print(f"✅ Restored: {filename}")
+            except Exception as e:
+                print(f"❌ Failed to restore {filename}: {e}")
+        
+        # Create new essential files
+        essential_files = {
+            "ASK.md": """# Project Request
+
+## What are you trying to build?
+
+<!-- Describe your project goal here -->
+
+## Requirements
+
+<!-- List any specific requirements or constraints -->
+
+## Success Criteria
+
+<!-- How will you know when this is complete? -->
+
+## Additional Context
+
+<!-- Any other relevant information -->
+""",
+            "REQUIREMENTS.md": """# Project Requirements
+
+## Functional Requirements
+
+### Must Have
+- [ ] 
+
+### Should Have
+- [ ] 
+
+### Could Have
+- [ ] 
+
+## Non-Functional Requirements
+
+### Performance
+- [ ] 
+
+### Security
+- [ ] 
+
+### Usability
+- [ ] 
+
+### Compatibility
+- [ ] 
+
+## Constraints
+
+### Technical Constraints
+- 
+
+### Business Constraints
+- 
+
+### Timeline Constraints
+- 
+
+## Acceptance Criteria
+
+- [ ] 
+""",
+            "PLAN.md": """# Project Plan
+
+## Overview
+
+<!-- Brief description of the project -->
+
+## Objectives
+
+- 
+
+## Timeline
+
+### Phase 1: 
+- Duration: 
+- Goals: 
+
+### Phase 2: 
+- Duration: 
+- Goals: 
+
+## Tasks
+
+### To Do
+- [ ] 
+
+### In Progress
+- [ ] 
+
+### Done
+- [x] Initialize project structure
+
+## Resources
+
+### Team
+- 
+
+### Tools
+- 
+
+### Dependencies
+- 
+
+## Risk Assessment
+
+### High Risk
+- 
+
+### Medium Risk
+- 
+
+### Low Risk
+- 
+
+## Success Metrics
+
+- 
+""",
+            "SUGGESTIONS.md": """# Project Suggestions
+
+## Enhancement Ideas
+
+### High Priority
+- 
+
+### Medium Priority
+- 
+
+### Low Priority
+- 
+
+## Technical Improvements
+
+### Architecture
+- 
+
+### Performance
+- 
+
+### Security
+- 
+
+### Code Quality
+- 
+
+## Process Improvements
+
+### Development Workflow
+- 
+
+### Testing
+- 
+
+### Documentation
+- 
+
+### Deployment
+- 
+
+## Future Features
+
+### Next Version
+- 
+
+### Long Term
+- 
+
+## Community Feedback
+
+<!-- Ideas from users, stakeholders, or team members -->
+
+"""
+        }
+        
+        # Create essential files only if they don't already exist or weren't preserved
+        for filename, content in essential_files.items():
+            file_path = project_dir / filename
+            if not file_path.exists():
+                try:
+                    with open(file_path, 'w', encoding='utf-8') as f:
+                        f.write(content)
+                    print(f"✅ Created: {filename}")
+                except Exception as e:
+                    print(f"❌ Failed to create {filename}: {e}")
+            else:
+                print(f"✓ Already exists: {filename}")
+        
+        # Create essential subdirectories
+        essential_dirs = [
+            "plan",
+            "tests"
+        ]
+        
+        for dirname in essential_dirs:
+            dir_path = project_dir / dirname
+            dir_path.mkdir(exist_ok=True)
+            print(f"✅ Ensured directory: {dirname}/")
+        
+        print("\n🎉 .project/ directory initialized successfully!")
+        print("📁 Structure created:")
+        print("   .project/")
+        print("   ├── ASK.md           (your project request)")
+        print("   ├── REQUIREMENTS.md  (detailed requirements)")
+        print("   ├── PLAN.md          (project plan and tasks)")
+        print("   ├── SUGGESTIONS.md   (enhancement ideas)")
+        if "WHITELIST.md" in preserved_content:
+            print("   ├── WHITELIST.md     (preserved)")
+        if "BLACKLIST.md" in preserved_content:
+            print("   ├── BLACKLIST.md     (preserved)")
+        print("   ├── plan/            (detailed planning docs)")
+        print("   └── tests/           (test documentation)")
+        print("\n💡 Next steps:")
+        print("   1. Edit ASK.md to describe what you want to build")
+        print("   2. Update REQUIREMENTS.md with detailed requirements")
+        print("   3. Use PLAN.md to track your project progress")
     
     def _create_initial_config_files(self) -> None:
         """Create initial configuration files for AI-LEY."""
@@ -801,6 +1076,12 @@ def main():
         help='Port content from a portable repository'
     )
     
+    parser.add_argument(
+        '--init-project',
+        action='store_true',
+        help='Initialize .project/ directory with clean structure and essential files'
+    )
+    
     args = parser.parse_args()
     
     # Show help if no arguments provided
@@ -813,6 +1094,8 @@ def main():
         
         if args.init:
             manager.initialize_project()
+        elif args.init_project:
+            manager.init_project_directory()
         elif args.list:
             manager.list_repos()
         elif args.fetch:

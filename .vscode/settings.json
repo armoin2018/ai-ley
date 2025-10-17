@@ -80,5 +80,16 @@
     "imgs",
     "libc",
     "RAII"
-  ]
+  ],
+  "aiLey.agentic.claude": true,
+  "aiLey.agentic.cline": true,
+  "aiLey.agentic.codex": true,
+  "aiLey.agentic.cursor": true,
+  "aiLey.agentic.gemini": true,
+  "aiLey.agentic.metis": true,
+  "aiLey.agentic.opencode": true,
+  "aiLey.agentic.roo": true,
+  "aiLey.agentic.windsurf": true,
+  "aiLey.update.enabled": false,
+  "aiLey.gitignore.autoUpdate": false
 }

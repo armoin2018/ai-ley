@@ -94,21 +94,49 @@ const Base6Card = {
 
 ```php
 // Backend: Game Rule System
+/**
+ * Represents the rule system for a Base6 game.
+ *
+ * @property array $connection_types    Valid card connections
+ * @property array $win_conditions      How to win the game
+ * @property array $turn_structure      Player action sequence
+ * @property array $scoring_system      Point calculation
+ * @property array $special_actions     Unique card abilities
+ */
 class Base6GameRule {
-    public $connection_types;    // Valid card connections
-    public $win_conditions;      // How to win the game
-    public $turn_structure;      // Player action sequence
-    public $scoring_system;      // Point calculation
-    public $special_actions;     // Unique card abilities
+    /** @var array Valid card connections */
+    public array $connection_types;
+    /** @var array How to win the game */
+    public array $win_conditions;
+    /** @var array Player action sequence */
+    public array $turn_structure;
+    /** @var array Point calculation */
+    public array $scoring_system;
+    /** @var array Unique card abilities */
+    public array $special_actions;
 }
 
 // Frontend: Game Engine
+/**
+ * Represents the game engine for a Base6 game.
+ *
+ * @property array $card_deck        Available cards
+ * @property array $game_state       Current board/hand state
+ * @property array $player_data      Scores, turns, resources
+ * @property callable $rule_validator Move legality checker
+ * @property null|object $ai_opponent Computer player (optional)
+ */
 class Base6GameEngine {
-    public $card_deck;          // Available cards
-    public $game_state;         // Current board/hand state
-    public $player_data;        // Scores, turns, resources
-    public $rule_validator;     // Move legality checker
-    public $ai_opponent;        // Computer player (optional)
+    /** @var array Available cards */
+    public array $card_deck;
+    /** @var array Current board/hand state */
+    public array $game_state;
+    /** @var array Scores, turns, resources */
+    public array $player_data;
+    /** @var callable Move legality checker */
+    public $rule_validator;
+    /** @var null|object Computer player (optional) */
+    public $ai_opponent;
 }
 ```
 

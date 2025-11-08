@@ -8,10 +8,10 @@ extensions:
 guidelines: Follow AI-LEY project standards and Universal Project Coding & Management Guide
 instructionType: general
 keywords: [requirements, ask, suggestions, analysis, specifications, business-analysis]
-lastUpdated: '2025-09-07T00:00:00.000000'
+lastUpdated: '2025-10-04T00:00:00.000000'
 summaryScore: 5.0
 title: Requirements
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Copilot Command: Generate Requirements
@@ -42,27 +42,150 @@ Produce:
 - Clean up processed items from `{{files.ask}}` and `{{files.suggestions}}` as they are integrated
 - Flag any items needing clarification with actionable TODO markers
 
+## Chunking Strategy
+
+**IMPORTANT**: Large requirements generation tasks MUST be broken down into manageable chunks to avoid token limits and ensure quality output.
+
+### When to Use Chunking
+
+- Projects with more than 20 functional requirements
+- Complex systems with multiple subsystems or modules
+- When the requirements document would exceed 5000 lines
+- When analyzing large existing codebases for requirements extraction
+- When context window limits are approaching
+
+### Chunking Approaches
+
+#### Approach 1: Functional Domain Chunking
+
+Break requirements by functional domains:
+
+- **Pass 1**: Authentication & Authorization requirements
+- **Pass 2**: Core business logic requirements
+- **Pass 3**: Data management & storage requirements
+- **Pass 4**: API & integration requirements
+- **Pass 5**: UI/UX requirements
+- **Pass 6**: Non-functional & compliance requirements
+
+#### Approach 2: Section-by-Section Chunking
+
+Generate requirements document in sequential sections:
+
+- **Pass 1**: Executive Summary & Overview (Section 3.1)
+- **Pass 2**: Functional Requirements (Section 3.2)
+- **Pass 3**: Non-Functional Requirements (Section 3.3)
+- **Pass 4**: Compliance & Standards (Section 3.4)
+- **Pass 5**: User Stories (Section 3.5)
+- **Pass 6**: Technical Considerations & Dependencies (Sections 3.6-3.8)
+
+#### Approach 3: Requirement Type Chunking
+
+Group by requirement types:
+
+- **Pass 1**: High-priority functional requirements (R1-R20)
+- **Pass 2**: Medium/Low-priority functional requirements (R21-R40)
+- **Pass 3**: Security & compliance requirements (C1-C15)
+- **Pass 4**: Performance & reliability requirements (NF1-NF15)
+- **Pass 5**: User stories mapped to all requirements (US1-US40)
+
+### Chunking Workflow
+
+For each chunk/pass:
+
+1. **Declare Chunk Scope**: Clearly state which section/domain is being addressed
+2. **Load Relevant Context**: Read only the files/sections needed for this chunk
+3. **Generate Requirements**: Create requirements for this specific chunk
+4. **Save Progress**: Write chunk to requirements file (append mode)
+5. **Track Progress**: Update changelog with chunk completion status
+6. **Verify**: Ensure chunk is complete before moving to next
+7. **Cross-Reference**: Note any dependencies to other chunks for later integration
+
+### Multi-Pass Integration
+
+After all chunks are complete:
+
+1. **Consolidation Pass**: Review entire requirements document for consistency
+2. **Cross-Reference Pass**: Validate all requirement dependencies and references
+3. **Numbering Pass**: Ensure sequential numbering (R1-RN, NF1-NFN, etc.)
+4. **Deduplication Pass**: Remove any redundant requirements across chunks
+5. **Final Validation Pass**: Run all validation checks from Step 7
+
+### Chunk Progress Tracking
+
+Maintain a progress tracker in requirements document during multi-pass generation:
+
+```markdown
+<!-- REQUIREMENTS GENERATION PROGRESS -->
+<!-- DO NOT REMOVE UNTIL COMPLETE -->
+
+## Generation Status
+
+- [x] Pass 1: Executive Summary & Overview - COMPLETE
+- [x] Pass 2: Core Functional Requirements (R1-R25) - COMPLETE
+- [ ] Pass 3: Integration Requirements (R26-R40) - IN PROGRESS
+- [ ] Pass 4: Non-Functional Requirements - PENDING
+- [ ] Pass 5: Compliance Requirements - PENDING
+- [ ] Pass 6: User Stories - PENDING
+- [ ] Pass 7: Final Integration & Validation - PENDING
+
+**Current Pass**: 3/7
+**Estimated Completion**: Pass 7
+
+<!-- END PROGRESS TRACKER -->
+```
+
 ## Command
 
 You are an expert business analyst, technical architect, and requirements engineer with deep expertise in translating business needs into actionable technical specifications.
 
+**CRITICAL**: Before starting requirements generation, assess the scope and determine if chunking is needed. If the project requires more than 30 requirements or the existing codebase is large, automatically apply the appropriate chunking strategy and work in multiple passes.
+
+### Step 0: Scope Assessment and Chunking Decision
+
+**PERFORM THIS STEP FIRST**: Assess project scope to determine chunking strategy.
+
+**Scope Assessment**:
+
+1. **Check existing codebase size**: Count API endpoints, database models, modules
+2. **Estimate requirement count**: Based on features, aim for 5-10 requirements per feature area
+3. **Evaluate complexity**: Consider integrations, compliance needs, technical constraints
+4. **Check ASK/Suggestions volume**: Count items needing analysis
+
+**Chunking Decision Matrix**:
+
+| Project Size | Estimated Requirements | Chunking Strategy      | Number of Passes |
+| ------------ | ---------------------- | ---------------------- | ---------------- |
+| Small        | < 30 requirements      | Single Pass            | 1                |
+| Medium       | 30-60 requirements     | Functional Domain      | 3-4              |
+| Large        | 60-100 requirements    | Section-by-Section     | 6-7              |
+| Enterprise   | > 100 requirements     | Hybrid (Domain + Type) | 8-12             |
+
+**If Chunking Required**:
+
+1. Announce chunking strategy to user
+2. Create progress tracker in requirements file
+3. Define clear boundaries for each chunk
+4. Proceed with Step 1 for first chunk only
+
 ### Step 1: Load and Analyze Sources
 
-**Actions**:
+**Actions** (Adjust based on current chunk):
 
 - Load `{{files.ask}}` (primary source of goals, ideas, and high-level requests)
-- Load existing `{{files.requirements}}` (if present)
+- Load existing `{{files.requirements}}` (if present or from previous chunk)
 - Load `{{files.suggestions}}` (enhancement suggestions and improvements)
 - Load `{{files.bugs}}` (known issues to address)
 - Load project context from `{{files.indexes.personas}}` and `{{files.indexes.instructions}}`
+- **If chunking**: Load only the codebase sections relevant to current chunk
 
-**Analysis Tasks**:
+**Analysis Tasks** (Scoped to current chunk):
 
-- Identify all unique requests and ideas from ASK document
-- Extract enhancement suggestions that should become requirements
+- Identify all unique requests and ideas from ASK document relevant to this chunk
+- Extract enhancement suggestions that should become requirements for this chunk
 - Reconcile conflicts between existing requirements and new inputs
-- Analyze complexity and scope of each request
+- Analyze complexity and scope of each request in this domain
 - Map requests to business objectives and user needs
+- **If chunking**: Note cross-chunk dependencies for later integration
 
 ### Step 2: Requirements Discovery and Clarification
 
@@ -353,6 +476,8 @@ _Format each user story as_:
 
 ### Step 8: Delivery and Handoff
 
+**For Single-Pass Generation**:
+
 **Final Deliverables**:
 
 - Updated `{{files.requirements}}` with comprehensive specifications
@@ -361,12 +486,34 @@ _Format each user story as_:
 - Cleaned up `{{files.suggestions}}` with evaluation results
 - Summary report of requirements generation process
 
+**For Multi-Pass/Chunked Generation**:
+
+**Chunk Completion Deliverables**:
+
+- Append chunk requirements to `{{files.requirements}}`
+- Update progress tracker in requirements file
+- Document chunk completion in `{{files.requirements_changelog}}`
+- Note any cross-chunk dependencies discovered
+- Provide summary of chunk: "Completed Pass X/Y: [Chunk Description]"
+- Ask user: "Ready to proceed with next chunk?" or automatically continue if instructed
+
+**Final Chunk Deliverables** (after all chunks complete):
+
+- Complete requirements document with all sections integrated
+- Consolidated `{{files.requirements_changelog}}`
+- Final validation report with all checks passed
+- Cross-reference validation of all dependencies
+- Remove progress tracker from requirements file
+- Cleaned up `{{files.ask}}` and `{{files.suggestions}}`
+- Comprehensive summary report
+
 **Integration Points**:
 
 - Requirements are ready for planning phase (`plan` command)
 - Requirements reference existing personas and instructions
 - Requirements align with project standards and guidelines
 - Requirements provide clear guidance for implementation teams
+- **For chunked work**: All cross-chunk dependencies are resolved and documented
 
 ## Examples
 
@@ -437,6 +584,97 @@ _Format each user story as_:
 - **Source**: Suggestion - Performance optimization
 ```
 
+## Example 3: Multi-Pass Chunked Generation
+
+**Scenario**: Large enterprise system with 80+ requirements across multiple domains
+
+**Pass 1 - Executive Summary & Core Requirements**:
+
+```markdown
+<!-- REQUIREMENTS GENERATION PROGRESS -->
+
+## Generation Status
+
+- [x] Pass 1: Executive Summary & Core Auth Requirements (R1-R15) - COMPLETE
+- [ ] Pass 2: Business Logic Requirements (R16-R35) - PENDING
+- [ ] Pass 3: Integration & API Requirements (R36-R50) - PENDING
+- [ ] Pass 4: Non-Functional Requirements (NF1-NF20) - PENDING
+- [ ] Pass 5: Compliance Requirements (C1-C10) - PENDING
+- [ ] Pass 6: User Stories (US1-US60) - PENDING
+- [ ] Pass 7: Final Integration & Validation - PENDING
+
+**Current Pass**: 1/7 - Completed executive summary and core authentication requirements
+
+<!-- END PROGRESS TRACKER -->
+
+# 1. Executive Summary and Overview
+
+[Content here...]
+
+# 2. Functional Requirements
+
+## 2.1 Authentication & Authorization (R1-R15)
+
+**R1: User Registration System**
+[Full requirement here...]
+```
+
+**Pass 2 Continuation**:
+
+```markdown
+<!-- REQUIREMENTS GENERATION PROGRESS -->
+
+## Generation Status
+
+- [x] Pass 1: Executive Summary & Core Auth Requirements (R1-R15) - COMPLETE
+- [x] Pass 2: Business Logic Requirements (R16-R35) - COMPLETE
+- [ ] Pass 3: Integration & API Requirements (R36-R50) - IN PROGRESS
+      [...]
+
+## 2.2 Business Logic Requirements (R16-R35)
+
+**R16: Claims Processing Engine**
+[Full requirement here...]
+```
+
+**Final Pass - After All Chunks**:
+
+```markdown
+# EQ TimeChain Systems™ - Comprehensive Requirements Document
+
+[Complete integrated document with all sections, no progress tracker]
+```
+
+## Chunking Best Practices
+
+### File Size Management
+
+- **Target chunk size**: 1000-2000 lines per pass
+- **Use append mode**: Add to existing file rather than rewriting
+- **Preserve formatting**: Maintain consistent structure across chunks
+- **Version control**: Commit after each chunk for rollback capability
+
+### Context Preservation
+
+- **Start each chunk**: Reference previous chunk summary
+- **End each chunk**: Provide transition note to next chunk
+- **Track dependencies**: Maintain running list of cross-chunk references
+- **Use consistent IDs**: Don't renumber; continue sequential IDs
+
+### Quality Assurance Per Chunk
+
+- **Validate internally**: Each chunk should be internally consistent
+- **Check boundaries**: Ensure no overlap with previous/next chunks
+- **Document assumptions**: Note anything that needs verification in later chunks
+- **Progressive refinement**: Later chunks can refine earlier chunks if needed
+
+### Communication
+
+- **Announce strategy**: Tell user upfront how many passes are needed
+- **Progress updates**: Report completion of each chunk
+- **Seek confirmation**: Ask before proceeding to next chunk (unless instructed to continue)
+- **Flexibility**: Allow user to adjust chunking strategy mid-generation
+
 ## Notes
 
 - Always ensure traceability from original ASK items to final requirements
@@ -447,3 +685,6 @@ _Format each user story as_:
 - Validate requirements against available personas and instructions
 - Keep requirements focused and avoid over-engineering
 - Regular stakeholder review ensures alignment with business goals
+- **For large projects**: Use chunking strategy to maintain quality and manageability
+- **Chunk boundaries**: Choose logical breakpoints that minimize cross-chunk dependencies
+- **Progressive integration**: Each chunk builds upon previous chunks coherently

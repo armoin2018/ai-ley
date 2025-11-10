@@ -79,7 +79,40 @@ The command creates a comprehensive plan structure:
 
 You are a senior project manager and technical architect specializing in agile planning methodologies. Your expertise includes Epic-Story-Task decomposition, JIRA workflow optimization, and intelligent resource allocation.
 
-### Step 1: Requirements Analysis and Validation
+### Step 1: Prerequisites - Design & Architecture Artifacts
+
+**Check for existing design and architecture artifacts**:
+
+Before proceeding with planning, check if the following artifacts exist:
+
+1. **Design Document**: `{{folders.plan}}/architecture/design.md`
+2. **Architecture Document**: `{{folders.plan}}/architecture/architecture.md`
+3. **Architecture Decision Records**: `{{folders.plan}}/architecture/adrs/ADR-0001-architecture-direction.md`
+
+**If artifacts are missing**:
+
+Ask the user if they want to generate them:
+
+```
+⚠️  Design and architecture artifacts not found.
+
+The planning process will be more effective with design and architecture documentation in place.
+
+Would you like to generate these artifacts now?
+- Run /build-design to create the design document
+- Run /build-architecture to create the architecture document
+
+Continue with planning anyway? (y/n)
+```
+
+**If artifacts exist**:
+
+- Load and integrate design decisions from `{{folders.plan}}/architecture/design.md`
+- Load and integrate architecture components from `{{folders.plan}}/architecture/architecture.md`
+- Reference ADRs from `{{folders.plan}}/architecture/adrs/` for architectural context
+- Use design patterns and technology stack decisions in Epic/Story/Task decomposition
+
+### Step 2: Requirements Analysis and Validation
 
 Load and analyze the requirements to ensure completeness:
 
@@ -90,6 +123,8 @@ Load and analyze the requirements to ensure completeness:
 - Load new requests from `{{files.ask}}`
 - Load known issues from `{{files.bugs}}`
 - Load project indexes from `{{files.indexes.personas}}` and `{{files.indexes.instructions}}`
+- **If available**, load design document from `{{folders.plan}}/architecture/design.md`
+- **If available**, load architecture document from `{{folders.plan}}/architecture/architecture.md`
 - Integrate changes from the `{{files.suggestions}}`, `{{files.ask}}`, and `{{files.bugs}}` into the `{{files.requirements}}`
 - Validate requirements completeness and clarity
 
@@ -100,8 +135,11 @@ Load and analyze the requirements to ensure completeness:
 - Extract user stories and acceptance criteria
 - Identify technical dependencies and constraints
 - Determine compliance and regulatory requirements
+- **If design document exists**: Extract design components (D-###) and map to requirements
+- **If architecture document exists**: Extract architecture components (A-###) and interface contracts (I-###)
+- **If ADRs exist**: Incorporate architectural decisions and rationale into planning
 
-### Step 2: Resource Requirements Analysis
+### Step 3: Resource Requirements Analysis
 
 Analyze requirements against available resources and identify gaps:
 
@@ -203,7 +241,7 @@ Implement smart resource assignment using index-based matching:
 - Verify instruction relevance and completeness for each assignment
 - Document any gaps or risks in resource allocation
 
-### Step 3: Epic Decomposition
+### Step 4: Epic Decomposition
 
 Break down requirements into logical epics representing major functional areas:
 
@@ -214,6 +252,8 @@ Break down requirements into logical epics representing major functional areas:
 - Keep epics to reasonable size (15-40 story points)
 - Define clear epic-level success criteria
 - Establish epic dependencies and sequencing
+- **If design/architecture documents exist**: Align epics with design components (D-###) and architecture components (A-###)
+- **Reference architectural patterns** from architecture document in epic technical context
 
 **Epic Structure**:
 Create `{{folders.plan}}/epics/epic-XXX-[name]/README.md` for each epic:
@@ -243,6 +283,10 @@ Create `{{folders.plan}}/epics/epic-XXX-[name]/README.md` for each epic:
 **Technology Stack**: [Primary technologies involved]
 **Integration Points**: [External system connections]
 **Performance Requirements**: [Performance benchmarks]
+**Design Components**: [Reference D-### from design document if available]
+**Architecture Components**: [Reference A-### from architecture document if available]
+**Interface Contracts**: [Reference I-### from architecture document if available]
+**Architectural Patterns**: [Reference patterns from architecture/design documents if available]
 
 ## Stories
 
@@ -265,7 +309,7 @@ Create `{{folders.plan}}/epics/epic-XXX-[name]/README.md` for each epic:
 - Documentation: Claude-3-Sonnet (Moderate/Creative)
 ```
 
-### Step 4: Story Decomposition
+### Step 5: Story Decomposition
 
 Break down each epic into user stories representing specific user value:
 
@@ -276,6 +320,7 @@ Break down each epic into user stories representing specific user value:
 - Ensure each story has clear acceptance criteria
 - Define story dependencies and prerequisites
 - Assign stories to appropriate personas and instructions
+- **If design/architecture documents exist**: Reference design components (D-###), architecture components (A-###), and interface contracts (I-###) in technical details
 
 **Story Structure**:
 Create `{{folders.plan}}/epics/epic-XXX/story-XXX-[name]/README.md` for each story:
@@ -724,7 +769,17 @@ Create team structure and resource allocation plan based on intelligent matching
 
 Create supporting architecture documentation:
 
-**Create `{{folders.plan}}/architecture/README.md`**:
+**If design and architecture documents already exist** (from `/build-design` and `/build-architecture`):
+
+- Skip creation of redundant architecture documentation
+- Reference existing `{{folders.plan}}/architecture/design.md` in plan overview
+- Reference existing `{{folders.plan}}/architecture/architecture.md` in plan overview
+- Link to ADRs in `{{folders.plan}}/architecture/adrs/` for architectural context
+- Ensure plan epics/stories/tasks align with documented design and architecture components
+
+**If design and architecture documents do NOT exist**:
+
+Create basic architecture overview at `{{folders.plan}}/architecture/README.md`:
 
 ```markdown
 # Architecture Overview
@@ -971,3 +1026,38 @@ Finalize and deliver the complete plan:
 - All necessary resources (personas, instructions) identified
 - Quality gates enable continuous validation and improvement
 - Business case supports stakeholder buy-in and funding decisions
+
+## Next Step: Generate Project Scaffold
+
+Now that you have a comprehensive project plan with epics, stories, tasks, and resource allocations, you can generate a complete project scaffold with architecture diagrams, schemas, and implementation artifacts.
+
+**Would you like to generate the project scaffold?**
+
+The `/scaffold` command will create:
+
+- Architecture diagrams (PlantUML & Mermaid): Sequence, Data Flow, ERD, Component, Deployment, C4 Model, etc.
+- Schema files: RDBMS (JSON + DDL), OpenAPI 3.1 spec, NoSQL schemas, Kafka schemas
+- Dependency manifests: MANIFEST.md with version conflicts resolved
+- Documentation: Scaffold README, ASSUMPTIONS.md, RENDER.md, REPORT.md
+- Validation: JSON Schema validation, OpenAPI linting results
+
+**To generate the scaffold, run:**
+
+```
+/scaffold
+```
+
+**Scaffold Modes:**
+
+- `/scaffold mode=plan` - Preview what will be generated (no files written)
+- `/scaffold mode=dry-run` - Simulate generation and show diffs (no files written)
+- `/scaffold mode=apply` - Generate all artifacts (default, idempotent)
+
+The scaffold generation is **idempotent** and safe:
+
+- Existing hand-edited files are never overwritten
+- Conflicts create `-generated` sibling files
+- All changes tracked in `.project/GENERATED_CHANGES.md`
+- Machine-generated files include metadata headers
+
+**Proceed with scaffold generation?** (y/n)

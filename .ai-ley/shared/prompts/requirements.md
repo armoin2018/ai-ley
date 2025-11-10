@@ -31,8 +31,10 @@ version: 1.1.0
 
 Given:
 
-- Raw ideas, goals, and requests from `{{files.ask}}`
-- Enhancement suggestions from `{{files.suggestions}}`
+- **Primary source** (priority order):
+  1. Structured intake responses from `.project/INTAKE.md` (if available)
+  2. Raw ideas, goals, and requests from `{{files.ask}}`
+  3. Enhancement suggestions from `{{files.suggestions}}`
 - Existing requirements from `{{files.requirements}}` (if present)
 
 Produce:
@@ -140,9 +142,72 @@ You are an expert business analyst, technical architect, and requirements engine
 
 **CRITICAL**: Before starting requirements generation, assess the scope and determine if chunking is needed. If the project requires more than 30 requirements or the existing codebase is large, automatically apply the appropriate chunking strategy and work in multiple passes.
 
-### Step 0: Scope Assessment and Chunking Decision
+### Step 0: Prerequisites - Check for Intake Document
 
-**PERFORM THIS STEP FIRST**: Assess project scope to determine chunking strategy.
+**Check for structured intake data**:
+
+Before proceeding with requirements generation, check if `.project/INTAKE.md` exists and contains intake data:
+
+1. **Check if `.project/INTAKE.md` exists**
+
+2. **If INTAKE.md exists and has content**:
+
+   - Load intake responses as primary input source
+   - Parse structured answers (Q&A format)
+   - Extract key information:
+     - Project name and description
+     - Project goals and objectives
+     - Technology stack
+     - Team composition
+     - Timeline and budget
+     - Constraints and requirements
+     - Referenced assets (personas, instructions, etc.)
+   - Use intake data to inform requirements structure and content
+   - Note in requirements: "Generated from intake session: [timestamp]"
+
+3. **If INTAKE.md does NOT exist or is empty**:
+
+   Ask the user if they want to run intake first:
+
+   ```
+   ℹ️  No structured intake data found.
+
+   Running an intake session first can help create more comprehensive
+   and accurate requirements.
+
+   Would you like to:
+   1. Run /intake to gather structured project information first (recommended)
+   2. Continue with requirements generation from ASK/SUGGESTIONS
+   3. Cancel and prepare intake manually
+
+   Your choice (1/2/3):
+   ```
+
+4. **If user chooses to run intake (option 1)**:
+
+   - Prompt for intake template type:
+
+     ```
+     Select intake template type:
+     1. web-app - Web application project
+     2. api - API or microservices project
+     3. mobile - Mobile application project
+     4. ml-pipeline - Machine learning pipeline
+     5. general - General purpose project
+
+     Your choice (1-5):
+     ```
+
+   - Trigger `/intake type=[selected-type]`
+   - After intake completion, resume requirements generation
+
+5. **If user chooses to continue (option 2)**:
+   - Proceed with Step 1 using `{{files.ask}}` and `{{files.suggestions}}`
+   - Note in requirements: "Generated without structured intake"
+
+### Step 1: Scope Assessment and Chunking Decision
+
+**PERFORM THIS STEP AFTER INTAKE CHECK**: Assess project scope to determine chunking strategy.
 
 **Scope Assessment**:
 
@@ -167,11 +232,25 @@ You are an expert business analyst, technical architect, and requirements engine
 3. Define clear boundaries for each chunk
 4. Proceed with Step 1 for first chunk only
 
-### Step 1: Load and Analyze Sources
+### Step 2: Load and Analyze Sources
 
 **Actions** (Adjust based on current chunk):
 
-- Load `{{files.ask}}` (primary source of goals, ideas, and high-level requests)
+**Priority 1 - Structured Intake Data** (if available):
+
+- Load `.project/INTAKE.md` and parse structured Q&A responses
+- Extract key project information:
+  - Project name, description, and goals from intake
+  - Technology stack selections and justifications
+  - Team composition and available expertise
+  - Timeline, budget, and constraints
+  - Platform targets and user personas
+  - Referenced assets (personas, instructions, agents)
+- Use intake responses as authoritative source for core requirements
+
+**Priority 2 - Additional Context**:
+
+- Load `{{files.ask}}` (raw ideas and requests not covered in intake)
 - Load existing `{{files.requirements}}` (if present or from previous chunk)
 - Load `{{files.suggestions}}` (enhancement suggestions and improvements)
 - Load `{{files.bugs}}` (known issues to address)
@@ -180,20 +259,28 @@ You are an expert business analyst, technical architect, and requirements engine
 
 **Analysis Tasks** (Scoped to current chunk):
 
+- **If INTAKE.md available**: Derive requirements from structured intake responses
+  - Project goals → Functional requirements
+  - Constraints → Non-functional requirements and compliance
+  - Technology stack → Technical requirements and dependencies
+  - Timeline/budget → Project constraints
 - Identify all unique requests and ideas from ASK document relevant to this chunk
 - Extract enhancement suggestions that should become requirements for this chunk
-- Reconcile conflicts between existing requirements and new inputs
+- Reconcile conflicts between intake, existing requirements, and new inputs
 - Analyze complexity and scope of each request in this domain
 - Map requests to business objectives and user needs
 - **If chunking**: Note cross-chunk dependencies for later integration
 
-### Step 2: Requirements Discovery and Clarification
+### Step 3: Requirements Discovery and Clarification
 
 **Discovery Questions** (Ask user for clarification if needed):
 
+**Note**: If intake data is available, many of these questions may already be answered.
+Reference intake responses and only ask for missing or unclear information.
+
 **Problem Definition**:
 
-- What specific problem are we solving?
+- What specific problem are we solving? (Check INTAKE.md Q2: Project Description)
 - What pain points are we addressing?
 - What are the root causes of current issues?
 
@@ -205,7 +292,7 @@ You are an expert business analyst, technical architect, and requirements engine
 
 **Core Functionality**:
 
-- What are the essential capabilities required?
+- What are the essential capabilities required? (Check INTAKE.md Q3: Project Goals)
 - What are the must-have vs. nice-to-have features?
 - What workflows and user journeys need to be supported?
 

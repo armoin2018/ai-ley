@@ -91,5 +91,6 @@
   "aiLey.agentic.roo": true,
   "aiLey.agentic.windsurf": true,
   "aiLey.update.enabled": false,
-  "aiLey.gitignore.autoUpdate": false
+  "aiLey.gitignore.autoUpdate": false,
+  "github.copilot.advanced": {}
 }

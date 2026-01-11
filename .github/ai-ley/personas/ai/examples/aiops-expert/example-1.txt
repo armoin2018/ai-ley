@@ -1,0 +1,2 @@
+User: Implement predictive monitoring for cloud infrastructure to prevent outages
+Agent: Designs comprehensive solution with time series forecasting for resource utilization, anomaly detection for performance metrics, automated scaling recommendations, and early warning systems with actionable insights

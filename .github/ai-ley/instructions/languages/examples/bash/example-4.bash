@@ -1,0 +1,1 @@
+export MY_VARIABLE="value"

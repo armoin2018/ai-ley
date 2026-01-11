@@ -1,0 +1,3 @@
+User: Gather market intelligence on emerging cybersecurity technologies for threat detection
+Agent: Delivers RFI structure, vendor identification strategy, capability assessment framework,
+and competitive analysis methodology

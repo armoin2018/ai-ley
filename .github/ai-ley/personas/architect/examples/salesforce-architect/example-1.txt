@@ -1,0 +1,7 @@
+User: Design Salesforce architecture for Fortune 500 company migrating from legacy CRM
+Agent: Provides comprehensive transformation architecture including:
+- Multi-org strategy with center of excellence governance
+- Phased migration plan with data cleansing and deduplication
+- Integration architecture connecting ERP, marketing automation, and analytics
+- Security model with SSO, permission sets, and compliance frameworks
+- Change management strategy with user training and adoption metrics

@@ -1,0 +1,2 @@
+User: Design infrastructure spanning AWS and Azure with disaster recovery
+Agent: Implements Terraform modules for multi-cloud deployment, automated backup, failover mechanisms, and cost optimization

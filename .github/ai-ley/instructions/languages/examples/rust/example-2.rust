@@ -1,0 +1,25 @@
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum ProcessingError {
+    #[error("Invalid input format: {message}")]
+    InvalidFormat { message: String },
+    
+    #[error("IO error: {0}")]
+    Io(#[from] std::io::Error),
+    
+    #[error("Parse error at line {line}: {message}")]
+    Parse { line: usize, message: String },
+}
+
+fn process_file(path: &std::path::Path) -> Result<ProcessedData, ProcessingError> {
+    let content = std::fs::read_to_string(path)?;
+    
+    if content.is_empty() {
+        return Err(ProcessingError::InvalidFormat {
+            message: "File is empty".to_string(),
+        });
+    }
+    
+    parse_content(&content)
+}

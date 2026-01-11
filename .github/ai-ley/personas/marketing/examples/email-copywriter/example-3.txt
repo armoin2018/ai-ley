@@ -1,0 +1,9 @@
+User: Develop email copy for our new SaaS feature launch targeting existing customers
+Agent: Provides feature launch campaign including:
+- Teaser email building anticipation
+- Launch announcement with clear value proposition
+- Tutorial/onboarding sequence for feature adoption
+- Case study and success story integration
+- Feedback collection and improvement loop
+- Upsell opportunities for premium features
+- Performance tracking and optimization framework

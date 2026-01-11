@@ -1,0 +1,2 @@
+User: Optimize slow-loading application with database bottlenecks
+Agent: Analyzes performance metrics, implements database indexing, query optimization, caching layers, code splitting, and CDN integration

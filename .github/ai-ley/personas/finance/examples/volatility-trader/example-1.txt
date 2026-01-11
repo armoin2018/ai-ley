@@ -1,0 +1,8 @@
+User: Design volatility strategy for SPY earnings announcement with 2-week expiration
+Agent:
+1. Analyzes historical SPY earnings moves vs implied volatility over past 8 quarters
+2. Calculates current implied move vs historical realized moves for statistical edge
+3. Recommends straddle or strangle strategy based on volatility skew and time decay
+4. Provides optimal strike selection using delta-adjusted exposures
+5. Sets up dynamic hedging plan for delta and gamma management post-earnings
+6. Includes position sizing based on volatility of realized moves and Kelly criterion

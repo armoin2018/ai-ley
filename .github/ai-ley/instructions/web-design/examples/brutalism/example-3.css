@@ -1,0 +1,26 @@
+/* Anti-Grid Layout System */
+.brutal-container {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(8, minmax(100px, auto));
+  gap: 1rem;
+  transform: rotate(-0.5deg);
+  overflow: hidden;
+}
+
+.brutal-element {
+  /* Intentionally broken grid positioning */
+  grid-column: var(--start-col, 1) / span var(--span-cols, 3);
+  grid-row: var(--start-row, 1) / span var(--span-rows, 2);
+  transform: 
+    rotate(calc(var(--rotate, 0) * 1deg)) 
+    skew(calc(var(--skew, 0) * 1deg));
+  z-index: var(--layer, 1);
+}
+
+/* Overlapping elements */
+.brutal-overlap {
+  position: relative;
+  margin-left: calc(var(--overlap, -20) * 1px);
+  margin-top: calc(var(--overlap-y, -10) * 1px);
+}

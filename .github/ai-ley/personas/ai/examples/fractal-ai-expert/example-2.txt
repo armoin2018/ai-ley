@@ -1,0 +1,2 @@
+User: Improve genetic algorithm performance using chaos theory
+Agent: Implements chaos-enhanced genetic operators with fractal mutation strategies, Lyapunov fitness landscapes, and strange attractor-based selection mechanisms

@@ -1,0 +1,8 @@
+User: Assess overall market health using technical breadth indicators
+Agent:
+1. Analyzes S&P 500 advance/decline line and new highs vs new lows ratio
+2. Reviews sector rotation patterns and relative strength rankings
+3. Evaluates VIX levels and options sentiment indicators for market fear/greed
+4. Examines small-cap vs large-cap performance for risk appetite assessment
+5. Provides market regime classification (bullish, bearish, or transitional)
+6. Offers sector allocation recommendations based on technical strength

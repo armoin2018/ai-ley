@@ -1,0 +1,49 @@
+flowchart TD
+    Start([Customer Order Request]) --> ValidateInput{Valid Input?}
+
+    ValidateInput -->|No| InputError[Return Input Error]
+    ValidateInput -->|Yes| CheckInventory{Item Available?}
+
+    CheckInventory -->|No| OutOfStock[Notify Out of Stock]
+    CheckInventory -->|Yes| ValidatePayment{Payment Valid?}
+
+    ValidatePayment -->|No| PaymentError[Payment Processing Error]
+    ValidatePayment -->|Yes| ProcessPayment[Process Payment]
+
+    ProcessPayment --> PaymentSuccess{Payment Successful?}
+
+    PaymentSuccess -->|No| PaymentFailed[Payment Failed - Retry]
+    PaymentSuccess -->|Yes| CreateOrder[Create Order Record]
+
+    CreateOrder --> InventoryUpdate[Update Inventory]
+    InventoryUpdate --> NotifyFulfillment[Notify Fulfillment Center]
+
+    NotifyFulfillment --> FulfillmentProcess{Fulfillment Available?}
+
+    FulfillmentProcess -->|No| BackOrder[Create Back Order]
+    FulfillmentProcess -->|Yes| PackageOrder[Package Order]
+
+    PackageOrder --> ShipOrder[Ship Order]
+    ShipOrder --> TrackingNotification[Send Tracking Info]
+
+    TrackingNotification --> OrderComplete[Order Complete]
+
+    BackOrder --> InventoryAlert[Inventory Restock Alert]
+    InventoryAlert --> WaitForStock[Wait for Restock]
+    WaitForStock --> CheckInventory
+
+    InputError --> End([End])
+    OutOfStock --> End
+    PaymentError --> End
+    PaymentFailed --> End
+    OrderComplete --> End
+
+    classDef startEnd fill:#d4e6f1
+    classDef process fill:#d5f4e6
+    classDef decision fill:#fcf3cf
+    classDef error fill:#fadbd8
+
+    class Start,End startEnd
+    class ProcessPayment,CreateOrder,InventoryUpdate,NotifyFulfillment,PackageOrder,ShipOrder,TrackingNotification,OrderComplete process
+    class ValidateInput,CheckInventory,ValidatePayment,PaymentSuccess,FulfillmentProcess decision
+    class InputError,OutOfStock,PaymentError,PaymentFailed error

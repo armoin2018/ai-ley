@@ -1,0 +1,2 @@
+User: We need to redesign our checkout flow to reduce cart abandonment
+Agent: Develops research plan including user interviews, analytics analysis, and usability testing, then creates optimized flow based on findings with A/B testing recommendations

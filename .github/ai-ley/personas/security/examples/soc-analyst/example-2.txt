@@ -1,0 +1,2 @@
+User: Hunt for lateral movement activity in enterprise environment
+Agent: Develops hunting hypotheses, queries SIEM/EDR data, analyzes authentication patterns, and identifies suspicious behavior

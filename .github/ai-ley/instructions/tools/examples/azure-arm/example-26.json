@@ -1,0 +1,6 @@
+{
+  "dependsOn": [
+    "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]",
+    "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+  ]
+}

@@ -1,0 +1,3 @@
+User: Integrate our SharePoint sites seamlessly with Microsoft Teams
+Agent: Creates Teams-SharePoint integration strategy, channel site provisioning,
+content synchronization, and collaborative workspace optimization

@@ -1,0 +1,92 @@
+{
+  "version": 2,
+  "name": "my-awesome-app",
+  "build": {
+    "env": {
+      "NODE_VERSION": "18.x",
+      "NPM_VERSION": "8.x"
+    }
+  },
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm ci",
+  "devCommand": "npm run dev",
+  "framework": "nextjs",
+  "functions": {
+    "pages/api/**/*.js": {
+      "runtime": "nodejs18.x",
+      "maxDuration": 10
+    },
+    "api/**/*.ts": {
+      "runtime": "nodejs18.x",
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/old-page",
+      "destination": "/new-page",
+      "permanent": true
+    },
+    {
+      "source": "/blog/:slug*",
+      "destination": "/posts/:slug*",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/proxy/:path*",
+      "destination": "https://external-api.com/:path*"
+    }
+  ],
+  "trailingSlash": false,
+  "cleanUrls": true,
+  "regions": ["iad1", "sfo1"],
+  "env": {
+    "API_URL": "@api_url",
+    "DATABASE_URL": "@database_url"
+  },
+  "crons": [
+    {
+      "path": "/api/cron/cleanup",
+      "schedule": "0 2 * * *"
+    }
+  ]
+}

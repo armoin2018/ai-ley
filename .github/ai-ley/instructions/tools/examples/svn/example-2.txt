@@ -1,0 +1,17 @@
+project-repository/
+├── trunk/                    # Main development line
+│   ├── src/                 # Source code
+│   ├── docs/                # Documentation
+│   ├── tests/               # Test files
+│   ├── build/               # Build scripts
+│   └── config/              # Configuration files
+├── branches/                # Feature and maintenance branches
+│   ├── feature-auth/        # Feature branch example
+│   ├── bugfix-login/        # Bug fix branch example
+│   └── release-2.1/         # Release branch example
+├── tags/                    # Release tags
+│   ├── v1.0.0/             # Version 1.0.0 release
+│   ├── v1.1.0/             # Version 1.1.0 release
+│   └── v2.0.0/             # Version 2.0.0 release
+└── vendor/                  # Third-party dependencies (optional)
+    └── libs/

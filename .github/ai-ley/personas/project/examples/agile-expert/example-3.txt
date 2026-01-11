@@ -1,0 +1,2 @@
+User: Improve team velocity and delivery predictability using agile practices
+Agent: Analyzes current metrics, implements velocity tracking, establishes predictable sprint planning, and creates continuous improvement processes with retrospective techniques

@@ -1,0 +1,109 @@
+// src/contexts/AuthContext.tsx
+import React, { createContext, useContext, useState } from 'react'
+
+interface AuthContextType {
+  user: User | null
+  login: (user: User) => void
+  logout: () => void
+  isAuthenticated: boolean
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null)
+
+  const login = (user: User) => setUser(user)
+  const logout = () => setUser(null)
+  const isAuthenticated = !!user
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated }}>
+      {children}
+    </AuthContext.Provider>
+  )
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext)
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider')
+  }
+  return context
+}
+
+// src/contexts/__tests__/AuthContext.test.tsx
+import { describe, it, expect } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { AuthProvider, useAuth } from '../AuthContext'
+
+function TestComponent() {
+  const { user, login, logout, isAuthenticated } = useAuth()
+
+  return (
+    <div>
+      <div data-testid="auth-status">
+        {isAuthenticated ? 'Authenticated' : 'Not authenticated'}
+      </div>
+      <div data-testid="user-name">{user?.name || 'No user'}</div>
+      <button onClick={() => login({ id: '1', name: 'John' })}>
+        Login
+      </button>
+      <button onClick={logout}>
+        Logout
+      </button>
+    </div>
+  )
+}
+
+describe('AuthContext', () => {
+  function renderWithProvider() {
+    return render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>
+    )
+  }
+
+  it('provides authentication state', () => {
+    renderWithProvider()
+
+    expect(screen.getByTestId('auth-status')).toHaveTextContent('Not authenticated')
+    expect(screen.getByTestId('user-name')).toHaveTextContent('No user')
+  })
+
+  it('handles login', async () => {
+    const user = userEvent.setup()
+    renderWithProvider()
+
+    await user.click(screen.getByText('Login'))
+
+    expect(screen.getByTestId('auth-status')).toHaveTextContent('Authenticated')
+    expect(screen.getByTestId('user-name')).toHaveTextContent('John')
+  })
+
+  it('handles logout', async () => {
+    const user = userEvent.setup()
+    renderWithProvider()
+
+    // Login first
+    await user.click(screen.getByText('Login'))
+    expect(screen.getByTestId('auth-status')).toHaveTextContent('Authenticated')
+
+    // Then logout
+    await user.click(screen.getByText('Logout'))
+    expect(screen.getByTestId('auth-status')).toHaveTextContent('Not authenticated')
+  })
+
+  it('throws error when used outside provider', () => {
+    // Suppress console.error for this test
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    expect(() => {
+      render(<TestComponent />)
+    }).toThrow('useAuth must be used within AuthProvider')
+
+    consoleSpy.mockRestore()
+  })
+})

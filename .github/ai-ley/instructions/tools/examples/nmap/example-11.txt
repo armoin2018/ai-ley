@@ -1,0 +1,19 @@
+**Expected Outcomes**: Automated security monitoring with baseline comparison and real-time alerting
+
+### Anti-Patterns to Avoid
+
+#### Anti-Pattern 1: Scanning Without Authorization
+
+- **Description**: Performing network scans without proper authorization
+- **Why It's Problematic**: Can violate laws and organizational policies
+- **Better Approach**: Always obtain written authorization before scanning any network
+
+#### Anti-Pattern 2: Ignoring Rate Limiting
+
+- **Description**: Running aggressive scans without considering network impact
+- **Why It's Problematic**: Can disrupt network services and trigger security systems
+- **Better Approach**: Use appropriate timing options and rate limiting based on target environment
+
+## Tools and Resources
+
+### Essential Nmap Command Reference

@@ -1,0 +1,142 @@
+import pandas as pd
+import numpy as np
+from dataclasses import dataclass
+from typing import Dict, List, Optional
+from datetime import datetime, timedelta
+import requests
+
+@dataclass
+class CurrencyMetrics:
+    symbol: str
+    market_cap: float
+    trading_volume_24h: float
+    price_usd: float
+    circulating_supply: float
+    max_supply: Optional[float]
+    consensus_mechanism: str
+    block_time: int
+    transaction_throughput: int
+    avg_transaction_fee: float
+    
+class DigitalCurrencyAnalyzer:
+    def __init__(self):
+        self.coingecko_api = "https://api.coingecko.com/api/v3"
+        self.analysis_weights = {
+            'technology': 0.25,
+            'adoption': 0.25,
+            'economics': 0.20,
+            'regulatory': 0.15,
+            'community': 0.15
+        }
+    
+    def analyze_currency(self, symbol: str) -> Dict:
+        """Comprehensive analysis of a digital currency"""
+        
+        # Fetch market data
+        market_data = self.fetch_market_data(symbol)
+        technical_metrics = self.analyze_technical_metrics(symbol)
+        adoption_metrics = self.analyze_adoption_metrics(symbol)
+        regulatory_status = self.assess_regulatory_status(symbol)
+        
+        # Calculate scores
+        technology_score = self.score_technology(technical_metrics)
+        adoption_score = self.score_adoption(adoption_metrics)
+        economics_score = self.score_economics(market_data)
+        regulatory_score = self.score_regulatory_compliance(regulatory_status)
+        community_score = self.score_community_strength(symbol)
+        
+        # Calculate overall score
+        overall_score = (
+            technology_score * self.analysis_weights['technology'] +
+            adoption_score * self.analysis_weights['adoption'] +
+            economics_score * self.analysis_weights['economics'] +
+            regulatory_score * self.analysis_weights['regulatory'] +
+            community_score * self.analysis_weights['community']
+        )
+        
+        return {
+            'symbol': symbol,
+            'overall_score': overall_score,
+            'scores': {
+                'technology': technology_score,
+                'adoption': adoption_score,
+                'economics': economics_score,
+                'regulatory': regulatory_score,
+                'community': community_score
+            },
+            'market_data': market_data,
+            'technical_analysis': technical_metrics,
+            'recommendation': self.generate_recommendation(overall_score),
+            'risk_factors': self.identify_risk_factors(market_data, technical_metrics)
+        }
+    
+    def analyze_stablecoin_stability(self, stablecoin: str, days: int = 30) -> Dict:
+        """Analyze stablecoin price stability and depeg events"""
+        
+        price_history = self.fetch_price_history(stablecoin, days)
+        target_price = 1.0  # Assuming USD peg
+        
+        # Calculate stability metrics
+        deviations = [abs(price - target_price) for price in price_history]
+        max_deviation = max(deviations)
+        avg_deviation = np.mean(deviations)
+        volatility = np.std(price_history)
+        
+        # Identify depeg events (>0.5% deviation)
+        depeg_threshold = 0.005
+        depeg_events = [i for i, dev in enumerate(deviations) if dev > depeg_threshold]
+        
+        # Calculate recovery times
+        recovery_times = []
+        for event_start in depeg_events:
+            for i in range(event_start + 1, len(deviations)):
+                if deviations[i] <= depeg_threshold:
+                    recovery_times.append(i - event_start)
+                    break
+        
+        stability_score = max(0, 100 - (avg_deviation * 1000))  # Convert to percentage
+        
+        return {
+            'stability_score': stability_score,
+            'max_deviation': max_deviation,
+            'average_deviation': avg_deviation,
+            'volatility': volatility,
+            'depeg_events': len(depeg_events),
+            'avg_recovery_time': np.mean(recovery_times) if recovery_times else 0,
+            'recommendation': 'STABLE' if stability_score > 95 else 'CAUTION' if stability_score > 90 else 'RISKY'
+        }
+    
+    def model_tokenomics(self, initial_supply: float, inflation_rate: float, 
+                        burn_rate: float, years: int = 10) -> Dict:
+        """Model token supply dynamics over time"""
+        
+        supply_history = [initial_supply]
+        current_supply = initial_supply
+        
+        for year in range(1, years + 1):
+            # Add inflation
+            inflation_amount = current_supply * (inflation_rate / 100)
+            current_supply += inflation_amount
+            
+            # Apply burning
+            burn_amount = current_supply * (burn_rate / 100)
+            current_supply -= burn_amount
+            
+            supply_history.append(current_supply)
+        
+        # Calculate key metrics
+        final_supply = supply_history[-1]
+        total_inflated = sum(supply * (inflation_rate / 100) for supply in supply_history[:-1])
+        total_burned = sum(supply * (burn_rate / 100) for supply in supply_history[:-1])
+        
+        return {
+            'supply_projection': supply_history,
+            'final_supply': final_supply,
+            'supply_change_percent': ((final_supply - initial_supply) / initial_supply) * 100,
+            'total_inflated': total_inflated,
+            'total_burned': total_burned,
+            'net_emission': total_inflated - total_burned,
+            'sustainability_rating': self.assess_tokenomics_sustainability(
+                inflation_rate, burn_rate, final_supply / initial_supply
+            )
+        }

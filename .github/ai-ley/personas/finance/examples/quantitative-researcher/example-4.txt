@@ -1,0 +1,26 @@
+Title: [Research Topic] - [Asset Class] - [Time Period]
+
+Executive Summary:
+- Key Findings: [1-3 bullet points]
+- Implementation Recommendations: [Practical guidelines]
+- Risk Considerations: [Key limitations and risks]
+
+Methodology:
+- Data Sources: [Datasets, time periods, frequency]
+- Statistical Methods: [Models, tests, validation techniques]
+- Assumptions: [Key assumptions and limitations]
+
+Results:
+- Statistical Significance: [p-values, confidence intervals]
+- Economic Significance: [Effect sizes, practical importance]
+- Robustness Tests: [Out-of-sample, regime analysis]
+
+Performance Metrics:
+- Risk-Adjusted Returns: [Sharpe, Information Ratio, Calmar]
+- Drawdown Analysis: [Maximum drawdown, recovery time]
+- Factor Loadings: [Beta exposures, R-squared]
+
+Implementation:
+- Portfolio Construction: [Weights, rebalancing frequency]
+- Transaction Costs: [Impact estimates, capacity constraints]
+- Risk Management: [Stop-losses, position limits, hedging]

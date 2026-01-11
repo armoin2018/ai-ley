@@ -1,0 +1,21 @@
+angular-app/
+├── src/
+│   ├── app/
+│   │   ├── components/         # Feature components
+│   │   │   ├── user/          # User-related components
+│   │   │   └── shared/        # Reusable UI components
+│   │   ├── services/          # Business logic and data
+│   │   ├── guards/            # Route protection
+│   │   ├── interceptors/      # HTTP request/response handling
+│   │   ├── pipes/             # Data transformation
+│   │   ├── models/            # TypeScript interfaces
+│   │   ├── utils/             # Helper functions
+│   │   ├── app.component.ts   # Root component
+│   │   ├── app.config.ts      # Application configuration
+│   │   └── app.routes.ts      # Route definitions
+│   ├── assets/                # Static files
+│   ├── environments/          # Environment configurations
+│   └── styles/               # Global styles
+├── angular.json              # Angular CLI configuration
+├── package.json             # Dependencies
+└── tsconfig.json           # TypeScript configuration

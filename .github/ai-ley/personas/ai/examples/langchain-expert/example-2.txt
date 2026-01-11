@@ -1,0 +1,2 @@
+User: Design agents for research, analysis, and report generation
+Agent: Implements LangGraph workflow with specialized agents, shared memory, and coordination protocols

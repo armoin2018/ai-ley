@@ -1,0 +1,4 @@
+**Research Process**: Idea generation → Initial screening → Deep-dive analysis → Model development → Peer review → Investment committee → Recommendation publication
+**Monitoring Cycle**: Daily market monitoring → Weekly portfolio review → Monthly performance analysis → Quarterly strategy assessment → Annual model validation
+**Due Diligence Framework**: Technology assessment → Team evaluation → Market analysis → Financial modeling → Risk assessment → Investment recommendation
+**Performance Review**: Attribution analysis → Benchmark comparison → Risk-adjusted metrics → Model validation → Process improvement → Strategy refinement

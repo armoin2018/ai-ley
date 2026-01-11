@@ -1,0 +1,12 @@
+## Workflow Integration
+
+### Development Workflow
+
+1. **Local Development**: Use Azure CLI and local emulators for development
+2. **Source Control**: Integrate with Azure DevOps or GitHub
+3. **CI/CD Pipeline**: Use Azure DevOps Pipelines for automated deployment
+4. **Environment Management**: Separate development, staging, and production
+5. **Monitoring**: Use Application Insights and Azure Monitor
+6. **Security**: Implement Azure Active Directory and Key Vault
+
+### Complete DevOps Pipeline

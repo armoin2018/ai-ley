@@ -1,0 +1,33 @@
+# Main execution example
+
+if **name** == "**main**":
+import asyncio
+
+    async def main():
+        print("🚀 Starting Enterprise Oracle Database Setup...")
+
+        # Setup financial trading system
+        print("\n💰 Setting up Financial Trading System...")
+        trading_result = await setup_financial_trading_system()
+        print(f"✅ Trading System: {trading_result['platform_setup']['status']}")
+
+        # Setup healthcare management system
+        print("\n🏥 Setting up Healthcare Management System...")
+        healthcare_result = await setup_healthcare_management_system()
+        print(f"✅ Healthcare System: {healthcare_result['platform_setup']['status']}")
+        print(f"✅ HIPAA Compliance: {healthcare_result['compliance_status']}")
+
+        # Setup manufacturing ERP
+        print("\n🏭 Setting up Manufacturing ERP System...")
+        manufacturing_result = await setup_manufacturing_erp()
+        print(f"✅ Manufacturing ERP: {manufacturing_result['platform_setup']['status']}")
+
+        print("\n🎉 Enterprise Oracle Database Setup Complete!")
+        print("=" * 60)
+        print("Summary:")
+        print(f"- Trading System: {trading_result['platform_setup']['status']}")
+        print(f"- Healthcare System: {healthcare_result['platform_setup']['status']}")
+        print(f"- Manufacturing ERP: {manufacturing_result['platform_setup']['status']}")
+
+    # Run the main example
+    asyncio.run(main())

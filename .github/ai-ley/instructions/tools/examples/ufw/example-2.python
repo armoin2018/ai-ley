@@ -1,0 +1,419 @@
+#!/usr/bin/env python3
+# ufw-enterprise-manager.py - Advanced UFW firewall management system
+
+import asyncio
+import json
+import yaml
+import logging
+import sqlite3
+import hashlib
+from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional, Tuple
+from dataclasses import dataclass, asdict
+from pathlib import Path
+import subprocess
+import socket
+import ipaddress
+from prometheus_client import CollectorRegistry, Gauge, Counter, push_to_gateway
+
+@dataclass
+class FirewallRule:
+    """UFW firewall rule configuration"""
+    rule_id: str
+    action: str  # allow, deny, reject, limit
+    direction: str  # in, out, both
+    protocol: str  # tcp, udp, any
+    from_ip: Optional[str]
+    from_port: Optional[str]
+    to_ip: Optional[str]
+    to_port: Optional[str]
+    application: Optional[str]
+    comment: str
+    priority: int
+    created_at: datetime
+    created_by: str
+    compliance_tags: List[str]
+
+@dataclass
+class FirewallPolicy:
+    """UFW policy configuration"""
+    policy_id: str
+    name: str
+    description: str
+    environment: str  # dev, staging, prod
+    default_incoming: str  # allow, deny, reject
+    default_outgoing: str  # allow, deny, reject
+    default_routed: str  # allow, deny, reject
+    logging_level: str  # off, low, medium, high, full
+    rules: List[FirewallRule]
+    compliance_framework: List[str]
+    auto_update: bool
+    validation_required: bool
+
+class UFWEnterpriseManager:
+    """Enterprise UFW firewall management system"""
+
+    def __init__(self, config_file: str = "/etc/ufw-enterprise/config.yaml"):
+        self.config_file = Path(config_file)
+        self.db_path = Path("/var/lib/ufw-enterprise/firewall.db")
+        self.log_path = Path("/var/log/ufw-enterprise/manager.log")
+
+        # Setup logging
+        self.setup_logging()
+
+        # Load configuration
+        self.config = self.load_configuration()
+
+        # Initialize database
+        self.init_database()
+
+        # Prometheus metrics
+        self.setup_metrics()
+
+        self.logger.info("UFW Enterprise Manager initialized")
+
+    def setup_logging(self):
+        """Configure comprehensive logging"""
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            handlers=[
+                logging.FileHandler(self.log_path),
+                logging.StreamHandler()
+            ]
+        )
+        self.logger = logging.getLogger(__name__)
+
+    def load_configuration(self) -> Dict[str, Any]:
+        """Load enterprise configuration"""
+        default_config = {
+            'enterprise': {
+                'centralized_management': True,
+                'policy_validation': True,
+                'compliance_frameworks': ['CIS', 'NIST', 'ISO27001'],
+                'automated_backup': True,
+                'change_tracking': True,
+                'siem_integration': True
+            },
+            'monitoring': {
+                'prometheus_enabled': True,
+                'prometheus_gateway': 'localhost:9091',
+                'metrics_interval': 60,
+                'alert_thresholds': {
+                    'blocked_connections': 1000,
+                    'policy_violations': 10,
+                    'configuration_changes': 5
+                }
+            },
+            'security': {
+                'require_approval': True,
+                'backup_before_changes': True,
+                'validate_rules': True,
+                'audit_logging': True
+            }
+        }
+
+        if self.config_file.exists():
+            with open(self.config_file, 'r') as f:
+                user_config = yaml.safe_load(f)
+                default_config.update(user_config)
+
+        return default_config
+
+    def setup_metrics(self):
+        """Initialize Prometheus metrics"""
+        self.registry = CollectorRegistry()
+
+        self.rule_count = Gauge(
+            'ufw_rules_total',
+            'Total number of UFW rules',
+            ['policy', 'action', 'direction'],
+            registry=self.registry
+        )
+
+        self.blocked_connections = Counter(
+            'ufw_blocked_connections_total',
+            'Total blocked connections',
+            ['source_ip', 'destination_port', 'protocol'],
+            registry=self.registry
+        )
+
+        self.policy_changes = Counter(
+            'ufw_policy_changes_total',
+            'Total policy changes',
+            ['user', 'action', 'status'],
+            registry=self.registry
+        )
+
+    def init_database(self):
+        """Initialize SQLite database for enterprise management"""
+        self.db_path.parent.mkdir(parents=True, exist_ok=True)
+
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        # Policies table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS policies (
+                id TEXT PRIMARY KEY,
+                name TEXT UNIQUE NOT NULL,
+                description TEXT,
+                environment TEXT,
+                default_incoming TEXT,
+                default_outgoing TEXT,
+                default_routed TEXT,
+                logging_level TEXT,
+                compliance_framework TEXT,
+                auto_update BOOLEAN,
+                validation_required BOOLEAN,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+
+        # Rules table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS rules (
+                id TEXT PRIMARY KEY,
+                policy_id TEXT,
+                action TEXT NOT NULL,
+                direction TEXT NOT NULL,
+                protocol TEXT NOT NULL,
+                from_ip TEXT,
+                from_port TEXT,
+                to_ip TEXT,
+                to_port TEXT,
+                application TEXT,
+                comment TEXT,
+                priority INTEGER,
+                compliance_tags TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                created_by TEXT,
+                FOREIGN KEY (policy_id) REFERENCES policies (id)
+            )
+        ''')
+
+        # Audit log table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS audit_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                user TEXT NOT NULL,
+                action TEXT NOT NULL,
+                resource TEXT NOT NULL,
+                details TEXT,
+                status TEXT NOT NULL,
+                ip_address TEXT
+            )
+        ''')
+
+        conn.commit()
+        conn.close()
+
+    async def deploy_policy(self, policy: FirewallPolicy, validate: bool = True) -> bool:
+        """Deploy firewall policy with enterprise validation"""
+        try:
+            self.logger.info(f"Deploying policy: {policy.name}")
+
+            if validate and policy.validation_required:
+                validation_result = await self.validate_policy(policy)
+                if not validation_result['valid']:
+                    self.logger.error(f"Policy validation failed: {validation_result['errors']}")
+                    return False
+
+            # Backup current configuration
+            if self.config['security']['backup_before_changes']:
+                await self.backup_current_configuration()
+
+            # Deploy policy
+            success = await self._apply_ufw_policy(policy)
+
+            if success:
+                # Store in database
+                await self.store_policy(policy)
+
+                # Log audit event
+                await self.log_audit_event(
+                    user="system",
+                    action="policy_deploy",
+                    resource=policy.name,
+                    status="success",
+                    details=f"Policy {policy.name} deployed successfully"
+                )
+
+                # Update metrics
+                await self.update_metrics(policy)
+
+                self.logger.info(f"Policy {policy.name} deployed successfully")
+                return True
+            else:
+                self.logger.error(f"Failed to deploy policy {policy.name}")
+                return False
+
+        except Exception as e:
+            self.logger.error(f"Error deploying policy {policy.name}: {str(e)}")
+            return False
+
+    async def _apply_ufw_policy(self, policy: FirewallPolicy) -> bool:
+        """Apply UFW policy to system"""
+        try:
+            # Reset UFW if needed
+            if policy.name == "baseline":
+                await self._run_command(["ufw", "--force", "reset"])
+
+            # Set default policies
+            await self._run_command(["ufw", "default", policy.default_incoming, "incoming"])
+            await self._run_command(["ufw", "default", policy.default_outgoing, "outgoing"])
+            await self._run_command(["ufw", "default", policy.default_routed, "routed"])
+
+            # Set logging level
+            await self._run_command(["ufw", "logging", policy.logging_level])
+
+            # Apply rules
+            for rule in sorted(policy.rules, key=lambda x: x.priority):
+                success = await self._apply_rule(rule)
+                if not success:
+                    self.logger.error(f"Failed to apply rule: {rule}")
+                    return False
+
+            # Enable UFW if not already enabled
+            await self._run_command(["ufw", "--force", "enable"])
+
+            return True
+
+        except Exception as e:
+            self.logger.error(f"Error applying UFW policy: {str(e)}")
+            return False
+
+    async def _apply_rule(self, rule: FirewallRule) -> bool:
+        """Apply individual UFW rule"""
+        try:
+            cmd = ["ufw", rule.action]
+
+            if rule.direction != "both":
+                cmd.append(rule.direction)
+
+            if rule.protocol and rule.protocol != "any":
+                cmd.extend(["proto", rule.protocol])
+
+            if rule.from_ip:
+                cmd.extend(["from", rule.from_ip])
+                if rule.from_port:
+                    cmd.extend(["port", rule.from_port])
+
+            if rule.to_ip:
+                cmd.extend(["to", rule.to_ip])
+                if rule.to_port:
+                    cmd.extend(["port", rule.to_port])
+            elif rule.to_port and not rule.application:
+                cmd.append(f"{rule.to_port}/{rule.protocol}")
+
+            if rule.application:
+                cmd.append(rule.application)
+
+            result = await self._run_command(cmd)
+            return result.returncode == 0
+
+        except Exception as e:
+            self.logger.error(f"Error applying rule: {str(e)}")
+            return False
+
+    async def _run_command(self, cmd: List[str]) -> subprocess.CompletedProcess:
+        """Execute system command with error handling"""
+        try:
+            result = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+
+            stdout, stderr = await result.communicate()
+
+            if result.returncode != 0:
+                self.logger.error(f"Command failed: {' '.join(cmd)}")
+                self.logger.error(f"stderr: {stderr.decode()}")
+
+            return subprocess.CompletedProcess(
+                cmd, result.returncode, stdout.decode(), stderr.decode()
+            )
+
+        except Exception as e:
+            self.logger.error(f"Error executing command {' '.join(cmd)}: {str(e)}")
+            raise
+
+# Enterprise UFW configuration templates
+ENTERPRISE_POLICIES = {
+    "web_server": {
+        "name": "Enterprise Web Server",
+        "description": "Standard web server firewall policy with enhanced security",
+        "default_incoming": "deny",
+        "default_outgoing": "allow",
+        "logging_level": "medium",
+        "rules": [
+            {"action": "allow", "to_port": "22", "protocol": "tcp", "from_ip": "192.168.1.0/24", "comment": "SSH from management network"},
+            {"action": "allow", "to_port": "80", "protocol": "tcp", "comment": "HTTP"},
+            {"action": "allow", "to_port": "443", "protocol": "tcp", "comment": "HTTPS"},
+            {"action": "limit", "to_port": "22", "protocol": "tcp", "comment": "SSH rate limiting"}
+        ]
+    },
+    "database_server": {
+        "name": "Enterprise Database Server",
+        "description": "Database server firewall policy with strict access control",
+        "default_incoming": "deny",
+        "default_outgoing": "allow",
+        "logging_level": "high",
+        "rules": [
+            {"action": "allow", "to_port": "22", "protocol": "tcp", "from_ip": "192.168.1.0/24", "comment": "SSH from management network"},
+            {"action": "allow", "to_port": "3306", "protocol": "tcp", "from_ip": "192.168.2.0/24", "comment": "MySQL from app servers"},
+            {"action": "allow", "to_port": "5432", "protocol": "tcp", "from_ip": "192.168.2.0/24", "comment": "PostgreSQL from app servers"}
+        ]
+    }
+}
+
+def create_enterprise_config():
+    """Create enterprise UFW configuration"""
+    config = {
+        'version': '3.0',
+        'enterprise_features': {
+            'centralized_management': True,
+            'policy_templates': True,
+            'compliance_validation': True,
+            'automated_backup': True,
+            'audit_logging': True,
+            'metrics_collection': True
+        },
+        'compliance_frameworks': {
+            'cis_controls': {
+                'enabled': True,
+                'version': '8.0',
+                'controls': ['4.1', '4.2', '4.3', '12.4']
+            },
+            'nist_csf': {
+                'enabled': True,
+                'functions': ['protect', 'detect', 'respond'],
+                'categories': ['PR.AC', 'PR.DS', 'DE.CM']
+            },
+            'iso27001': {
+                'enabled': True,
+                'controls': ['A.13.1.1', 'A.13.1.2', 'A.13.2.1']
+            }
+        },
+        'monitoring': {
+            'prometheus': {
+                'enabled': True,
+                'port': 9100,
+                'metrics_path': '/metrics'
+            },
+            'syslog': {
+                'enabled': True,
+                'facility': 'daemon',
+                'level': 'info'
+            },
+            'siem_integration': {
+                'enabled': True,
+                'format': 'json',
+                'endpoint': 'https://siem.example.com/api/logs'
+            }
+        }
+    }
+    return config

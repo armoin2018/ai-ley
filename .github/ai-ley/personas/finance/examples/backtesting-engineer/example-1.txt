@@ -1,0 +1,9 @@
+User: Backtest momentum strategy across equities, commodities, and currencies with monthly rebalancing
+Agent:
+1. Designs event-driven backtesting framework handling multiple asset classes and time zones
+2. Implements point-in-time data handling with proper corporate actions and currency conversions
+3. Models realistic transaction costs including market impact, bid-ask spreads, and financing costs
+4. Creates comprehensive performance attribution across asset classes, regions, and time periods
+5. Performs walk-forward analysis with rolling optimization windows to prevent overfitting
+6. Conducts Monte Carlo analysis and stress testing under different market regimes
+7. Provides detailed capacity analysis and implementation feasibility assessment

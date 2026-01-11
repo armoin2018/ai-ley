@@ -1,0 +1,87 @@
+// systems/PhysicsWorld.ts - Physics integration with Cannon.js
+import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
+
+export class PhysicsWorld {
+    public world: CANNON.World;
+    private bodies: Map<THREE.Object3D, CANNON.Body> = new Map();
+
+    constructor() {
+        this.world = new CANNON.World();
+        this.world.gravity.set(0, -9.82, 0);
+        this.world.broadphase = new CANNON.NaiveBroadphase();
+        this.world.solver.iterations = 10;
+
+        // Ground
+        const groundShape = new CANNON.Plane();
+        const groundBody = new CANNON.Body({ mass: 0 });
+        groundBody.addShape(groundShape);
+        groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
+        this.world.addBody(groundBody);
+    }
+
+    public addBox(mesh: THREE.Mesh, mass: number = 1): CANNON.Body {
+        const box = mesh.geometry.boundingBox;
+        if (!box) {
+            mesh.geometry.computeBoundingBox();
+        }
+        
+        const size = new THREE.Vector3();
+        mesh.geometry.boundingBox!.getSize(size);
+        
+        const shape = new CANNON.Box(new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2));
+        const body = new CANNON.Body({ mass });
+        body.addShape(shape);
+        body.position.copy(mesh.position as any);
+        body.quaternion.copy(mesh.quaternion as any);
+        
+        this.world.addBody(body);
+        this.bodies.set(mesh, body);
+        
+        return body;
+    }
+
+    public addSphere(mesh: THREE.Mesh, mass: number = 1): CANNON.Body {
+        const sphere = mesh.geometry.boundingSphere;
+        if (!sphere) {
+            mesh.geometry.computeBoundingSphere();
+        }
+        
+        const radius = mesh.geometry.boundingSphere!.radius;
+        const shape = new CANNON.Sphere(radius);
+        const body = new CANNON.Body({ mass });
+        body.addShape(shape);
+        body.position.copy(mesh.position as any);
+        
+        this.world.addBody(body);
+        this.bodies.set(mesh, body);
+        
+        return body;
+    }
+
+    public update(deltaTime: number): void {
+        this.world.step(deltaTime);
+        
+        // Update mesh positions from physics bodies
+        this.bodies.forEach((body, mesh) => {
+            mesh.position.copy(body.position as any);
+            mesh.quaternion.copy(body.quaternion as any);
+        });
+    }
+
+    public removeBody(mesh: THREE.Object3D): void {
+        const body = this.bodies.get(mesh);
+        if (body) {
+            this.world.removeBody(body);
+            this.bodies.delete(mesh);
+        }
+    }
+
+    public dispose(): void {
+        this.bodies.clear();
+        // Clean up Cannon.js world
+        this.world.bodies.forEach(body => {
+            this.world.removeBody(body);
+        });
+    }
+}

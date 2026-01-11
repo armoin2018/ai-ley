@@ -1,0 +1,18 @@
+# Sliding window memory
+window_memory_config = {
+    "type": "ConversationBufferWindowMemory",
+    "memory_key": "chat_history",
+    "k": 5,  # Keep last 5 exchanges
+    "return_messages": True,
+    "input_key": "input",
+    "output_key": "output"
+}
+
+# Token-based memory management
+token_memory_config = {
+    "type": "ConversationTokenBufferMemory",
+    "llm": "gpt-3.5-turbo",
+    "memory_key": "chat_history",
+    "max_token_limit": 2000,
+    "return_messages": True
+}

@@ -1,0 +1,32 @@
+// Build settings and compiler directives
+
+// Debug vs Release configurations
+#ifdef DEBUG
+    #define DLog(fmt, ...) NSLog((@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
+#else
+    #define DLog(...)
+#endif
+
+// Conditional compilation
+#if TARGET_OS_IPHONE
+    // iOS specific code
+#elif TARGET_OS_MAC
+    // macOS specific code
+#endif
+
+// Feature flags
+#ifndef FEATURE_ADVANCED_ANALYTICS
+    #define FEATURE_ADVANCED_ANALYTICS 0
+#endif
+
+#if FEATURE_ADVANCED_ANALYTICS
+    // Advanced analytics code
+#endif
+
+// Static analyzer annotations
+@interface MyClass : NSObject
+
+- (NSString *)createString NS_RETURNS_RETAINED;
+- (void)processString:(NSString *)string NS_REQUIRES_NIL_TERMINATION;
+
+@end

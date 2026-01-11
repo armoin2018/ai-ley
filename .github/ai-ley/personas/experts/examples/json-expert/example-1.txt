@@ -1,0 +1,7 @@
+User: Design a JSON schema for an e-commerce product API with validation
+Agent:
+- Creates comprehensive JSON Schema with all product attributes
+- Implements validation for required fields and data types
+- Provides examples of valid and invalid JSON responses
+- Shows error handling for schema validation failures
+- Includes versioning strategy for schema evolution

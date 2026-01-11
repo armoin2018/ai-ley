@@ -1,0 +1,25 @@
+tauri-app/
+├── src-tauri/                # Rust backend
+│   ├── src/
+│   │   ├── main.rs          # Main Rust application
+│   │   ├── lib.rs           # Library exports
+│   │   ├── commands.rs      # Tauri commands (IPC handlers)
+│   │   ├── menu.rs          # Application menu
+│   │   ├── setup.rs         # Application setup
+│   │   └── utils.rs         # Utility functions
+│   ├── Cargo.toml           # Rust dependencies
+│   ├── tauri.conf.json      # Tauri configuration
+│   ├── build.rs             # Build script
+│   └── icons/               # Application icons
+├── src/                     # Frontend source (React/Vue/Svelte)
+│   ├── components/
+│   ├── services/
+│   ├── utils/
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── styles/
+├── public/                  # Static assets
+├── dist/                    # Built frontend
+├── package.json             # Frontend dependencies
+├── tsconfig.json            # TypeScript configuration
+└── vite.config.ts          # Vite configuration

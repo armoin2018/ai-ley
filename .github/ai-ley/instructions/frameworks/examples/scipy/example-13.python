@@ -1,0 +1,13 @@
+# Efficient vectorized operations
+def vectorized_computation(data):
+    # Use NumPy's broadcasting instead of loops
+    result = np.exp(-0.5 * ((data[:, np.newaxis] - data) / sigma)**2)
+    return result
+
+# Memory-efficient sparse operations
+def sparse_matrix_operation(n):
+    # Create sparse identity matrix
+    I = sparse.eye(n, format='csr')
+    # Efficient sparse arithmetic
+    result = 2 * I + sparse.random(n, n, density=0.1)
+    return result

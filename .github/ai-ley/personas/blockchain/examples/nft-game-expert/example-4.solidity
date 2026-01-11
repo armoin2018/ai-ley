@@ -1,0 +1,184 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
+
+contract GameCharacterNFT is ERC721, AccessControl, VRFConsumerBaseV2 {
+    bytes32 public constant GAME_ROLE = keccak256("GAME_ROLE");
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    
+    struct CharacterStats {
+        uint16 level;
+        uint16 experience;
+        uint16 health;
+        uint16 attack;
+        uint16 defense;
+        uint16 speed;
+        uint16 magic;
+        uint32 lastBattleTime;
+        uint8 rarity; // 1-5 stars
+    }
+    
+    struct Equipment {
+        uint256 weaponId;
+        uint256 armorId;
+        uint256 accessoryId;
+    }
+    
+    mapping(uint256 => CharacterStats) public characterStats;
+    mapping(uint256 => Equipment) public characterEquipment;
+    mapping(uint256 => string) public characterClasses;
+    mapping(uint256 => uint256) private _vrfRequests;
+    
+    VRFCoordinatorV2Interface private vrfCoordinator;
+    uint64 private subscriptionId;
+    bytes32 private keyHash;
+    uint32 private callbackGasLimit = 100000;
+    
+    event CharacterLevelUp(uint256 indexed tokenId, uint16 newLevel);
+    event CharacterEquipped(uint256 indexed tokenId, uint256 itemId, string itemType);
+    event BattleCompleted(uint256 indexed winnerId, uint256 indexed loserId, uint256 expGained);
+    
+    constructor(
+        address vrfCoordinatorAddress,
+        uint64 _subscriptionId,
+        bytes32 _keyHash
+    ) ERC721("GameCharacter", "GCHAR") VRFConsumerBaseV2(vrfCoordinatorAddress) {
+        vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinatorAddress);
+        subscriptionId = _subscriptionId;
+        keyHash = _keyHash;
+        
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(MINTER_ROLE, msg.sender);
+    }
+    
+    function mintCharacter(
+        address to,
+        string calldata characterClass,
+        uint8 rarity
+    ) external onlyRole(MINTER_ROLE) returns (uint256) {
+        uint256 tokenId = _nextTokenId();
+        _mint(to, tokenId);
+        
+        characterClasses[tokenId] = characterClass;
+        
+        // Generate random stats based on rarity
+        uint256 requestId = vrfCoordinator.requestRandomWords(
+            keyHash,
+            subscriptionId,
+            3, // confirmations
+            callbackGasLimit,
+            1 // number of random words
+        );
+        
+        _vrfRequests[requestId] = tokenId;
+        
+        return tokenId;
+    }
+    
+    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) 
+        internal 
+        override 
+    {
+        uint256 tokenId = _vrfRequests[requestId];
+        uint256 randomValue = randomWords[0];
+        
+        // Generate stats based on character class and rarity
+        characterStats[tokenId] = CharacterStats({
+            level: 1,
+            experience: 0,
+            health: uint16(80 + (randomValue % 40)), // 80-120 base health
+            attack: uint16(10 + ((randomValue >> 8) % 20)), // 10-30 base attack
+            defense: uint16(5 + ((randomValue >> 16) % 15)), // 5-20 base defense
+            speed: uint16(8 + ((randomValue >> 24) % 12)), // 8-20 base speed
+            magic: uint16(3 + ((randomValue >> 32) % 17)), // 3-20 base magic
+            lastBattleTime: uint32(block.timestamp),
+            rarity: uint8(1 + (randomValue % 5)) // 1-5 star rarity
+        });
+    }
+    
+    function gainExperience(uint256 tokenId, uint16 expPoints) 
+        external 
+        onlyRole(GAME_ROLE) 
+    {
+        CharacterStats storage stats = characterStats[tokenId];
+        stats.experience += expPoints;
+        
+        // Check for level up
+        uint16 requiredExp = stats.level * 100; // Simple exp formula
+        if (stats.experience >= requiredExp) {
+            stats.level += 1;
+            stats.experience -= requiredExp;
+            
+            // Increase stats on level up
+            stats.health += uint16(5 + (stats.rarity * 2));
+            stats.attack += uint16(2 + stats.rarity);
+            stats.defense += uint16(1 + stats.rarity);
+            stats.speed += 1;
+            stats.magic += uint16(1 + stats.rarity);
+            
+            emit CharacterLevelUp(tokenId, stats.level);
+        }
+    }
+    
+    function equipItem(
+        uint256 characterId,
+        uint256 itemId,
+        string calldata itemType
+    ) external {
+        require(_isApprovedOrOwner(msg.sender, characterId), "Not approved");
+        
+        Equipment storage equipment = characterEquipment[characterId];
+        
+        if (keccak256(bytes(itemType)) == keccak256("weapon")) {
+            equipment.weaponId = itemId;
+        } else if (keccak256(bytes(itemType)) == keccak256("armor")) {
+            equipment.armorId = itemId;
+        } else if (keccak256(bytes(itemType)) == keccak256("accessory")) {
+            equipment.accessoryId = itemId;
+        }
+        
+        emit CharacterEquipped(characterId, itemId, itemType);
+    }
+    
+    function battle(
+        uint256 attacker,
+        uint256 defender
+    ) external onlyRole(GAME_ROLE) {
+        CharacterStats storage attackerStats = characterStats[attacker];
+        CharacterStats storage defenderStats = characterStats[defender];
+        
+        require(block.timestamp >= attackerStats.lastBattleTime + 1 hours, "Battle cooldown");
+        
+        // Simple battle calculation
+        uint256 attackPower = attackerStats.attack + attackerStats.level;
+        uint256 defensePower = defenderStats.defense + (defenderStats.level / 2);
+        
+        uint256 winner;
+        uint256 loser;
+        
+        if (attackPower > defensePower) {
+            winner = attacker;
+            loser = defender;
+        } else {
+            winner = defender;
+            loser = attacker;
+        }
+        
+        // Award experience
+        uint16 expGained = uint16(10 + (characterStats[loser].level * 2));
+        gainExperience(winner, expGained);
+        
+        attackerStats.lastBattleTime = uint32(block.timestamp);
+        
+        emit BattleCompleted(winner, loser, expGained);
+    }
+    
+    function getCharacterPower(uint256 tokenId) external view returns (uint256) {
+        CharacterStats memory stats = characterStats[tokenId];
+        return stats.attack + stats.defense + stats.speed + stats.magic + (stats.level * 10);
+    }
+}

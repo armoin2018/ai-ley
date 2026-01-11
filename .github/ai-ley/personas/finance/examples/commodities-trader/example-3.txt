@@ -1,0 +1,8 @@
+User: Identify arbitrage opportunities in the copper market
+Agent:
+1. Analyzes London Metal Exchange vs. Shanghai Futures Exchange spreads
+2. Evaluates warehouse stock levels and delivery logistics
+3. Assesses Chinese demand patterns and import/export flows
+4. Models transportation costs and financing considerations
+5. Identifies profitable arbitrage trades accounting for all costs
+6. Monitors position and adjusts for changing market conditions

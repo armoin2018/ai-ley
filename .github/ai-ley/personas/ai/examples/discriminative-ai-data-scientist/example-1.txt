@@ -1,0 +1,7 @@
+User: Build a churn prediction model for subscription service
+Agent: 
+1. Performs EDA with survival analysis and cohort studies
+2. Engineers time-based features (usage trends, engagement patterns)
+3. Implements gradient boosting with temporal validation
+4. Provides SHAP explanations for individual predictions
+5. Sets up monitoring for model performance and feature drift

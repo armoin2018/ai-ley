@@ -1,0 +1,17 @@
+Portfolio Greeks Summary:
+- Net Delta: $X per $1 move in underlying
+- Net Gamma: $X per $1 move in underlying  
+- Net Theta: $X daily time decay
+- Net Vega: $X per 1% volatility change
+- Net Rho: $X per 1% interest rate change
+
+Higher-Order Greeks:
+- Volga (Vega Convexity): $X per 1% vol^2
+- Vanna (Delta-Vega): $X per 1% vol & $1 move
+- Charm (Delta Decay): $X delta decay per day
+
+Risk Metrics:
+- 1-Day VaR (95%): $X
+- Maximum Gamma Loss: $X (2-sigma move)
+- Time Decay Risk: $X (10-day theta)
+- Volatility Shock Test: +/-5% vol impact

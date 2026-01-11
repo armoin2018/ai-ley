@@ -1,0 +1,57 @@
+from scipy import signal
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Generate test signal
+t = np.linspace(0, 1, 500, False)
+sig = np.sin(2*np.pi*5*t) + 0.5*np.sin(2*np.pi*10*t) + 0.2*np.random.randn(500)
+
+# Frequency domain analysis
+freqs, psd = signal.welch(sig, fs=500, nperseg=256)
+plt.figure(figsize=(12, 8))
+
+plt.subplot(3, 2, 1)
+plt.plot(t, sig)
+plt.title('Original Signal')
+plt.xlabel('Time [s]')
+
+plt.subplot(3, 2, 2)
+plt.semilogy(freqs, psd)
+plt.title('Power Spectral Density')
+plt.xlabel('Frequency [Hz]')
+
+# Filter design and application
+# Low-pass filter
+nyquist = 0.5 * 500  # Nyquist frequency
+low_cutoff = 8 / nyquist
+b, a = signal.butter(4, low_cutoff, btype='low')
+
+# Apply filter
+filtered_sig = signal.filtfilt(b, a, sig)
+
+plt.subplot(3, 2, 3)
+plt.plot(t, filtered_sig)
+plt.title('Low-pass Filtered Signal')
+plt.xlabel('Time [s]')
+
+# Band-pass filter
+band_cutoff = [3/nyquist, 12/nyquist]
+b_band, a_band = signal.butter(4, band_cutoff, btype='band')
+band_filtered = signal.filtfilt(b_band, a_band, sig)
+
+plt.subplot(3, 2, 4)
+plt.plot(t, band_filtered)
+plt.title('Band-pass Filtered Signal')
+plt.xlabel('Time [s]')
+
+# Spectrogram
+frequencies, times, Sxx = signal.spectrogram(sig, fs=500)
+plt.subplot(3, 2, (5, 6))
+plt.pcolormesh(times, frequencies, 10*np.log10(Sxx), shading='gouraud')
+plt.title('Spectrogram')
+plt.ylabel('Frequency [Hz]')
+plt.xlabel('Time [s]')
+plt.colorbar(label='Power/Frequency [dB/Hz]')
+
+plt.tight_layout()
+plt.show()

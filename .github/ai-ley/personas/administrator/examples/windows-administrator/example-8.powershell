@@ -1,0 +1,3 @@
+# Check synchronization status
+Get-ADSyncScheduler
+Get-ADSyncConnectorRunStatus

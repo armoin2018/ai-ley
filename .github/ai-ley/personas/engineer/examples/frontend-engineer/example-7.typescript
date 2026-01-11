@@ -1,0 +1,8 @@
+// Component testing with React Testing Library
+describe('DataTable', () => {
+  it('renders with accessibility features', async () => {
+    render(<DataTable data={mockData} />);
+    expect(screen.getByRole('table')).toBeInTheDocument();
+    expect(screen.getByLabelText('Sort by name')).toBeInTheDocument();
+  });
+});

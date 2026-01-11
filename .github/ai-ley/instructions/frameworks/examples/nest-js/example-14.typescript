@@ -1,0 +1,37 @@
+// Mock HTTP service for external API calls
+const mockHttpService = {
+  get: jest.fn(),
+  post: jest.fn(),
+  put: jest.fn(),
+  delete: jest.fn(),
+};
+
+// Mock configuration service
+const mockConfigService = {
+  get: jest.fn((key: string) => {
+    const config = {
+      'database.host': 'localhost',
+      'database.port': 5432,
+      'jwt.secret': 'test-secret',
+      'api.baseUrl': 'https://api.example.com',
+    };
+    return config[key];
+  }),
+};
+
+// Usage in test module
+beforeEach(async () => {
+  const module: TestingModule = await Test.createTestingModule({
+    providers: [
+      YourService,
+      {
+        provide: HttpService,
+        useValue: mockHttpService,
+      },
+      {
+        provide: ConfigService,
+        useValue: mockConfigService,
+      },
+    ],
+  }).compile();
+});

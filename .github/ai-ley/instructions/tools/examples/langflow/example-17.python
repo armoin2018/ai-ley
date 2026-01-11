@@ -1,0 +1,8 @@
+# Ollama local models
+ollama_config = {
+    "base_url": "http://localhost:11434",
+    "model": "llama2",  # or any Ollama model
+    "temperature": 0.7,
+    "num_ctx": 2048,
+    "repeat_penalty": 1.1
+}

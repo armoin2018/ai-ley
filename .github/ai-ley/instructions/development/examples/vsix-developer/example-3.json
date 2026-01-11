@@ -1,0 +1,12 @@
+{
+  "contributes": {
+    "views": {
+      "explorer": [{
+        "id": "myView",
+        "name": "My View",
+        "when": "workspaceHasConfig",
+        "icon": "resources/icon.svg"
+      }]
+    }
+  }
+}

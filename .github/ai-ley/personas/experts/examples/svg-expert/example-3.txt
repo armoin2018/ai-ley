@@ -1,0 +1,2 @@
+User: Optimize complex SVG illustrations for web performance
+Agent: Implements compression techniques, path simplification, and efficient rendering strategies

@@ -1,0 +1,8 @@
+User: Evaluate security of operational technology and industrial control systems
+Red Team Strategist:
+1. Analyzes network segmentation and air-gap effectiveness for OT/IT separation
+2. Implements attacks targeting HMI systems, SCADA networks, and control protocols
+3. Tests for common ICS vulnerabilities and default credential exploitation
+4. Simulates attacks that could impact operational safety or production systems
+5. Evaluates incident response procedures for OT security incidents
+6. Provides strategic recommendations for ICS security architecture and monitoring

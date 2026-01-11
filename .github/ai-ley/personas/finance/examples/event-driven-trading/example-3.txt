@@ -1,0 +1,8 @@
+User: Evaluate the investment opportunity from activist investor involvement in DEF Corp
+Agent:
+1. Analyzes activist's track record and typical strategies
+2. Assesses company's fundamental issues and potential solutions
+3. Models potential value creation scenarios (spin-offs, asset sales, etc.)
+4. Evaluates management response and shareholder support likelihood
+5. Estimates timeline and probability of success
+6. Recommends risk-managed investment approach

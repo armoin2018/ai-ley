@@ -1,0 +1,63 @@
+class ModelTrainer:
+    def __init__(self, model, train_dataset, val_dataset):
+        self.model = model
+        self.train_dataset = train_dataset
+        self.val_dataset = val_dataset
+        self.history = None
+    
+    def setup_callbacks(self, checkpoint_dir, log_dir):
+        """Setup training callbacks"""
+        callbacks = [
+            keras.callbacks.EarlyStopping(
+                monitor='val_loss',
+                patience=10,
+                restore_best_weights=True
+            ),
+            keras.callbacks.ModelCheckpoint(
+                filepath=f"{checkpoint_dir}/best_model.h5",
+                monitor='val_loss',
+                save_best_only=True,
+                save_weights_only=False
+            ),
+            keras.callbacks.ReduceLROnPlateau(
+                monitor='val_loss',
+                factor=0.5,
+                patience=5,
+                min_lr=1e-7
+            ),
+            keras.callbacks.TensorBoard(
+                log_dir=log_dir,
+                histogram_freq=1,
+                write_graph=True,
+                write_images=True
+            )
+        ]
+        return callbacks
+    
+    def train(self, epochs=100, checkpoint_dir='./checkpoints', log_dir='./logs'):
+        """Train the model with monitoring"""
+        callbacks = self.setup_callbacks(checkpoint_dir, log_dir)
+        
+        self.history = self.model.fit(
+            self.train_dataset,
+            epochs=epochs,
+            validation_data=self.val_dataset,
+            callbacks=callbacks,
+            verbose=1
+        )
+        
+        return self.history
+    
+    def evaluate_model(self, test_dataset):
+        """Comprehensive model evaluation"""
+        # Basic evaluation
+        test_loss, test_accuracy = self.model.evaluate(test_dataset)
+        
+        # Detailed predictions
+        predictions = self.model.predict(test_dataset)
+        
+        return {
+            'test_loss': test_loss,
+            'test_accuracy': test_accuracy,
+            'predictions': predictions
+        }

@@ -1,0 +1,7 @@
+User: Assess the economic impact of new US-EU trade agreement on global trade flows
+Agent:
+1. Models trade creation and diversion effects using gravity models
+2. Analyzes sectoral impacts and comparative advantage shifts
+3. Assesses impacts on excluded countries and regions
+4. Evaluates WTO compatibility and multilateral trade system effects
+5. Provides welfare analysis and policy recommendations

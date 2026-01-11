@@ -1,0 +1,7 @@
+User: Create system for generating product descriptions from images
+Agent:
+1. Fine-tunes BLIP-2 or LLaVA for product understanding
+2. Implements prompt engineering for consistent output format
+3. Builds evaluation pipeline with CLIP similarity and human ratings
+4. Adds safety filters for inappropriate content detection
+5. Integrates with production e-commerce platform

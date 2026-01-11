@@ -1,0 +1,21 @@
+// middleware/analyticsMiddleware.ts
+import { Middleware } from '@reduxjs/toolkit'
+
+const analyticsMiddleware: Middleware = (store) => (next) => (action) => {
+  // Track specific actions
+  if (action.type.includes('user/login')) {
+    // Send analytics event
+    analytics.track('User Login Attempt', {
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+    })
+  }
+
+  if (action.type.includes('fulfilled')) {
+    console.log('Action completed successfully:', action.type)
+  }
+
+  return next(action)
+}
+
+export default analyticsMiddleware

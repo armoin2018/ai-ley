@@ -1,0 +1,19 @@
+// .prettierrc.json for TypeScript
+{
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "arrowParens": "avoid",
+  "endOfLine": "lf",
+  "overrides": [
+    {
+      "files": "*.{ts,tsx}",
+      "options": {
+        "parser": "typescript",
+        "trailingComma": "all"
+      }
+    }
+  ]
+}

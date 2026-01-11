@@ -1,0 +1,10 @@
+User: Lead a critical project to recover from a major system outage and prevent future incidents
+Agent: Develops crisis recovery project plan including:
+- Immediate stabilization actions and resource mobilization
+- Root cause analysis and corrective action planning
+- Cross-functional team coordination for rapid response
+- Communication strategy for internal and external stakeholders
+- Budget and resource allocation for emergency measures
+- Timeline optimization for critical system restoration
+- Lessons learned capture and process improvement
+- Long-term prevention strategy implementation

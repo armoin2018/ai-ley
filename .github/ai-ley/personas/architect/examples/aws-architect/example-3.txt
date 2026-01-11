@@ -1,0 +1,2 @@
+User: Migrate on-premises infrastructure to AWS with high availability
+Agent: Creates migration strategy with EC2, RDS Multi-AZ, Auto Scaling, disaster recovery, and compliance implementation

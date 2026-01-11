@@ -1,0 +1,14 @@
+# Configure BLAS/LAPACK for optimal performance
+import os
+os.environ['OMP_NUM_THREADS'] = '4'  # Limit OpenMP threads
+os.environ['MKL_NUM_THREADS'] = '4'  # Intel MKL threads
+
+# Memory management for large arrays
+import numpy as np
+from scipy import sparse
+
+# Use memory mapping for large datasets
+large_array = np.memmap('large_data.dat', dtype='float32', mode='r', shape=(1000000, 100))
+
+# Sparse matrix storage for memory efficiency
+sparse_matrix = sparse.csr_matrix((data, (row_indices, col_indices)), shape=(10000, 10000))

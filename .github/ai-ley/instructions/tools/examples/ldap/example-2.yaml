@@ -1,0 +1,204 @@
+# docker-compose.yml for HA LDAP Cluster with Monitoring
+version: '3.8'
+
+services:
+  ldap-master:
+    build: .
+    container_name: ldap-master
+    hostname: ldap-master
+    restart: unless-stopped
+    environment:
+      - LDAP_DOMAIN=company.com
+      - LDAP_ORGANIZATION="Company Inc"
+      - LDAP_ADMIN_PASSWORD_FILE=/run/secrets/ldap_admin_password
+      - LDAP_CONFIG_PASSWORD_FILE=/run/secrets/ldap_config_password
+      - LDAP_SSL_CERT_FILE=/etc/ldap/ssl/server.crt
+      - LDAP_SSL_KEY_FILE=/etc/ldap/ssl/server.key
+      - LDAP_SSL_CA_FILE=/etc/ldap/ssl/ca.crt
+      - REPLICATION_ROLE=master
+      - ENABLE_SECURITY_AUDIT=true
+    volumes:
+      - ldap_data_master:/var/lib/openldap
+      - ldap_config_master:/etc/ldap
+      - ldap_ssl:/etc/ldap/ssl:ro
+      - ldap_logs_master:/var/log/openldap
+    ports:
+      - '389:389'
+      - '636:636'
+    networks:
+      ldap_cluster:
+        ipv4_address: 172.25.0.10
+    secrets:
+      - ldap_admin_password
+      - ldap_config_password
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  ldap-replica1:
+    build: .
+    container_name: ldap-replica1
+    hostname: ldap-replica1
+    restart: unless-stopped
+    environment:
+      - LDAP_DOMAIN=company.com
+      - LDAP_ORGANIZATION="Company Inc"
+      - LDAP_ADMIN_PASSWORD_FILE=/run/secrets/ldap_admin_password
+      - LDAP_CONFIG_PASSWORD_FILE=/run/secrets/ldap_config_password
+      - LDAP_SSL_CERT_FILE=/etc/ldap/ssl/server.crt
+      - LDAP_SSL_KEY_FILE=/etc/ldap/ssl/server.key
+      - LDAP_SSL_CA_FILE=/etc/ldap/ssl/ca.crt
+      - REPLICATION_ROLE=replica
+      - REPLICATION_MASTER=ldap-master
+      - ENABLE_SECURITY_AUDIT=true
+    volumes:
+      - ldap_data_replica1:/var/lib/openldap
+      - ldap_config_replica1:/etc/ldap
+      - ldap_ssl:/etc/ldap/ssl:ro
+      - ldap_logs_replica1:/var/log/openldap
+    ports:
+      - '390:389'
+      - '637:636'
+    networks:
+      ldap_cluster:
+        ipv4_address: 172.25.0.11
+    depends_on:
+      - ldap-master
+    secrets:
+      - ldap_admin_password
+      - ldap_config_password
+
+  ldap-replica2:
+    build: .
+    container_name: ldap-replica2
+    hostname: ldap-replica2
+    restart: unless-stopped
+    environment:
+      - LDAP_DOMAIN=company.com
+      - LDAP_ORGANIZATION="Company Inc"
+      - LDAP_ADMIN_PASSWORD_FILE=/run/secrets/ldap_admin_password
+      - LDAP_CONFIG_PASSWORD_FILE=/run/secrets/ldap_config_password
+      - LDAP_SSL_CERT_FILE=/etc/ldap/ssl/server.crt
+      - LDAP_SSL_KEY_FILE=/etc/ldap/ssl/server.key
+      - LDAP_SSL_CA_FILE=/etc/ldap/ssl/ca.crt
+      - REPLICATION_ROLE=replica
+      - REPLICATION_MASTER=ldap-master
+      - ENABLE_SECURITY_AUDIT=true
+    volumes:
+      - ldap_data_replica2:/var/lib/openldap
+      - ldap_config_replica2:/etc/ldap
+      - ldap_ssl:/etc/ldap/ssl:ro
+      - ldap_logs_replica2:/var/log/openldap
+    ports:
+      - '391:389'
+      - '638:636'
+    networks:
+      ldap_cluster:
+        ipv4_address: 172.25.0.12
+    depends_on:
+      - ldap-master
+    secrets:
+      - ldap_admin_password
+      - ldap_config_password
+
+  # HAProxy Load Balancer for LDAP
+  ldap-lb:
+    image: haproxy:latest
+    container_name: ldap-haproxy
+    restart: unless-stopped
+    ports:
+      - '8389:389' # Load balanced LDAP
+      - '8636:636' # Load balanced LDAPS
+      - '8404:8404' # HAProxy stats
+    volumes:
+      - ./haproxy-ldap.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    networks:
+      ldap_cluster:
+        ipv4_address: 172.25.0.5
+    depends_on:
+      - ldap-master
+      - ldap-replica1
+      - ldap-replica2
+
+  # LDAP Security Monitoring
+  ldap-monitor:
+    image: prom/prometheus:latest
+    container_name: ldap-prometheus
+    restart: unless-stopped
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./prometheus-ldap.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - ldap_cluster
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+
+  # Security Event Collector
+  security-collector:
+    image: elastic/filebeat:7.17.0
+    container_name: ldap-security-collector
+    restart: unless-stopped
+    user: root
+    volumes:
+      - ldap_logs_master:/var/log/ldap/master:ro
+      - ldap_logs_replica1:/var/log/ldap/replica1:ro
+      - ldap_logs_replica2:/var/log/ldap/replica2:ro
+      - ./filebeat-ldap.yml:/usr/share/filebeat/filebeat.yml:ro
+    networks:
+      - ldap_cluster
+    environment:
+      - ELASTICSEARCH_HOST=elasticsearch:9200
+
+volumes:
+  ldap_data_master:
+    driver: local
+  ldap_data_replica1:
+    driver: local
+  ldap_data_replica2:
+    driver: local
+  ldap_config_master:
+    driver: local
+  ldap_config_replica1:
+    driver: local
+  ldap_config_replica2:
+    driver: local
+  ldap_ssl:
+    driver: local
+  ldap_logs_master:
+    driver: local
+  ldap_logs_replica1:
+    driver: local
+  ldap_logs_replica2:
+    driver: local
+  prometheus_data:
+    driver: local
+
+networks:
+  ldap_cluster:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+
+secrets:
+  ldap_admin_password:
+    file: ./secrets/ldap_admin_password.txt
+  ldap_config_password:
+    file: ./secrets/ldap_config_password.txt

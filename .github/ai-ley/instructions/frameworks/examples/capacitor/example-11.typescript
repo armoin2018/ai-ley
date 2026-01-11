@@ -1,0 +1,52 @@
+// utils/error-handler.ts
+import { Toast } from '@capacitor/toast';
+import { Capacitor } from '@capacitor/core';
+
+export class ErrorHandler {
+  static async handleNativeError(error: any, context: string): Promise<void> {
+    console.error(`Native error in ${context}:`, error);
+
+    let userMessage = 'An unexpected error occurred';
+
+    // Platform-specific error handling
+    if (Capacitor.getPlatform() === 'ios') {
+      if (error.code === 'NSURLErrorNotConnectedToInternet') {
+        userMessage = 'No internet connection available';
+      } else if (error.code === 'AVErrorApplicationIsNotAuthorized') {
+        userMessage = 'Camera access denied. Please enable in Settings.';
+      }
+    } else if (Capacitor.getPlatform() === 'android') {
+      if (error.message?.includes('PERMISSION_DENIED')) {
+        userMessage = 'Permission denied. Please enable in app settings.';
+      } else if (error.message?.includes('NetworkError')) {
+        userMessage = 'Network error. Please check your connection.';
+      }
+    }
+
+    // Show user-friendly error message
+    if (Capacitor.isNativePlatform()) {
+      await Toast.show({
+        text: userMessage,
+        duration: 'long',
+        position: 'bottom',
+      });
+    } else {
+      // Fallback for web
+      alert(userMessage);
+    }
+  }
+
+  static async handlePermissionError(plugin: string): Promise<void> {
+    const message = `${plugin} access denied. Please enable permissions in your device settings.`;
+
+    if (Capacitor.isNativePlatform()) {
+      await Toast.show({
+        text: message,
+        duration: 'long',
+        position: 'center',
+      });
+    } else {
+      console.warn(message);
+    }
+  }
+}

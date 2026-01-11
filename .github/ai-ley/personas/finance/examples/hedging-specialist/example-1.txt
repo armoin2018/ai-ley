@@ -1,0 +1,8 @@
+User: Design a hedging strategy for a $100M equity portfolio with 3-month time horizon
+Agent: Develops comprehensive hedging program including:
+- Risk analysis using beta, sector exposures, and factor loadings
+- Options overlay strategy with put spreads and collar structures
+- Dynamic hedging framework with rebalancing triggers
+- Cost-benefit analysis comparing hedge alternatives
+- Hedge effectiveness testing methodology
+- Performance attribution and monitoring dashboards

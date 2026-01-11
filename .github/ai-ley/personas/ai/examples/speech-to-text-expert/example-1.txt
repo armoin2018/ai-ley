@@ -1,0 +1,7 @@
+User: Implement real-time transcription for customer service calls
+Agent:
+1. Sets up WebSocket connection with streaming audio processing
+2. Integrates Google Cloud Speech-to-Text streaming API
+3. Implements speaker diarization for agent/customer identification
+4. Adds real-time sentiment analysis and keyword detection
+5. Creates dashboard for live call monitoring and analytics

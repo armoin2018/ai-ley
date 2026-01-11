@@ -1,0 +1,46 @@
+import numpy as np
+from scipy import optimize
+import matplotlib.pyplot as plt
+
+# Function optimization
+def objective_function(x):
+    return x**2 + 10*np.sin(x)
+
+# Find global minimum
+result = optimize.differential_evolution(objective_function, bounds=[(-10, 10)])
+print(f"Global minimum at x={result.x[0]:.4f}, f(x)={result.fun:.4f}")
+
+# Local optimization with constraints
+def constrained_objective(x):
+    return (x[0] - 1)**2 + (x[1] - 2.5)**2
+
+def constraint1(x):
+    return x[0] - 2*x[1] + 2
+
+def constraint2(x):
+    return -x[0] - 2*x[1] + 6
+
+# Define constraints
+cons = [{'type': 'ineq', 'fun': constraint1},
+        {'type': 'ineq', 'fun': constraint2}]
+
+# Solve constrained optimization
+result = optimize.minimize(constrained_objective, x0=[0, 0], constraints=cons)
+print(f"Optimal solution: x={result.x}")
+
+# Curve fitting
+def exponential_model(x, a, b, c):
+    return a * np.exp(-b * x) + c
+
+# Generate sample data with noise
+x_data = np.linspace(0, 4, 50)
+y_true = exponential_model(x_data, 2.5, 1.3, 0.5)
+y_data = y_true + 0.2 * np.random.normal(size=x_data.size)
+
+# Fit the curve
+popt, pcov = optimize.curve_fit(exponential_model, x_data, y_data)
+print(f"Fitted parameters: a={popt[0]:.3f}, b={popt[1]:.3f}, c={popt[2]:.3f}")
+
+# Parameter uncertainties
+param_errors = np.sqrt(np.diag(pcov))
+print(f"Parameter errors: {param_errors}")

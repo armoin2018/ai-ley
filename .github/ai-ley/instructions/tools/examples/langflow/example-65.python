@@ -1,0 +1,37 @@
+# Create reusable component templates
+reusable_components = {
+    "input_validator": {
+        "type": "PythonFunction",
+        "purpose": "Validate and sanitize user inputs",
+        "template": """
+def validate_input(text: str, min_length: int = 1, max_length: int = 1000) -> dict:
+    if not isinstance(text, str):
+        return {"valid": False, "error": "Input must be a string"}
+
+    text = text.strip()
+    if len(text) < min_length:
+        return {"valid": False, "error": f"Input too short (min: {min_length})"}
+
+    if len(text) > max_length:
+        return {"valid": False, "error": f"Input too long (max: {max_length})"}
+
+    return {"valid": True, "text": text}
+        """
+    },
+    "response_formatter": {
+        "type": "PythonFunction",
+        "purpose": "Format AI responses consistently",
+        "template": """
+def format_response(response: str, format_type: str = "markdown") -> str:
+    if format_type == "markdown":
+        # Add markdown formatting
+        return f"**Response:**\\n\\n{response}\\n\\n---"
+    elif format_type == "json":
+        return json.dumps({"response": response, "timestamp": datetime.now().isoformat()})
+    elif format_type == "html":
+        return f"<div class='ai-response'><p>{response}</p></div>"
+    else:
+        return response
+        """
+    }
+}

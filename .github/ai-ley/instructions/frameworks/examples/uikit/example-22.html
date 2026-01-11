@@ -1,0 +1,89 @@
+<!-- Admin Dashboard with Sidebar -->
+<div class="uk-offcanvas-content">
+  <!-- Top Navigation -->
+  <nav class="uk-navbar-container uk-navbar-transparent" uk-navbar>
+    <div class="uk-navbar-left">
+      <a class="uk-navbar-toggle" uk-navbar-toggle-icon uk-toggle="target: #offcanvas-nav"></a>
+      <div class="uk-navbar-item uk-logo">Dashboard</div>
+    </div>
+    <div class="uk-navbar-right">
+      <ul class="uk-navbar-nav">
+        <li>
+          <a href="#">
+            <span class="uk-icon uk-margin-small-right" uk-icon="icon: bell"></span>
+            <span class="uk-badge">5</span>
+          </a>
+        </li>
+        <li>
+          <a href="#">Profile</a>
+          <div class="uk-navbar-dropdown">
+            <ul class="uk-nav uk-navbar-dropdown-nav">
+              <li><a href="#">Settings</a></li>
+              <li><a href="#">Profile</a></li>
+              <li class="uk-nav-divider"></li>
+              <li><a href="#">Logout</a></li>
+            </ul>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Sidebar Navigation -->
+  <div id="offcanvas-nav" uk-offcanvas="overlay: true">
+    <div class="uk-offcanvas-bar uk-flex uk-flex-column">
+      <ul class="uk-nav uk-nav-primary uk-nav-center uk-margin-auto-vertical">
+        <li class="uk-active">
+          <a href="#"><span uk-icon="home"></span> Dashboard</a>
+        </li>
+        <li>
+          <a href="#"><span uk-icon="users"></span> Users</a>
+        </li>
+        <li>
+          <a href="#"><span uk-icon="cog"></span> Settings</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="uk-container uk-container-expand">
+    <div class="uk-grid-match uk-child-width-1-4@l uk-child-width-1-2@m" uk-grid>
+      <!-- Stats Cards -->
+      <div>
+        <div class="uk-card uk-card-default uk-card-body uk-text-center">
+          <h3 class="uk-card-title">1,234</h3>
+          <p>Total Users</p>
+        </div>
+      </div>
+      <!-- More stats cards... -->
+    </div>
+
+    <!-- Data Table -->
+    <div class="uk-card uk-card-default uk-margin-top">
+      <div class="uk-card-header">
+        <h3 class="uk-card-title">Recent Activity</h3>
+      </div>
+      <div class="uk-card-body">
+        <table class="uk-table uk-table-striped">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Action</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>John Doe</td>
+              <td>Login</td>
+              <td>2025-08-14</td>
+              <td><span class="uk-label uk-label-success">Success</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

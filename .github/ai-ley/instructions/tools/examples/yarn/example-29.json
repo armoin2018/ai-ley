@@ -1,0 +1,10 @@
+// VS Code settings.json
+{
+  "yarn.enableScriptExplorer": true,
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.yarn": true,
+    "**/.pnp.*": true
+  }
+}

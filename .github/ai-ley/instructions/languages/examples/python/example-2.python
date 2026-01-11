@@ -1,0 +1,21 @@
+# ✅ Good: Use snake_case for variables, functions, and modules
+user_name = "john_doe"
+user_age = 25
+
+def calculate_user_score(user: dict) -> int:
+    return user["points"] * user["multiplier"]
+
+# ✅ Good: Use PascalCase for classes
+class UserManager:
+    def __init__(self, database: Database) -> None:
+        self.database = database
+
+# ✅ Good: Use UPPER_SNAKE_CASE for constants
+MAX_RETRY_ATTEMPTS = 3
+API_BASE_URL = "https://api.example.com"
+
+# ✅ Good: Use descriptive names with type hints
+def is_user_authenticated(user_id: str) -> bool:
+    return check_auth_status(user_id)
+
+filtered_users = [user for user in users if user.is_active]

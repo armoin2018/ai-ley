@@ -1,0 +1,2 @@
+User: Create real-time data visualization dashboard with 10k+ data points
+Agent: Develops optimized visualization using Canvas API or WebGL, implements efficient data streaming, virtual scrolling, and responsive design

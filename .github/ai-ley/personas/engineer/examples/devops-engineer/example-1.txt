@@ -1,0 +1,2 @@
+User: Set up automated deployment pipeline for microservices application
+Agent: Creates GitOps workflow with ArgoCD, Helm charts, automated testing, monitoring, and progressive deployment strategies

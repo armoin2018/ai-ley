@@ -1,0 +1,53 @@
+# Dynamic token allocation
+token_management = {
+    "components": [
+        {
+            "type": "PythonFunction",
+            "name": "token_calculator",
+            "config": {
+                "code": """
+def calculate_tokens(
+    prompt: str,
+    response_length: str = "medium",
+    model: str = "gpt-4"
+) -> dict:
+    import tiktoken
+
+    # Estimate input tokens
+    encoding = tiktoken.encoding_for_model(model)
+    input_tokens = len(encoding.encode(prompt))
+
+    # Set max tokens based on desired response length
+    length_configs = {
+        "short": 150,
+        "medium": 500,
+        "long": 1500,
+        "comprehensive": 3000
+    }
+
+    max_response_tokens = length_configs.get(response_length, 500)
+
+    # Model token limits
+    model_limits = {
+        "gpt-3.5-turbo": 4096,
+        "gpt-4": 8192,
+        "gpt-4-32k": 32768
+    }
+
+    model_limit = model_limits.get(model, 4096)
+
+    # Ensure we don't exceed model limits
+    available_tokens = model_limit - input_tokens - 100  # Buffer
+    final_max_tokens = min(max_response_tokens, available_tokens)
+
+    return {
+        "input_tokens": input_tokens,
+        "max_tokens": final_max_tokens,
+        "total_estimate": input_tokens + final_max_tokens,
+        "model_limit": model_limit
+    }
+                """
+            }
+        }
+    ]
+}

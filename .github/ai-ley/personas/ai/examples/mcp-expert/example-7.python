@@ -1,0 +1,76 @@
+# MCP monitoring and metrics collection
+import time
+import json
+from typing import Dict, Any
+from prometheus_client import Counter, Histogram, Gauge
+import logging
+
+class MCPMonitor:
+    def __init__(self):
+        # Prometheus metrics
+        self.request_count = Counter(
+            'mcp_requests_total',
+            'Total MCP requests',
+            ['method', 'status']
+        )
+        self.request_duration = Histogram(
+            'mcp_request_duration_seconds',
+            'MCP request duration',
+            ['method']
+        )
+        self.active_connections = Gauge(
+            'mcp_active_connections',
+            'Number of active MCP connections'
+        )
+        
+        # Setup logging
+        self.logger = logging.getLogger('mcp_server')
+        self.logger.setLevel(logging.INFO)
+    
+    def track_request(self, method: str):
+        """Context manager for tracking request metrics"""
+        return RequestTracker(self, method)
+    
+    def log_request(self, method: str, arguments: Dict[Any, Any], 
+                   client_info: Dict[str, Any], duration: float, status: str):
+        """Log detailed request information"""
+        log_entry = {
+            "timestamp": time.time(),
+            "method": method,
+            "arguments": arguments,
+            "client_id": client_info.get("client_id"),
+            "duration": duration,
+            "status": status
+        }
+        self.logger.info(json.dumps(log_entry))
+    
+    def increment_connections(self):
+        """Track new connection"""
+        self.active_connections.inc()
+    
+    def decrement_connections(self):
+        """Track connection closure"""
+        self.active_connections.dec()
+
+class RequestTracker:
+    def __init__(self, monitor: MCPMonitor, method: str):
+        self.monitor = monitor
+        self.method = method
+        self.start_time = None
+    
+    def __enter__(self):
+        self.start_time = time.time()
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        duration = time.time() - self.start_time
+        status = "error" if exc_type else "success"
+        
+        self.monitor.request_count.labels(
+            method=self.method, 
+            status=status
+        ).inc()
+        
+        self.monitor.request_duration.labels(
+            method=self.method
+        ).observe(duration)

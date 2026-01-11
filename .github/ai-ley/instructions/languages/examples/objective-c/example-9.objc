@@ -1,0 +1,52 @@
+// Unit testing with XCTest
+#import <XCTest/XCTest.h>
+
+@interface MyClassTests : XCTestCase
+@property (nonatomic, strong) MyClass *testObject;
+@end
+
+@implementation MyClassTests
+
+- (void)setUp {
+    [super setUp];
+    self.testObject = [[MyClass alloc] init];
+}
+
+- (void)tearDown {
+    self.testObject = nil;
+    [super tearDown];
+}
+
+- (void)testBasicFunctionality {
+    // Arrange
+    NSString *input = @"test input";
+    NSString *expectedOutput = @"TEST INPUT";
+    
+    // Act
+    NSString *actualOutput = [self.testObject processString:input];
+    
+    // Assert
+    XCTAssertEqualObjects(actualOutput, expectedOutput, @"String processing should uppercase input");
+}
+
+- (void)testAsyncOperation {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Async operation completion"];
+    
+    [self.testObject performAsyncOperationWithCompletion:^(BOOL success, NSError *error) {
+        XCTAssertTrue(success, @"Async operation should succeed");
+        XCTAssertNil(error, @"Error should be nil on success");
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:5.0 handler:nil];
+}
+
+@end
+
+// Performance testing
+- (void)testPerformanceExample {
+    [self measureBlock:^{
+        // Put the code you want to measure the time of here.
+        [self.testObject performExpensiveOperation];
+    }];
+}

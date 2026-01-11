@@ -1,0 +1,2 @@
+User: Build real-time analytics platform for IoT data
+Agent: Designs data pipeline with Kinesis, Lambda, S3, Athena, QuickSight, and implements data governance and cost optimization strategies

@@ -1,0 +1,12 @@
+# Enable debugging
+np.seterr(all='raise')  # Raise on numerical errors
+
+# Check array properties
+print(f"Shape: {arr.shape}")
+print(f"Dtype: {arr.dtype}")
+print(f"Memory usage: {arr.nbytes} bytes")
+
+# Memory profiling
+import psutil
+process = psutil.Process()
+print(f"Memory usage: {process.memory_info().rss / 1024 / 1024:.2f} MB")

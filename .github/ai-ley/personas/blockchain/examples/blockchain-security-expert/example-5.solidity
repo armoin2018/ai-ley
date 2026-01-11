@@ -1,0 +1,40 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
+contract SecurePriceOracle {
+    AggregatorV3Interface internal priceFeed;
+    uint256 public constant PRICE_FRESHNESS_THRESHOLD = 3600; // 1 hour
+    uint256 public constant MAX_PRICE_DEVIATION = 500; // 5%
+    
+    uint256 private lastPrice;
+    uint256 private lastUpdateTime;
+    
+    constructor(address _priceFeed) {
+        priceFeed = AggregatorV3Interface(_priceFeed);
+    }
+    
+    function getSecurePrice() external view returns (uint256) {
+        (uint80 roundId, int256 price, , uint256 updatedAt, uint80 answeredInRound) = 
+            priceFeed.latestRoundData();
+            
+        // Check data freshness
+        require(block.timestamp - updatedAt <= PRICE_FRESHNESS_THRESHOLD, "Stale price data");
+        require(answeredInRound >= roundId, "Invalid round data");
+        require(price > 0, "Invalid price");
+        
+        uint256 currentPrice = uint256(price);
+        
+        // Check for extreme price movements
+        if (lastPrice > 0) {
+            uint256 priceChange = currentPrice > lastPrice ? 
+                ((currentPrice - lastPrice) * 10000) / lastPrice :
+                ((lastPrice - currentPrice) * 10000) / lastPrice;
+                
+            require(priceChange <= MAX_PRICE_DEVIATION, "Price deviation too high");
+        }
+        
+        return currentPrice;
+    }
+}

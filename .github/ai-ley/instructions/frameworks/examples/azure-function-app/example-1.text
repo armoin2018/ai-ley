@@ -1,0 +1,17 @@
+src/
+  functions/
+    createUser.ts
+    getUser.ts
+    sharedTrigger.ts
+  controllers/
+  services/
+  repositories/
+  schemas/
+  utils/
+  config/
+  types/
+  middleware/
+tests/
+  unit/
+  integration/
+build/

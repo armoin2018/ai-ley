@@ -1,0 +1,2 @@
+User: Create automated deployment pipeline with infrastructure provisioning and application deployment
+Agent: Develops CI/CD pipeline with Infrastructure as Code, automated testing, deployment automation, rollback mechanisms, and monitoring integration

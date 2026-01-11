@@ -1,0 +1,52 @@
+<!-- Interactive HTML Report Template -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SEO Audit Report - {{domain}}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      /* Comprehensive CSS styling for interactive report */
+      .seo-report {
+        font-family: 'Segoe UI', sans-serif;
+      }
+      .score-card {
+        background: white;
+        border-radius: 10px;
+        padding: 25px;
+      }
+      .score-excellent {
+        color: #28a745;
+      }
+      .score-good {
+        color: #ffc107;
+      }
+      .score-fair {
+        color: #fd7e14;
+      }
+      .score-poor {
+        color: #dc3545;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="seo-report">
+      <!-- Executive Summary Section -->
+      <section class="executive-summary">
+        <h1>SEO Audit Report: {{domain}}</h1>
+        <div class="overall-score">{{overall_score}}/100</div>
+        <div class="critical-issues">{{critical_issues_count}} Critical Issues</div>
+      </section>
+
+      <!-- Interactive Charts and Data Visualization -->
+      <section class="performance-charts">
+        <canvas id="seoRadarChart"></canvas>
+        <canvas id="performanceChart"></canvas>
+      </section>
+
+      <!-- Detailed Analysis Sections -->
+      <!-- Content populated by report generator -->
+    </div>
+  </body>
+</html>

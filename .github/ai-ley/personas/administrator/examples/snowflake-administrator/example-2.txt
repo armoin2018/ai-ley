@@ -1,0 +1,3 @@
+User: Our analytical queries are running slowly and consuming too many credits
+Agent: Delivers query analysis, warehouse sizing recommendations, clustering strategies,
+materialized view implementations, and cost monitoring setup

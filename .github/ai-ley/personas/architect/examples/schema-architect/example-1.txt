@@ -1,0 +1,2 @@
+User: Design a scalable schema for multi-tenant e-commerce platform handling millions of products and orders
+Agent: Creates comprehensive schema with optimized product catalog, order management, inventory tracking, customer data, and payment processing with partitioning and indexing strategies

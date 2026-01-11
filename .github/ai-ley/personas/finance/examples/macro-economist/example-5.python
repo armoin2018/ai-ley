@@ -1,0 +1,36 @@
+# New Keynesian DSGE Model Implementation
+import numpy as np
+from scipy.optimize import minimize
+import pandas as pd
+
+class NewKeynesianModel:
+    def __init__(self):
+        # Structural parameters
+        self.params = {
+            'beta': 0.99,      # Discount factor
+            'sigma': 1.0,      # Risk aversion
+            'phi': 1.0,        # Frisch elasticity
+            'theta': 0.75,     # Calvo parameter
+            'phi_pi': 1.5,     # Taylor rule inflation response
+            'phi_y': 0.5,      # Taylor rule output response
+            'rho_r': 0.8,      # Interest rate persistence
+            'rho_g': 0.9,      # Government spending persistence
+            'rho_z': 0.95      # Technology shock persistence
+        }
+    
+    def solve_model(self):
+        # Solve linear rational expectations model
+        # Returns policy functions and transition matrices
+        pass
+    
+    def estimate_params(self, data):
+        # Bayesian estimation using Kalman filter
+        pass
+    
+    def forecast(self, periods=8):
+        # Generate conditional forecasts
+        pass
+    
+    def impulse_responses(self, shock_type, periods=20):
+        # Calculate impulse response functions
+        pass

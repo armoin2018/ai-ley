@@ -1,0 +1,9 @@
+User: Implement cross-chain governance for a multi-chain protocol
+Agent: Designs complete governance system with:
+- Diamond Standard implementation for modular governance
+- Cross-chain message passing using LayerZero
+- Proposal lifecycle with time locks and execution delays
+- Multi-signature emergency controls
+- Vote delegation and quorum mechanisms
+- Formal verification of voting invariants
+- Economic attack prevention mechanisms

@@ -1,0 +1,49 @@
+// tests/device.service.test.ts
+import { DeviceService } from '../src/services/device.service';
+import { Camera } from '@capacitor/camera';
+import { Geolocation } from '@capacitor/geolocation';
+
+// Mock Capacitor plugins
+jest.mock('@capacitor/camera');
+jest.mock('@capacitor/geolocation');
+
+describe('DeviceService', () => {
+  let service: DeviceService;
+  let mockCamera: jest.Mocked<typeof Camera>;
+  let mockGeolocation: jest.Mocked<typeof Geolocation>;
+
+  beforeEach(() => {
+    service = new DeviceService();
+    mockCamera = Camera as jest.Mocked<typeof Camera>;
+    mockGeolocation = Geolocation as jest.Mocked<typeof Geolocation>;
+  });
+
+  describe('takePicture', () => {
+    it('should return image data URL on success', async () => {
+      const mockImageData = 'data:image/jpeg;base64,/9j/4AAQ...';
+      mockCamera.getPhoto.mockResolvedValue({
+        dataUrl: mockImageData,
+        format: 'jpeg',
+        saved: false,
+      });
+
+      const result = await service.takePicture();
+
+      expect(result).toBe(mockImageData);
+      expect(mockCamera.getPhoto).toHaveBeenCalledWith({
+        quality: 90,
+        allowEditing: false,
+        resultType: 'dataUrl',
+        source: 'camera',
+      });
+    });
+
+    it('should handle camera errors gracefully', async () => {
+      mockCamera.getPhoto.mockRejectedValue(new Error('Camera not available'));
+
+      const result = await service.takePicture();
+
+      expect(result).toBeUndefined();
+    });
+  });
+});

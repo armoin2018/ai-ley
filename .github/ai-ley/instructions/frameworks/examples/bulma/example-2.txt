@@ -1,0 +1,11 @@
+project-root/
+├── src/
+│   ├── scss/
+│   │   ├── main.scss          # Main Sass file
+│   │   ├── _variables.scss    # Custom variables
+│   │   └── _custom.scss       # Custom components
+│   ├── css/
+│   └── js/
+├── node_modules/
+├── package.json
+└── index.html

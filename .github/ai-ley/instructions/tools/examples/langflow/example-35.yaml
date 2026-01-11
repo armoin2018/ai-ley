@@ -1,0 +1,41 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  langflow:
+    build: .
+    ports:
+      - '7860:7860'
+    environment:
+      - LANGFLOW_DATABASE_URL=postgresql://langflow:password@postgres:5432/langflow
+      - LANGFLOW_CACHE_TYPE=redis
+      - LANGFLOW_CACHE_URL=redis://redis:6379/0
+    volumes:
+      - ./flows:/app/flows
+      - ./logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=langflow
+      - POSTGRES_USER=langflow
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+  redis:
+    image: redis:6-alpine
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:

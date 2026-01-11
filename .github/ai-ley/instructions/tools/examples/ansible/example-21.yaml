@@ -1,0 +1,46 @@
+# playbooks/orchestration/multi_environment.yml - Enterprise multi-environment deployment
+---
+- name: Multi-Environment Infrastructure Orchestration
+  hosts: localhost
+  gather_facts: false
+  vars:
+    promotion_pipeline:
+      - environment: development
+        auto_promote: true
+        approval_required: false
+        tests: ["unit", "smoke"]
+      - environment: staging
+        auto_promote: false
+        approval_required: true
+        tests: ["integration", "performance", "security"]
+      - environment: production
+        auto_promote: false
+        approval_required: true
+        tests: ["full_regression", "load", "disaster_recovery"]
+
+  tasks:
+    - name: Validate environment promotion prerequisites
+      include_tasks: tasks/validate_promotion.yml
+      vars:
+        source_env: "{{ current_environment }}"
+        target_env: "{{ target_environment }}"
+
+    - name: Execute environment-specific deployment
+      include_tasks: "environments/{{ target_environment }}/deploy.yml"
+      vars:
+        environment_config: "{{ promotion_pipeline | selectattr('environment', 'equalto', target_environment) | first }}"
+
+    - name: Run environment-specific tests
+      include_tasks: tasks/run_environment_tests.yml
+      vars:
+        test_suite: "{{ environment_config.tests }}"
+
+    - name: Request approval if required
+      include_tasks: tasks/request_deployment_approval.yml
+      when: environment_config.approval_required | default(false)
+
+    - name: Auto-promote if configured
+      include_tasks: tasks/auto_promote.yml
+      when:
+        - environment_config.auto_promote | default(false)
+        - test_results.all_passed | default(false)

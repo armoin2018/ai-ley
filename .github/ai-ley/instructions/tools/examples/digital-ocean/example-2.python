@@ -1,0 +1,144 @@
+async def deploy_data_processing_pipeline():
+    """Example: Deploy enterprise data processing pipeline on Digital Ocean"""
+
+    config = EnterpriseDigitalOceanConfig(
+        team_id="data-team",
+        organization_name="DataCorp",
+        tier=DOTier.ENTERPRISE,
+        environment=DOEnvironment.PRODUCTION,
+        primary_region=DORegion.NYC3,
+        infrastructure_config={
+            "droplets": {
+                "default_size": "s-16vcpu-32gb",  # High-performance for data processing
+                "allowed_sizes": ["s-8vcpu-16gb", "s-16vcpu-32gb", "s-32vcpu-64gb"],
+                "backup_enabled": True,
+                "monitoring_enabled": True
+            },
+            "databases": {
+                "default_size": "db-s-8vcpu-16gb",
+                "engine_versions": {
+                    "postgresql": "15",
+                    "redis": "7"
+                },
+                "backup_retention": 30  # Extended retention for data pipelines
+            }
+        },
+        cost_management={
+            "budgets": {
+                "monthly_limit": 10000.00,  # Higher budget for data processing
+                "alert_thresholds": [60, 80, 95],
+                "auto_scaling_limits": True
+            }
+        }
+    )
+
+    platform = EnterpriseDigitalOceanPlatform(config)
+    setup_result = await platform.setup_enterprise_platform()
+
+    # Configure data processing pipeline
+    pipeline_config = {
+        "name": "datacorp-pipeline",
+        "version": "4.2.0",
+        "deployment_strategy": "rolling",
+        "domain": "data.datacorp.com",
+        "infrastructure": {
+            "droplets": {
+                "ingest": {"size": "s-8vcpu-16gb", "count": 3, "image": "ubuntu-22-04-x64"},
+                "processing": {"size": "s-32vcpu-64gb", "count": 5, "image": "ubuntu-22-04-x64"},
+                "storage": {"size": "s-16vcpu-32gb", "count": 3, "image": "ubuntu-22-04-x64"},
+                "api": {"size": "s-4vcpu-8gb", "count": 2, "image": "ubuntu-22-04-x64"}
+            },
+            "databases": [
+                {
+                    "name": "timeseries-db",
+                    "engine": "postgresql",
+                    "version": "15",
+                    "size": "db-s-16vcpu-32gb"
+                },
+                {
+                    "name": "analytics-db",
+                    "engine": "postgresql",
+                    "version": "15",
+                    "size": "db-s-8vcpu-16gb"
+                },
+                {
+                    "name": "cache-redis",
+                    "engine": "redis",
+                    "version": "7",
+                    "size": "db-s-4vcpu-8gb"
+                }
+            ]
+        },
+        "containers": [
+            {
+                "name": "data-ingestion",
+                "image": "datacorp/ingestor:v4.2.0",
+                "ports": [9000],
+                "environment": {
+                    "KAFKA_BROKERS": "${KAFKA_BROKERS}",
+                    "DATABASE_URL": "${TIMESERIES_DB_URL}",
+                    "BATCH_SIZE": "10000",
+                    "PARALLELISM": "8"
+                }
+            },
+            {
+                "name": "stream-processor",
+                "image": "datacorp/processor:v4.2.0",
+                "ports": [9001],
+                "environment": {
+                    "INPUT_QUEUE": "raw_data",
+                    "OUTPUT_QUEUE": "processed_data",
+                    "DATABASE_URL": "${TIMESERIES_DB_URL}",
+                    "REDIS_URL": "${REDIS_URL}",
+                    "PARALLELISM": "16"
+                }
+            },
+            {
+                "name": "analytics-engine",
+                "image": "datacorp/analytics:v4.2.0",
+                "ports": [9002],
+                "environment": {
+                    "TIMESERIES_DB_URL": "${TIMESERIES_DB_URL}",
+                    "ANALYTICS_DB_URL": "${ANALYTICS_DB_URL}",
+                    "SPARK_DRIVER_MEMORY": "8g",
+                    "SPARK_EXECUTOR_MEMORY": "16g"
+                }
+            },
+            {
+                "name": "data-api",
+                "image": "datacorp/data-api:v4.2.0",
+                "ports": [8080],
+                "environment": {
+                    "ANALYTICS_DB_URL": "${ANALYTICS_DB_URL}",
+                    "REDIS_URL": "${REDIS_URL}",
+                    "CACHE_TTL": "300"
+                }
+            }
+        ]
+    }
+
+    deployment_manager = EnterpriseDigitalOceanDeployment(config)
+    deployment_result = await deployment_manager.execute_application_deployment(pipeline_config)
+
+    # Setup data-specific monitoring
+    monitoring_manager = EnterpriseDigitalOceanMonitoring(config)
+    monitoring_setup = await monitoring_manager.setup_monitoring_configuration()
+
+    # Cost analysis for data processing workloads
+    cost_manager = EnterpriseDigitalOceanCostManager(config)
+    cost_analysis = await cost_manager.analyze_usage_and_costs()
+
+    return {
+        "platform_setup": setup_result,
+        "deployment": deployment_result,
+        "monitoring": monitoring_setup,
+        "cost_analysis": cost_analysis,
+        "pipeline_endpoints": {
+            "data_api": "https://api.datacorp.com",
+            "ingestion": "https://ingest.datacorp.com",
+            "monitoring": f"https://monitoring-{config.team_id}.digitalocean.com",
+            "analytics": "https://analytics.datacorp.com"
+        }
+    }
+
+### Example 4: Development Team Collaboration Platform

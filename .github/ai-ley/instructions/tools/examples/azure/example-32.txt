@@ -1,0 +1,5 @@
+#### Deployment Failures
+
+**Problem**: Application deployment fails
+**Symptoms**: Deployment errors, service unavailable
+**Solution**:

@@ -1,0 +1,39 @@
+import pytest
+from myapp.utils import calculate_tax, validate_phone
+
+class TestParametrizedTests:
+    """Examples of parametrized testing patterns."""
+
+    @pytest.mark.parametrize("amount,rate,expected", [
+        (100.0, 0.10, 10.0),
+        (250.0, 0.08, 20.0),
+        (0.0, 0.15, 0.0),
+        (1000.0, 0.0, 0.0),
+    ])
+    def test_tax_calculation(self, amount, rate, expected):
+        """Test tax calculation with various inputs."""
+        result = calculate_tax(amount, rate)
+        assert result == expected
+
+    @pytest.mark.parametrize("phone,country,is_valid", [
+        ("+1-555-123-4567", "US", True),
+        ("+44-20-7946-0958", "UK", True),
+        ("555-123-4567", "US", False),  # Missing country code
+        ("invalid-phone", "US", False),
+        ("", "US", False),
+    ])
+    def test_phone_validation(self, phone, country, is_valid):
+        """Test phone number validation for different countries."""
+        result = validate_phone(phone, country)
+        assert result == is_valid
+
+    @pytest.mark.parametrize("user_data", [
+        {"username": "valid_user", "email": "user@example.com"},
+        {"username": "another_user", "email": "another@example.com"},
+    ], ids=["standard_user", "alternate_user"])
+    def test_user_creation_multiple_valid_users(self, user_data, db_session):
+        """Test user creation with multiple valid user datasets."""
+        service = UserService(db_session)
+        user = service.create_user(user_data)
+        assert user.username == user_data["username"]
+        assert user.email == user_data["email"]

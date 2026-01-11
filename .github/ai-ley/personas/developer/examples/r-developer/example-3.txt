@@ -1,0 +1,2 @@
+User: Create an R package for specialized statistical methods in my domain
+Agent: Develops complete package with functions, documentation, tests, vignettes, and CRAN submission preparation

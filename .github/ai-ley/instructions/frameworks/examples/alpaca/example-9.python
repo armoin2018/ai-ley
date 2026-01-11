@@ -1,0 +1,18 @@
+# Core Alpaca operations
+import alpaca_trade_api as tradeapi
+
+# Initialize client
+api = tradeapi.REST('API_KEY', 'SECRET_KEY', 'BASE_URL', api_version='v2')
+
+# Account information
+account = api.get_account()
+positions = api.list_positions()
+orders = api.list_orders()
+
+# Market data
+bars = api.get_bars('AAPL', '1Day', start='2023-01-01', end='2023-12-31')
+quote = api.get_latest_quote('AAPL')
+
+# Trading operations
+order = api.submit_order('AAPL', 100, 'buy', 'market', 'day')
+api.cancel_order(order.id)

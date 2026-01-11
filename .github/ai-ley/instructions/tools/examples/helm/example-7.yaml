@@ -1,0 +1,83 @@
+# templates/_helpers.tpl - Template helpers
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "web-application.name" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create a default fully qualified app name.
+*/}}
+{{- define "web-application.fullname" -}}
+{{- if .Values.fullnameOverride }}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "web-application.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define "web-application.labels" -}}
+helm.sh/chart: {{ include "web-application.chart" . }}
+{{ include "web-application.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "web-application.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "web-application.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "web-application.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "web-application.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
+{{/*
+Generate database URL from postgresql subchart
+*/}}
+{{- define "web-application.databaseUrl" -}}
+{{- if .Values.postgresql.enabled -}}
+postgresql://{{ .Values.postgresql.auth.username }}:{{ .Values.secrets.database.password }}@{{ include "web-application.fullname" . }}-postgresql:5432/{{ .Values.postgresql.auth.database }}
+{{- end }}
+{{- end }}
+
+{{/*
+Generate Redis URL from redis subchart
+*/}}
+{{- define "web-application.redisUrl" -}}
+{{- if .Values.redis.enabled -}}
+{{- if .Values.secrets.redis.password -}}
+redis://:{{ .Values.secrets.redis.password }}@{{ include "web-application.fullname" . }}-redis-master:6379
+{{- else -}}
+redis://{{ include "web-application.fullname" . }}-redis-master:6379
+{{- end }}
+{{- end }}
+{{- end }}

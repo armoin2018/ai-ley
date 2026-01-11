@@ -1,0 +1,321 @@
+#!/usr/bin/env python3
+"""
+Enterprise CouchDB Configuration Management
+Production-ready configuration with advanced clustering and security
+Generated: {timestamp}
+"""
+
+import os
+import json
+import yaml
+import logging
+import requests
+from pathlib import Path
+from typing import Dict, Any, List
+from dataclasses import dataclass
+
+@dataclass
+class EnterpriseCouchDBConfig:
+    """Enterprise configuration for CouchDB cluster deployment"""
+
+    # Cluster configuration
+    cluster_nodes: List[str] = None
+    cluster_name: str = "enterprise-couchdb"
+    admin_username: str = "admin"
+    admin_password: str = "secure_password_change_me"
+    erlang_cookie: str = "enterprise_cookie_change_me"
+    secret: str = "enterprise_secret_change_me"
+
+    # Database settings
+    max_document_size: int = 4294967296  # 4GB
+    max_attachment_size: int = 4294967296  # 4GB
+    compaction_daemon: bool = True
+    database_dir: str = "/opt/couchdb/data"
+    view_index_dir: str = "/opt/couchdb/data/.shards"
+
+    # Performance settings
+    max_dbs_open: int = 10000
+    delayed_commits: bool = False
+    batch_save_size: int = 1000
+    batch_save_interval: int = 1000
+
+    # Replication settings
+    max_replication_retry_count: int = 10
+    replication_retry_delay: int = 1
+    socket_options: str = "[{recbuf, 262144}, {sndbuf, 262144}]"
+
+    # Security settings
+    require_valid_user: bool = True
+    enable_cors: bool = True
+    cors_credentials: bool = True
+    ssl_certificate_file: str = "/etc/ssl/private/couchdb.crt"
+    ssl_key_file: str = "/etc/ssl/private/couchdb.key"
+
+    def __post_init__(self):
+        if self.cluster_nodes is None:
+            self.cluster_nodes = ["couchdb-primary", "couchdb-replica1", "couchdb-replica2"]
+
+class EnterpriseCouchDBDeployment:
+    """Enterprise CouchDB deployment and management"""
+
+    def __init__(self, config: EnterpriseCouchDBConfig):
+        self.config = config
+        self.deployment_dir = Path("./couchdb_deployment")
+
+    def generate_deployment_files(self) -> Dict[str, str]:
+        """Generate all deployment configuration files"""
+
+        self.deployment_dir.mkdir(exist_ok=True)
+
+        files_generated = {}
+
+        # Generate local.ini files for each node
+        for node in self.config.cluster_nodes:
+            local_ini = self._generate_local_ini(node)
+            local_ini_path = self.deployment_dir / f"{node}_local.ini"
+
+            with open(local_ini_path, 'w') as f:
+                f.write(local_ini)
+
+            files_generated[f"{node}_local.ini"] = str(local_ini_path)
+
+        # Generate HAProxy configuration
+        haproxy_config = self._generate_haproxy_config()
+        haproxy_path = self.deployment_dir / "haproxy.cfg"
+
+        with open(haproxy_path, 'w') as f:
+            f.write(haproxy_config)
+
+        files_generated["haproxy.cfg"] = str(haproxy_path)
+
+        # Generate environment file
+        env_config = self._generate_environment_file()
+        env_path = self.deployment_dir / ".env"
+
+        with open(env_path, 'w') as f:
+            f.write(env_config)
+
+        files_generated[".env"] = str(env_path)
+
+        # Generate monitoring configurations
+        monitoring_files = self._generate_monitoring_configs()
+        files_generated.update(monitoring_files)
+
+        # Generate cluster setup script
+        setup_script = self._generate_cluster_setup_script()
+        setup_path = self.deployment_dir / "setup_cluster.py"
+
+        with open(setup_path, 'w') as f:
+            f.write(setup_script)
+
+        files_generated["setup_cluster.py"] = str(setup_path)
+
+        return files_generated
+
+    def _generate_local_ini(self, node_name: str) -> str:
+        """Generate local.ini configuration for CouchDB node"""
+
+        node_index = self.config.cluster_nodes.index(node_name)
+        bind_port = 5984 + node_index
+        cluster_port = 9100 + node_index
+
+        return f"""
+; CouchDB Configuration - {node_name}
+; Generated: {datetime.utcnow().isoformat()}
+
+[couchdb]
+database_dir = {self.config.database_dir}
+view_index_dir = {self.config.view_index_dir}
+max_document_size = {self.config.max_document_size}
+max_attachment_size = {self.config.max_attachment_size}
+single_node = false
+
+[cluster]
+q = 3
+n = 2
+placement = metro-dc-a:2,metro-dc-b:1
+
+[chttpd]
+port = {bind_port}
+bind_address = 0.0.0.0
+require_valid_user = {str(self.config.require_valid_user).lower()}
+max_http_request_size = 4294967296
+enable_cors = {str(self.config.enable_cors).lower()}
+
+[httpd]
+port = {bind_port}
+bind_address = 0.0.0.0
+authentication_handlers = {{cookie, default}}
+default_handler = {{couch_httpd_db, handle_request}}
+secure_rewrites = true
+allow_jsonp = false
+
+[ssl]
+enable = true
+cert_file = {self.config.ssl_certificate_file}
+key_file = {self.config.ssl_key_file}
+password =
+cacert_file =
+verify_ssl_certificates = true
+
+[cors]
+origins = *
+credentials = {str(self.config.cors_credentials).lower()}
+methods = GET, PUT, POST, HEAD, DELETE
+headers = accept, authorization, content-type, origin, referer, x-csrf-token
+
+[couch_httpd_auth]
+require_valid_user = {str(self.config.require_valid_user).lower()}
+authentication_redirect = /_utils/session.html
+timeout = 600
+auth_cache_size = 50
+allow_persistent_cookies = true
+
+[compaction_daemon]
+check_interval = 300
+min_file_size = 131072
+
+[database_compaction]
+doc_buffer_size = {self.config.batch_save_size}
+checkpoint_after = {self.config.batch_save_interval}
+
+[view_compaction]
+keyvalue_buffer_size = 2097152
+
+[replicator]
+max_replication_retry_count = {self.config.max_replication_retry_count}
+worker_processes = 4
+worker_batch_size = 500
+http_connections = 20
+connection_timeout = 30000
+retries_per_request = 5
+
+[log]
+level = info
+include_sasl = true
+
+[admins]
+{self.config.admin_username} = {self.config.admin_password}
+"""
+
+    def _generate_haproxy_config(self) -> str:
+        """Generate HAProxy configuration for load balancing"""
+
+        backend_servers = []
+        for i, node in enumerate(self.config.cluster_nodes):
+            port = 5984 + i
+            backend_servers.append(f"    server {node} {node}:{port} check")
+
+        backend_config = "\\n".join(backend_servers)
+
+        return f"""
+# HAProxy Configuration for CouchDB Enterprise Cluster
+# Generated: {datetime.utcnow().isoformat()}
+
+global
+    daemon
+    log stdout local0 info
+    chroot /var/lib/haproxy
+    stats socket /run/haproxy/admin.sock mode 660 level admin
+    stats timeout 30s
+    user haproxy
+    group haproxy
+
+    # SSL/TLS settings
+    tune.ssl.default-dh-param 2048
+    ssl-default-bind-ciphers ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305
+    ssl-default-bind-ciphersuites TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256
+    ssl-default-bind-options ssl-min-ver TLSv1.2 no-tls-tickets
+
+defaults
+    mode http
+    log global
+    option httplog
+    option dontlognull
+    option log-health-checks
+    option forwardfor
+    option http-server-close
+    timeout connect 5000
+    timeout client 50000
+    timeout server 50000
+    errorfile 400 /etc/haproxy/errors/400.http
+    errorfile 403 /etc/haproxy/errors/403.http
+    errorfile 408 /etc/haproxy/errors/408.http
+    errorfile 500 /etc/haproxy/errors/500.http
+    errorfile 502 /etc/haproxy/errors/502.http
+    errorfile 503 /etc/haproxy/errors/503.http
+    errorfile 504 /etc/haproxy/errors/504.http
+
+# Statistics interface
+frontend stats
+    bind *:8080
+    stats enable
+    stats uri /stats
+    stats refresh 30s
+    stats admin if TRUE
+
+# CouchDB frontend
+frontend couchdb_frontend
+    bind *:80
+    bind *:443 ssl crt /etc/ssl/private/couchdb.pem
+    redirect scheme https if !{{ ssl_fc }}
+
+    # Security headers
+    http-response set-header X-Frame-Options DENY
+    http-response set-header X-Content-Type-Options nosniff
+    http-response set-header X-XSS-Protection "1; mode=block"
+    http-response set-header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+    default_backend couchdb_backend
+
+# CouchDB backend
+backend couchdb_backend
+    balance roundrobin
+    option httpchk GET /_up
+    http-check expect status 200
+
+    # Health check configuration
+    default-server check maxconn 100 weight 100
+
+{backend_config}
+
+    # Enable session persistence for replication
+    cookie SERVERID insert indirect nocache
+"""
+
+def main():
+    """Main deployment configuration generator"""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="CouchDB Enterprise Deployment Generator")
+    parser.add_argument("--nodes", nargs='+', default=["couchdb-primary", "couchdb-replica1", "couchdb-replica2"])
+    parser.add_argument("--cluster-name", default="enterprise-couchdb")
+    parser.add_argument("--output-dir", default="./couchdb_deployment")
+
+    args = parser.parse_args()
+
+    # Create configuration
+    config = EnterpriseCouchDBConfig(
+        cluster_nodes=args.nodes,
+        cluster_name=args.cluster_name
+    )
+
+    # Generate deployment
+    deployment = EnterpriseCouchDBDeployment(config)
+    files_generated = deployment.generate_deployment_files()
+
+    print("\\nCouchDB Enterprise Deployment Files Generated:")
+    print("=" * 50)
+
+    for filename, filepath in files_generated.items():
+        print(f"{filename}: {filepath}")
+
+    print(f"\\nDeployment directory: {deployment.deployment_dir}")
+    print("\\nNext steps:")
+    print("1. Review generated configuration files")
+    print("2. Update passwords and certificates")
+    print("3. Run: docker-compose up -d")
+    print("4. Execute: python setup_cluster.py")
+
+if __name__ == "__main__":
+    main()

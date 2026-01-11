@@ -1,0 +1,19 @@
+# Optimize build performance
+[build]
+  command = "npm ci && npm run build"  # Use npm ci for faster installs
+
+[build.environment]
+  NPM_FLAGS = "--production"
+  NODE_ENV = "production"
+
+# Asset optimization
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true

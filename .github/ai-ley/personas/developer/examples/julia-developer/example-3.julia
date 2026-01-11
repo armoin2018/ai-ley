@@ -1,0 +1,102 @@
+using Distributed, SharedArrays, Statistics
+using DifferentialEquations, Plots
+
+# Add worker processes
+addprocs(4)
+
+@everywhere using DifferentialEquations, Statistics
+
+# Distributed parameter sweep for ODE system
+@everywhere function lorenz!(du, u, p, t)
+    σ, ρ, β = p
+    du[1] = σ * (u[2] - u[1])
+    du[2] = u[1] * (ρ - u[3]) - u[2]
+    du[3] = u[1] * u[2] - β * u[3]
+end
+
+@everywhere function solve_lorenz_system(params)
+    σ, ρ, β = params
+    u0 = [1.0, 0.0, 0.0]
+    tspan = (0.0, 25.0)
+    p = [σ, ρ, β]
+    
+    prob = ODEProblem(lorenz!, u0, tspan, p)
+    sol = solve(prob, Tsit5(), saveat=0.01)
+    
+    # Calculate some metric (e.g., final state variance)
+    final_states = reduce(hcat, sol.u[end-100:end])
+    return var(final_states, dims=2) |> vec |> sum
+end
+
+function parameter_sweep_distributed()
+    # Define parameter ranges
+    σ_range = 8.0:0.5:12.0
+    ρ_range = 20.0:1.0:35.0
+    β_range = 2.0:0.2:3.0
+    
+    # Create parameter combinations
+    param_combinations = [(σ, ρ, β) for σ in σ_range, ρ in ρ_range, β in β_range]
+    param_combinations = vec(param_combinations)
+    
+    println("Computing $(length(param_combinations)) parameter combinations...")
+    
+    # Distributed computation
+    results = @distributed (vcat) for params in param_combinations
+        variance = solve_lorenz_system(params)
+        [params..., variance]
+    end
+    
+    # Process results
+    results_df = DataFrame(
+        sigma=results[:, 1],
+        rho=results[:, 2], 
+        beta=results[:, 3],
+        variance=results[:, 4]
+    )
+    
+    return results_df
+end
+
+# GPU-accelerated computation example
+using CUDA
+
+function gpu_matrix_operations(n=1000)
+    # Create data on GPU
+    A_gpu = CUDA.randn(n, n)
+    B_gpu = CUDA.randn(n, n)
+    
+    # GPU matrix multiplication
+    C_gpu = A_gpu * B_gpu
+    
+    # Element-wise operations
+    D_gpu = sin.(A_gpu) .+ cos.(B_gpu)
+    
+    # Reduction operations
+    trace_A = sum(diag(A_gpu))
+    frobenius_norm = norm(C_gpu)
+    
+    return (trace=trace_A, norm=frobenius_norm)
+end
+
+# Benchmark GPU vs CPU
+function benchmark_gpu_cpu(n=1000)
+    println("Benchmarking matrix operations...")
+    
+    # CPU version
+    cpu_time = @elapsed begin
+        A_cpu = randn(n, n)
+        B_cpu = randn(n, n) 
+        C_cpu = A_cpu * B_cpu
+        trace_cpu = sum(diag(A_cpu))
+        norm_cpu = norm(C_cpu)
+    end
+    
+    # GPU version
+    gpu_time = @elapsed begin
+        results_gpu = gpu_matrix_operations(n)
+    end
+    
+    println("CPU time: $(cpu_time)s")
+    println("GPU time: $(gpu_time)s") 
+    println("Speedup: $(cpu_time/gpu_time)x")
+end

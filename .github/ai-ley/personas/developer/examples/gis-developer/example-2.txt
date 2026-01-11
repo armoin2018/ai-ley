@@ -1,0 +1,2 @@
+User: Analyze urban heat island effects using satellite imagery and weather station data
+Agent: Designs Python workflow using GDAL for raster processing, interpolation algorithms, and PostGIS for spatial analysis with proper temperature data handling

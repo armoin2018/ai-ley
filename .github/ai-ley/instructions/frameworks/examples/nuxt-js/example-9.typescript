@@ -1,0 +1,14 @@
+// middleware/auth.global.ts
+export default defineNuxtRouteMiddleware((to) => {
+  const userStore = useUserStore()
+  
+  // Protected routes
+  const protectedRoutes = ['/dashboard', '/profile', '/admin']
+  const isProtectedRoute = protectedRoutes.some(route => 
+    to.path.startsWith(route)
+  )
+
+  if (isProtectedRoute && !userStore.isLoggedIn) {
+    return navigateTo('/login')
+  }
+})

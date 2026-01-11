@@ -1,0 +1,35 @@
+// Redis caching
+@Injectable()
+export class UsersService {
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+    private cacheManager: Cache,
+  ) {}
+
+  async findOne(id: string): Promise<User> {
+    const cacheKey = `user:${id}`;
+    
+    // Try cache first
+    let user = await this.cacheManager.get<User>(cacheKey);
+    
+    if (!user) {
+      user = await this.usersRepository.findOne({ where: { id } });
+      if (user) {
+        // Cache for 5 minutes
+        await this.cacheManager.set(cacheKey, user, 300);
+      }
+    }
+    
+    return user;
+  }
+
+  async update(id: string, updateData: Partial<User>): Promise<User> {
+    const user = await this.usersRepository.update(id, updateData);
+    
+    // Invalidate cache
+    await this.cacheManager.del(`user:${id}`);
+    
+    return user;
+  }
+}

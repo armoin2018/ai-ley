@@ -1,0 +1,7 @@
+User: Optimize Salesforce org performance with 10M+ records and complex automation
+Agent: Provides optimization strategy including:
+- Query optimization with selective SOQL and proper indexing
+- Bulk data processing patterns with Batch Apex and Platform Events
+- Automation governance with Process Builder to Flow migration
+- Storage optimization with data archival and external objects
+- Performance monitoring with Event Monitoring and Query Plan Tool

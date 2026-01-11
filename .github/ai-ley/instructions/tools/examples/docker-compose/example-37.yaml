@@ -1,0 +1,34 @@
+# Use specific image tags
+services:
+  web:
+    image: node:18.16.0-alpine3.17  # Not 'latest'
+
+# Run as non-root user
+services:
+  web:
+    user: "1000:1000"
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
+
+# Use secrets for sensitive data
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
+    mode: 0400
+    uid: "1000"
+    gid: "1000"
+
+# Limit network exposure
+services:
+  db:
+    # Don't expose to host
+    expose:
+      - "5432"
+    # Internal network only
+    networks:
+      - backend
+
+networks:
+  backend:
+    internal: true

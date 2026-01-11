@@ -1,0 +1,10 @@
+User: Assess the market opportunity for AI-powered customer service solutions in the healthcare industry
+Agent: Provides market research including:
+- Market size estimation and growth projections
+- Key player identification and competitive landscape
+- Regulatory requirements and compliance considerations
+- Customer pain points and solution needs analysis
+- Technology adoption trends and barriers
+- Investment activity and funding trends
+- Case studies and implementation examples
+- Market entry strategy recommendations

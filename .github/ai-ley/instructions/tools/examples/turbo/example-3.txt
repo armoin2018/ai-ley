@@ -1,0 +1,40 @@
+my-monorepo/
+├── turbo.json                 # Turbo configuration
+├── package.json              # Root package.json
+├── pnpm-workspace.yaml       # PNPM workspace configuration
+├── tsconfig.json             # Shared TypeScript config
+├── .eslintrc.js             # Shared ESLint config
+├── .prettierrc              # Shared Prettier config
+├── .gitignore               # Git ignore rules
+├── apps/                    # Applications
+│   ├── web/                # Next.js web app
+│   │   ├── package.json
+│   │   ├── next.config.js
+│   │   ├── tsconfig.json
+│   │   └── src/
+│   ├── mobile/             # React Native app
+│   │   ├── package.json
+│   │   ├── metro.config.js
+│   │   └── src/
+│   └── api/                # Node.js API
+│       ├── package.json
+│       ├── tsconfig.json
+│       └── src/
+├── packages/               # Shared packages
+│   ├── ui/                # Shared UI components
+│   │   ├── package.json
+│   │   ├── tsconfig.json
+│   │   ├── rollup.config.js
+│   │   └── src/
+│   ├── utils/             # Shared utilities
+│   │   ├── package.json
+│   │   ├── tsconfig.json
+│   │   └── src/
+│   └── config/            # Shared configurations
+│       ├── package.json
+│       ├── eslint/
+│       ├── typescript/
+│       └── jest/
+└── tools/                 # Build and development tools
+    ├── build-scripts/
+    └── dev-tools/

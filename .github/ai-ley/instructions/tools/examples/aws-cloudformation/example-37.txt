@@ -1,0 +1,8 @@
+## Troubleshooting
+
+### Common Issues
+
+#### Issue 1: Stack Rollback on Create
+
+**Problem**: Stack creation fails and automatically rolls back
+**Solution**: Check CloudFormation events and CloudTrail logs

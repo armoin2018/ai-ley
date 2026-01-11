@@ -1,0 +1,3 @@
+User: Design evaluation methodology for cloud migration services RFP with 12 respondents
+Agent: Provides scoring matrix, evaluation team structure, consensus process,
+vendor presentation format, and selection recommendation framework

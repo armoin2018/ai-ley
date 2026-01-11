@@ -1,0 +1,6 @@
+tensorboard_callback = keras.callbacks.TensorBoard(
+    log_dir='./logs',
+    histogram_freq=1,
+    write_graph=True,
+    write_images=True
+)

@@ -1,0 +1,25 @@
+// src/config/environment.ts - Environment configuration
+interface Environment {
+  isDevelopment: boolean;
+  isProduction: boolean;
+  apiUrl: string;
+  version: string;
+  debug: boolean;
+}
+
+export const environment: Environment = {
+  isDevelopment: process.env.NODE_ENV === 'development',
+  isProduction: process.env.NODE_ENV === 'production',
+  apiUrl: process.env.API_URL || 'http://localhost:8080/api',
+  version: process.env.VERSION || '1.0.0',
+  debug: process.env.NODE_ENV === 'development'
+};
+
+// Type-safe environment variable access
+export const getEnvVar = (key: string, defaultValue?: string): string => {
+  const value = process.env[key];
+  if (value === undefined && defaultValue === undefined) {
+    throw new Error(`Environment variable ${key} is required`);
+  }
+  return value || defaultValue!;
+};

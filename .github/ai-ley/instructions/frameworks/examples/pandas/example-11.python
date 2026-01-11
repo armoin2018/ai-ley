@@ -1,0 +1,17 @@
+# Use vectorized operations
+# Bad
+df['new_col'] = df.apply(lambda row: complex_function(row), axis=1)
+
+# Good
+df['new_col'] = np.where(
+    df['condition_col'] > threshold,
+    df['col1'] * df['col2'],
+    df['col1'] + df['col2']
+)
+
+# Use query() for complex filtering
+# Bad
+filtered_df = df[(df['age'] > 25) & (df['salary'] > 50000) & (df['department'] == 'Engineering')]
+
+# Good
+filtered_df = df.query("age > 25 and salary > 50000 and department == 'Engineering'")

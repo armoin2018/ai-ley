@@ -1,0 +1,70 @@
+# MCP client for LLM integration
+from mcp.client import Client
+from mcp.client.stdio import stdio_client
+import asyncio
+import subprocess
+
+class MCPClient:
+    def __init__(self, server_command: list[str]):
+        self.server_command = server_command
+        self.client = None
+    
+    async def connect(self):
+        """Establish connection to MCP server"""
+        self.server_process = await asyncio.create_subprocess_exec(
+            *self.server_command,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        
+        read_stream, write_stream = stdio_client(
+            self.server_process.stdout,
+            self.server_process.stdin
+        )
+        
+        self.client = Client("llm-client")
+        await self.client.connect(read_stream, write_stream)
+        
+        # Initialize the connection
+        await self.client.initialize()
+    
+    async def list_available_tools(self) -> list:
+        """Get available tools from MCP server"""
+        if not self.client:
+            raise RuntimeError("Client not connected")
+        
+        tools = await self.client.list_tools()
+        return tools.tools
+    
+    async def execute_tool(self, tool_name: str, arguments: dict):
+        """Execute a tool via MCP"""
+        if not self.client:
+            raise RuntimeError("Client not connected")
+        
+        result = await self.client.call_tool(tool_name, arguments)
+        return result.content
+    
+    async def get_resources(self) -> list:
+        """Get available resources from MCP server"""
+        if not self.client:
+            raise RuntimeError("Client not connected")
+        
+        resources = await self.client.list_resources()
+        return resources.resources
+    
+    async def read_resource(self, uri: str) -> str:
+        """Read a specific resource"""
+        if not self.client:
+            raise RuntimeError("Client not connected")
+        
+        content = await self.client.read_resource(uri)
+        return content.contents[0].text
+    
+    async def disconnect(self):
+        """Clean up connections"""
+        if self.client:
+            await self.client.close()
+        if hasattr(self, 'server_process'):
+            self.server_process.terminate()
+            await self.server_process.wait()

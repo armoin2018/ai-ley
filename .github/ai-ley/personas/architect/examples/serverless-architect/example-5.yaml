@@ -1,0 +1,40 @@
+event_driven_pattern:
+  services:
+    order_service:
+      triggers:
+        - api_gateway: "/orders"
+        - eventbridge: "payment.completed"
+      events_published:
+        - "order.created"
+        - "order.updated"
+        - "order.cancelled"
+        
+    payment_service:
+      triggers:
+        - eventbridge: "order.created"
+      events_published:
+        - "payment.initiated"
+        - "payment.completed"
+        - "payment.failed"
+        
+    inventory_service:
+      triggers:
+        - eventbridge: "order.created"
+      events_published:
+        - "inventory.reserved"
+        - "inventory.released"
+        
+  orchestration:
+    order_fulfillment:
+      type: "step_functions"
+      pattern: "saga"
+      steps:
+        - reserve_inventory
+        - process_payment
+        - update_order_status
+        - send_confirmation
+      
+      error_handling:
+        - retry_policies
+        - compensation_actions
+        - dead_letter_queues

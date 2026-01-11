@@ -1,0 +1,1 @@
+mycmd "$(_args)" <<< "mycmd2 ${_args2} 2>/dev/null"

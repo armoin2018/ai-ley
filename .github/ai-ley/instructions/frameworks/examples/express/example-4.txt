@@ -1,0 +1,47 @@
+src/
+├── controllers/            # Request handlers and business logic
+│   ├── auth.controller.ts
+│   ├── user.controller.ts
+│   └── index.ts
+├── middleware/             # Custom middleware functions
+│   ├── auth.middleware.ts
+│   ├── error.middleware.ts
+│   ├── validation.middleware.ts
+│   └── index.ts
+├── models/                 # Data models and schemas
+│   ├── user.model.ts
+│   ├── auth.model.ts
+│   └── index.ts
+├── routes/                 # Route definitions
+│   ├── auth.routes.ts
+│   ├── user.routes.ts
+│   ├── health.routes.ts
+│   └── index.ts
+├── services/               # Business logic and external APIs
+│   ├── auth.service.ts
+│   ├── user.service.ts
+│   ├── email.service.ts
+│   └── index.ts
+├── utils/                  # Utility functions
+│   ├── logger.ts
+│   ├── database.ts
+│   ├── jwt.ts
+│   └── index.ts
+├── validators/             # Input validation schemas
+│   ├── auth.validator.ts
+│   ├── user.validator.ts
+│   └── index.ts
+├── config/                 # Configuration files
+│   ├── database.ts
+│   ├── env.ts
+│   └── index.ts
+├── types/                  # TypeScript type definitions
+│   ├── express.d.ts
+│   ├── user.types.ts
+│   └── index.ts
+├── tests/                  # Test files
+│   ├── auth.test.ts
+│   ├── user.test.ts
+│   └── setup.ts
+├── app.ts                  # Express app configuration
+└── server.ts               # Server entry point

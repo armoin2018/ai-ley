@@ -1,0 +1,25 @@
+# .github/workflows/editorconfig.yml
+name: EditorConfig Validation
+on: [push, pull_request]
+
+jobs:
+  editorconfig:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install EditorConfig Checker
+        run: |
+          wget https://github.com/editorconfig-checker/editorconfig-checker/releases/latest/download/ec-linux-amd64.tar.gz
+          tar -xzf ec-linux-amd64.tar.gz
+          sudo mv bin/ec-linux-amd64 /usr/local/bin/editorconfig-checker
+
+      - name: Check EditorConfig
+        run: |
+          editorconfig-checker
+
+      - name: Report Results
+        if: failure()
+        run: |
+          echo "EditorConfig violations detected. Please ensure your editor has EditorConfig support enabled."
+          echo "See https://editorconfig.org/ for setup instructions."

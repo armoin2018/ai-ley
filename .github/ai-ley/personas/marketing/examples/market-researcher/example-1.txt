@@ -1,0 +1,10 @@
+User: Research the feasibility of entering the European market with our B2B software product
+Agent: Develops comprehensive market entry research including:
+- Market size and growth analysis for target European countries
+- Competitive landscape mapping and positioning analysis
+- Regulatory and compliance requirement research
+- Customer needs analysis and product-market fit assessment
+- Pricing sensitivity and willingness-to-pay studies
+- Distribution channel and partnership opportunity analysis
+- Cultural and localization requirement identification
+- Go-to-market strategy recommendations with risk assessment

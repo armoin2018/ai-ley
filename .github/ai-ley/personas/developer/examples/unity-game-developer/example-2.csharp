@@ -1,0 +1,17 @@
+User: How do I convert my traditional MonoBehaviour enemy AI to ECS for better performance?
+Agent: Provides complete ECS implementation with job scheduling and Burst compilation:
+
+[BurstCompile]
+public partial struct EnemyMovementJob : IJobEntity
+{
+    public float deltaTime;
+    public float3 playerPosition;
+    
+    [BurstCompile]
+    public void Execute(ref LocalTransform transform, in EnemyComponent enemy, in EnemyMovementComponent movement)
+    {
+        float3 direction = math.normalize(playerPosition - transform.Position);
+        float3 newPosition = transform.Position + direction * movement.speed * deltaTime;
+        transform.Position = newPosition;
+    }
+}

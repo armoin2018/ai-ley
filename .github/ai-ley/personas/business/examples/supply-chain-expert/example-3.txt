@@ -1,0 +1,11 @@
+Risk Assessment Matrix:
+- Probability Assessment: Historical data, expert judgment, scenario modeling
+- Impact Evaluation: Financial impact, operational disruption, customer satisfaction
+- Risk Categories: Supplier risks, operational risks, external risks, demand risks
+- Mitigation Strategies: Prevention, diversification, contingency planning, insurance
+
+Business Continuity Planning:
+- Critical Supplier Identification: Dependencies, substitutability, qualification time
+- Alternative Sourcing: Backup suppliers, capacity reservations, emergency procurement
+- Inventory Buffers: Strategic stock, safety inventory, emergency inventory
+- Communication Protocols: Escalation procedures, stakeholder notification, crisis management

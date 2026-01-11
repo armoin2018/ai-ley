@@ -1,0 +1,49 @@
+// Secure database configuration
+@Module({
+  imports: [
+    TypeOrmModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('DB_HOST'),
+        port: configService.get('DB_PORT'),
+        username: configService.get('DB_USERNAME'),
+        password: configService.get('DB_PASSWORD'),
+        database: configService.get('DB_NAME'),
+        ssl: configService.get('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
+        logging: configService.get('NODE_ENV') === 'development',
+        synchronize: false, // Never use in production
+        migrations: ['dist/migrations/*.js'],
+        entities: ['dist/**/*.entity.js'],
+      }),
+      inject: [ConfigService],
+    }),
+  ],
+})
+export class DatabaseModule {}
+
+// Repository with parameterized queries
+@Injectable()
+export class UsersRepository {
+  constructor(
+    @InjectRepository(User)
+    private repository: Repository<User>,
+  ) {}
+
+  async findByEmail(email: string): Promise<User | null> {
+    // TypeORM automatically prevents SQL injection
+    return this.repository.findOne({ 
+      where: { email },
+      select: ['id', 'email', 'name', 'createdAt'] // Don't select sensitive fields by default
+    });
+  }
+
+  async searchUsers(searchTerm: string): Promise<User[]> {
+    // Use parameterized queries for complex searches
+    return this.repository
+      .createQueryBuilder('user')
+      .where('user.name ILIKE :search', { search: `%${searchTerm}%` })
+      .orWhere('user.email ILIKE :search', { search: `%${searchTerm}%` })
+      .select(['user.id', 'user.name', 'user.email'])
+      .getMany();
+  }
+}

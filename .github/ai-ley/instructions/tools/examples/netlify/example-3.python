@@ -1,0 +1,131 @@
+async def setup_development_team_collaboration():
+    """Example: Setup Netlify for development team collaboration"""
+
+    config = EnterpriseNetlifyConfig(
+        team_id="dev-team",
+        organization_name="DevCorp",
+        tier=NetlifyTier.PRO,
+        environment=NetlifyEnvironment.DEVELOPMENT,
+        site_type=NetlifySiteType.JAMSTACK,
+        framework=NetlifyFramework.GATSBY,
+        team_management={
+            "sso_enabled": True,
+            "sso_provider": "github",
+            "role_based_access": True,
+            "roles": [
+                {
+                    "name": "tech_lead",
+                    "permissions": [
+                        "full_access", "team_management", "billing_management",
+                        "site_management", "security_settings"
+                    ]
+                },
+                {
+                    "name": "senior_developer",
+                    "permissions": [
+                        "site_deploy", "site_configure", "function_management",
+                        "analytics_view", "build_settings"
+                    ]
+                },
+                {
+                    "name": "developer",
+                    "permissions": [
+                        "site_deploy", "preview_access", "basic_analytics"
+                    ]
+                },
+                {
+                    "name": "designer",
+                    "permissions": [
+                        "preview_access", "content_edit", "basic_analytics"
+                    ]
+                },
+                {
+                    "name": "qa_engineer",
+                    "permissions": [
+                        "preview_access", "analytics_view", "build_logs"
+                    ]
+                }
+            ],
+            "two_factor_required": True
+        },
+        integrations={
+            "git": {
+                "provider": "github",
+                "auto_deploy_branches": ["main", "staging"],
+                "deploy_preview_branches": ["feature/*", "bugfix/*", "hotfix/*"]
+            },
+            "notifications": {
+                "slack": {
+                    "enabled": True,
+                    "webhook_url": "${SLACK_WEBHOOK_URL}",
+                    "channel": "#dev-deploys"
+                }
+            }
+        }
+    )
+
+    platform = EnterpriseNetlifyPlatform(config)
+    setup_result = await platform.setup_enterprise_platform()
+
+    # Setup multiple environment sites
+    environments = [
+        {
+            "name": "production-site",
+            "branch": "main",
+            "build_command": "gatsby build",
+            "environment": "production",
+            "domain": "app.devcorp.com"
+        },
+        {
+            "name": "staging-site",
+            "branch": "staging",
+            "build_command": "gatsby build",
+            "environment": "staging",
+            "domain": "staging.devcorp.com"
+        },
+        {
+            "name": "development-site",
+            "branch": "develop",
+            "build_command": "gatsby build",
+            "environment": "development",
+            "domain": "dev.devcorp.com"
+        }
+    ]
+
+    deployment_results = []
+    for env in environments:
+        result = await platform.deploy_enterprise_site(env)
+        deployment_results.append(result)
+
+    # Setup branch-based deployment strategy
+    deployment_manager = EnterpriseNetlifyDeploymentManager(config)
+    await deployment_manager.setup_deployment_strategies()
+
+    branch_config = {
+        "strategy": "branch_based",
+        "production": {"branch": "main", "auto_publish": True},
+        "staging": {"branch": "staging", "auto_publish": True},
+        "preview": {"branch_pattern": "feature/*", "auto_publish": False}
+    }
+
+    branch_deployment = await deployment_manager.execute_deployment(
+        "production-site",
+        {"strategy": "branch_based", "branch": "main"}
+    )
+
+    # Setup team cost management
+    cost_manager = EnterpriseNetlifyCostManager(config)
+    cost_monitoring = await cost_manager.setup_cost_monitoring()
+    team_cost_report = await cost_manager.generate_cost_report()
+
+    return {
+        "platform_setup": setup_result,
+        "environments_deployed": len(deployment_results),
+        "branch_deployment": branch_deployment,
+        "cost_monitoring": cost_monitoring,
+        "team_cost_report": team_cost_report
+    }
+
+# CI/CD Integration Examples
+
+### GitHub Actions Integration for Netlify

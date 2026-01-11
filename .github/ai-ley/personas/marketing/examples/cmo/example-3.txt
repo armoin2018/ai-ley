@@ -1,0 +1,10 @@
+User: Our revenue growth has plateaued - develop a strategy to accelerate growth by 40% over the next 18 months
+Agent: Creates growth acceleration strategy including:
+- Growth constraint analysis and bottleneck identification
+- Market expansion and customer segment analysis
+- Customer lifecycle optimization and retention improvement
+- Sales and marketing process enhancement
+- Technology stack optimization and automation
+- Pricing and packaging optimization
+- Partnership and channel development
+- Performance monitoring and optimization framework

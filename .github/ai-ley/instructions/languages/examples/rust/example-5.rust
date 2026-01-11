@@ -1,0 +1,45 @@
+// Bad: Large match statement
+fn process_action(action: &str, data: ProcessData) -> Result<ProcessData, ProcessError> {
+    match action {
+        "validate" => validate_data(data),
+        "transform" => transform_data(data),
+        "save" => save_data(data),
+        _ => Err(ProcessError::UnknownAction(action.to_string())),
+    }
+}
+
+// Good: Trait-based dispatch
+trait MessageHandler {
+    fn handle(&self, msg: Message) -> Result<Message, ProcessError>;
+}
+
+struct ValidateHandler;
+impl MessageHandler for ValidateHandler {
+    fn handle(&self, mut msg: Message) -> Result<Message, ProcessError> {
+        msg.payload = validate_data(msg.payload)?;
+        Ok(msg)
+    }
+}
+
+struct ProcessorRegistry {
+    handlers: std::collections::HashMap<String, Box<dyn MessageHandler>>,
+}
+
+impl ProcessorRegistry {
+    fn new() -> Self {
+        let mut handlers: std::collections::HashMap<String, Box<dyn MessageHandler>> = 
+            std::collections::HashMap::new();
+        
+        handlers.insert("validate".to_string(), Box::new(ValidateHandler));
+        // Add other handlers...
+        
+        Self { handlers }
+    }
+    
+    fn process_message(&self, action: &str, msg: Message) -> Result<Message, ProcessError> {
+        self.handlers
+            .get(action)
+            .ok_or_else(|| ProcessError::UnknownAction(action.to_string()))?
+            .handle(msg)
+    }
+}

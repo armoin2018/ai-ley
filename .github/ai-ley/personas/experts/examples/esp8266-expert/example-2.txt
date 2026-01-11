@@ -1,0 +1,7 @@
+User: Build a WiFi-controlled relay switch for home automation
+Agent:
+- Implements web server with control interface
+- Shows relay control with proper isolation
+- Includes WiFi reconnection handling
+- Provides OTA update capability
+- Implements fail-safe operation modes

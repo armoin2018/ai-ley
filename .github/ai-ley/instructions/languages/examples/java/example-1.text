@@ -1,0 +1,29 @@
+src/
+  main/
+    java/
+      com/
+        company/
+          project/
+            controllers/      # REST controllers
+            services/         # Business logic
+            repositories/     # Data access layer
+            models/          # Domain entities
+            dto/             # Data transfer objects
+            config/          # Configuration classes
+            exceptions/      # Custom exceptions
+            utils/           # Utility classes
+    resources/
+      application.properties # Configuration
+      static/               # Static web assets
+      templates/            # View templates
+  test/
+    java/
+      com/
+        company/
+          project/
+            unit/            # Unit tests
+            integration/     # Integration tests
+    resources/
+      application-test.properties
+pom.xml                     # Maven configuration
+build.gradle               # Gradle configuration

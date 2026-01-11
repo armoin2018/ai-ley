@@ -1,0 +1,39 @@
+// ✅ Use specific types over any
+interface User {
+  readonly id: string;
+  name: string;
+  email: string;
+  age?: number;
+  preferences: UserPreferences;
+  createdAt: Date;
+}
+
+interface UserPreferences {
+  theme: 'light' | 'dark';
+  notifications: boolean;
+  language: string;
+}
+
+// ✅ Union types for limited options
+type Status = 'pending' | 'approved' | 'rejected';
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
+
+// ✅ Generic types for reusability
+interface ApiResponse<T> {
+  data: T;
+  success: boolean;
+  message?: string;
+  timestamp: string;
+}
+
+interface Repository<T, K = string> {
+  findById(id: K): Promise<T | null>;
+  create(entity: Omit<T, 'id'>): Promise<T>;
+  update(id: K, updates: Partial<T>): Promise<T>;
+  delete(id: K): Promise<void>;
+}
+
+// ✅ Utility types for transformations
+type CreateUserRequest = Omit<User, 'id' | 'createdAt'>;
+type UpdateUserRequest = Partial<Pick<User, 'name' | 'email' | 'preferences'>>;
+type UserSummary = Pick<User, 'id' | 'name' | 'email'>;

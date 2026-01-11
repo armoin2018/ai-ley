@@ -1,0 +1,16 @@
+# Element naming standards
+business_elements:
+  actors: "Actor Name" (noun)
+  roles: "Role Name" (noun)
+  processes: "Process Name" (verb + noun)
+  services: "Service Name" (noun + service)
+
+application_elements:
+  components: "System Name" (proper noun)
+  services: "Service Name" (noun + service)
+  interfaces: "Interface Name" (adjective + interface)
+
+technology_elements:
+  nodes: "Node Name" (infrastructure noun)
+  devices: "Device Name" (hardware noun)
+  software: "Software Name" (proper noun)

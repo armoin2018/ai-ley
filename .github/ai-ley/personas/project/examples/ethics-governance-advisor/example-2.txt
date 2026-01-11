@@ -1,0 +1,10 @@
+User: Develop a comprehensive data governance framework for our healthcare AI platform
+Agent: Creates data governance framework including:
+- Data classification and sensitivity labeling system
+- Consent management and patient rights protection
+- Data minimization and purpose limitation policies
+- Cross-border data transfer compliance procedures
+- Access controls and audit logging requirements
+- Third-party data sharing ethical guidelines
+- Patient data retention and deletion policies
+- Governance committee structure and oversight processes

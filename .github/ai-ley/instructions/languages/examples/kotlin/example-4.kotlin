@@ -1,0 +1,57 @@
+// ✅ Well-structured domain model
+data class User(
+    val id: UserId,
+    val email: String,
+    val name: String,
+    val status: UserStatus,
+    val createdAt: Instant
+) {
+    init {
+        require(email.isValidEmail()) { "Invalid email format" }
+        require(name.isNotBlank()) { "Name cannot be blank" }
+    }
+}
+
+sealed class UserStatus {
+    object Active : UserStatus()
+    object Inactive : UserStatus()
+    object Suspended : UserStatus()
+}
+
+// Repository interface (domain layer)
+interface UserRepository {
+    suspend fun findById(id: UserId): User?
+    suspend fun findByEmail(email: String): User?
+    suspend fun save(user: User): User
+    suspend fun delete(id: UserId)
+}
+
+// Use case (domain layer)
+class RegisterUserUseCase(
+    private val userRepository: UserRepository,
+    private val emailService: EmailService
+) {
+    suspend operator fun invoke(request: UserRegistrationRequest): Result<User> {
+        return try {
+            val existingUser = userRepository.findByEmail(request.email)
+            if (existingUser != null) {
+                return Result.failure(UserAlreadyExistsException(request.email))
+            }
+            
+            val user = User(
+                id = UserId.generate(),
+                email = request.email,
+                name = request.name,
+                status = UserStatus.Active,
+                createdAt = Instant.now()
+            )
+            
+            val savedUser = userRepository.save(user)
+            emailService.sendWelcomeEmail(savedUser.email)
+            
+            Result.success(savedUser)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+}

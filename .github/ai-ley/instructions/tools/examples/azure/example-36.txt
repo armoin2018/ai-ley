@@ -1,0 +1,25 @@
+## AI Assistant Guidelines
+
+When helping with Azure:
+
+1. **Always suggest managed services** when appropriate for reduced operational overhead
+2. **Provide complete infrastructure configurations** with ARM templates or Bicep
+3. **Include security best practices** with AAD, managed identities, and Key Vault
+4. **Suggest appropriate service combinations** based on Microsoft ecosystem integration
+5. **Provide debugging strategies** for common deployment and configuration issues
+6. **Include monitoring and alerting** setup with Application Insights and Azure Monitor
+7. **Reference cost optimization** techniques for efficient resource usage
+8. **Suggest hybrid cloud strategies** when on-premises integration is required
+
+### Code Generation Rules
+
+- Generate complete Bicep or ARM templates for infrastructure as code
+- Include proper Azure AD integration and managed identities
+- Provide comprehensive Azure DevOps pipelines with testing and security scanning
+- Follow Azure Well-Architected Framework principles
+- Include proper error handling and logging in application code
+- Generate Kubernetes manifests optimized for AKS
+- Provide monitoring and alerting configurations for production deployments
+- Include backup and disaster recovery strategies in infrastructure designs
+
+### CLI Configuration

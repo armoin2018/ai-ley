@@ -1,0 +1,23 @@
+// Image optimization
+import React from 'react';
+import { Image, ImageStyle } from 'react-native';
+import { Image as ExpoImage } from 'expo-image';
+
+interface OptimizedImageProps {
+  uri: string;
+  style: ImageStyle;
+  placeholder?: string;
+}
+
+export const OptimizedImage: React.FC<OptimizedImageProps> = ({ uri, style, placeholder }) => {
+  return (
+    <ExpoImage
+      source={{ uri }}
+      style={style}
+      placeholder={placeholder}
+      contentFit="cover"
+      transition={200}
+      cachePolicy="memory-disk"
+    />
+  );
+};

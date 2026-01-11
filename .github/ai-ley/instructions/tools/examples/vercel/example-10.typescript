@@ -1,0 +1,61 @@
+// middleware.ts - Edge function for A/B testing
+import { NextRequest, NextResponse } from 'next/server';
+
+export function middleware(request: NextRequest) {
+  // A/B testing logic
+  const bucket = request.cookies.get('bucket')?.value;
+  const pathname = request.nextUrl.pathname;
+
+  if (pathname === '/' && !bucket) {
+    // Assign user to A/B test bucket
+    const testBucket = Math.random() < 0.5 ? 'A' : 'B';
+    const response = NextResponse.next();
+
+    response.cookies.set('bucket', testBucket, {
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      httpOnly: true,
+    });
+
+    // Redirect to variant if needed
+    if (testBucket === 'B') {
+      return NextResponse.redirect(new URL('/variant-b', request.url));
+    }
+
+    return response;
+  }
+
+  return NextResponse.next();
+}
+
+// pages/api/edge/analytics.ts - Edge API function
+import { NextRequest } from 'next/server';
+
+export const config = {
+  runtime: 'edge',
+};
+
+export default async function handler(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const event = searchParams.get('event');
+  const userId = searchParams.get('userId');
+
+  // Log analytics event
+  await fetch('https://analytics-api.com/events', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.ANALYTICS_API_KEY}`,
+    },
+    body: JSON.stringify({
+      event,
+      userId,
+      timestamp: new Date().toISOString(),
+      userAgent: req.headers.get('user-agent'),
+      country: req.geo?.country,
+    }),
+  });
+
+  return new Response(JSON.stringify({ success: true }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
+}

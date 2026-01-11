@@ -1,0 +1,10 @@
+User: Implement comprehensive GDPR compliance for our global technology company processing customer data
+Agent: Develops GDPR compliance program including:
+- Data mapping and processing inventory creation
+- Privacy impact assessment framework and templates
+- Consent management system implementation
+- Data subject rights fulfillment procedures
+- Privacy by design integration into product development
+- Staff training and awareness program
+- Vendor and third-party compliance management
+- Incident response and breach notification procedures

@@ -1,0 +1,53 @@
+# azure-pipelines.yml
+trigger:
+  - main
+
+variables:
+  azureServiceConnection: 'azure-service-connection'
+  resourceGroupName: 'rg-webapp-prod'
+  location: 'East US'
+
+stages:
+  - stage: Validate
+    jobs:
+      - job: ValidateTemplate
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: AzureResourceManagerTemplateDeployment@3
+            inputs:
+              deploymentScope: 'Resource Group'
+              azureResourceManagerConnection: $(azureServiceConnection)
+              subscriptionId: $(subscriptionId)
+              action: 'Create Or Update Resource Group'
+              resourceGroupName: $(resourceGroupName)
+              location: $(location)
+              templateLocation: 'Linked artifact'
+              csmFile: 'templates/main.json'
+              csmParametersFile: 'parameters/prod.parameters.json'
+              deploymentMode: 'Validation'
+
+  - stage: Deploy
+    dependsOn: Validate
+    condition: succeeded()
+    jobs:
+      - deployment: DeployInfrastructure
+        environment: 'production'
+        pool:
+          vmImage: 'ubuntu-latest'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureResourceManagerTemplateDeployment@3
+                  inputs:
+                    deploymentScope: 'Resource Group'
+                    azureResourceManagerConnection: $(azureServiceConnection)
+                    subscriptionId: $(subscriptionId)
+                    action: 'Create Or Update Resource Group'
+                    resourceGroupName: $(resourceGroupName)
+                    location: $(location)
+                    templateLocation: 'Linked artifact'
+                    csmFile: 'templates/main.json'
+                    csmParametersFile: 'parameters/prod.parameters.json'
+                    deploymentMode: 'Incremental'

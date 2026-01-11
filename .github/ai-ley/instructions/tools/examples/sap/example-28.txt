@@ -1,0 +1,4 @@
+/nWE19        # Test Tool for IDoc Processing
+/nWE02        # IDoc Display
+/nWE05        # IDoc Lists
+/nBD10        # Send Material Master

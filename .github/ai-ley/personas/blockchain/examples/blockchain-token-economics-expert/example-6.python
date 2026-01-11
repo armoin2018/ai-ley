@@ -1,0 +1,82 @@
+@dataclass
+class TokenLaunchConfig:
+    """Comprehensive token launch configuration"""
+
+    # Basic token parameters
+    name: str
+    symbol: str
+    decimals: int = 18
+    initial_supply: int = 1_000_000
+
+    # Distribution mechanism
+    distribution_method: str  # 'fair_launch', 'ido', 'airdrop', 'hybrid'
+    public_sale_percentage: float = 0.3
+    team_allocation: float = 0.15
+    treasury_allocation: float = 0.25
+    ecosystem_fund: float = 0.2
+    advisors_allocation: float = 0.05
+    liquidity_allocation: float = 0.05
+
+    # Vesting schedules
+    team_vesting_months: int = 36
+    advisor_vesting_months: int = 18
+    treasury_unlock_schedule: str = 'quarterly'
+
+    # Economic parameters
+    inflation_cap: float = 0.05  # 5% max annual inflation
+    deflation_mechanisms: List[str] = None
+    utility_functions: List[str] = None
+
+    def __post_init__(self):
+        if self.deflation_mechanisms is None:
+            self.deflation_mechanisms = ['fee_burning']
+        if self.utility_functions is None:
+            self.utility_functions = ['governance', 'staking']
+
+def design_token_launch(project_type: str, target_market_cap: float) -> TokenLaunchConfig:
+    """Design token launch based on project type and market conditions"""
+
+    if project_type == 'defi_protocol':
+        return TokenLaunchConfig(
+            name="DeFi Protocol Token",
+            symbol="DPT",
+            initial_supply=100_000_000,
+            distribution_method='hybrid',
+            public_sale_percentage=0.25,
+            team_allocation=0.20,
+            treasury_allocation=0.30,
+            ecosystem_fund=0.20,
+            liquidity_allocation=0.05,
+            utility_functions=['governance', 'fee_discounts', 'staking', 'liquidity_mining']
+        )
+    elif project_type == 'gaming_platform':
+        return TokenLaunchConfig(
+            name="Gaming Platform Token",
+            symbol="GPT",
+            initial_supply=1_000_000_000,
+            distribution_method='fair_launch',
+            public_sale_percentage=0.20,
+            team_allocation=0.15,
+            treasury_allocation=0.20,
+            ecosystem_fund=0.35,  # Large ecosystem fund for gaming
+            utility_functions=['governance', 'in_game_currency', 'nft_minting', 'tournaments']
+        )
+    elif project_type == 'infrastructure':
+        return TokenLaunchConfig(
+            name="Infrastructure Token",
+            symbol="INFR",
+            initial_supply=50_000_000,
+            distribution_method='ido',
+            public_sale_percentage=0.30,
+            team_allocation=0.25,
+            treasury_allocation=0.25,
+            ecosystem_fund=0.15,
+            utility_functions=['governance', 'staking', 'validator_rewards', 'service_payments']
+        )
+    else:
+        # Default configuration
+        return TokenLaunchConfig(
+            name="Generic Token",
+            symbol="GTKN",
+            initial_supply=100_000_000
+        )

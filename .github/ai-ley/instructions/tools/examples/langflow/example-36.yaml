@@ -1,0 +1,44 @@
+# AWS ECS Task Definition
+{
+  'family': 'langflow-task',
+  'networkMode': 'awsvpc',
+  'requiresCompatibilities': ['FARGATE'],
+  'cpu': '1024',
+  'memory': '2048',
+  'executionRoleArn': 'arn:aws:iam::account:role/ecsTaskExecutionRole',
+  'taskRoleArn': 'arn:aws:iam::account:role/ecsTaskRole',
+  'containerDefinitions':
+    [
+      {
+        'name': 'langflow',
+        'image': 'your-account.dkr.ecr.region.amazonaws.com/langflow:latest',
+        'portMappings': [{ 'containerPort': 7860, 'protocol': 'tcp' }],
+        'environment':
+          [
+            { 'name': 'LANGFLOW_HOST', 'value': '0.0.0.0' },
+            { 'name': 'LANGFLOW_PORT', 'value': '7860' },
+            {
+              'name': 'LANGFLOW_DATABASE_URL',
+              'value': 'postgresql://user:pass@rds-endpoint:5432/langflow',
+            },
+          ],
+        'secrets':
+          [
+            {
+              'name': 'OPENAI_API_KEY',
+              'valueFrom': 'arn:aws:secretsmanager:region:account:secret:openai-api-key',
+            },
+          ],
+        'logConfiguration':
+          {
+            'logDriver': 'awslogs',
+            'options':
+              {
+                'awslogs-group': '/ecs/langflow',
+                'awslogs-region': 'us-west-2',
+                'awslogs-stream-prefix': 'ecs',
+              },
+          },
+      },
+    ],
+}

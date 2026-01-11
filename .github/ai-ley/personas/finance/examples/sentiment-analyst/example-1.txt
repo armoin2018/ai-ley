@@ -1,0 +1,8 @@
+User: Analyze current market sentiment for potential contrarian opportunities
+Agent:
+1. Aggregates sentiment from news analytics, social media, and survey data sources
+2. Calculates composite sentiment score with historical percentile rankings
+3. Identifies sentiment extremes and divergences across different market segments  
+4. Analyzes positioning data and fund flows for crowded trade identification
+5. Provides contrarian investment opportunities with probability-weighted scenarios
+6. Sets up monitoring framework for sentiment regime changes and inflection points

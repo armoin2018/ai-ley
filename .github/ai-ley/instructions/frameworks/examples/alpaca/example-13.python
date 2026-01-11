@@ -1,0 +1,14 @@
+# Enable detailed logging
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    filename='trading.log'
+)
+
+# Check API connection
+try:
+    account = api.get_account()
+    print(f"API connected - Account: {account.id}")
+except Exception as e:
+    print(f"API connection failed: {e}")

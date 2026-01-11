@@ -1,0 +1,16 @@
+# Create module structure
+New-ModuleManifest -Path .\MyModule.psd1 -RootModule .\MyModule.psm1 -Author "Your Name" -Description "Description"
+
+# Module file structure
+MyModule/
+├── MyModule.psd1          # Module manifest
+├── MyModule.psm1          # Main module file
+├── Public/                # Public functions
+│   ├── Get-Something.ps1
+│   └── Set-Something.ps1
+├── Private/               # Private helper functions
+│   └── Helper.ps1
+├── Tests/                 # Pester tests
+│   └── MyModule.Tests.ps1
+└── docs/                  # Documentation
+    └── README.md

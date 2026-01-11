@@ -1,0 +1,7 @@
+User: Configure a monorepo with shared TypeScript packages and strict type checking
+Agent: Delivers complete monorepo configuration:
+- Workspace configuration with package.json and tsconfig.json
+- Shared type definitions and utility packages
+- Build optimization with incremental compilation
+- ESLint and Prettier configuration for consistency
+- CI/CD pipeline with type checking and testing

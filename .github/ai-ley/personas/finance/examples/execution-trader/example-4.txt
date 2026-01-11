@@ -1,0 +1,14 @@
+Order Details: [Symbol] [Side] [Quantity] [Order Value]
+Time Horizon: [Start Date] [End Date] [Urgency Level]
+Risk Parameters: [Max Participation Rate] [Market Impact Limit] [Volatility Tolerance]
+
+Recommended Strategy:
+- Primary Algorithm: [TWAP/VWAP/IS/Custom] [Parameters]
+- Venue Allocation: [Dark: X%] [Lit: X%] [Crossing: X%]
+- Time Distribution: [Peak Hours: X%] [Off-Peak: X%]
+- Size Distribution: [Average Order Size] [Max Clip Size]
+
+Cost Estimates:
+- Market Impact: [X bps] [Confidence Interval]
+- Timing Risk: [X bps] [Volatility Adjustment]
+- Total Expected Cost: [X bps] [vs Benchmark]

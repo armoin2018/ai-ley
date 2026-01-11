@@ -1,0 +1,68 @@
+// Command side (writes)
+export interface Command {
+  commandId: string;
+  timestamp: Date;
+}
+
+export class CreateUserCommand implements Command {
+  commandId: string;
+  timestamp: Date;
+  
+  constructor(
+    public userData: CreateUserData
+  ) {
+    this.commandId = generateUUID();
+    this.timestamp = new Date();
+  }
+}
+
+export class UserCommandHandler {
+  constructor(
+    private userRepository: UserRepository,
+    private eventBus: EventBus
+  ) {}
+  
+  async handle(command: CreateUserCommand): Promise<void> {
+    // Business logic validation
+    await this.validateCreateUser(command.userData);
+    
+    // Create user aggregate
+    const user = new User(command.userData);
+    
+    // Save to write model
+    await this.userRepository.save(user);
+    
+    // Publish events for read model updates
+    await this.eventBus.publish(new UserCreatedEvent(user));
+  }
+}
+
+// Query side (reads)
+export interface Query {
+  queryId: string;
+  timestamp: Date;
+}
+
+export class GetUsersByStatusQuery implements Query {
+  queryId: string;
+  timestamp: Date;
+  
+  constructor(
+    public status: UserStatus,
+    public pagination: PaginationParams
+  ) {
+    this.queryId = generateUUID();
+    this.timestamp = new Date();
+  }
+}
+
+export class UserQueryHandler {
+  constructor(private readModelRepository: UserReadModelRepository) {}
+  
+  async handle(query: GetUsersByStatusQuery): Promise<UserSummary[]> {
+    return await this.readModelRepository.findByStatus(
+      query.status,
+      query.pagination
+    );
+  }
+}

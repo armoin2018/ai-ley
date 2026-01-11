@@ -1,0 +1,169 @@
+class RegulatoryComplianceFramework:
+    def __init__(self):
+        self.jurisdiction_requirements = {}
+        self.compliance_templates = {}
+        self.regulatory_updates = []
+
+    def analyze_token_classification(self, token_characteristics: Dict) -> Dict[str, str]:
+        """Analyze token classification across different jurisdictions"""
+
+        classifications = {}
+
+        # US SEC Analysis (Howey Test)
+        howey_factors = {
+            'investment_of_money': token_characteristics.get('fundraising', False),
+            'common_enterprise': token_characteristics.get('pooled_funds', False),
+            'expectation_of_profit': token_characteristics.get('investment_appeal', False),
+            'efforts_of_others': token_characteristics.get('management_control', True)
+        }
+
+        howey_score = sum(howey_factors.values())
+        if howey_score >= 3:
+            classifications['sec_classification'] = 'security'
+        elif howey_score >= 2:
+            classifications['sec_classification'] = 'unclear_requires_analysis'
+        else:
+            classifications['sec_classification'] = 'utility'
+
+        # EU MiCA Analysis
+        if token_characteristics.get('asset_backed', False):
+            classifications['mica_classification'] = 'asset_referenced_token'
+        elif token_characteristics.get('stable_value', False):
+            classifications['mica_classification'] = 'e_money_token'
+        else:
+            classifications['mica_classification'] = 'crypto_asset'
+
+        # Singapore MAS Analysis
+        if token_characteristics.get('represents_debt_equity', False):
+            classifications['mas_classification'] = 'capital_markets_product'
+        elif token_characteristics.get('payment_function', False):
+            classifications['mas_classification'] = 'digital_payment_token'
+        else:
+            classifications['mas_classification'] = 'utility_token'
+
+        return classifications
+
+    def generate_compliance_checklist(self, jurisdiction: str, classification: str) -> List[Dict]:
+        """Generate compliance checklist for specific jurisdiction and token type"""
+
+        checklist = []
+
+        if jurisdiction == 'united_states' and classification == 'security':
+            checklist.extend([
+                {
+                    'requirement': 'Securities Registration or Exemption',
+                    'description': 'Register with SEC or qualify for exemption (Reg D, Reg S)',
+                    'deadline': 'Before offering',
+                    'responsible_party': 'Legal counsel',
+                    'estimated_cost': 100000,
+                    'complexity': 'high'
+                },
+                {
+                    'requirement': 'Accredited Investor Verification',
+                    'description': 'Implement systems to verify accredited investor status',
+                    'deadline': 'Before sale launch',
+                    'responsible_party': 'Compliance team',
+                    'estimated_cost': 25000,
+                    'complexity': 'medium'
+                },
+                {
+                    'requirement': 'Form D Filing',
+                    'description': 'File Form D with SEC within 15 days of first sale',
+                    'deadline': '15 days post-first-sale',
+                    'responsible_party': 'Legal counsel',
+                    'estimated_cost': 5000,
+                    'complexity': 'low'
+                }
+            ])
+
+        elif jurisdiction == 'european_union':
+            checklist.extend([
+                {
+                    'requirement': 'MiCA Compliance Assessment',
+                    'description': 'Assess compliance with Markets in Crypto-Assets regulation',
+                    'deadline': 'Before offering',
+                    'responsible_party': 'EU legal counsel',
+                    'estimated_cost': 50000,
+                    'complexity': 'high'
+                },
+                {
+                    'requirement': 'Prospectus Requirement Analysis',
+                    'description': 'Determine if prospectus required based on offering size',
+                    'deadline': 'Before marketing',
+                    'responsible_party': 'Legal counsel',
+                    'estimated_cost': 15000,
+                    'complexity': 'medium'
+                }
+            ])
+
+        elif jurisdiction == 'singapore':
+            checklist.extend([
+                {
+                    'requirement': 'MAS Consultation',
+                    'description': 'Consult with MAS on token classification and requirements',
+                    'deadline': 'Before launch preparation',
+                    'responsible_party': 'Singapore legal counsel',
+                    'estimated_cost': 30000,
+                    'complexity': 'medium'
+                },
+                {
+                    'requirement': 'Payment Services Act Compliance',
+                    'description': 'Assess if PSA license required for payment token functions',
+                    'deadline': 'Before token deployment',
+                    'responsible_party': 'Compliance consultant',
+                    'estimated_cost': 20000,
+                    'complexity': 'medium'
+                }
+            ])
+
+        # Universal requirements
+        checklist.extend([
+            {
+                'requirement': 'AML/KYC Implementation',
+                'description': 'Implement anti-money laundering and know-your-customer procedures',
+                'deadline': 'Before accepting investments',
+                'responsible_party': 'Compliance team',
+                'estimated_cost': 40000,
+                'complexity': 'medium'
+            },
+            {
+                'requirement': 'Privacy Policy and Terms',
+                'description': 'Draft comprehensive privacy policy and terms of service',
+                'deadline': 'Before platform launch',
+                'responsible_party': 'Legal counsel',
+                'estimated_cost': 10000,
+                'complexity': 'low'
+            }
+        ])
+
+        return checklist
+
+    def monitor_regulatory_changes(self, tracked_jurisdictions: List[str]) -> List[Dict]:
+        """Monitor and report regulatory changes affecting token launches"""
+
+        # Simulated regulatory monitoring system
+        updates = []
+
+        for jurisdiction in tracked_jurisdictions:
+            # This would integrate with real regulatory monitoring services
+            if jurisdiction == 'united_states':
+                updates.append({
+                    'jurisdiction': 'United States',
+                    'date': '2025-09-15',
+                    'type': 'Enforcement Action',
+                    'description': 'SEC settled with token issuer for unregistered securities offering',
+                    'impact': 'Reinforces need for proper registration or exemption',
+                    'action_required': 'Review compliance strategy'
+                })
+
+            elif jurisdiction == 'european_union':
+                updates.append({
+                    'jurisdiction': 'European Union',
+                    'date': '2025-09-10',
+                    'type': 'Regulatory Guidance',
+                    'description': 'ESMA published guidance on DeFi token classification under MiCA',
+                    'impact': 'Clarifies treatment of governance tokens in DeFi protocols',
+                    'action_required': 'Update token classification analysis'
+                })
+
+        return updates

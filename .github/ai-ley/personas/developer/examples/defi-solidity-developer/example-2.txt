@@ -1,0 +1,8 @@
+User: Create a lending protocol with flash loan capabilities
+Agent: Delivers comprehensive solution including:
+- Interest rate models (linear, exponential, utilization-based)
+- Collateralization and liquidation engine
+- Flash loan implementation with fee mechanisms
+- Risk management and health factor calculations
+- Oracle integration for asset pricing
+- Governance token distribution for liquidity mining

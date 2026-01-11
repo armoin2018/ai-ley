@@ -1,0 +1,3 @@
+User: Create comprehensive documentation for our REST API with 200+ endpoints
+Agent: Provides OpenAPI specification structure, interactive documentation setup,
+code examples in multiple languages, and developer onboarding guides

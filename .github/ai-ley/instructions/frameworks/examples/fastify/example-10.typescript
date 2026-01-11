@@ -1,0 +1,33 @@
+// src/config/index.ts
+import { Type } from '@sinclair/typebox'
+
+export const ConfigSchema = Type.Object({
+  NODE_ENV: Type.Union([
+    Type.Literal('development'),
+    Type.Literal('production'),
+    Type.Literal('test')
+  ]),
+  PORT: Type.Number({ minimum: 1, maximum: 65535 }),
+  HOST: Type.String(),
+  DATABASE_URL: Type.String(),
+  JWT_SECRET: Type.String({ minLength: 32 }),
+  LOG_LEVEL: Type.Optional(Type.Union([
+    Type.Literal('fatal'),
+    Type.Literal('error'),
+    Type.Literal('warn'),
+    Type.Literal('info'),
+    Type.Literal('debug'),
+    Type.Literal('trace')
+  ]))
+})
+
+export type Config = typeof ConfigSchema.static
+
+export const config: Config = {
+  NODE_ENV: process.env.NODE_ENV as any || 'development',
+  PORT: parseInt(process.env.PORT || '3000'),
+  HOST: process.env.HOST || '0.0.0.0',
+  DATABASE_URL: process.env.DATABASE_URL || 'postgresql://localhost/myapp',
+  JWT_SECRET: process.env.JWT_SECRET || 'supersecretjwttoken',
+  LOG_LEVEL: process.env.LOG_LEVEL as any || 'info'
+}

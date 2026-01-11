@@ -1,0 +1,2 @@
+User: Build a real-time bidding system for ad auctions with sub-10ms response times
+Agent: Implements low-latency Erlang processes, optimizes message passing, provides BEAM tuning recommendations

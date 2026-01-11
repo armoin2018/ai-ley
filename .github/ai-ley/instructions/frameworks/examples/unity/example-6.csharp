@@ -1,0 +1,225 @@
+using UnityEngine;
+using UnityEngine.Audio;
+using System.Collections.Generic;
+
+[System.Serializable]
+public class Sound
+{
+    public string name;
+    public AudioClip clip;
+    
+    [Range(0f, 1f)]
+    public float volume = 1f;
+    
+    [Range(0.1f, 3f)]
+    public float pitch = 1f;
+    
+    public bool loop = false;
+    public bool playOnAwake = false;
+    
+    [HideInInspector]
+    public AudioSource source;
+}
+
+public class AudioManager : MonoBehaviour
+{
+    public static AudioManager Instance { get; private set; }
+    
+    [Header("Audio Mixer")]
+    [SerializeField] private AudioMixerGroup masterMixerGroup;
+    [SerializeField] private AudioMixerGroup musicMixerGroup;
+    [SerializeField] private AudioMixerGroup sfxMixerGroup;
+    
+    [Header("Sound Library")]
+    [SerializeField] private Sound[] sounds;
+    
+    [Header("Settings")]
+    [SerializeField] private int maxSimultaneousSounds = 10;
+    
+    // Audio source pools
+    private Queue<AudioSource> audioSourcePool;
+    private Dictionary<string, Sound> soundDictionary;
+    
+    // Current playing audio
+    private List<AudioSource> activeSources;
+    
+    void Awake()
+    {
+        // Singleton pattern
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            InitializeAudioManager();
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+    
+    private void InitializeAudioManager()
+    {
+        // Initialize collections
+        audioSourcePool = new Queue<AudioSource>();
+        soundDictionary = new Dictionary<string, Sound>();
+        activeSources = new List<AudioSource>();
+        
+        // Create audio source pool
+        for (int i = 0; i < maxSimultaneousSounds; i++)
+        {
+            GameObject audioObject = new GameObject($"AudioSource_{i}");
+            audioObject.transform.SetParent(transform);
+            AudioSource source = audioObject.AddComponent<AudioSource>();
+            source.outputAudioMixerGroup = sfxMixerGroup;
+            audioSourcePool.Enqueue(source);
+        }
+        
+        // Setup sound dictionary
+        foreach (Sound sound in sounds)
+        {
+            if (soundDictionary.ContainsKey(sound.name))
+            {
+                Debug.LogWarning($"Duplicate sound name found: {sound.name}");
+                continue;
+            }
+            
+            soundDictionary.Add(sound.name, sound);
+            
+            // Create dedicated audio source for looping sounds
+            if (sound.loop || sound.playOnAwake)
+            {
+                GameObject soundObject = new GameObject($"Sound_{sound.name}");
+                soundObject.transform.SetParent(transform);
+                sound.source = soundObject.AddComponent<AudioSource>();
+                
+                sound.source.clip = sound.clip;
+                sound.source.volume = sound.volume;
+                sound.source.pitch = sound.pitch;
+                sound.source.loop = sound.loop;
+                sound.source.playOnAwake = sound.playOnAwake;
+                sound.source.outputAudioMixerGroup = sound.loop ? musicMixerGroup : sfxMixerGroup;
+                
+                if (sound.playOnAwake)
+                {
+                    sound.source.Play();
+                }
+            }
+        }
+    }
+    
+    public void PlaySound(string soundName)
+    {
+        if (!soundDictionary.TryGetValue(soundName, out Sound sound))
+        {
+            Debug.LogWarning($"Sound not found: {soundName}");
+            return;
+        }
+        
+        if (sound.source != null && sound.loop)
+        {
+            // Use dedicated source for looping sounds
+            if (!sound.source.isPlaying)
+            {
+                sound.source.Play();
+            }
+        }
+        else
+        {
+            // Use pooled source for one-shot sounds
+            PlayOneShot(sound);
+        }
+    }
+    
+    public void PlaySoundAtPosition(string soundName, Vector3 position)
+    {
+        if (!soundDictionary.TryGetValue(soundName, out Sound sound))
+        {
+            Debug.LogWarning($"Sound not found: {soundName}");
+            return;
+        }
+        
+        AudioSource source = GetPooledAudioSource();
+        if (source != null)
+        {
+            source.transform.position = position;
+            source.clip = sound.clip;
+            source.volume = sound.volume;
+            source.pitch = sound.pitch;
+            source.spatialBlend = 1f; // 3D sound
+            source.Play();
+            
+            StartCoroutine(ReturnSourceToPool(source, sound.clip.length));
+        }
+    }
+    
+    public void StopSound(string soundName)
+    {
+        if (!soundDictionary.TryGetValue(soundName, out Sound sound))
+        {
+            Debug.LogWarning($"Sound not found: {soundName}");
+            return;
+        }
+        
+        if (sound.source != null && sound.source.isPlaying)
+        {
+            sound.source.Stop();
+        }
+    }
+    
+    public void SetMasterVolume(float volume)
+    {
+        masterMixerGroup.audioMixer.SetFloat("MasterVolume", Mathf.Log10(volume) * 20);
+    }
+    
+    public void SetMusicVolume(float volume)
+    {
+        musicMixerGroup.audioMixer.SetFloat("MusicVolume", Mathf.Log10(volume) * 20);
+    }
+    
+    public void SetSFXVolume(float volume)
+    {
+        sfxMixerGroup.audioMixer.SetFloat("SFXVolume", Mathf.Log10(volume) * 20);
+    }
+    
+    private void PlayOneShot(Sound sound)
+    {
+        AudioSource source = GetPooledAudioSource();
+        if (source != null)
+        {
+            source.clip = sound.clip;
+            source.volume = sound.volume;
+            source.pitch = sound.pitch;
+            source.spatialBlend = 0f; // 2D sound
+            source.Play();
+            
+            StartCoroutine(ReturnSourceToPool(source, sound.clip.length));
+        }
+    }
+    
+    private AudioSource GetPooledAudioSource()
+    {
+        if (audioSourcePool.Count > 0)
+        {
+            AudioSource source = audioSourcePool.Dequeue();
+            activeSources.Add(source);
+            return source;
+        }
+        
+        Debug.LogWarning("No available audio sources in pool");
+        return null;
+    }
+    
+    private System.Collections.IEnumerator ReturnSourceToPool(AudioSource source, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        
+        if (source != null)
+        {
+            source.Stop();
+            source.clip = null;
+            activeSources.Remove(source);
+            audioSourcePool.Enqueue(source);
+        }
+    }
+}

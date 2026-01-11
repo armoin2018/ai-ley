@@ -1,0 +1,11 @@
+let mut result = String::new();
+for line in lines {
+    result += &line; // prohibited in loops
+}
+
+// Also bad - vector building for simple string concatenation
+let mut parts = Vec::new();
+for line in lines {
+    parts.push(line); // prohibited for simple string building
+}
+let result = parts.join("");

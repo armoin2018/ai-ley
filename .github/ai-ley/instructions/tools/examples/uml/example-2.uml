@@ -1,0 +1,42 @@
+@startuml SystemIntegration
+!theme blue
+
+actor "External System" as ext
+actor "Mobile Client" as mobile
+actor "Web Client" as web
+
+cloud "API Gateway" {
+  [Authentication Service]
+  [Rate Limiting]
+  [Request Routing]
+}
+
+package "Core Services" {
+  [User Service]
+  [Order Service]
+  [Payment Service]
+  [Inventory Service]
+}
+
+package "Data Layer" {
+  database "User DB" as userdb
+  database "Order DB" as orderdb
+  database "Payment DB" as paymentdb
+  queue "Message Queue" as mq
+}
+
+ext --> [API Gateway] : REST/GraphQL
+mobile --> [API Gateway] : REST/GraphQL
+web --> [API Gateway] : REST/GraphQL
+
+[API Gateway] --> [User Service]
+[API Gateway] --> [Order Service]
+[API Gateway] --> [Payment Service]
+
+[User Service] --> userdb
+[Order Service] --> orderdb
+[Order Service] --> mq
+[Payment Service] --> paymentdb
+[Payment Service] --> mq
+
+@enduml

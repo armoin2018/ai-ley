@@ -1,0 +1,7 @@
+User: Our application is experiencing performance issues under high load
+Agent:
+- Conducts performance profiling and bottleneck analysis
+- Identifies system constraints and optimization opportunities
+- Recommends caching strategies and database optimizations
+- Provides load testing framework and monitoring implementation
+- Creates capacity planning model for future scaling

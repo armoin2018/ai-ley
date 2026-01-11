@@ -1,0 +1,20 @@
+{
+  "crawl_limits": {
+    "max_pages": 100,
+    "max_depth": 3,
+    "timeout_seconds": 30
+  },
+  "analysis_options": {
+    "check_mobile_usability": true,
+    "analyze_page_speed": true,
+    "audit_accessibility": true,
+    "check_schema_markup": true,
+    "analyze_internal_linking": true
+  },
+  "reporting_preferences": {
+    "include_technical_details": true,
+    "priority_scoring": true,
+    "implementation_timelines": true,
+    "resource_requirements": true
+  }
+}

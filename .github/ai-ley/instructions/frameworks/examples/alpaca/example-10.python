@@ -1,0 +1,20 @@
+def validate_order_before_submission(api, symbol, quantity, side, price=None):
+    # Check account status
+    account = api.get_account()
+    if account.trading_blocked:
+        return False, "Trading is blocked"
+    
+    # Check buying power for buy orders
+    if side == 'buy':
+        required_buying_power = quantity * (price or get_current_price(symbol))
+        if float(account.buying_power) < required_buying_power:
+            return False, "Insufficient buying power"
+    
+    # Check position for sell orders
+    if side == 'sell':
+        positions = api.list_positions()
+        position = next((p for p in positions if p.symbol == symbol), None)
+        if not position or int(position.qty) < quantity:
+            return False, "Insufficient position to sell"
+    
+    return True, "Order valid"

@@ -1,0 +1,64 @@
+# Authorization Code Flow (most secure)
+class OAuthConfig:
+    """OAuth 2.0 configuration for different flows."""
+
+    def __init__(self):
+        self.client_id = "your_client_id"
+        self.client_secret = "your_client_secret"
+        self.redirect_uri = "https://yourapp.com/callback"
+        self.scope = "read write"
+        self.state = self._generate_state()
+
+        # Authorization server endpoints
+        self.authorization_endpoint = "https://auth.provider.com/oauth/authorize"
+        self.token_endpoint = "https://auth.provider.com/oauth/token"
+        self.userinfo_endpoint = "https://auth.provider.com/oauth/userinfo"
+        self.revocation_endpoint = "https://auth.provider.com/oauth/revoke"
+
+    def _generate_state(self):
+        """Generate random state parameter for CSRF protection."""
+        import secrets
+        return secrets.token_urlsafe(32)
+
+    def get_authorization_url(self):
+        """Generate authorization URL for Authorization Code Flow."""
+        from urllib.parse import urlencode
+
+        params = {
+            'response_type': 'code',
+            'client_id': self.client_id,
+            'redirect_uri': self.redirect_uri,
+            'scope': self.scope,
+            'state': self.state
+        }
+
+        return f"{self.authorization_endpoint}?{urlencode(params)}"
+
+    def get_authorization_url_with_pkce(self):
+        """Generate authorization URL with PKCE for enhanced security."""
+        import base64
+        import hashlib
+        import secrets
+
+        # Generate code verifier and challenge
+        code_verifier = base64.urlsafe_b64encode(secrets.token_bytes(32)).decode('utf-8').rstrip('=')
+        code_challenge = base64.urlsafe_b64encode(
+            hashlib.sha256(code_verifier.encode()).digest()
+        ).decode('utf-8').rstrip('=')
+
+        from urllib.parse import urlencode
+
+        params = {
+            'response_type': 'code',
+            'client_id': self.client_id,
+            'redirect_uri': self.redirect_uri,
+            'scope': self.scope,
+            'state': self.state,
+            'code_challenge': code_challenge,
+            'code_challenge_method': 'S256'
+        }
+
+        # Store code_verifier for token exchange
+        self.code_verifier = code_verifier
+
+        return f"{self.authorization_endpoint}?{urlencode(params)}"

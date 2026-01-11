@@ -1,0 +1,33 @@
+# CI/CD pipeline supporting Agile delivery
+name: Agile Delivery Pipeline
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main]
+
+jobs:
+  quality_gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run tests
+        run: npm test
+      - name: Check coverage
+        run: npm run coverage:check
+      - name: Static analysis
+        run: npm run lint
+      - name: Security scan
+        run: npm audit
+
+  deployment:
+    needs: quality_gate
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to staging
+        run: ./deploy-staging.sh
+      - name: Run acceptance tests
+        run: npm run test:e2e
+      - name: Deploy to production
+        run: ./deploy-production.sh

@@ -1,0 +1,410 @@
+#!/usr/bin/env python3
+# nmap-compliance-scanner.py - Compliance-focused Nmap scanning framework
+
+import json
+import yaml
+import sqlite3
+import logging
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Dict, List, Any
+import hashlib
+import hmac
+
+class ComplianceNmapScanner:
+    """Compliance-focused Nmap scanner for enterprise environments"""
+
+    def __init__(self, compliance_config='compliance-config.yaml'):
+        self.config = self.load_compliance_config(compliance_config)
+        self.setup_audit_logging()
+        self.compliance_frameworks = self.load_compliance_frameworks()
+
+    def load_compliance_config(self, config_file):
+        """Load compliance-specific configuration"""
+        default_config = {
+            'compliance': {
+                'frameworks': ['PCI-DSS', 'SOX', 'HIPAA', 'NIST', 'CIS'],
+                'audit_logging': True,
+                'data_retention': {
+                    'scan_results': 365,  # days
+                    'audit_logs': 2555,  # 7 years
+                    'compliance_reports': 2555
+                },
+                'encryption': {
+                    'at_rest': True,
+                    'in_transit': True,
+                    'key_rotation_days': 90
+                }
+            },
+            'authorization': {
+                'require_approval': True,
+                'approval_timeout_hours': 24,
+                'authorized_networks': [],
+                'blacklisted_networks': []
+            },
+            'privacy': {
+                'anonymize_ips': False,
+                'gdpr_compliance': True,
+                'data_classification': 'confidential'
+            }
+        }
+
+        try:
+            with open(config_file, 'r') as f:
+                user_config = yaml.safe_load(f)
+                default_config.update(user_config)
+        except FileNotFoundError:
+            logging.warning(f"Compliance config {config_file} not found, using defaults")
+
+        return default_config
+
+    def setup_audit_logging(self):
+        """Setup comprehensive audit logging for compliance"""
+        audit_formatter = logging.Formatter(
+            '%(asctime)s - AUDIT - %(name)s - %(levelname)s - '
+            'USER:%(user)s - ACTION:%(action)s - TARGET:%(target)s - '
+            'RESULT:%(result)s - %(message)s'
+        )
+
+        # Create audit log handler
+        audit_handler = logging.FileHandler('./logs/nmap-audit.log')
+        audit_handler.setFormatter(audit_formatter)
+
+        self.audit_logger = logging.getLogger('NmapAudit')
+        self.audit_logger.addHandler(audit_handler)
+        self.audit_logger.setLevel(logging.INFO)
+
+    def load_compliance_frameworks(self):
+        """Load compliance framework requirements"""
+        frameworks = {
+            'PCI-DSS': {
+                'requirements': [
+                    'Requirement 1: Firewall configuration',
+                    'Requirement 2: Default passwords and security parameters',
+                    'Requirement 11: Regular security testing'
+                ],
+                'scan_requirements': {
+                    'frequency': 'quarterly',
+                    'scope': 'cardholder_data_environment',
+                    'vulnerability_scanning': True,
+                    'penetration_testing': 'annual'
+                }
+            },
+            'HIPAA': {
+                'requirements': [
+                    'Administrative Safeguards',
+                    'Physical Safeguards',
+                    'Technical Safeguards'
+                ],
+                'scan_requirements': {
+                    'frequency': 'continuous',
+                    'scope': 'phi_systems',
+                    'risk_assessment': True,
+                    'audit_logging': True
+                }
+            },
+            'NIST': {
+                'requirements': [
+                    'Identify (ID)',
+                    'Protect (PR)',
+                    'Detect (DE)',
+                    'Respond (RS)',
+                    'Recover (RC)'
+                ],
+                'scan_requirements': {
+                    'frequency': 'continuous',
+                    'scope': 'all_systems',
+                    'asset_management': True,
+                    'vulnerability_management': True
+                }
+            },
+            'CIS': {
+                'requirements': [
+                    'Inventory and Control of Hardware Assets',
+                    'Inventory and Control of Software Assets',
+                    'Continuous Vulnerability Management'
+                ],
+                'scan_requirements': {
+                    'frequency': 'daily_discovery',
+                    'scope': 'all_assets',
+                    'baseline_configuration': True,
+                    'change_detection': True
+                }
+            }
+        }
+
+        return frameworks
+
+    def validate_scan_authorization(self, targets, user_id, scan_type):
+        """Validate scan authorization and compliance"""
+        validation_result = {
+            'authorized': False,
+            'reason': '',
+            'approval_required': False,
+            'compliance_issues': []
+        }
+
+        # Check if targets are in authorized networks
+        authorized_networks = self.config['authorization']['authorized_networks']
+        blacklisted_networks = self.config['authorization']['blacklisted_networks']
+
+        # Validate against blacklist
+        for blacklisted in blacklisted_networks:
+            if self.network_overlap(targets, blacklisted):
+                validation_result['reason'] = f"Target overlaps with blacklisted network: {blacklisted}"
+                return validation_result
+
+        # Check authorization requirements
+        if self.config['authorization']['require_approval']:
+            approval_status = self.check_scan_approval(targets, user_id, scan_type)
+            if not approval_status['approved']:
+                validation_result['approval_required'] = True
+                validation_result['reason'] = approval_status['reason']
+                return validation_result
+
+        # Compliance framework validation
+        for framework in self.config['compliance']['frameworks']:
+            framework_config = self.compliance_frameworks.get(framework, {})
+            compliance_check = self.validate_framework_compliance(
+                targets, scan_type, framework_config
+            )
+
+            if not compliance_check['compliant']:
+                validation_result['compliance_issues'].append({
+                    'framework': framework,
+                    'issues': compliance_check['issues']
+                })
+
+        # If no issues found, authorize the scan
+        if not validation_result['compliance_issues']:
+            validation_result['authorized'] = True
+            validation_result['reason'] = 'Scan authorized and compliant'
+        else:
+            validation_result['reason'] = 'Compliance issues detected'
+
+        return validation_result
+
+    def perform_compliance_scan(self, targets, scan_type, user_id, justification):
+        """Perform compliance-focused security scan"""
+        scan_id = f"compliance_{int(datetime.now().timestamp())}"
+
+        # Log scan initiation for audit
+        self.audit_logger.info(
+            f"Compliance scan initiated",
+            extra={
+                'user': user_id,
+                'action': 'scan_start',
+                'target': targets,
+                'result': 'initiated',
+                'scan_id': scan_id,
+                'justification': justification
+            }
+        )
+
+        try:
+            # Validate authorization
+            auth_result = self.validate_scan_authorization(targets, user_id, scan_type)
+
+            if not auth_result['authorized']:
+                self.audit_logger.warning(
+                    f"Scan authorization failed: {auth_result['reason']}",
+                    extra={
+                        'user': user_id,
+                        'action': 'authorization_failed',
+                        'target': targets,
+                        'result': 'denied',
+                        'scan_id': scan_id
+                    }
+                )
+                raise PermissionError(f"Scan not authorized: {auth_result['reason']}")
+
+            # Perform the actual scan with compliance considerations
+            scan_results = self.execute_compliant_scan(
+                targets, scan_type, scan_id, user_id
+            )
+
+            # Generate compliance reports
+            compliance_reports = self.generate_compliance_reports(
+                scan_id, scan_results, user_id
+            )
+
+            # Store results with proper retention
+            self.store_compliance_results(scan_id, scan_results, compliance_reports)
+
+            # Log successful completion
+            self.audit_logger.info(
+                f"Compliance scan completed successfully",
+                extra={
+                    'user': user_id,
+                    'action': 'scan_complete',
+                    'target': targets,
+                    'result': 'success',
+                    'scan_id': scan_id
+                }
+            )
+
+            return {
+                'scan_id': scan_id,
+                'status': 'completed',
+                'results': scan_results,
+                'compliance_reports': compliance_reports
+            }
+
+        except Exception as e:
+            self.audit_logger.error(
+                f"Compliance scan failed: {str(e)}",
+                extra={
+                    'user': user_id,
+                    'action': 'scan_failed',
+                    'target': targets,
+                    'result': 'error',
+                    'scan_id': scan_id,
+                    'error': str(e)
+                }
+            )
+            raise
+
+    def generate_compliance_reports(self, scan_id, scan_results, user_id):
+        """Generate framework-specific compliance reports"""
+        reports = {}
+
+        for framework in self.config['compliance']['frameworks']:
+            if framework == 'PCI-DSS':
+                reports[framework] = self.generate_pci_dss_report(scan_id, scan_results)
+            elif framework == 'HIPAA':
+                reports[framework] = self.generate_hipaa_report(scan_id, scan_results)
+            elif framework == 'NIST':
+                reports[framework] = self.generate_nist_report(scan_id, scan_results)
+            elif framework == 'CIS':
+                reports[framework] = self.generate_cis_report(scan_id, scan_results)
+
+        return reports
+
+    def generate_pci_dss_report(self, scan_id, scan_results):
+        """Generate PCI-DSS compliance report"""
+        report = {
+            'framework': 'PCI-DSS',
+            'scan_id': scan_id,
+            'generated_at': datetime.now().isoformat(),
+            'compliance_status': 'compliant',
+            'findings': [],
+            'recommendations': []
+        }
+
+        # Analyze results for PCI-DSS compliance
+        for host in scan_results.get('hosts', []):
+            host_findings = []
+
+            # Check for prohibited services (Requirement 2)
+            prohibited_services = ['telnet', 'ftp', 'http']
+            for port in host.get('open_ports', []):
+                if port.get('service') in prohibited_services:
+                    host_findings.append({
+                        'requirement': 'PCI-DSS 2.3',
+                        'severity': 'HIGH',
+                        'description': f"Prohibited service {port['service']} on port {port['port']}",
+                        'remediation': f"Disable {port['service']} service or migrate to secure alternative"
+                    })
+
+            # Check for default credentials (Requirement 2.1)
+            if self.has_default_credentials(host):
+                host_findings.append({
+                    'requirement': 'PCI-DSS 2.1',
+                    'severity': 'CRITICAL',
+                    'description': 'Default credentials detected',
+                    'remediation': 'Change all default passwords and security parameters'
+                })
+
+            if host_findings:
+                report['findings'].append({
+                    'host': host['ip'],
+                    'findings': host_findings
+                })
+                report['compliance_status'] = 'non-compliant'
+
+        return report
+
+    def generate_hipaa_report(self, scan_id, scan_results):
+        """Generate HIPAA compliance report"""
+        report = {
+            'framework': 'HIPAA',
+            'scan_id': scan_id,
+            'generated_at': datetime.now().isoformat(),
+            'compliance_status': 'compliant',
+            'safeguards': {
+                'administrative': [],
+                'physical': [],
+                'technical': []
+            },
+            'findings': [],
+            'risk_assessment': {}
+        }
+
+        # Analyze for HIPAA technical safeguards
+        for host in scan_results.get('hosts', []):
+            # Access control (164.312(a))
+            if not self.has_access_controls(host):
+                report['findings'].append({
+                    'host': host['ip'],
+                    'safeguard': 'Technical - Access Control',
+                    'regulation': '45 CFR 164.312(a)',
+                    'severity': 'HIGH',
+                    'description': 'Insufficient access controls detected',
+                    'remediation': 'Implement unique user identification and access controls'
+                })
+
+            # Audit controls (164.312(b))
+            if not self.has_audit_capabilities(host):
+                report['findings'].append({
+                    'host': host['ip'],
+                    'safeguard': 'Technical - Audit Controls',
+                    'regulation': '45 CFR 164.312(b)',
+                    'severity': 'MEDIUM',
+                    'description': 'Audit logging capabilities not detected',
+                    'remediation': 'Implement comprehensive audit logging'
+                })
+
+            # Transmission security (164.312(e))
+            if not self.has_encryption_in_transit(host):
+                report['findings'].append({
+                    'host': host['ip'],
+                    'safeguard': 'Technical - Transmission Security',
+                    'regulation': '45 CFR 164.312(e)',
+                    'severity': 'HIGH',
+                    'description': 'Unencrypted data transmission detected',
+                    'remediation': 'Implement encryption for data in transit'
+                })
+
+        # Calculate overall compliance status
+        if report['findings']:
+            report['compliance_status'] = 'non-compliant'
+
+        return report
+
+def main():
+    """Main compliance scanner entry point"""
+    scanner = ComplianceNmapScanner()
+
+    # Example compliance scan
+    try:
+        result = scanner.perform_compliance_scan(
+            targets="192.168.1.0/24",
+            scan_type="comprehensive",
+            user_id="security.admin@company.com",
+            justification="Quarterly compliance audit as required by PCI-DSS"
+        )
+
+        print(f"Compliance scan completed: {result['scan_id']}")
+        print(f"Status: {result['status']}")
+
+        # Display compliance reports
+        for framework, report in result['compliance_reports'].items():
+            print(f"\n{framework} Compliance: {report['compliance_status']}")
+            if report.get('findings'):
+                print(f"  Findings: {len(report['findings'])}")
+
+    except Exception as e:
+        print(f"Compliance scan failed: {e}")
+
+if __name__ == '__main__':
+    main()

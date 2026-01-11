@@ -1,0 +1,3 @@
+pub fn process_data(input: ProcessData) -> Result<ProcessData, ProcessError> {
+    // Implementation
+}

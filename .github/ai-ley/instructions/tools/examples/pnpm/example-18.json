@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "build": "pnpm -r run build",
+    "test": "pnpm -r run test",
+    "lint": "pnpm -r run lint",
+    "dev": "pnpm --parallel -r run dev",
+    "clean": "pnpm -r run clean && rimraf node_modules",
+    "typecheck": "pnpm -r run typecheck",
+    "build:changed": "pnpm --filter=\"[origin/main]\" run build",
+    "test:affected": "pnpm --filter=\"...{packages/ui}\" run test"
+  }
+}

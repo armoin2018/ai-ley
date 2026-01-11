@@ -1,0 +1,30 @@
+{
+  "url": "https://example.com/about",
+  "title": "About Us - Example Company",
+  "title_length": 28,
+  "meta_description": "Learn about Example Company and our mission...",
+  "meta_description_length": 142,
+  "canonical_url": "https://example.com/about",
+  "headings": {
+    "h1": ["About Our Company"],
+    "h2": ["Our Mission", "Our Team", "Our Values"],
+    "h3": ["Leadership", "Awards & Recognition"]
+  },
+  "word_count": 847,
+  "text_content": "First 5000 characters of visible text...",
+  "internal_links": [
+    {"url": "...", "text": "...", "title": "..."}
+  ],
+  "internal_link_count": 23,
+  "external_links": [...],
+  "external_link_count": 5,
+  "images": [
+    {"src": "...", "alt": "...", "title": "...", "width": "...", "height": "..."}
+  ],
+  "image_count": 12,
+  "images_without_alt": 2,
+  "open_graph": {...},
+  "twitter_card": {...},
+  "schema_markup": [{...}],
+  "crawled_at": "2025-10-03T19:45:23.123456"
+}

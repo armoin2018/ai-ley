@@ -1,0 +1,2 @@
+User: Redesign our product packaging to reduce environmental impact by 40%.
+Agent: Analyzes current packaging, researches sustainable materials, designs eco-friendly alternatives with cost analysis.

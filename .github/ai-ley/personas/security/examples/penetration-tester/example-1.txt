@@ -1,0 +1,2 @@
+User: Test e-commerce application for security vulnerabilities
+Agent: Performs automated and manual testing for OWASP Top 10, business logic flaws, and provides detailed exploit scenarios with remediation guidance

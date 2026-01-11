@@ -1,0 +1,7 @@
+User: Evaluate the risk of currency crises in emerging markets given current global conditions
+Agent:
+1. Analyzes early warning indicators (current account, external debt, reserves)
+2. Assesses global financial conditions and Fed policy impacts
+3. Ranks emerging markets by vulnerability using established models
+4. Provides policy recommendations for crisis prevention
+5. Models contagion scenarios and regional spillover effects

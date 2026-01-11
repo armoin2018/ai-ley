@@ -1,0 +1,523 @@
+# Enterprise ERD Data Modeling Engine
+from dataclasses import dataclass, field
+from typing import List, Dict, Any, Optional, Set, Union
+from enum import Enum
+import json
+from datetime import datetime
+import uuid
+
+class DataType(Enum):
+    STRING = "STRING"
+    INTEGER = "INTEGER"
+    BIGINT = "BIGINT"
+    DECIMAL = "DECIMAL"
+    BOOLEAN = "BOOLEAN"
+    DATE = "DATE"
+    DATETIME = "DATETIME"
+    TIMESTAMP = "TIMESTAMP"
+    TEXT = "TEXT"
+    JSON = "JSON"
+    UUID = "UUID"
+    BINARY = "BINARY"
+    ENUM = "ENUM"
+
+class ConstraintType(Enum):
+    PRIMARY_KEY = "PRIMARY_KEY"
+    FOREIGN_KEY = "FOREIGN_KEY"
+    UNIQUE = "UNIQUE"
+    NOT_NULL = "NOT_NULL"
+    CHECK = "CHECK"
+    INDEX = "INDEX"
+    UNIQUE_INDEX = "UNIQUE_INDEX"
+
+class RelationshipType(Enum):
+    ONE_TO_ONE = "ONE_TO_ONE"
+    ONE_TO_MANY = "ONE_TO_MANY"
+    MANY_TO_ONE = "MANY_TO_ONE"
+    MANY_TO_MANY = "MANY_TO_MANY"
+    INHERITANCE = "INHERITANCE"
+    COMPOSITION = "COMPOSITION"
+    AGGREGATION = "AGGREGATION"
+
+class DataClassification(Enum):
+    PUBLIC = "PUBLIC"
+    INTERNAL = "INTERNAL"
+    CONFIDENTIAL = "CONFIDENTIAL"
+    RESTRICTED = "RESTRICTED"
+    PII = "PII"
+    SENSITIVE = "SENSITIVE"
+
+@dataclass
+class ERDAttribute:
+    name: str
+    data_type: DataType
+    size: Optional[int] = None
+    precision: Optional[int] = None
+    scale: Optional[int] = None
+    nullable: bool = True
+    default_value: Optional[Any] = None
+    description: str = ""
+
+    # Enterprise features
+    data_classification: DataClassification = DataClassification.INTERNAL
+    business_name: str = ""
+    business_description: str = ""
+    data_lineage: List[str] = field(default_factory=list)
+    privacy_tags: List[str] = field(default_factory=list)
+    compliance_requirements: List[str] = field(default_factory=list)
+
+    # Quality and governance
+    data_quality_rules: List[Dict[str, Any]] = field(default_factory=list)
+    masking_rules: Optional[Dict[str, Any]] = None
+    retention_policy: Optional[str] = None
+    access_policy: Optional[str] = None
+
+    # Performance optimization
+    indexing_strategy: Optional[str] = None
+    partitioning_key: bool = False
+    distribution_key: bool = False
+
+@dataclass
+class ERDConstraint:
+    name: str
+    constraint_type: ConstraintType
+    columns: List[str]
+
+    # Foreign key specific
+    referenced_table: Optional[str] = None
+    referenced_columns: Optional[List[str]] = None
+    on_delete: Optional[str] = None  # CASCADE, SET_NULL, RESTRICT, NO_ACTION
+    on_update: Optional[str] = None
+
+    # Check constraint specific
+    check_expression: Optional[str] = None
+
+    # Index specific
+    index_type: Optional[str] = None  # BTREE, HASH, GIN, GIST
+    where_clause: Optional[str] = None
+    include_columns: Optional[List[str]] = None
+
+    # Enterprise features
+    business_rule: str = ""
+    compliance_reason: str = ""
+    performance_impact: Optional[Dict[str, Any]] = None
+
+@dataclass
+class ERDEntity:
+    name: str
+    attributes: List[ERDAttribute]
+    constraints: List[ERDConstraint]
+    description: str = ""
+
+    # Enterprise features
+    business_name: str = ""
+    business_description: str = ""
+    domain: str = ""
+    subdomain: str = ""
+
+    # Data governance
+    data_owner: str = ""
+    data_steward: str = ""
+    data_classification: DataClassification = DataClassification.INTERNAL
+    compliance_frameworks: List[str] = field(default_factory=list)
+
+    # Performance and scaling
+    estimated_volume: Optional[int] = None
+    growth_rate: Optional[float] = None
+    access_patterns: List[Dict[str, Any]] = field(default_factory=list)
+    partitioning_strategy: Optional[Dict[str, Any]] = None
+
+    # Audit and versioning
+    created_by: str = ""
+    created_at: Optional[datetime] = None
+    version: str = "1.0"
+    change_log: List[Dict[str, Any]] = field(default_factory=list)
+
+@dataclass
+class ERDRelationship:
+    name: str
+    source_entity: str
+    target_entity: str
+    relationship_type: RelationshipType
+    source_cardinality: str  # 1, 0..1, 1..*, 0..*
+    target_cardinality: str
+
+    # Relationship attributes for many-to-many
+    relationship_attributes: List[ERDAttribute] = field(default_factory=list)
+
+    # Foreign key mapping
+    source_columns: List[str] = field(default_factory=list)
+    target_columns: List[str] = field(default_factory=list)
+
+    # Business context
+    business_name: str = ""
+    business_description: str = ""
+    business_rules: List[str] = field(default_factory=list)
+
+    # Performance considerations
+    relationship_strength: str = "STRONG"  # STRONG, WEAK, IDENTIFYING, NON_IDENTIFYING
+    cascade_behavior: Dict[str, str] = field(default_factory=dict)
+    indexing_recommendations: List[str] = field(default_factory=list)
+
+class EnterpriseERDEngine:
+    """
+    Enterprise ERD Data Modeling Engine
+    Provides comprehensive entity relationship modeling with enterprise governance and optimization
+    """
+
+    def __init__(self, config: Dict[str, Any]):
+        self.config = config
+        self.data_governance_rules = self._load_governance_rules()
+        self.database_optimizations = self._load_optimization_rules()
+        self.compliance_frameworks = self._load_compliance_frameworks()
+
+    def create_comprehensive_data_model(
+        self,
+        model_name: str,
+        entities: List[ERDEntity],
+        relationships: List[ERDRelationship],
+        business_context: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Create comprehensive enterprise data model with full governance"""
+
+        # Validate model against enterprise standards
+        validation_result = self._validate_data_model(entities, relationships)
+
+        # Generate ERD diagrams in multiple formats
+        erd_diagrams = self._generate_erd_diagrams(model_name, entities, relationships)
+
+        # Perform data governance analysis
+        governance_analysis = self._analyze_data_governance(entities, relationships)
+
+        # Generate database schemas for multiple targets
+        schema_generation = self._generate_database_schemas(entities, relationships)
+
+        # Performance analysis and optimization
+        performance_analysis = self._analyze_performance_implications(entities, relationships)
+
+        # Compliance assessment
+        compliance_assessment = self._assess_compliance_requirements(entities, relationships)
+
+        # Data lineage mapping
+        lineage_mapping = self._map_data_lineage(entities, relationships)
+
+        # Generate comprehensive documentation
+        documentation = self._generate_data_model_documentation(
+            model_name, entities, relationships, governance_analysis
+        )
+
+        return {
+            'model_name': model_name,
+            'model_type': 'ENTERPRISE_ERD',
+            'generated_at': datetime.now().isoformat(),
+            'entities': [self._serialize_entity(e) for e in entities],
+            'relationships': [self._serialize_relationship(r) for r in relationships],
+            'diagrams': erd_diagrams,
+            'analysis': {
+                'governance': governance_analysis,
+                'performance': performance_analysis,
+                'compliance': compliance_assessment,
+                'lineage': lineage_mapping,
+                'validation': validation_result
+            },
+            'schema_generation': schema_generation,
+            'documentation': documentation,
+            'business_context': business_context,
+            'recommendations': self._generate_data_model_recommendations(
+                entities, relationships, performance_analysis, governance_analysis
+            )
+        }
+
+    def _generate_erd_diagrams(
+        self,
+        model_name: str,
+        entities: List[ERDEntity],
+        relationships: List[ERDRelationship]
+    ) -> Dict[str, str]:
+        """Generate ERD diagrams in multiple formats"""
+
+        diagrams = {}
+
+        # Generate PlantUML ERD
+        diagrams['plantuml'] = self._generate_plantuml_erd(model_name, entities, relationships)
+
+        # Generate Mermaid ERD
+        diagrams['mermaid'] = self._generate_mermaid_erd(model_name, entities, relationships)
+
+        # Generate D2 ERD
+        diagrams['d2'] = self._generate_d2_erd(model_name, entities, relationships)
+
+        # Generate DOT/Graphviz ERD
+        diagrams['graphviz'] = self._generate_graphviz_erd(model_name, entities, relationships)
+
+        return diagrams
+
+    def _generate_plantuml_erd(
+        self,
+        model_name: str,
+        entities: List[ERDEntity],
+        relationships: List[ERDRelationship]
+    ) -> str:
+        """Generate comprehensive PlantUML ERD with enterprise features"""
+
+        diagram = f"""@startuml {model_name}_ERD
+!theme enterprise
+!define ENTITY_STYLE #E8F4F8
+!define PII_ENTITY_STYLE #FFE6E6
+!define CONFIDENTIAL_STYLE #FFF3E0
+
+title Enterprise Data Model: {model_name}
+
+"""
+
+        # Add entities with data classification styling
+        for entity in entities:
+            # Determine styling based on data classification
+            if any(attr.data_classification in [DataClassification.PII, DataClassification.SENSITIVE]
+                   for attr in entity.attributes):
+                style = "PII_ENTITY_STYLE"
+                classification_icon = "🔒"
+            elif entity.data_classification == DataClassification.CONFIDENTIAL:
+                style = "CONFIDENTIAL_STYLE"
+                classification_icon = "⚠️"
+            else:
+                style = "ENTITY_STYLE"
+                classification_icon = "📄"
+
+            # Entity header with business context
+            diagram += f"""entity "{entity.business_name or entity.name}" as {entity.name} <<{style}>> {{
+  {classification_icon} **{entity.name}**
+  --
+  Domain: {entity.domain}
+  Owner: {entity.data_owner}
+  ==
+"""
+
+            # Add primary key attributes first
+            pk_attributes = [attr for attr in entity.attributes
+                           if any(c.constraint_type == ConstraintType.PRIMARY_KEY and attr.name in c.columns
+                                 for c in entity.constraints)]
+
+            for attr in pk_attributes:
+                privacy_icon = "🔐" if attr.data_classification == DataClassification.PII else ""
+                nullable_indicator = "" if not attr.nullable else "?"
+                diagram += f"""  * {privacy_icon} **{attr.name}** : {attr.data_type.value}{nullable_indicator}
+"""
+
+            # Add separator if we have both PK and regular attributes
+            if pk_attributes and len(pk_attributes) < len(entity.attributes):
+                diagram += "  --\n"
+
+            # Add non-PK attributes
+            regular_attributes = [attr for attr in entity.attributes if attr not in pk_attributes]
+            for attr in regular_attributes:
+                privacy_icon = "🔐" if attr.data_classification == DataClassification.PII else ""
+                nullable_indicator = "" if not attr.nullable else "?"
+                size_info = f"({attr.size})" if attr.size else ""
+
+                diagram += f"""  {privacy_icon} {attr.name} : {attr.data_type.value}{size_info}{nullable_indicator}
+"""
+
+            # Add business rules and constraints
+            if entity.business_description:
+                diagram += f"""  --
+  Note: {entity.business_description[:50]}...
+"""
+
+            diagram += "}\n\n"
+
+        # Add relationships with business context
+        for rel in relationships:
+            # Determine relationship notation
+            if rel.relationship_type == RelationshipType.ONE_TO_ONE:
+                notation = "||--||"
+            elif rel.relationship_type == RelationshipType.ONE_TO_MANY:
+                notation = "||--o{"
+            elif rel.relationship_type == RelationshipType.MANY_TO_ONE:
+                notation = "}o--||"
+            elif rel.relationship_type == RelationshipType.MANY_TO_MANY:
+                notation = "}o--o{"
+            else:
+                notation = "--"
+
+            # Add relationship with business name
+            business_label = f"\\n{rel.business_name}" if rel.business_name else ""
+            diagram += f"""{rel.source_entity} {notation} {rel.target_entity} : {rel.name}{business_label}
+"""
+
+        # Add notes for governance and compliance
+        diagram += """
+note top : Enterprise Data Model
+- Data governance policies applied
+- Privacy compliance validated
+- Performance optimization included
+- Audit trails enabled
+end note
+
+@enduml"""
+
+        return diagram
+
+    def _generate_mermaid_erd(
+        self,
+        model_name: str,
+        entities: List[ERDEntity],
+        relationships: List[ERDRelationship]
+    ) -> str:
+        """Generate Mermaid ERD with enterprise styling"""
+
+        diagram = f"""erDiagram
+    %% Enterprise Data Model: {model_name}
+
+    %% Entity styling based on data classification
+"""
+
+        # Define entity classes for styling
+        for entity in entities:
+            class_name = f"{entity.name}_STYLE"
+            if any(attr.data_classification in [DataClassification.PII, DataClassification.SENSITIVE]
+                   for attr in entity.attributes):
+                color = "fill:#ffe6e6,stroke:#d32f2f,stroke-width:3px"
+            elif entity.data_classification == DataClassification.CONFIDENTIAL:
+                color = "fill:#fff3e0,stroke:#ef6c00,stroke-width:2px"
+            else:
+                color = "fill:#e8f4f8,stroke:#1976d2,stroke-width:1px"
+
+            diagram += f"""    classDef {class_name} {color}
+"""
+
+        # Add entities with attributes
+        for entity in entities:
+            diagram += f"""
+    {entity.name} {{
+"""
+            # Add attributes with data types and constraints
+            for attr in entity.attributes:
+                # Determine constraint indicators
+                constraint_indicators = []
+
+                # Check if primary key
+                if any(c.constraint_type == ConstraintType.PRIMARY_KEY and attr.name in c.columns
+                       for c in entity.constraints):
+                    constraint_indicators.append("PK")
+
+                # Check if foreign key
+                if any(c.constraint_type == ConstraintType.FOREIGN_KEY and attr.name in c.columns
+                       for c in entity.constraints):
+                    constraint_indicators.append("FK")
+
+                # Check if unique
+                if any(c.constraint_type == ConstraintType.UNIQUE and attr.name in c.columns
+                       for c in entity.constraints):
+                    constraint_indicators.append("UK")
+
+                # Check if not null
+                if not attr.nullable:
+                    constraint_indicators.append("NN")
+
+                # Privacy indicator
+                privacy_indicator = "PII" if attr.data_classification == DataClassification.PII else ""
+
+                indicators = ",".join(constraint_indicators + ([privacy_indicator] if privacy_indicator else []))
+                size_info = f"({attr.size})" if attr.size else ""
+
+                diagram += f"""        {attr.data_type.value}{size_info} {attr.name} "{indicators}"
+"""
+
+            diagram += "    }\n"
+
+            # Apply styling
+            class_name = f"{entity.name}_STYLE"
+            diagram += f"""    class {entity.name} {class_name}
+"""
+
+        # Add relationships
+        for rel in relationships:
+            # Convert relationship type to Mermaid notation
+            if rel.relationship_type == RelationshipType.ONE_TO_ONE:
+                cardinality = "||--||"
+            elif rel.relationship_type == RelationshipType.ONE_TO_MANY:
+                cardinality = "||--o{"
+            elif rel.relationship_type == RelationshipType.MANY_TO_ONE:
+                cardinality = "}o--||"
+            elif rel.relationship_type == RelationshipType.MANY_TO_MANY:
+                cardinality = "}o--o{"
+            else:
+                cardinality = "--"
+
+            diagram += f"""    {rel.source_entity} {cardinality} {rel.target_entity} : "{rel.business_name or rel.name}"
+"""
+
+        return diagram
+
+    def _analyze_data_governance(
+        self,
+        entities: List[ERDEntity],
+        relationships: List[ERDRelationship]
+    ) -> Dict[str, Any]:
+        """Comprehensive data governance analysis"""
+
+        # Privacy impact assessment
+        privacy_analysis = self._assess_privacy_impact(entities)
+
+        # Data classification summary
+        classification_summary = self._summarize_data_classification(entities)
+
+        # Compliance requirements analysis
+        compliance_analysis = self._analyze_compliance_requirements(entities)
+
+        # Data lineage analysis
+        lineage_analysis = self._analyze_data_lineage(entities, relationships)
+
+        # Access control requirements
+        access_control_analysis = self._analyze_access_control_requirements(entities)
+
+        # Data quality requirements
+        quality_requirements = self._analyze_data_quality_requirements(entities)
+
+        return {
+            'privacy_impact': privacy_analysis,
+            'data_classification': classification_summary,
+            'compliance_requirements': compliance_analysis,
+            'data_lineage': lineage_analysis,
+            'access_control': access_control_analysis,
+            'quality_requirements': quality_requirements,
+            'governance_score': self._calculate_governance_score(entities, relationships),
+            'recommendations': self._generate_governance_recommendations(entities, relationships)
+        }
+
+    def _generate_database_schemas(
+        self,
+        entities: List[ERDEntity],
+        relationships: List[ERDRelationship]
+    ) -> Dict[str, Any]:
+        """Generate optimized database schemas for multiple database systems"""
+
+        schemas = {}
+
+        # PostgreSQL schema with enterprise features
+        schemas['postgresql'] = self._generate_postgresql_schema(entities, relationships)
+
+        # MySQL schema with optimization
+        schemas['mysql'] = self._generate_mysql_schema(entities, relationships)
+
+        # SQL Server schema with enterprise features
+        schemas['sqlserver'] = self._generate_sqlserver_schema(entities, relationships)
+
+        # Oracle schema with partitioning
+        schemas['oracle'] = self._generate_oracle_schema(entities, relationships)
+
+        # MongoDB schema for document storage
+        schemas['mongodb'] = self._generate_mongodb_schema(entities, relationships)
+
+        # Migration scripts
+        migration_scripts = self._generate_migration_scripts(entities, relationships)
+
+        return {
+            'schemas': schemas,
+            'migrations': migration_scripts,
+            'optimization_recommendations': self._generate_schema_optimization_recommendations(entities, relationships),
+            'performance_considerations': self._analyze_schema_performance(entities, relationships)
+        }
+
+#### **Advanced Schema Generation Example - PostgreSQL**

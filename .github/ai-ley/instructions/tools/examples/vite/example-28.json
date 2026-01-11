@@ -1,0 +1,22 @@
+{
+  "name": "my-vite-app",
+  "scripts": {
+    "dev": "vite",
+    "dev:host": "vite --host",
+    "dev:https": "vite --https",
+    "build": "vite build",
+    "build:staging": "vite build --mode staging",
+    "build:analyze": "vite build && npx vite-bundle-analyzer dist",
+    "preview": "vite preview",
+    "preview:host": "vite preview --host",
+    "clean": "rm -rf dist",
+    "type-check": "vue-tsc --noEmit", // For Vue
+    "lint": "eslint . --ext ts,tsx,js,jsx",
+    "lint:fix": "eslint . --ext ts,tsx,js,jsx --fix"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}

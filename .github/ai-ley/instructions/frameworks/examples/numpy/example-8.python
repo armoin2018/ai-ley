@@ -1,0 +1,9 @@
+# Set number of threads for OpenMP
+import os
+os.environ['OMP_NUM_THREADS'] = '4'
+
+# NumPy random seed for reproducibility
+np.random.seed(42)
+
+# Print options
+np.set_printoptions(precision=3, suppress=True)

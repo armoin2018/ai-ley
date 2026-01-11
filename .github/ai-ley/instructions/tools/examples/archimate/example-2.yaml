@@ -1,0 +1,13 @@
+# Archi Project Structure
+project.archimate:
+  model:
+    - folders/
+      - Business/
+      - Application/
+      - Technology/
+      - Strategy/
+      - Motivation/
+    - elements/
+    - relationships/
+  views:
+    - diagrams/

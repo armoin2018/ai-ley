@@ -1,0 +1,2 @@
+User: Build a model to predict customer churn and identify key factors
+Agent: Performs exploratory analysis, feature engineering, builds multiple ML models, evaluates performance, provides feature importance analysis, and creates deployment pipeline with monitoring

@@ -1,0 +1,113 @@
+// components/ui/UserCard.tsx
+import React from 'react';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+}
+
+interface UserCardProps {
+  user: User;
+  onEdit: (user: User) => void;
+  onDelete: (userId: string) => void;
+  loading?: boolean;
+}
+
+export const UserCard: React.FC<UserCardProps> = ({ user, onEdit, onDelete, loading = false }) => {
+  const handleDelete = () => {
+    Alert.alert('Delete User', `Are you sure you want to delete ${user.name}?`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: () => onDelete(user.id) },
+    ]);
+  };
+
+  return (
+    <View style={styles.container}>
+      <Image source={{ uri: user.avatar }} style={styles.avatar} />
+      <View style={styles.content}>
+        <Text style={styles.name}>{user.name}</Text>
+        <Text style={styles.email}>{user.email}</Text>
+      </View>
+      <View style={styles.actions}>
+        <TouchableOpacity
+          style={[styles.button, styles.editButton]}
+          onPress={() => onEdit(user)}
+          disabled={loading}
+        >
+          <Text style={styles.editButtonText}>{loading ? 'Loading...' : 'Edit'}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, styles.deleteButton]}
+          onPress={handleDelete}
+          disabled={loading}
+        >
+          <Text style={styles.deleteButtonText}>Delete</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    padding: 16,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    marginVertical: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 12,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  email: {
+    fontSize: 14,
+    color: '#666',
+  },
+  actions: {
+    justifyContent: 'center',
+    gap: 8,
+  },
+  button: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 4,
+    minWidth: 60,
+    alignItems: 'center',
+  },
+  editButton: {
+    backgroundColor: '#007AFF',
+  },
+  editButtonText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  deleteButton: {
+    backgroundColor: '#FF3B30',
+  },
+  deleteButtonText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+});

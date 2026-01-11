@@ -1,0 +1,25 @@
+// Performance monitoring utility
+export class PerformanceMonitor {
+  private static instance: PerformanceMonitor;
+  
+  public static getInstance(): PerformanceMonitor {
+    if (!PerformanceMonitor.instance) {
+      PerformanceMonitor.instance = new PerformanceMonitor();
+    }
+    return PerformanceMonitor.instance;
+  }
+  
+  public measureBundleSize(): void {
+    if (typeof window !== 'undefined' && 'performance' in window) {
+      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+      console.log('Bundle load time:', navigation.loadEventEnd - navigation.fetchStart, 'ms');
+    }
+  }
+  
+  public measureComponentRender(componentName: string, renderFn: () => void): void {
+    const start = performance.now();
+    renderFn();
+    const end = performance.now();
+    console.log(`${componentName} render time:`, end - start, 'ms');
+  }
+}

@@ -1,0 +1,49 @@
+# .kitchen.yml - Enterprise Test Kitchen configuration
+---
+driver:
+  name: docker
+  privileged: true
+  use_sudo: false
+
+provisioner:
+  name: chef_zero
+  product_name: chef
+  install_strategy: once
+  multiple_converge: 2
+  enforce_idempotency: true
+  deprecations_as_errors: true
+  client_rb:
+    audit_mode: :enabled
+    chef_license: accept
+
+transport:
+  name: docker
+
+verifier:
+  name: inspec
+  format: junit
+  output: test/reports/inspec-junit.xml
+  reporter:
+    - cli
+    - junit:test/reports/inspec-junit.xml
+    - json:test/reports/inspec.json
+
+platforms:
+  # Enterprise Linux platforms
+  - name: centos-7
+    driver_config:
+      image: centos:7
+      platform: rhel
+      run_command: /usr/sbin/init
+      provision_command:
+        - yum install -y initscripts systemd-sysv net-tools
+        - systemctl set-default multi-user.target
+
+  - name: centos-8
+    driver_config:
+      image: centos:8
+      platform: rhel
+      run_command: /usr/sbin/init
+      provision_command:
+        - dnf install -y systemd net-tools
+        - systemctl set-default multi-user.target

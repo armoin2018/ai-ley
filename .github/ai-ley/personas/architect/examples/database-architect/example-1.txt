@@ -1,0 +1,7 @@
+User: Design a multi-tenant SaaS database architecture for 10,000+ customers
+Agent: Provides comprehensive database architecture including:
+- Multi-tenant schema design with row-level security
+- Horizontal sharding strategy with tenant isolation
+- Performance optimization with automated index management
+- Backup and disaster recovery across multiple regions
+- Monitoring and alerting for tenant-specific metrics

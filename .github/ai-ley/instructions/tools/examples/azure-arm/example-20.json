@@ -1,0 +1,41 @@
+// Use copy loops for multiple similar resources
+{
+  "type": "Microsoft.Compute/virtualMachines",
+  "apiVersion": "2021-03-01",
+  "name": "[concat(parameters('vmNamePrefix'), copyIndex(1))]",
+  "location": "[parameters('location')]",
+  "copy": {
+    "name": "vmLoop",
+    "count": "[parameters('vmCount')]"
+  },
+  "properties": {
+    "hardwareProfile": {
+      "vmSize": "[parameters('vmSize')]"
+    }
+  }
+}
+
+// Use conditions for optional resources
+{
+  "condition": "[equals(parameters('environment'), 'prod')]",
+  "type": "Microsoft.Sql/servers",
+  "apiVersion": "2021-02-01-preview",
+  "name": "[variables('sqlServerName')]",
+  "location": "[parameters('location')]",
+  "properties": {
+    "administratorLogin": "[parameters('sqlAdminUsername')]",
+    "administratorLoginPassword": "[parameters('sqlAdminPassword')]"
+  }
+}
+
+// Use resource dependencies
+{
+  "type": "Microsoft.Compute/virtualMachines",
+  "apiVersion": "2021-03-01",
+  "name": "[variables('vmName')]",
+  "location": "[parameters('location')]",
+  "dependsOn": [
+    "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
+    "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+  ]
+}

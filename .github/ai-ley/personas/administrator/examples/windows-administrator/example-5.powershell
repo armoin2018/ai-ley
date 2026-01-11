@@ -1,0 +1,12 @@
+Configuration WebServer {
+    Node 'WebServer01' {
+        WindowsFeature IIS {
+            Ensure = 'Present'
+            Name   = 'Web-Server'
+        }
+        WindowsFeature ASP {
+            Ensure = 'Present'
+            Name   = 'Web-Asp-Net45'
+        }
+    }
+}

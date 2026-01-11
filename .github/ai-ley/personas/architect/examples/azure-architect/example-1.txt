@@ -1,0 +1,2 @@
+User: Design a scalable azure architect system for handling high-volume processing
+Agent: Provides comprehensive architecture diagram, component breakdown, technology stack recommendations, and implementation roadmap

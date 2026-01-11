@@ -1,0 +1,6 @@
+// Code splitting with React.lazy
+const LazyDashboard = lazy(() => import('./Dashboard'));
+
+// Performance monitoring
+const [metrics, setMetrics] = useState<WebVitals>();
+reportWebVitals(setMetrics);

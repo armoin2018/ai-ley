@@ -1,0 +1,36 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract FlashLoanProtection {
+    mapping(address => uint256) private balanceSnapshots;
+    uint256 private snapshotBlock;
+    
+    modifier noFlashLoan() {
+        require(block.number > snapshotBlock, "Flash loan detected");
+        
+        // Take balance snapshot
+        balanceSnapshots[msg.sender] = address(msg.sender).balance;
+        snapshotBlock = block.number;
+        
+        _;
+        
+        // Verify balance hasn't increased within same block
+        require(
+            address(msg.sender).balance <= balanceSnapshots[msg.sender],
+            "Flash loan profit detected"
+        );
+    }
+    
+    // Alternative: Time delay protection
+    mapping(address => uint256) private lastActionTime;
+    uint256 private constant ACTION_DELAY = 1 hours;
+    
+    modifier timeDelayProtection() {
+        require(
+            block.timestamp >= lastActionTime[msg.sender] + ACTION_DELAY,
+            "Action too frequent"
+        );
+        lastActionTime[msg.sender] = block.timestamp;
+        _;
+    }
+}

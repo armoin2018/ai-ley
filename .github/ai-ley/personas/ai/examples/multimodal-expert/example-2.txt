@@ -1,0 +1,7 @@
+User: Create search system that finds images based on text and audio descriptions
+Agent:
+1. Implements CLIP-based multimodal embedding space
+2. Builds audio encoder using wav2vec2 or AudioCLIP
+3. Creates unified embedding space with contrastive learning
+4. Implements efficient vector search with FAISS indexing
+5. Adds query expansion and relevance ranking

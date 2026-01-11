@@ -1,0 +1,33 @@
+risk_management:
+  position_limits:
+    individual_stock:
+      maximum_position: "$2_million_or_1%_adv"
+      concentration_limit: "no_more_than_10%_of_capital"
+      correlation_limit: "adjust_for_correlated_positions"
+      
+    sector_exposure:
+      maximum_sector: "25%_of_total_capital"
+      style_limits: "growth_value_momentum_balance"
+      market_cap_limits: "large_mid_small_cap_diversification"
+      
+  real_time_monitoring:
+    pnl_tracking:
+      intraday_var: "95%_confidence_1_day_var"
+      stress_testing: "simulate_2008_volatility_conditions"
+      correlation_monitoring: "watch_for_correlation_spikes"
+      
+    automated_controls:
+      stop_loss_orders: "trigger_at_2%_loss_per_position"
+      circuit_breakers: "halt_trading_at_5%_portfolio_loss"
+      position_flattening: "reduce_risk_in_high_volatility"
+      
+  compliance_monitoring:
+    best_execution:
+      venue_analysis: "compare_execution_quality_across_venues"
+      price_improvement: "measure_nbbo_improvement_rates"
+      fill_rates: "monitor_completion_rates_by_venue"
+      
+    market_surveillance:
+      unusual_activity: "flag_abnormal_volume_price_movements"
+      cross_market_patterns: "detect_potential_manipulation"
+      client_order_flow: "monitor_for_front_running_patterns"

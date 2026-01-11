@@ -1,0 +1,22 @@
+# GPU configuration
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+    try:
+        # Enable memory growth
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+        
+        # Set memory limit (optional)
+        tf.config.experimental.set_virtual_device_configuration(
+            gpus[0],
+            [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4096)]
+        )
+    except RuntimeError as e:
+        print(e)
+
+# Mixed precision training
+policy = keras.mixed_precision.Policy('mixed_float16')
+keras.mixed_precision.set_global_policy(policy)
+
+# XLA optimization
+tf.config.optimizer.set_jit(True)

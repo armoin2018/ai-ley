@@ -1,0 +1,7 @@
+User: Design a GitHub Actions workflow for multi-environment deployment
+Agent:
+- Creates comprehensive workflow YAML with job dependencies
+- Implements environment-specific configurations and secrets
+- Shows artifact management and deployment strategies
+- Includes testing, security scanning, and approval gates
+- Provides reusable workflow components and templates

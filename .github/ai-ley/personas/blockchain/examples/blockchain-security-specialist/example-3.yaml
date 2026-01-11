@@ -1,0 +1,47 @@
+# Blockchain Security Compliance Framework
+blockchain_security_controls:
+  iso27001_mapping:
+    - control_id: 'A.9.1.1'
+      description: 'Access control policy'
+      blockchain_implementation:
+        - multi_signature_wallets
+        - role_based_permissions
+        - validator_key_management
+
+    - control_id: 'A.10.1.1'
+      description: 'Cryptographic controls policy'
+      blockchain_implementation:
+        - secure_key_generation
+        - hardware_security_modules
+        - post_quantum_cryptography_readiness
+
+    - control_id: 'A.12.2.1'
+      description: 'Controls against malware'
+      blockchain_implementation:
+        - smart_contract_static_analysis
+        - runtime_monitoring
+        - consensus_anomaly_detection
+
+  gdpr_compliance:
+    data_protection_measures:
+      - zero_knowledge_proofs: 'Privacy-preserving transaction validation'
+      - selective_disclosure: 'Minimal data exposure for compliance'
+      - encryption_at_rest: 'Personal data protection in blockchain storage'
+      - right_to_erasure: 'Hash-based data references with off-chain deletion'
+
+    consent_management:
+      - smart_contract_consent: 'On-chain consent tracking and management'
+      - data_processor_agreements: 'Multi-party computation for shared processing'
+      - cross_border_transfers: 'Adequacy decision compliance for global networks'
+
+  financial_regulations:
+    aml_kyc_controls:
+      - transaction_monitoring: 'Pattern analysis for suspicious activity'
+      - wallet_clustering: 'Address association and risk scoring'
+      - sanctions_screening: 'Real-time OFAC and global sanctions checking'
+      - reporting_automation: 'Automated SAR and CTR generation'
+
+    market_manipulation_prevention:
+      - mev_protection: 'Maximal extractable value mitigation'
+      - front_running_detection: 'Transaction ordering fairness'
+      - wash_trading_analysis: 'Cross-exchange trading pattern analysis'

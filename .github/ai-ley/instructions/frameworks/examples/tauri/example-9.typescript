@@ -1,0 +1,147 @@
+// src/hooks/useTauriFile.ts
+import { useState, useCallback } from 'react';
+import { TauriAPI, FileInfo } from '../services/tauri-api';
+
+interface FileState {
+  currentFile: string | null;
+  content: string;
+  hasUnsavedChanges: boolean;
+  isLoading: boolean;
+  error: string | null;
+}
+
+export const useTauriFile = () => {
+  const [state, setState] = useState<FileState>({
+    currentFile: null,
+    content: '',
+    hasUnsavedChanges: false,
+    isLoading: false,
+    error: null,
+  });
+
+  const setError = useCallback((error: string | null) => {
+    setState((prev) => ({ ...prev, error }));
+  }, []);
+
+  const setLoading = useCallback((isLoading: boolean) => {
+    setState((prev) => ({ ...prev, isLoading }));
+  }, []);
+
+  const openFile = useCallback(async (): Promise<boolean> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const dialogResult = await TauriAPI.openFileDialog();
+
+      if (!dialogResult.success || !dialogResult.data) {
+        setLoading(false);
+        return false;
+      }
+
+      const filePath = dialogResult.data;
+      const readResult = await TauriAPI.readFile(filePath);
+
+      if (!readResult.success || readResult.data === undefined) {
+        setError(readResult.error || 'Failed to read file');
+        setLoading(false);
+        return false;
+      }
+
+      setState((prev) => ({
+        ...prev,
+        currentFile: filePath,
+        content: readResult.data!,
+        hasUnsavedChanges: false,
+        isLoading: false,
+        error: null,
+      }));
+
+      await TauriAPI.addRecentFile(filePath);
+      return true;
+    } catch (error) {
+      setError(`Failed to open file: ${error}`);
+      setLoading(false);
+      return false;
+    }
+  }, []);
+
+  const saveFile = useCallback(
+    async (saveAs = false): Promise<boolean> => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        let filePath = state.currentFile;
+
+        if (!filePath || saveAs) {
+          const dialogResult = await TauriAPI.saveFileDialog();
+
+          if (!dialogResult.success || !dialogResult.data) {
+            setLoading(false);
+            return false;
+          }
+
+          filePath = dialogResult.data;
+        }
+
+        const saveResult = await TauriAPI.writeFile({
+          path: filePath,
+          content: state.content,
+        });
+
+        if (!saveResult.success) {
+          setError(saveResult.error || 'Failed to save file');
+          setLoading(false);
+          return false;
+        }
+
+        setState((prev) => ({
+          ...prev,
+          currentFile: filePath,
+          hasUnsavedChanges: false,
+          isLoading: false,
+          error: null,
+        }));
+
+        if (filePath) {
+          await TauriAPI.addRecentFile(filePath);
+        }
+
+        return true;
+      } catch (error) {
+        setError(`Failed to save file: ${error}`);
+        setLoading(false);
+        return false;
+      }
+    },
+    [state.currentFile, state.content],
+  );
+
+  const newFile = useCallback(() => {
+    setState({
+      currentFile: null,
+      content: '',
+      hasUnsavedChanges: false,
+      isLoading: false,
+      error: null,
+    });
+  }, []);
+
+  const updateContent = useCallback((content: string) => {
+    setState((prev) => ({
+      ...prev,
+      content,
+      hasUnsavedChanges: prev.content !== content,
+    }));
+  }, []);
+
+  return {
+    ...state,
+    openFile,
+    saveFile,
+    newFile,
+    updateContent,
+    setError,
+  };
+};

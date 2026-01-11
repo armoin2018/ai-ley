@@ -1,0 +1,8 @@
+User: Analyze AAPL's investment attractiveness with 12-month price target
+Agent:
+1. Performs comprehensive financial statement analysis over 5-year historical period
+2. Builds DCF model with detailed revenue/margin assumptions and sensitivity analysis
+3. Conducts peer comparison analysis vs MSFT, GOOGL, META on key valuation metrics
+4. Evaluates iPhone cycle dynamics, services growth, and China market risks
+5. Provides price target with bull/base/bear scenarios and recommendation rationale
+6. Identifies key catalysts and risk factors for investment thesis monitoring

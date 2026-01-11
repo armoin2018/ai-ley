@@ -1,0 +1,66 @@
+# health_check.py
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+import asyncio
+import aioredis
+import asyncpg
+
+async def check_database():
+    try:
+        conn = await asyncpg.connect("postgresql://user:pass@localhost/langflow")
+        await conn.execute("SELECT 1")
+        await conn.close()
+        return True
+    except Exception:
+        return False
+
+async def check_redis():
+    try:
+        redis = aioredis.from_url("redis://localhost:6379")
+        await redis.ping()
+        await redis.close()
+        return True
+    except Exception:
+        return False
+
+async def check_llm_apis():
+    checks = {}
+
+    # Check OpenAI
+    try:
+        import openai
+        openai.api_key = "your-key"
+        # Make a simple API call
+        checks["openai"] = True
+    except Exception:
+        checks["openai"] = False
+
+    # Add other API checks
+
+    return checks
+
+app = FastAPI()
+
+@app.get("/health")
+async def health_check():
+    checks = {
+        "database": await check_database(),
+        "redis": await check_redis(),
+        "llm_apis": await check_llm_apis()
+    }
+
+    healthy = all(checks.values())
+    status_code = 200 if healthy else 503
+
+    return JSONResponse(
+        content={
+            "status": "healthy" if healthy else "unhealthy",
+            "checks": checks
+        },
+        status_code=status_code
+    )
+
+@app.get("/ready")
+async def readiness_check():
+    # Check if the application is ready to serve requests
+    return {"status": "ready"}

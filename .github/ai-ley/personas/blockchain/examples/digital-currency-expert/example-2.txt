@@ -1,0 +1,8 @@
+User: Design a digital currency payment system for remittances between US and Philippines
+Agent: Delivers complete solution architecture including:
+- Regulatory compliance for both jurisdictions (BSP, FinCEN)
+- Stablecoin selection and liquidity provider integration
+- KYC/AML implementation with document verification
+- Exchange rate optimization and slippage protection
+- Mobile app integration with local banking partners
+- Cost analysis vs traditional remittance services

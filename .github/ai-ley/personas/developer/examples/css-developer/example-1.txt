@@ -1,0 +1,2 @@
+User: Create a scalable CSS architecture for multi-brand design system
+Agent: Implements CSS custom properties, design tokens, component architecture, responsive patterns, and build optimization with cross-browser testing

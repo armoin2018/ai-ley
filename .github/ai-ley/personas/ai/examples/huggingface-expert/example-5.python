@@ -1,0 +1,39 @@
+# Production inference service with HuggingFace
+from transformers import pipeline, AutoTokenizer, AutoModel
+from optimum.onnxruntime import ORTModelForSequenceClassification
+import asyncio
+from typing import List, Dict
+
+class HuggingFaceInferenceService:
+    def __init__(self, model_name, optimize=True):
+        if optimize:
+            self.model = ORTModelForSequenceClassification.from_pretrained(
+                model_name, export=True
+            )
+        else:
+            self.model = AutoModel.from_pretrained(model_name)
+        
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.pipeline = pipeline(
+            "text-classification",
+            model=self.model,
+            tokenizer=self.tokenizer,
+            device=0 if torch.cuda.is_available() else -1
+        )
+    
+    async def predict(self, text: str) -> Dict:
+        """Async prediction with error handling"""
+        try:
+            result = self.pipeline(text)
+            return {"prediction": result, "status": "success"}
+        except Exception as e:
+            return {"error": str(e), "status": "failed"}
+    
+    async def batch_predict(self, texts: List[str], batch_size: int = 32) -> List[Dict]:
+        """Efficient batch processing"""
+        results = []
+        for i in range(0, len(texts), batch_size):
+            batch = texts[i:i + batch_size]
+            batch_results = self.pipeline(batch)
+            results.extend(batch_results)
+        return results

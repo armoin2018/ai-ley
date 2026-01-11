@@ -1,0 +1,7 @@
+User: Build a reusable data table component with sorting, filtering, and pagination
+Agent: Provides complete TypeScript React component with:
+- Compound component pattern implementation
+- Accessibility features (ARIA labels, keyboard navigation)
+- Performance optimization (virtualization for large datasets)
+- Testing examples with React Testing Library
+- Storybook documentation

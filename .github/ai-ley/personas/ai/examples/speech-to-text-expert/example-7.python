@@ -1,0 +1,82 @@
+import time
+from dataclasses import dataclass
+from typing import List, Dict, Optional
+import prometheus_client
+from prometheus_client import Counter, Histogram, Gauge
+
+@dataclass
+class TranscriptionMetrics:
+    latency: float
+    confidence: float
+    word_count: int
+    audio_duration: float
+    provider: str
+    language: str
+    error: Optional[str] = None
+
+class STTMonitoring:
+    def __init__(self):
+        # Prometheus metrics
+        self.transcription_counter = Counter(
+            'stt_transcriptions_total', 
+            'Total transcriptions processed',
+            ['provider', 'language', 'status']
+        )
+        
+        self.latency_histogram = Histogram(
+            'stt_latency_seconds',
+            'Transcription latency in seconds',
+            ['provider', 'language']
+        )
+        
+        self.confidence_gauge = Gauge(
+            'stt_confidence_score',
+            'Current confidence score',
+            ['provider', 'language']
+        )
+        
+        self.error_counter = Counter(
+            'stt_errors_total',
+            'Total transcription errors',
+            ['provider', 'error_type']
+        )
+        
+    def record_transcription(self, metrics: TranscriptionMetrics):
+        """Record transcription metrics"""
+        status = 'success' if not metrics.error else 'error'
+        
+        self.transcription_counter.labels(
+            provider=metrics.provider,
+            language=metrics.language,
+            status=status
+        ).inc()
+        
+        if not metrics.error:
+            self.latency_histogram.labels(
+                provider=metrics.provider,
+                language=metrics.language
+            ).observe(metrics.latency)
+            
+            self.confidence_gauge.labels(
+                provider=metrics.provider,
+                language=metrics.language
+            ).set(metrics.confidence)
+        else:
+            self.error_counter.labels(
+                provider=metrics.provider,
+                error_type=type(metrics.error).__name__
+            ).inc()
+            
+    def get_quality_report(self, time_window_hours=24) -> Dict:
+        """Generate quality report for specified time window"""
+        # Implementation would query metrics for quality analysis
+        return {
+            "avg_confidence": 0.85,
+            "avg_latency": 1.2,
+            "error_rate": 0.02,
+            "top_errors": ["NetworkTimeout", "InvalidAudio"],
+            "provider_performance": {
+                "google": {"accuracy": 0.87, "latency": 1.1},
+                "aws": {"accuracy": 0.84, "latency": 1.3}
+            }
+        }

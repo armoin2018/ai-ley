@@ -1,0 +1,64 @@
+interface APIResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: {
+    code: string;
+    message: string;
+    details?: Record<string, any>;
+  };
+  meta?: {
+    timestamp: string;
+    requestId: string;
+    pagination?: {
+      page: number;
+      limit: number;
+      total: number;
+      hasMore: boolean;
+    };
+  };
+}
+
+class JSONAPIBuilder {
+  static success<T>(data: T, meta?: APIResponse['meta']): APIResponse<T> {
+    return {
+      success: true,
+      data,
+      meta: {
+        timestamp: new Date().toISOString(),
+        requestId: this.generateRequestId(),
+        ...meta
+      }
+    };
+  }
+
+  static error(code: string, message: string, details?: Record<string, any>): APIResponse {
+    return {
+      success: false,
+      error: {
+        code,
+        message,
+        details
+      },
+      meta: {
+        timestamp: new Date().toISOString(),
+        requestId: this.generateRequestId()
+      }
+    };
+  }
+
+  static paginated<T>(
+    data: T[],
+    pagination: { page: number; limit: number; total: number }
+  ): APIResponse<T[]> {
+    return this.success(data, {
+      pagination: {
+        ...pagination,
+        hasMore: pagination.page * pagination.limit < pagination.total
+      }
+    });
+  }
+
+  private static generateRequestId(): string {
+    return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+}

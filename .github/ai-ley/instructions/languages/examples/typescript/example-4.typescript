@@ -1,0 +1,76 @@
+// ✅ Well-structured service class
+export class UserService {
+  constructor(
+    private readonly repository: UserRepository,
+    private readonly logger: Logger,
+    private readonly cache: Cache
+  ) {}
+
+  async getUser(id: UserId): Promise<User | null> {
+    try {
+      // Check cache first
+      const cached = await this.cache.get<User>(`user:${id}`);
+      if (cached) {
+        this.logger.debug('User found in cache', { userId: id });
+        return cached;
+      }
+
+      // Fetch from repository
+      const user = await this.repository.findById(id);
+      if (user) {
+        await this.cache.set(`user:${id}`, user, { ttl: 300 });
+      }
+
+      return user;
+    } catch (error) {
+      this.logger.error('Failed to get user', { userId: id, error });
+      throw new UserServiceError('Failed to retrieve user', { cause: error });
+    }
+  }
+
+  async createUser(request: CreateUserRequest): Promise<User> {
+    this.validateCreateRequest(request);
+
+    try {
+      const user = await this.repository.create(request);
+      this.logger.info('User created successfully', { userId: user.id });
+      
+      // Emit event
+      this.emit('userCreated', user);
+      
+      return user;
+    } catch (error) {
+      this.logger.error('Failed to create user', { request, error });
+      throw new UserServiceError('Failed to create user', { cause: error });
+    }
+  }
+
+  private validateCreateRequest(request: CreateUserRequest): void {
+    if (!request.email || !isValidEmail(request.email)) {
+      throw new ValidationError('Invalid email address');
+    }
+    
+    if (!request.name || request.name.trim().length < 2) {
+      throw new ValidationError('Name must be at least 2 characters');
+    }
+  }
+}
+
+// ✅ Abstract base class
+abstract class BaseRepository<T, K = string> implements Repository<T, K> {
+  constructor(protected readonly db: Database) {}
+
+  abstract findById(id: K): Promise<T | null>;
+  abstract create(entity: Omit<T, 'id'>): Promise<T>;
+  
+  async update(id: K, updates: Partial<T>): Promise<T> {
+    const entity = await this.findById(id);
+    if (!entity) {
+      throw new NotFoundError(`Entity with id ${id} not found`);
+    }
+    
+    return this.doUpdate(id, updates);
+  }
+  
+  protected abstract doUpdate(id: K, updates: Partial<T>): Promise<T>;
+}

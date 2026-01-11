@@ -1,0 +1,19 @@
+<!-- Use external stylesheets -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!-- Use external scripts with proper loading -->
+<script src="/assets/js/main.js" defer></script>
+
+<!-- Use semantic, efficient structure -->
+<main class="container">
+  <section class="content">
+    <p>Well-structured content</p>
+  </section>
+</main>
+
+<!-- Use resource hints for performance -->
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preload" href="/assets/css/critical.css" as="style">
+  <link rel="prefetch" href="/assets/js/non-critical.js" as="script">
+</head>

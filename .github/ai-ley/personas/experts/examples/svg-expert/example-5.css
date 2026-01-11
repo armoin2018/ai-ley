@@ -1,0 +1,18 @@
+.svg-container {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+}
+
+.svg-container svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Responsive scaling */
+@media (max-width: 768px) {
+  .svg-container {
+    max-width: 300px;
+  }
+}

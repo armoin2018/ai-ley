@@ -1,0 +1,41 @@
+asset_allocation_model:
+  capital_market_assumptions:
+    time_horizon: "10-20 years"
+    return_forecasts:
+      us_equities: "7.0% - 9.0%"
+      international_equities: "6.5% - 8.5%"
+      emerging_markets: "8.0% - 10.0%"
+      investment_grade_bonds: "3.5% - 5.5%"
+      high_yield_bonds: "5.5% - 7.5%"
+      real_estate: "6.0% - 8.0%"
+      commodities: "4.0% - 6.0%"
+      
+    risk_assumptions:
+      volatility_estimates: "historical + forward-looking adjustments"
+      correlation_matrix: "dynamic correlations with regime shifts"
+      tail_risk_modeling: "fat tail distributions and stress scenarios"
+      
+  optimization_framework:
+    objective_function: "maximize_utility_risk_adjusted_returns"
+    constraints:
+      - minimum_diversification: "no_asset_class_below_5%"
+      - maximum_concentration: "no_asset_class_above_40%"
+      - liquidity_requirements: "20%_in_daily_liquid_assets"
+      - esg_constraints: "exclude_controversial_sectors"
+      
+    risk_budgeting:
+      equity_risk_budget: "60% - 80%"
+      interest_rate_risk_budget: "10% - 20%"
+      credit_risk_budget: "5% - 15%"
+      alternative_risk_budget: "15% - 25%"
+      
+  implementation_strategy:
+    rebalancing:
+      frequency: "quarterly_with_threshold_based_triggers"
+      tolerance_bands: "±2%_for_major_asset_classes"
+      transaction_cost_analysis: "minimize_turnover_optimize_timing"
+      
+    tactical_adjustments:
+      maximum_deviation: "±5%_from_strategic_weights"
+      decision_framework: "quantitative_signals_committee_oversight"
+      review_frequency: "monthly_tactical_committee_meetings"

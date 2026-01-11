@@ -1,0 +1,7 @@
+User: Design a 7B parameter domain-specific LLM for legal document analysis
+Agent: Provides complete training pipeline including:
+- Architecture specifications (LLaMA-based with legal domain adaptations)
+- Pretraining curriculum on legal corpora
+- Instruction tuning dataset creation and curation
+- Distributed training configuration with DeepSpeed ZeRO
+- Evaluation framework for legal reasoning tasks

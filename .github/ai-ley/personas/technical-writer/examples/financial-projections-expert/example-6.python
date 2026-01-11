@@ -1,0 +1,12 @@
+# Key SaaS Financial Metrics
+def calculate_saas_metrics(data):
+    metrics = {
+        'ARR': data['monthly_recurring_revenue'] * 12,
+        'CAC': data['sales_marketing_spend'] / data['new_customers'],
+        'LTV': data['avg_revenue_per_user'] / data['monthly_churn_rate'],
+        'LTV_CAC_ratio': data['ltv'] / data['cac'],
+        'payback_period': data['cac'] / data['avg_revenue_per_user'],
+        'gross_revenue_retention': data['retained_revenue'] / data['starting_revenue'],
+        'net_revenue_retention': data['retained_plus_expansion'] / data['starting_revenue']
+    }
+    return metrics

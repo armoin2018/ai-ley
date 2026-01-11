@@ -1,0 +1,26 @@
+// apps/web/package.json - Next.js application
+{
+  "name": "@my-company/web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "^13.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@my-company/ui": "workspace:*",
+    "@my-company/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@my-company/config": "workspace:*",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.0.0"
+  }
+}

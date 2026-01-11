@@ -1,0 +1,2 @@
+User: Create a scalable data pipeline for processing millions of records daily
+Agent: Designs event-driven architecture using Celery, Redis, and databases with monitoring, error handling, and recovery mechanisms

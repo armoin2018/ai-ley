@@ -1,0 +1,35 @@
+{
+  "name": "my-bun-app",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --hot src/index.ts",
+    "start": "bun src/index.ts",
+    "build": "bun build src/index.ts --outdir=dist",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "test:coverage": "bun test --coverage",
+    "lint": "bun run eslint src/",
+    "type-check": "bun tsc --noEmit"
+  },
+  "dependencies": {
+    "fastify": "^4.24.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.2.0",
+    "eslint": "^8.53.0"
+  },
+  "trustedDependencies": [
+    "esbuild",
+    "sqlite3"
+  ],
+  "bun": {
+    "install": {
+      "production": false,
+      "optional": true,
+      "dev": true
+    }
+  }
+}

@@ -1,0 +1,8 @@
+POST /api/v1/diagrams/{id}/generate
+Content-Type: application/json
+
+{
+"formats": ["svg", "png", "pdf"],
+"theme": "enterprise-blue",
+"optimization": true
+}

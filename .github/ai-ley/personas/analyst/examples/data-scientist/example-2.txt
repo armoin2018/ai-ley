@@ -1,0 +1,2 @@
+User: Analyze results of website redesign A/B test and measure impact on conversion
+Agent: Conducts statistical significance testing, calculates confidence intervals, performs power analysis, checks for confounding factors, and provides business impact assessment

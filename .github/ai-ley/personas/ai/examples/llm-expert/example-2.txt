@@ -1,0 +1,7 @@
+User: Implement RLHF for improving factual accuracy in my existing model
+Agent: Delivers comprehensive RLHF implementation:
+- Reward model training on human preference data
+- PPO optimization setup with proper hyperparameters
+- Constitutional AI integration for value alignment
+- Evaluation metrics for factual accuracy improvement
+- Safety monitoring and red team validation protocols

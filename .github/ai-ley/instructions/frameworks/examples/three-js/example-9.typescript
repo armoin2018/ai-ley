@@ -1,0 +1,79 @@
+// utils/ProceduralGeneration.ts - Procedural content generation
+import * as THREE from 'three';
+
+export class TerrainGenerator {
+    public generateTerrain(width: number, height: number, segments: number = 64): THREE.Mesh {
+        const geometry = new THREE.PlaneGeometry(width, height, segments, segments);
+        
+        // Generate height map using noise
+        const vertices = geometry.attributes.position.array as Float32Array;
+        
+        for (let i = 0; i < vertices.length; i += 3) {
+            const x = vertices[i];
+            const z = vertices[i + 2];
+            
+            // Multi-octave noise for realistic terrain
+            vertices[i + 1] = this.generateHeight(x, z);
+        }
+        
+        geometry.attributes.position.needsUpdate = true;
+        geometry.computeVertexNormals();
+        
+        const material = new THREE.MeshStandardMaterial({
+            color: 0x3e7b3e,
+            roughness: 0.8,
+            metalness: 0.1
+        });
+        
+        return new THREE.Mesh(geometry, material);
+    }
+
+    private generateHeight(x: number, z: number): number {
+        // Simple noise function (replace with proper noise library for production)
+        const scale = 0.01;
+        const amplitude = 10;
+        
+        return Math.sin(x * scale) * Math.cos(z * scale) * amplitude +
+               Math.sin(x * scale * 2) * Math.cos(z * scale * 2) * amplitude * 0.5 +
+               Math.sin(x * scale * 4) * Math.cos(z * scale * 4) * amplitude * 0.25;
+    }
+}
+
+export class CityGenerator {
+    public generateCity(size: number): THREE.Group {
+        const city = new THREE.Group();
+        const buildingCount = 50;
+        
+        for (let i = 0; i < buildingCount; i++) {
+            const building = this.createBuilding();
+            
+            // Random position within city bounds
+            building.position.x = (Math.random() - 0.5) * size;
+            building.position.z = (Math.random() - 0.5) * size;
+            
+            city.add(building);
+        }
+        
+        return city;
+    }
+
+    private createBuilding(): THREE.Mesh {
+        const width = Math.random() * 4 + 2;
+        const height = Math.random() * 20 + 5;
+        const depth = Math.random() * 4 + 2;
+        
+        const geometry = new THREE.BoxGeometry(width, height, depth);
+        const material = new THREE.MeshStandardMaterial({
+            color: new THREE.Color().setHSL(Math.random(), 0.5, 0.6),
+            roughness: 0.7,
+            metalness: 0.3
+        });
+        
+        const building = new THREE.Mesh(geometry, material);
+        building.position.y = height / 2;
+        building.castShadow = true;
+        building.receiveShadow = true;
+        
+        return building;
+    }
+}

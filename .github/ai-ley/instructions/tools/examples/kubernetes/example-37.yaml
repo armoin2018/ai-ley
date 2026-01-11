@@ -1,0 +1,100 @@
+# cluster-api-management.yaml - Infrastructure as code for Kubernetes clusters
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AWSCluster
+metadata:
+  name: production-cluster
+  namespace: cluster-system
+spec:
+  region: us-west-2
+  networkSpec:
+    vpc:
+      availabilityZoneUsageLimit: 3
+      availabilityZoneSelection: Ordered
+    subnets:
+      - availabilityZone: us-west-2a
+        cidrBlock: 10.0.1.0/24
+        isPublic: true
+      - availabilityZone: us-west-2b
+        cidrBlock: 10.0.2.0/24
+        isPublic: true
+      - availabilityZone: us-west-2c
+        cidrBlock: 10.0.3.0/24
+        isPublic: true
+      - availabilityZone: us-west-2a
+        cidrBlock: 10.0.4.0/24
+        isPublic: false
+      - availabilityZone: us-west-2b
+        cidrBlock: 10.0.5.0/24
+        isPublic: false
+      - availabilityZone: us-west-2c
+        cidrBlock: 10.0.6.0/24
+        isPublic: false
+  bastion:
+    enabled: true
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: production-cluster
+  namespace: cluster-system
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+        - 192.168.0.0/16
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: AWSCluster
+    name: production-cluster
+  controlPlaneRef:
+    kind: KubeadmControlPlane
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    name: production-control-plane
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+metadata:
+  name: production-control-plane
+  namespace: cluster-system
+spec:
+  version: v1.28.2
+  replicas: 3
+  machineTemplate:
+    infrastructureRef:
+      kind: AWSMachineTemplate
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      name: production-control-plane
+  kubeadmConfigSpec:
+    initConfiguration:
+      nodeRegistration:
+        name: '{{ ds.meta_data.local_hostname }}'
+        kubeletExtraArgs:
+          cloud-provider: aws
+    clusterConfiguration:
+      apiServer:
+        timeoutForControlPlane: 20m
+        cloudProvider: aws
+        extraArgs:
+          audit-log-path: /var/log/audit.log
+          audit-policy-file: /etc/kubernetes/audit-policy.yaml
+          enable-admission-plugins: NodeRestriction,PodSecurity
+        extraVolumes:
+          - name: audit-policy
+            hostPath: /etc/kubernetes/audit-policy.yaml
+            mountPath: /etc/kubernetes/audit-policy.yaml
+            readOnly: true
+            pathType: File
+      controllerManager:
+        cloudProvider: aws
+        extraArgs:
+          enable-hostpath-provisioner: 'true'
+      dns:
+        type: CoreDNS
+      etcd:
+        local:
+          dataDir: /var/lib/etcd
+    joinConfiguration:
+      nodeRegistration:
+        name: '{{ ds.meta_data.local_hostname }}'
+        kubeletExtraArgs:
+          cloud-provider: aws

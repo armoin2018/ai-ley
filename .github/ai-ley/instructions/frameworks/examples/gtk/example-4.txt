@@ -1,0 +1,31 @@
+gtk_python_app/
+├── main.py                  # Application entry point
+├── src/
+│   ├── __init__.py
+│   ├── application.py       # Main application class
+│   ├── window.py           # Main window implementation
+│   ├── widgets/            # Custom widgets
+│   │   ├── __init__.py
+│   │   ├── custom_button.py
+│   │   └── file_chooser.py
+│   ├── models/             # Data models
+│   │   ├── __init__.py
+│   │   └── document.py
+│   ├── controllers/        # Business logic
+│   │   ├── __init__.py
+│   │   └── file_manager.py
+│   └── utils/              # Utility functions
+│       ├── __init__.py
+│       └── helpers.py
+├── data/                   # Application data
+│   ├── ui/                 # UI definition files
+│   │   ├── main_window.ui
+│   │   └── preferences.ui
+│   ├── icons/              # Application icons
+│   └── schemas/            # GSettings schemas
+├── po/                     # Translation files
+├── tests/                  # Unit tests
+├── requirements.txt        # Python dependencies
+├── setup.py               # Installation script
+├── meson.build            # Build configuration
+└── README.md

@@ -1,0 +1,19 @@
+[Fact]
+public async Task CreateUserAsync_WithValidData_ShouldReturnSuccessResult()
+{
+    // Arrange
+    var request = new CreateUserRequest { Email = "test@example.com" };
+    var mockRepository = new Mock<IUserRepository>();
+    mockRepository.Setup(r => r.FindByEmailAsync(It.IsAny<string>()))
+              .ReturnsAsync((User)null);
+    
+    var service = new UserService(mockRepository.Object, Mock.Of<ILogger<UserService>>());
+    
+    // Act
+    var result = await service.CreateUserAsync(request);
+    
+    // Assert
+    Assert.True(result.IsSuccess);
+    Assert.Equal(request.Email, result.Value.Email);
+    mockRepository.Verify(r => r.AddAsync(It.IsAny<User>()), Times.Once);
+}

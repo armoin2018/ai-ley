@@ -1,0 +1,62 @@
+# cronjob.yaml - Scheduled backup job
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: database-backup
+  namespace: production
+spec:
+  schedule: '0 2 * * *' # Daily at 2 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: backup
+              image: postgres:15-alpine
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-secret
+                      key: password
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  pg_dump -h postgres-service -U myapp_user myapp > /backup/backup-$(date +%Y%m%d-%H%M%S).sql
+                  find /backup -name "*.sql" -mtime +7 -delete
+              volumeMounts:
+                - name: backup-storage
+                  mountPath: /backup
+          volumes:
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: backup-pvc
+          restartPolicy: OnFailure
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
+
+---
+# job.yaml - One-time migration job
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: database-migration
+  namespace: production
+spec:
+  template:
+    spec:
+      containers:
+        - name: migration
+          image: myregistry/migration-tool:latest
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: connection-string
+          command: ['npm', 'run', 'migrate']
+      restartPolicy: Never
+  backoffLimit: 3
+  activeDeadlineSeconds: 1800

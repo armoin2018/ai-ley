@@ -1,0 +1,47 @@
+portfolio_construction:
+  investment_universe:
+    screening_criteria:
+      market_cap: ">$1B for large cap strategies"
+      liquidity: "average_daily_volume >$5M"
+      financial_health: "debt_to_equity <2.0, current_ratio >1.2"
+      quality_metrics: "roe >12%, roic >10%, consistent_earnings_growth"
+      
+  quantitative_analysis:
+    factor_models:
+      - fama_french_5_factor: "market, size, value, profitability, investment"
+      - momentum_factor: "12_1_month_price_momentum"
+      - quality_factor: "composite_score_profitability_stability"
+      - low_volatility_factor: "risk_adjusted_returns"
+      
+    optimization_inputs:
+      expected_returns: "analyst_forecasts + factor_models + technical_indicators"
+      risk_model: "barra_risk_model_with_specific_risk"
+      transaction_costs: "market_impact + commission + bid_ask_spread"
+      constraints: "position_limits + sector_limits + turnover_constraints"
+      
+  fundamental_analysis:
+    company_evaluation:
+      financial_metrics:
+        - revenue_growth: "5_year_cagr_sustainability_analysis"
+        - margin_expansion: "operating_leverage_cost_structure"
+        - capital_efficiency: "roic_vs_wacc_value_creation"
+        - balance_sheet_strength: "debt_capacity_financial_flexibility"
+        
+      competitive_analysis:
+        - market_position: "market_share_competitive_advantages"
+        - industry_dynamics: "growth_drivers_competitive_threats"
+        - management_quality: "track_record_capital_allocation"
+        - esg_factors: "sustainability_governance_social_impact"
+        
+  risk_management:
+    position_sizing:
+      base_case: "1% - 3% position size"
+      high_conviction: "3% - 5% position size"
+      maximum_position: "5% regulatory limit"
+      sector_limits: "maximum 25% in single sector"
+      
+    risk_budgeting:
+      systematic_risk: "70% - 80% of total risk"
+      specific_risk: "20% - 30% of total risk"
+      factor_exposures: "controlled tilts to value, quality, momentum"
+      tracking_error_target: "4% - 6% annual volatility"

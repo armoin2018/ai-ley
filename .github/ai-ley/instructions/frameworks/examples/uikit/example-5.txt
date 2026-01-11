@@ -1,0 +1,21 @@
+uikit-project/
+├── src/
+│   ├── styles/
+│   │   ├── main.less
+│   │   ├── variables.less
+│   │   ├── components/
+│   │   └── themes/
+│   ├── scripts/
+│   │   ├── main.js
+│   │   └── components/
+│   ├── assets/
+│   │   ├── images/
+│   │   └── icons/
+│   └── index.html
+├── dist/
+│   ├── css/
+│   ├── js/
+│   └── assets/
+├── webpack.config.js
+├── package.json
+└── README.md

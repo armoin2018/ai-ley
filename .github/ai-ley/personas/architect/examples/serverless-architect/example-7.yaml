@@ -1,0 +1,44 @@
+security_framework:
+  iam_policies:
+    least_privilege:
+      - function_specific_permissions
+      - resource_level_access
+      - condition_based_access
+      
+    cross_service_access:
+      - assume_role_patterns
+      - resource_sharing
+      - cross_account_access
+      
+  api_security:
+    authentication:
+      - cognito_user_pools
+      - jwt_authorizers
+      - api_key_authentication
+      
+    authorization:
+      - resource_based_policies
+      - request_validation
+      - rate_limiting
+      
+  data_protection:
+    encryption:
+      - kms_integration
+      - envelope_encryption
+      - client_side_encryption
+      
+    secrets_management:
+      - parameter_store
+      - secrets_manager
+      - environment_variables
+      
+  network_security:
+    vpc_configuration:
+      - private_subnets
+      - nat_gateways
+      - security_groups
+      
+    api_protection:
+      - waf_integration
+      - ddos_protection
+      - geo_blocking

@@ -1,0 +1,86 @@
+// src/services/userService.ts
+export class UserService {
+  async getUser(id: string): Promise<User> {
+    const response = await fetch(`/api/users/${id}`)
+    if (!response.ok) {
+      throw new Error(`User not found: ${id}`)
+    }
+    return response.json()
+  }
+
+  async createUser(userData: Omit<User, 'id'>): Promise<User> {
+    const response = await fetch('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData),
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to create user')
+    }
+
+    return response.json()
+  }
+}
+
+// src/services/__tests__/userService.test.ts
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { UserService } from '../userService'
+
+global.fetch = vi.fn()
+
+describe('UserService', () => {
+  let userService: UserService
+
+  beforeEach(() => {
+    userService = new UserService()
+    vi.resetAllMocks()
+  })
+
+  describe('getUser', () => {
+    it('fetches user successfully', async () => {
+      const mockUser = { id: '1', name: 'John', email: 'john@example.com' }
+
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockUser,
+      } as Response)
+
+      const user = await userService.getUser('1')
+
+      expect(fetch).toHaveBeenCalledWith('/api/users/1')
+      expect(user).toEqual(mockUser)
+    })
+
+    it('throws error when user not found', async () => {
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      } as Response)
+
+      await expect(userService.getUser('999'))
+        .rejects.toThrow('User not found: 999')
+    })
+  })
+
+  describe('createUser', () => {
+    it('creates user successfully', async () => {
+      const userData = { name: 'Jane', email: 'jane@example.com' }
+      const createdUser = { id: '2', ...userData }
+
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: async () => createdUser,
+      } as Response)
+
+      const user = await userService.createUser(userData)
+
+      expect(fetch).toHaveBeenCalledWith('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+      })
+      expect(user).toEqual(createdUser)
+    })
+  })
+})

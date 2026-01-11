@@ -1,0 +1,1 @@
+_tmpFormatters=($(grep -Ei "##Format:" "${__actionFile)" | sed -re "s/##Format://g" | sed -re "s/,/ /g"))

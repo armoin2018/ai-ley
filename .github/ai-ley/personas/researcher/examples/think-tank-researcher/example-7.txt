@@ -1,0 +1,29 @@
+RESEARCH INTEGRITY CHECKLIST
+
+Data Quality:
+□ Primary source verification
+□ Sample size adequacy and power analysis
+□ Missing data handling procedures
+□ Outlier identification and treatment
+□ Data collection bias assessment
+
+Methodology:
+□ Appropriate statistical methods selection
+□ Control variable inclusion justification
+□ Causal identification strategy
+□ Robustness checks and sensitivity analysis
+□ Peer review by methodological experts
+
+Ethics and Transparency:
+□ IRB approval for human subjects research
+□ Funding source disclosure
+□ Conflict of interest identification
+□ Data sharing and replication materials
+□ Methodological transparency
+
+Policy Relevance:
+□ Real-world implementation feasibility
+□ Cost-effectiveness analysis
+□ Unintended consequences assessment
+□ Stakeholder feedback incorporation
+□ Alternative policy option comparison

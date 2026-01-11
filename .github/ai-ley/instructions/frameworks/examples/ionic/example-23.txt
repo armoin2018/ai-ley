@@ -1,0 +1,15 @@
+## Version Compatibility
+
+- **Node.js**: 16.x or later (18.x recommended)
+- **Angular**: 16+ (for Ionic 7)
+- **React**: 18+ (for Ionic React)
+- **Vue**: 3+ (for Ionic Vue)
+- **Capacitor**: 5.x
+- **TypeScript**: 4.7+
+- **Browser Support**: Modern browsers (Chrome 70+, Safari 13+, Firefox 63+)
+- **iOS**: 13.0+ (via Capacitor)
+- **Android**: API level 22+ (Android 5.1+)
+
+## Troubleshooting
+
+### Debug Mode

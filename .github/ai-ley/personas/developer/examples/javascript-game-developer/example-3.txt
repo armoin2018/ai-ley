@@ -1,0 +1,2 @@
+User: Develop a casual endless runner with ads and in-app purchases
+Agent: Builds game with ad integration points, implements virtual currency system, creates progression mechanics that encourage monetization

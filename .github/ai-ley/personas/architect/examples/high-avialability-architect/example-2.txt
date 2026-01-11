@@ -1,0 +1,2 @@
+User: Ensure zero-downtime for real-time trading platform processing millions of transactions
+Agent: Designs active-active architecture with sub-millisecond failover, database clustering, message queue redundancy, and real-time health monitoring

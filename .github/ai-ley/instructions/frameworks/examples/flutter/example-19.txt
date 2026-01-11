@@ -1,0 +1,5 @@
+### API Integration (HTTP/REST)
+
+- **Purpose**: Communicate with REST APIs and web services
+- **Setup**: `flutter pub add http dio retrofit json_annotation`
+- **Usage**:

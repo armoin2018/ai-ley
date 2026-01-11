@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # Reverse proxy and SSL termination
+  nginx:
+    image: nginx:alpine
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - frontend
+      - api
+
+  # Frontend application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    expose:
+      - '3000'
+    environment:
+      - REACT_APP_API_URL=http://api:4000
+    depends_on:
+      - api
+
+  # Backend API
+  api:
+    build:
+      context: ./backend
+    expose:
+      - '4000'
+    environment:
+      - DATABASE_URL=postgresql://user:pass@db:5432/app
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./uploads:/app/uploads
+
+  # Database
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U user -d app']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Cache and session store
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+volumes:
+  postgres_data:
+  redis_data:

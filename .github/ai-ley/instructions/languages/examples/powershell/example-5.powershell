@@ -1,0 +1,251 @@
+function Backup-UserData {
+    <#
+    .SYNOPSIS
+        Creates backups of user data with validation and progress tracking.
+    
+    .DESCRIPTION
+        Performs incremental or full backups of user data directories with
+        comprehensive error handling, progress reporting, and validation.
+    #>
+    
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [Parameter(Mandatory, ValueFromPipeline)]
+        [ValidateScript({
+            if (Test-Path $_ -PathType Container) { $true }
+            else { throw "Path '$_' does not exist or is not a directory" }
+        })]
+        [string[]]$SourcePath,
+        
+        [Parameter(Mandatory)]
+        [string]$DestinationPath,
+        
+        [Parameter()]
+        [ValidateSet('Full', 'Incremental')]
+        [string]$BackupType = 'Incremental',
+        
+        [Parameter()]
+        [switch]$Verify,
+        
+        [Parameter()]
+        [int]$RetryCount = 3
+    )
+    
+    begin {
+        # Ensure destination exists
+        if (-not (Test-Path $DestinationPath)) {
+            try {
+                New-Item -Path $DestinationPath -ItemType Directory -Force | Out-Null
+                Write-Verbose "Created destination directory: $DestinationPath"
+            }
+            catch {
+                $PSCmdlet.ThrowTerminatingError($_)
+            }
+        }
+        
+        # Initialize progress tracking
+        $totalSources = 0
+        $processedSources = 0
+        $backupResults = [System.Collections.ArrayList]::new()
+    }
+    
+    process {
+        foreach ($source in $SourcePath) {
+            $totalSources++
+            
+            $activity = "Backing up user data"
+            $status = "Processing: $source"
+            $percentComplete = if ($totalSources -gt 1) { 
+                ($processedSources / $totalSources) * 100 
+            } else { 
+                0 
+            }
+            
+            Write-Progress -Activity $activity -Status $status -PercentComplete $percentComplete
+            
+            if ($PSCmdlet.ShouldProcess($source, "Backup to $DestinationPath")) {
+                $backupResult = @{
+                    SourcePath = $source
+                    DestinationPath = $DestinationPath
+                    BackupType = $BackupType
+                    StartTime = Get-Date
+                    Success = $false
+                    FilesCopied = 0
+                    TotalSize = 0
+                    Error = $null
+                }
+                
+                try {
+                    # Calculate source size for progress
+                    Write-Verbose "Calculating source size for $source"
+                    $sourceSize = Get-ChildItem -Path $source -Recurse -File | 
+                                  Measure-Object -Property Length -Sum
+                    $backupResult.TotalSize = $sourceSize.Sum
+                    
+                    # Determine backup strategy
+                    $destinationFolder = Join-Path $DestinationPath (Split-Path $source -Leaf)
+                    $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+                    
+                    if ($BackupType -eq 'Full') {
+                        $backupFolder = Join-Path $DestinationPath "Full_$timestamp"
+                    } else {
+                        $lastBackup = Get-ChildItem $DestinationPath -Directory | 
+                                     Where-Object { $_.Name -match "^(Full_|Incremental_)" } |
+                                     Sort-Object LastWriteTime -Descending |
+                                     Select-Object -First 1
+                        
+                        $backupFolder = Join-Path $DestinationPath "Incremental_$timestamp"
+                        $referenceDate = if ($lastBackup) { $lastBackup.LastWriteTime } else { [DateTime]::MinValue }
+                    }
+                    
+                    # Perform backup with retry logic
+                    $attempt = 0
+                    do {
+                        $attempt++
+                        try {
+                            if ($BackupType -eq 'Full') {
+                                $result = Copy-ItemWithProgress -Source $source -Destination $backupFolder -Recurse
+                            } else {
+                                $result = Copy-ItemWithProgress -Source $source -Destination $backupFolder -Recurse -NewerThan $referenceDate
+                            }
+                            
+                            $backupResult.FilesCopied = $result.FilesCopied
+                            $backupResult.Success = $true
+                            break
+                        }
+                        catch {
+                            if ($attempt -eq $RetryCount) {
+                                throw
+                            }
+                            Write-Warning "Backup attempt $attempt failed for $source. Retrying... Error: $($_.Exception.Message)"
+                            Start-Sleep -Seconds (2 * $attempt)
+                        }
+                    } while ($attempt -lt $RetryCount)
+                    
+                    # Verify backup if requested
+                    if ($Verify -and $backupResult.Success) {
+                        Write-Verbose "Verifying backup for $source"
+                        $verificationResult = Test-BackupIntegrity -SourcePath $source -BackupPath $backupFolder
+                        if (-not $verificationResult.IsValid) {
+                            throw "Backup verification failed: $($verificationResult.Error)"
+                        }
+                    }
+                    
+                    $backupResult.EndTime = Get-Date
+                    $backupResult.Duration = $backupResult.EndTime - $backupResult.StartTime
+                    
+                    Write-Information "Successfully backed up $source to $backupFolder" -InformationAction Continue
+                }
+                catch {
+                    $backupResult.Success = $false
+                    $backupResult.Error = $_.Exception.Message
+                    $backupResult.EndTime = Get-Date
+                    
+                    $errorRecord = [System.Management.Automation.ErrorRecord]::new(
+                        $_.Exception,
+                        "BackupOperationFailed",
+                        [System.Management.Automation.ErrorCategory]::OperationStopped,
+                        $source
+                    )
+                    $PSCmdlet.WriteError($errorRecord)
+                }
+                
+                [void]$backupResults.Add([PSCustomObject]$backupResult)
+                $processedSources++
+            }
+        }
+    }
+    
+    end {
+        Write-Progress -Activity "Backing up user data" -Completed
+        
+        # Output summary
+        $successfulBackups = $backupResults | Where-Object Success
+        $failedBackups = $backupResults | Where-Object { -not $_.Success }
+        
+        $summary = [PSCustomObject]@{
+            TotalSources = $totalSources
+            SuccessfulBackups = $successfulBackups.Count
+            FailedBackups = $failedBackups.Count
+            TotalFilesCopied = ($successfulBackups | Measure-Object -Property FilesCopied -Sum).Sum
+            TotalSizeCopied = ($successfulBackups | Measure-Object -Property TotalSize -Sum).Sum
+            BackupResults = $backupResults
+        }
+        
+        Write-Output $summary
+    }
+}
+
+function Copy-ItemWithProgress {
+    param(
+        [string]$Source,
+        [string]$Destination,
+        [switch]$Recurse,
+        [DateTime]$NewerThan = [DateTime]::MinValue
+    )
+    
+    $files = if ($Recurse) {
+        Get-ChildItem -Path $Source -Recurse -File | Where-Object { $_.LastWriteTime -gt $NewerThan }
+    } else {
+        Get-ChildItem -Path $Source -File | Where-Object { $_.LastWriteTime -gt $NewerThan }
+    }
+    
+    $filesCopied = 0
+    $totalFiles = $files.Count
+    
+    foreach ($file in $files) {
+        $relativePath = $file.FullName.Substring($Source.Length + 1)
+        $destinationFile = Join-Path $Destination $relativePath
+        $destinationDir = Split-Path $destinationFile -Parent
+        
+        if (-not (Test-Path $destinationDir)) {
+            New-Item -Path $destinationDir -ItemType Directory -Force | Out-Null
+        }
+        
+        Copy-Item -Path $file.FullName -Destination $destinationFile -Force
+        $filesCopied++
+        
+        if ($totalFiles -gt 100 -and ($filesCopied % 10 -eq 0)) {
+            $percentComplete = ($filesCopied / $totalFiles) * 100
+            Write-Progress -Activity "Copying files" -Status "Copied $filesCopied of $totalFiles files" -PercentComplete $percentComplete
+        }
+    }
+    
+    return @{ FilesCopied = $filesCopied }
+}
+
+function Test-BackupIntegrity {
+    param(
+        [string]$SourcePath,
+        [string]$BackupPath
+    )
+    
+    try {
+        # Simple file count and size verification
+        $sourceFiles = Get-ChildItem -Path $SourcePath -Recurse -File
+        $backupFiles = Get-ChildItem -Path $BackupPath -Recurse -File
+        
+        $sourceCount = $sourceFiles.Count
+        $backupCount = $backupFiles.Count
+        
+        $sourceSize = ($sourceFiles | Measure-Object -Property Length -Sum).Sum
+        $backupSize = ($backupFiles | Measure-Object -Property Length -Sum).Sum
+        
+        $isValid = ($sourceCount -eq $backupCount) -and ($sourceSize -eq $backupSize)
+        
+        return @{
+            IsValid = $isValid
+            SourceFileCount = $sourceCount
+            BackupFileCount = $backupCount
+            SourceSize = $sourceSize
+            BackupSize = $backupSize
+            Error = if (-not $isValid) { "File count or size mismatch" } else { $null }
+        }
+    }
+    catch {
+        return @{
+            IsValid = $false
+            Error = $_.Exception.Message
+        }
+    }
+}

@@ -1,0 +1,2 @@
+User: Create RAG for documents containing text, images, and tables
+Agent: Designs multi-modal embedding strategy, implements specialized retrievers, and creates unified ranking system

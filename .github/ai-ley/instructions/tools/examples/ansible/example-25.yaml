@@ -1,0 +1,97 @@
+# .gitlab-ci.yml - GitLab CI/CD pipeline for infrastructure automation
+stages:
+  - validate
+  - security
+  - test
+  - deploy-dev
+  - deploy-staging
+  - deploy-prod
+
+variables:
+  ANSIBLE_HOST_KEY_CHECKING: 'False'
+  ANSIBLE_STDOUT_CALLBACK: 'yaml'
+
+before_script:
+  - apt-get update -qq && apt-get install -qq -y python3-pip
+  - pip3 install ansible-core>=2.15
+  - ansible-galaxy collection install -r requirements.yml
+
+validate_syntax:
+  stage: validate
+  script:
+    - ansible-playbook --syntax-check site.yml
+    - ansible-lint --offline playbooks/ roles/
+    - yamllint -d relaxed .
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+
+security_scan:
+  stage: security
+  script:
+    - pip3 install ansible-security bandit safety
+    - ansible-security scan --format json > security_results.json
+    - bandit -r roles/ -f json -o bandit_results.json
+    - safety check --json > safety_results.json
+  artifacts:
+    reports:
+      security:
+        - security_results.json
+        - bandit_results.json
+        - safety_results.json
+    expire_in: 1 week
+  allow_failure: false
+
+molecule_tests:
+  stage: test
+  parallel:
+    matrix:
+      - ROLE: [common, security, monitoring, database, application]
+  script:
+    - cd roles/$ROLE
+    - pip3 install molecule[docker] testinfra pytest
+    - molecule test
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - 'roles/$ROLE/**/*'
+
+deploy_development:
+  stage: deploy-dev
+  environment:
+    name: development
+    url: https://dev.example.com
+  script:
+    - ansible-playbook -i inventory/development site.yml --vault-password-file $VAULT_PASSWORD_FILE
+    - ansible-playbook -i inventory/development playbooks/validation/smoke_tests.yml
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+deploy_staging:
+  stage: deploy-staging
+  environment:
+    name: staging
+    url: https://staging.example.com
+  script:
+    - ansible-playbook -i inventory/staging site.yml --vault-password-file $VAULT_PASSWORD_FILE --check --diff
+    - ansible-playbook -i inventory/staging site.yml --vault-password-file $VAULT_PASSWORD_FILE
+    - ansible-playbook -i inventory/staging playbooks/testing/integration_tests.yml
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  when: manual
+
+deploy_production:
+  stage: deploy-prod
+  environment:
+    name: production
+    url: https://production.example.com
+  script:
+    - ansible-playbook -i inventory/production playbooks/backup/pre_deployment_backup.yml --vault-password-file $VAULT_PASSWORD_FILE
+    - ansible-playbook -i inventory/production site.yml --vault-password-file $VAULT_PASSWORD_FILE --limit "canary" --serial 1
+    - ansible-playbook -i inventory/production playbooks/validation/canary_validation.yml --vault-password-file $VAULT_PASSWORD_FILE
+    - ansible-playbook -i inventory/production site.yml --vault-password-file $VAULT_PASSWORD_FILE --serial "25%"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  when: manual
+  only:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /\[deploy-prod\]/

@@ -1,0 +1,8 @@
+User: Create a complete CI/CD pipeline for a microservices application
+Agent: Provides comprehensive solution including:
+- Multi-stage GitHub Actions workflow with security scanning
+- Docker containerization and registry management
+- Kubernetes deployment with rolling updates
+- Automated testing (unit, integration, e2e)
+- Environment promotion strategy
+- Monitoring and rollback procedures

@@ -1,0 +1,39 @@
+// Event-driven communication with domain events
+interface DomainEvent {
+  eventId: string;
+  eventType: string;
+  aggregateId: string;
+  timestamp: Date;
+  version: number;
+  data: any;
+}
+
+class EventBus {
+  async publish(event: DomainEvent): Promise<void> {
+    await this.kafka.send({
+      topic: event.eventType,
+      messages: [{
+        key: event.aggregateId,
+        value: JSON.stringify(event),
+        headers: {
+          'event-type': event.eventType,
+          'event-version': event.version.toString()
+        }
+      }]
+    });
+  }
+
+  async subscribe<T>(eventType: string, handler: (event: T) => Promise<void>) {
+    await this.kafka.subscribe({
+      topic: eventType,
+      fromBeginning: false
+    });
+    
+    await this.kafka.run({
+      eachMessage: async ({ message }) => {
+        const event = JSON.parse(message.value.toString());
+        await handler(event);
+      }
+    });
+  }
+}

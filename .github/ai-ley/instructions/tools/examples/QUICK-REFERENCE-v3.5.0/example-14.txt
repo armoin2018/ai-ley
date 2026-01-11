@@ -1,0 +1,34 @@
+============================================================
+Per-Page SEO Analysis
+============================================================
+
+Analyzing:
+  • Cache Directory: ./cache/example
+  • Total Pages: 87
+
+[1/87] Score: 72/100 Priority: MEDIUM - https://example.com/
+[2/87] Score: 45/100 Priority: CRITICAL - https://example.com/about
+[3/87] Score: 88/100 Priority: LOW - https://example.com/contact
+...
+
+============================================================
+Analysis Complete!
+============================================================
+
+Overall Statistics:
+  • Average Score: 67.3/100
+  • Highest Score: 92
+  • Lowest Score: 31
+
+Priority Distribution:
+  • CRITICAL: 12 pages
+  • HIGH: 23 pages
+  • MEDIUM: 38 pages
+  • LOW: 14 pages
+
+Top 5 Common Issues:
+  • (42 pages) No schema.org structured data found
+  • (31 pages) Meta description too short
+  • (28 pages) Content below ideal length
+  • (19 pages) Few internal links
+  • (15 pages) Images missing alt text

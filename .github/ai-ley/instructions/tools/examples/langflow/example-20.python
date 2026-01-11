@@ -1,0 +1,23 @@
+# Conversation summary memory
+summary_memory_config = {
+    "type": "ConversationSummaryMemory",
+    "llm": "gpt-3.5-turbo",
+    "memory_key": "chat_history",
+    "return_messages": True,
+    "max_token_limit": 1000,
+    "summary_prompt": """
+    Progressively summarize the lines of conversation provided,
+    adding onto the previous summary returning a new summary.
+
+    EXAMPLE
+    Current summary: The human asks what the AI thinks of artificial intelligence.
+    New lines of conversation:
+    Human: Is it sentient?
+    AI: I don't have consciousness or sentience.
+    New summary: The human asks about AI and sentience. The AI explains it lacks consciousness.
+
+    Current summary: {summary}
+    New lines: {new_lines}
+    New summary:
+    """
+}

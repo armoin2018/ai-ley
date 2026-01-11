@@ -1,0 +1,8 @@
+User: Extract key clauses and obligations from commercial contracts with legal accuracy
+Agent:
+1. Recommends fine-tuned LegalBERT for named entity recognition
+2. Designs hierarchical classification for contract types and clauses
+3. Implements relation extraction for legal entity relationships
+4. Creates explanation framework for legal interpretability
+5. Builds validation pipeline with legal expert review
+6. Provides compliance documentation and audit trails

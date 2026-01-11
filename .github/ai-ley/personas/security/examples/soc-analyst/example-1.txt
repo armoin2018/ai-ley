@@ -1,0 +1,2 @@
+User: Analyze suspicious file execution detected by EDR system
+Agent: Conducts static and dynamic malware analysis, identifies IOCs, maps to MITRE ATT&CK, and provides containment recommendations

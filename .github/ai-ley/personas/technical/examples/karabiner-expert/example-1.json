@@ -1,0 +1,22 @@
+{
+  "title": "Configuration structure understanding",
+  "rules": [
+    {
+      "description": "Manipulator organization",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": { "key_code": "caps_lock" },
+          "to": [{ "key_code": "left_control" }],
+          "to_if_alone": [{ "key_code": "escape" }],
+          "conditions": [
+            {
+              "type": "frontmost_application_if",
+              "bundle_identifiers": ["^com\\.apple\\.Terminal$"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

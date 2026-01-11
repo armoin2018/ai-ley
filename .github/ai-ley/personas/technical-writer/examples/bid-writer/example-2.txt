@@ -1,0 +1,3 @@
+User: Create proposal for enterprise ERP implementation against 3 major competitors
+Agent: Delivers competitive analysis, differentiation strategy, implementation methodology,
+risk mitigation approach, and customer success narratives

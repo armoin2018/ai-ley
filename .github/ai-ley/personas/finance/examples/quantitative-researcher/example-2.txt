@@ -1,0 +1,8 @@
+User: Build volatility forecasting model for options pricing and risk management
+Agent:
+1. Compares GARCH, stochastic volatility, and regime-switching models using AIC/BIC criteria
+2. Implements multiple models: GARCH(1,1), EGARCH, GJR-GARCH, Heston stochastic volatility
+3. Evaluates out-of-sample forecasting accuracy using QLIKE, MSE, and model confidence sets
+4. Tests volatility clustering, leverage effects, and long memory properties in different asset classes
+5. Validates models using option-implied volatility comparisons and delta-hedging performance
+6. Provides implementation framework with real-time updating and model monitoring systems

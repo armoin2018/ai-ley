@@ -1,0 +1,76 @@
+# Complex API integration workflow
+api_workflow = {
+    "components": [
+        {
+            "type": "WebhookTrigger",
+            "name": "order_webhook",
+            "config": {
+                "endpoint": "/api/orders/new",
+                "method": "POST"
+            }
+        },
+        {
+            "type": "HTTPRequest",
+            "name": "inventory_check",
+            "config": {
+                "url": "https://inventory.example.com/api/check",
+                "method": "GET",
+                "headers": {
+                    "Authorization": "Bearer {inventory_token}"
+                }
+            }
+        },
+        {
+            "type": "ConditionalRouter",
+            "name": "stock_router",
+            "config": {
+                "condition": "inventory.in_stock == true",
+                "true_path": "process_order",
+                "false_path": "backorder_flow"
+            }
+        },
+        {
+            "type": "HTTPRequest",
+            "name": "payment_processor",
+            "config": {
+                "url": "https://payments.example.com/api/charge",
+                "method": "POST",
+                "body": {
+                    "amount": "{order.total}",
+                    "currency": "USD",
+                    "customer_id": "{order.customer_id}"
+                }
+            }
+        },
+        {
+            "type": "OpenAI",
+            "name": "confirmation_generator",
+            "config": {
+                "model": "gpt-4",
+                "prompt": """
+Generate a personalized order confirmation email:
+
+Order Details: {order}
+Customer: {customer}
+Payment: {payment}
+
+Include:
+- Warm greeting with customer name
+- Order summary with items and pricing
+- Estimated delivery date
+- Tracking information
+- Customer service contact
+- Upsell suggestions (relevant products)
+                """,
+                "temperature": 0.7
+            }
+        },
+        {
+            "type": "EmailSender",
+            "name": "notification_sender",
+            "config": {
+                "smtp_server": "smtp.example.com",
+            }
+        }
+    ]
+}

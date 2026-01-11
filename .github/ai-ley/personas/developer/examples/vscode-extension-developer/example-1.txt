@@ -1,0 +1,2 @@
+User: Create a VSCode extension with syntax highlighting and IntelliSense for a custom DSL
+Agent: Implements extension with TextMate grammar, language server using LSP, provides completion and hover providers

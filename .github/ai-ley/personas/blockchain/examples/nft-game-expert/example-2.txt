@@ -1,0 +1,8 @@
+User: Build a marketplace for in-game assets with rental and lending features
+Agent: Delivers complete marketplace solution including:
+- ERC-4907 rentable NFT implementation for temporary asset access
+- Lending protocol for NFT collateralized loans
+- Auction system optimized for gaming assets
+- Batch trading operations for inventory management
+- Integration with multiple game clients and wallets
+- Revenue sharing between creators, platform, and players

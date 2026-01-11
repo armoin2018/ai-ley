@@ -1,0 +1,2 @@
+User: Set up automated code generation for multiple programming languages from OpenAPI spec
+Agent: Configures OpenAPI Generator with custom templates, CI/CD integration, and validation workflows

@@ -1,0 +1,48 @@
+# Commodity Portfolio Risk Management
+import numpy as np
+import pandas as pd
+from scipy.stats import norm
+
+class CommodityRiskManager:
+    def __init__(self, portfolio_data):
+        self.portfolio = portfolio_data
+        self.correlation_matrix = None
+        
+    def calculate_var(self, confidence_level=0.05, time_horizon=1):
+        """
+        Calculate Value at Risk for commodity portfolio
+        """
+        # Calculate portfolio returns
+        returns = self.portfolio.pct_change().dropna()
+        
+        # Portfolio weights
+        weights = np.array([1.0] * len(returns.columns)) / len(returns.columns)
+        
+        # Portfolio volatility
+        portfolio_vol = np.sqrt(weights.T @ returns.cov() @ weights)
+        
+        # VaR calculation
+        var = norm.ppf(confidence_level) * portfolio_vol * np.sqrt(time_horizon)
+        return var
+    
+    def stress_test_scenarios(self):
+        """
+        Define stress test scenarios for commodity portfolio
+        """
+        scenarios = {
+            'oil_shock': {'crude_oil': -0.3, 'natural_gas': -0.2, 'gasoline': -0.25},
+            'weather_shock': {'corn': -0.4, 'wheat': -0.3, 'soybeans': -0.35},
+            'supply_disruption': {'copper': 0.2, 'aluminum': 0.15, 'zinc': 0.18},
+            'demand_collapse': {'all_commodities': -0.5}
+        }
+        return scenarios
+    
+    def optimal_hedge_ratio(self, spot_returns, futures_returns):
+        """
+        Calculate optimal hedge ratio using minimum variance approach
+        """
+        covariance = np.cov(spot_returns, futures_returns)[0, 1]
+        futures_variance = np.var(futures_returns)
+        
+        optimal_ratio = covariance / futures_variance
+        return optimal_ratio

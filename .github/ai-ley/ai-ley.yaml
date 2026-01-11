@@ -1,0 +1,64 @@
+folders:
+  project: .project
+  prompts: .github/prompts
+  instructions: .github/ai-ley/instructions
+  personas: .github/ai-ley/personas
+  tests: .project/tests
+  performance: .project/tests/performance
+  plan: .project/plan
+  src: src/
+  build: build/
+  docs: src/docs
+  wiki: src/wiki
+  architecture: .project/plan/architecture
+  api: src/wiki/api
+  diff: .project/diff
+  md5sums: .github/ai-ley/md5sums
+  assets:
+    base: src/assets
+    js: src/assets/js
+    css: src/assets/css
+    images: src/assets/images
+    schema: src/assets/schema
+  templates:
+    base: .github/ai-ley/templates
+    instructions: .github/ai-ley/templates/template.instructions.md
+    personas: .github/ai-ley/templates/template.person.md
+    prompts: .github/ai-ley/templates/template.prompt.md
+files:
+  readme: README.md
+  audit-report: .project/AUDIT-REPORT.md
+  test-plan: .project/TEST-PLAN.md
+  health-check: .project/HEALTH-CHECK.md
+  gitignore: .gitignore
+  license: LICENSE
+  contributing: CONTRIBUTING.md
+  code_of_conduct: CODE_OF_CONDUCT.md
+  changelog: .project/CHANGELOG.md
+  whitelist: .project/WHITELIST.md
+  blacklist: .project/BLACKLIST.md
+  review: .project/REVIEW.md
+  history: HISTORY.md
+  requirements: .project/REQUIREMENTS.md
+  requirements_changelog: .project/REQUIREMENTS-CHANGELOG.md
+  ask: .project/ASK.md
+  suggestions: .project/SUGGESTIONS.md
+  instructions-request: .project/INSTRUCTIONS-REQUEST.md
+  personas-request: .project/PERSONAS-REQUEST.md
+  registry: .github/ai-ley/registry.db
+  registry_json: .github/ai-ley/registry.json
+  bugs: .project/BUGS.md
+  errors: .project/ERRORS.md
+  plan: .project/PLAN.md
+  todo: .project/TODO.md
+  instructions: .github/ai-ley/global-instructions.md
+  tests: .project/tests/README.md
+  performance: .project/PERFORMANCE-SUGGESTIONS.md
+  indexes:
+    instructions: .github/ai-ley/indexes/instructions.md
+    personas: .github/ai-ley/indexes/personas.md
+    prompts: .github/ai-ley/indexes/prompts.md
+  md5sums:
+    instructions: .github/ai-ley/md5sums/instructions.md5
+    personas: .github/ai-ley/md5sums/personas.md5
+    prompts: .github/ai-ley/md5sums/prompts.md5

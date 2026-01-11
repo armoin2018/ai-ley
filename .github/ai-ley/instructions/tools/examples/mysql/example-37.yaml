@@ -1,0 +1,70 @@
+# Docker Compose MySQL Cluster with ProxySQL
+version: '3.8'
+services:
+  mysql-master:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: myapp
+      MYSQL_USER: app_user
+      MYSQL_PASSWORD: ${MYSQL_APP_PASSWORD}
+      MYSQL_REPLICATION_USER: replicator
+      MYSQL_REPLICATION_PASSWORD: ${MYSQL_REPLICATION_PASSWORD}
+    volumes:
+      - mysql_master_data:/var/lib/mysql
+      - ./mysql-master.cnf:/etc/mysql/conf.d/mysql.cnf
+      - ./init-master.sql:/docker-entrypoint-initdb.d/init-master.sql
+    ports:
+      - '3306:3306'
+    command: --server-id=1 --log-bin=mysql-bin --binlog-do-db=myapp
+
+  mysql-slave-1:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: myapp
+      MYSQL_USER: app_user
+      MYSQL_PASSWORD: ${MYSQL_APP_PASSWORD}
+    volumes:
+      - mysql_slave1_data:/var/lib/mysql
+      - ./mysql-slave.cnf:/etc/mysql/conf.d/mysql.cnf
+      - ./init-slave.sql:/docker-entrypoint-initdb.d/init-slave.sql
+    ports:
+      - '3307:3306'
+    depends_on:
+      - mysql-master
+    command: --server-id=2 --relay-log=relay-bin --read-only=1
+
+  mysql-slave-2:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: myapp
+      MYSQL_USER: app_user
+      MYSQL_PASSWORD: ${MYSQL_APP_PASSWORD}
+    volumes:
+      - mysql_slave2_data:/var/lib/mysql
+      - ./mysql-slave.cnf:/etc/mysql/conf.d/mysql.cnf
+      - ./init-slave.sql:/docker-entrypoint-initdb.d/init-slave.sql
+    ports:
+      - '3308:3306'
+    depends_on:
+      - mysql-master
+    command: --server-id=3 --relay-log=relay-bin --read-only=1
+
+  proxysql:
+    image: proxysql/proxysql:latest
+    volumes:
+      - ./proxysql.cnf:/etc/proxysql.cnf
+    ports:
+      - '6033:6033' # MySQL interface
+      - '6032:6032' # Admin interface
+    depends_on:
+      - mysql-master
+      - mysql-slave-1
+      - mysql-slave-2
+
+volumes:
+  mysql_master_data:
+  mysql_slave1_data:
+  mysql_slave2_data:

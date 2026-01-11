@@ -1,0 +1,17 @@
+# Comprehensive Gap Analysis
+gap_analysis_result = await togaf_engine.perform_gap_analysis(
+    architecture_id=architecture_result['architecture_id'],
+    gap_analysis_config={
+        'current_state_scope': 'all_domains',
+        'target_state_config': {
+            'digital_maturity_target': 'optimized',
+            'cloud_adoption_target': 80,
+            'automation_target': 70
+        },
+        'gap_criteria': {
+            'business_impact': 'high',
+            'technical_complexity': 'medium',
+            'resource_availability': 'constrained'
+        }
+    }
+)

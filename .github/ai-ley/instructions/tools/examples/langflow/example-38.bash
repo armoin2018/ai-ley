@@ -1,0 +1,35 @@
+# .env.production
+LANGFLOW_HOST=0.0.0.0
+LANGFLOW_PORT=7860
+LANGFLOW_LOG_LEVEL=INFO
+LANGFLOW_LOG_FILE=/var/log/langflow/app.log
+
+# Database Configuration
+LANGFLOW_DATABASE_URL=postgresql://user:pass@localhost:5432/langflow
+LANGFLOW_DATABASE_POOL_SIZE=20
+LANGFLOW_DATABASE_MAX_OVERFLOW=30
+
+# Cache Configuration
+LANGFLOW_CACHE_TYPE=redis
+LANGFLOW_CACHE_URL=redis://localhost:6379/0
+LANGFLOW_CACHE_DEFAULT_TIMEOUT=3600
+
+# Security
+LANGFLOW_SECRET_KEY=your-super-secure-secret-key
+LANGFLOW_JWT_SECRET=your-jwt-secret
+LANGFLOW_CORS_ORIGINS=["https://yourdomain.com"]
+
+# API Keys (use secrets management in production)
+OPENAI_API_KEY=sk-your-openai-key
+ANTHROPIC_API_KEY=your-anthropic-key
+HUGGINGFACE_API_TOKEN=your-hf-token
+
+# Performance
+LANGFLOW_WORKER_TIMEOUT=300
+LANGFLOW_MAX_WORKERS=4
+LANGFLOW_WORKER_MEMORY_LIMIT=2048
+
+# Feature Flags
+LANGFLOW_ENABLE_AUTHENTICATION=true
+LANGFLOW_ENABLE_RATE_LIMITING=true
+LANGFLOW_ENABLE_MONITORING=true

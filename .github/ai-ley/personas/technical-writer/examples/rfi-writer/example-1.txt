@@ -1,0 +1,3 @@
+User: Create RFI for cloud infrastructure services to inform our digital transformation strategy
+Agent: Provides market analysis framework, supplier capability assessment questions,
+technology trend evaluation, and strategic sourcing recommendations

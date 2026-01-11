@@ -1,0 +1,24 @@
+// OnPush change detection strategy
+@Component({
+  selector: 'app-optimized-component',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <!-- Use trackBy for large lists -->
+    <div *ngFor="let item of items(); trackBy: trackByFn">
+      {{ item.name }}
+    </div>
+
+    <!-- Use async pipe for observables -->
+    <div *ngIf="data$ | async as data">
+      {{ data.title }}
+    </div>
+  `,
+})
+export class OptimizedComponent {
+  items = signal<Item[]>([]);
+  data$ = inject(DataService).getData();
+
+  trackByFn(index: number, item: Item) {
+    return item.id;
+  }
+}

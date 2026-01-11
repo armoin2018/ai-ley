@@ -1,0 +1,5 @@
+MI01          # Create Physical Inventory
+MI04          # Enter Inventory Count
+MI07          # Post Inventory Differences
+MMBE          # Stock Overview
+MB51          # Material Document List

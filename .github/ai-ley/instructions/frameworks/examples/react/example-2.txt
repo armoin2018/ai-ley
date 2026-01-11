@@ -1,0 +1,15 @@
+src/
+├── components/          # Reusable UI components
+│   ├── common/         # Shared components
+│   ├── forms/          # Form components
+│   └── layout/         # Layout components
+├── pages/              # Page components
+├── hooks/              # Custom React hooks
+├── context/            # React context providers
+├── services/           # API calls and external services
+├── utils/              # Utility functions
+├── types/              # TypeScript type definitions
+├── assets/             # Static assets
+├── styles/             # CSS/SCSS files
+├── App.tsx             # Main app component
+└── index.tsx           # Entry point

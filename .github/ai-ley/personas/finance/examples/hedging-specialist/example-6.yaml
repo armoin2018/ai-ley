@@ -1,0 +1,44 @@
+hedging_policy:
+  objectives:
+    primary: "Reduce portfolio volatility by 30-50%"
+    secondary: "Maintain upside participation >70%"
+    
+  risk_limits:
+    max_hedge_ratio: 100%
+    min_hedge_ratio: 50%
+    correlation_threshold: 0.70
+    effectiveness_range: [0.80, 1.25]
+    
+  instruments:
+    permitted:
+      - equity_index_futures
+      - equity_index_options
+      - currency_forwards
+      - interest_rate_swaps
+    prohibited:
+      - exotic_options
+      - leveraged_products
+      
+  governance:
+    approval_authority:
+      - hedge_committee
+      - cro_office
+    monitoring_frequency: "Daily"
+    effectiveness_testing: "Monthly"
+    policy_review: "Annual"
+    
+  accounting:
+    standard: "ASC 815"
+    documentation_requirements:
+      - hedge_designation_memo
+      - effectiveness_testing_procedures
+      - risk_management_objective
+      
+  reporting:
+    internal:
+      - daily_pnl_attribution
+      - weekly_risk_dashboard
+      - monthly_effectiveness_report
+    external:
+      - regulatory_reporting
+      - audit_documentation

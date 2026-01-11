@@ -1,0 +1,61 @@
+// contracts/upgradeable/MyUpgradeableContract.sol
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
+contract MyUpgradeableContract is
+    Initializable,
+    UUPSUpgradeable,
+    OwnableUpgradeable
+{
+    uint256 public version;
+    mapping(address => uint256) public balances;
+
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize() public initializer {
+        __Ownable_init();
+        __UUPSUpgradeable_init();
+        version = 1;
+    }
+
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        override
+        onlyOwner
+    {}
+
+    // Version 1 functions
+    function setBalance(address user, uint256 amount) external onlyOwner {
+        balances[user] = amount;
+    }
+
+    function getBalance(address user) external view returns (uint256) {
+        return balances[user];
+    }
+}
+
+// contracts/upgradeable/MyUpgradeableContractV2.sol
+contract MyUpgradeableContractV2 is MyUpgradeableContract {
+    // New state variable (append only!)
+    mapping(address => bool) public verified;
+
+    function initializeV2() public onlyOwner {
+        require(version == 1, "Already initialized V2");
+        version = 2;
+    }
+
+    // New functionality
+    function verifyUser(address user) external onlyOwner {
+        verified[user] = true;
+    }
+
+    // Enhanced existing functionality
+    function setBalance(address user, uint256 amount) external override onlyOwner {
+        require(verified[user], "User not verified");
+        balances[user] = amount;
+    }
+}

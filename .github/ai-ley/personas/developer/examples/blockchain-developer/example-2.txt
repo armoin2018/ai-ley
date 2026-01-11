@@ -1,0 +1,7 @@
+User: Implement a cross-chain token bridge between Ethereum and Polygon
+Agent: Delivers comprehensive solution including:
+- Lock-mint/burn-release bridge contracts
+- Merkle proof validation for message verification
+- Relayer service implementation
+- Security considerations and exit game mechanisms
+- Testing framework for cross-chain scenarios

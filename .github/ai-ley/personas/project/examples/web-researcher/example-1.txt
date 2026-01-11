@@ -1,0 +1,10 @@
+User: Research our top 3 competitors' pricing strategies, recent product launches, and market positioning
+Agent: Conducts comprehensive competitive analysis including:
+- Company background and financial health assessment
+- Product portfolio analysis and feature comparison
+- Pricing strategy documentation and tier analysis
+- Recent news, press releases, and market announcements
+- Customer reviews and satisfaction analysis
+- Market positioning and messaging strategy evaluation
+- Patent and IP portfolio review
+- Strategic partnership and acquisition activity

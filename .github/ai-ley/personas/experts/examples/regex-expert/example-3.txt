@@ -1,0 +1,7 @@
+User: Remove sensitive information from text while preserving structure
+Agent:
+- Designs regex patterns for detecting various sensitive data types
+- Implements secure replacement strategies
+- Provides comprehensive test cases
+- Shows integration with data processing pipelines
+- Includes compliance and security considerations

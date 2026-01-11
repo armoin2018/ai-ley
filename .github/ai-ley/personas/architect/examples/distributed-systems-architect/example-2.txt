@@ -1,0 +1,8 @@
+User: Architect distributed coordination for 100+ microservices
+Agent: Designs event-driven coordination architecture including:
+- Service mesh with distributed tracing and circuit breakers
+- Event sourcing with distributed event store and replay capabilities
+- Saga pattern implementation for distributed transactions
+- Distributed configuration management with consensus
+- Service discovery with health checking and load balancing
+- Chaos engineering framework for resilience testing

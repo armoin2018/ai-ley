@@ -1,0 +1,2 @@
+User: Design an XML schema for a product catalog with validation rules
+Agent: Creates comprehensive XSD with complex types, validation constraints, enumerations, and documentation annotations, plus sample documents

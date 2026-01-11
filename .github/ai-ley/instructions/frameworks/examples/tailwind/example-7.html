@@ -1,0 +1,141 @@
+<!-- Mobile-first responsive component -->
+<nav class="bg-white shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <!-- Logo -->
+      <div class="flex items-center">
+        <img class="h-8 w-auto" src="logo.svg" alt="Company" />
+        <span class="ml-2 text-xl font-bold text-gray-900 hidden sm:block">Company</span>
+      </div>
+
+      <!-- Desktop navigation -->
+      <div class="hidden md:flex items-center space-x-8">
+        <a
+          href="#"
+          class="text-gray-900 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors duration-200"
+        >
+          Home
+        </a>
+        <a
+          href="#"
+          class="text-gray-500 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors duration-200"
+        >
+          About
+        </a>
+        <a
+          href="#"
+          class="text-gray-500 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors duration-200"
+        >
+          Services
+        </a>
+        <a
+          href="#"
+          class="text-gray-500 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors duration-200"
+        >
+          Contact
+        </a>
+      </div>
+
+      <!-- Mobile menu button -->
+      <div class="md:hidden flex items-center">
+        <button
+          class="text-gray-500 hover:text-gray-900 focus:outline-none focus:text-gray-900 p-2"
+        >
+          <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            ></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile menu (hidden by default) -->
+  <div class="md:hidden hidden">
+    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50">
+      <a
+        href="#"
+        class="block px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-100 rounded-md"
+        >Home</a
+      >
+      <a
+        href="#"
+        class="block px-3 py-2 text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md"
+        >About</a
+      >
+      <a
+        href="#"
+        class="block px-3 py-2 text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md"
+        >Services</a
+      >
+      <a
+        href="#"
+        class="block px-3 py-2 text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md"
+        >Contact</a
+      >
+    </div>
+  </div>
+</nav>
+
+<!-- Responsive form layout -->
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <h2 class="mt-6 text-center text-3xl font-bold text-gray-900">Sign in to your account</h2>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+      <form class="space-y-6">
+        <div>
+          <label for="email" class="form-label">Email address</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            class="form-input"
+            placeholder="Enter your email"
+          />
+        </div>
+
+        <div>
+          <label for="password" class="form-label">Password</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            required
+            class="form-input"
+            placeholder="Enter your password"
+          />
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <input
+              id="remember-me"
+              name="remember-me"
+              type="checkbox"
+              class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+            />
+            <label for="remember-me" class="ml-2 block text-sm text-gray-900"> Remember me </label>
+          </div>
+
+          <div class="text-sm">
+            <a href="#" class="font-medium text-primary-600 hover:text-primary-500">
+              Forgot your password?
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <button type="submit" class="btn btn-primary w-full">Sign in</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

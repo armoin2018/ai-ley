@@ -1,0 +1,5 @@
+### Browser Navigation and Control
+
+- **Purpose**: Control browser navigation, windows, and tabs
+- **Usage**: Essential for multi-page testing workflows and window management
+- **Example**:

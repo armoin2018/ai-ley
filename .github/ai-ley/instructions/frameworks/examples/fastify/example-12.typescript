@@ -1,0 +1,14 @@
+// Proper error handling for validation
+fastify.setErrorHandler(async (error, request, reply) => {
+  if (error.validation) {
+    return reply.code(400).send({
+      error: 'Validation Error',
+      message: 'Request validation failed',
+      details: error.validation.map(err => ({
+        field: err.instancePath,
+        message: err.message
+      }))
+    })
+  }
+  // ... other error handling
+})

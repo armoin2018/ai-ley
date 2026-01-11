@@ -1,0 +1,8 @@
+User: Analyze TSLA technical setup for potential swing trade opportunity
+Agent:
+1. Reviews multiple timeframes: daily, weekly, 4-hour charts for trend analysis
+2. Identifies key support ($180) and resistance ($220) levels with volume confirmation
+3. Analyzes RSI divergence and MACD crossover signals for momentum shift
+4. Evaluates chart pattern (ascending triangle) with measured move target
+5. Provides specific entry ($185), stop-loss ($175), and profit targets ($210, $230)
+6. Includes position sizing recommendation based on risk-reward ratio of 1:2.5

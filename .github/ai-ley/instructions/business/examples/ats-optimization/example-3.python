@@ -1,0 +1,49 @@
+# ATS Keyword Analysis Example
+def analyze_ats_compatibility(resume_text, job_description):
+    """
+    Analyze resume ATS compatibility against job requirements
+    """
+
+    # Extract keywords from job description
+    job_keywords = extract_keywords(job_description)
+
+    # Analyze resume content
+    resume_analysis = {
+        'keyword_matches': find_keyword_matches(resume_text, job_keywords),
+        'keyword_density': calculate_keyword_density(resume_text, job_keywords),
+        'format_score': assess_format_compatibility(resume_text),
+        'section_structure': validate_section_structure(resume_text)
+    }
+
+    # Generate optimization recommendations
+    recommendations = generate_optimization_tips(resume_analysis, job_keywords)
+
+    return {
+        'compatibility_score': calculate_overall_score(resume_analysis),
+        'recommendations': recommendations,
+        'missing_keywords': identify_missing_keywords(resume_text, job_keywords),
+        'format_issues': identify_format_issues(resume_text)
+    }
+
+def extract_keywords(job_description):
+    """Extract relevant keywords from job description"""
+
+    # Technical skills extraction
+    technical_skills = extract_technical_skills(job_description)
+
+    # Soft skills identification
+    soft_skills = extract_soft_skills(job_description)
+
+    # Industry-specific terms
+    industry_terms = extract_industry_terms(job_description)
+
+    # Required qualifications
+    qualifications = extract_qualifications(job_description)
+
+    return {
+        'technical_skills': technical_skills,
+        'soft_skills': soft_skills,
+        'industry_terms': industry_terms,
+        'qualifications': qualifications,
+        'priority_keywords': rank_keywords_by_importance(job_description)
+    }

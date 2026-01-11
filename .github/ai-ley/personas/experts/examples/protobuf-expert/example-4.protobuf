@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package com.example.trading.v1;
+
+option go_package = "github.com/example/trading/proto/v1";
+option java_package = "com.example.trading.v1";
+option java_outer_classname = "TradingProto";
+option csharp_namespace = "Example.Trading.V1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+// Trading order message optimized for high-frequency trading
+message Order {
+  // Field numbers optimized for encoding efficiency (most frequent fields first)
+  string symbol = 1;                    // Stock symbol (e.g., "AAPL")
+  int64 quantity = 2;                   // Number of shares
+  int64 price_cents = 3;                // Price in cents to avoid floating point
+  OrderType type = 4;                   // Order type enum
+  string order_id = 5;                  // Unique order identifier
+  
+  google.protobuf.Timestamp created_at = 15;  // Less frequent fields use higher numbers
+  google.protobuf.Duration time_in_force = 16;
+  
+  // Optional fields for advanced order types
+  oneof order_details {
+    LimitOrderDetails limit_details = 20;
+    StopOrderDetails stop_details = 21;
+    MarketOrderDetails market_details = 22;
+  }
+  
+  // Reserved fields for future use
+  reserved 100 to 199;
+  reserved "deprecated_field", "old_price";
+}
+
+enum OrderType {
+  ORDER_TYPE_UNSPECIFIED = 0;  // Always include unspecified default
+  ORDER_TYPE_MARKET = 1;
+  ORDER_TYPE_LIMIT = 2;
+  ORDER_TYPE_STOP = 3;
+  ORDER_TYPE_STOP_LIMIT = 4;
+}
+
+message LimitOrderDetails {
+  int64 limit_price_cents = 1;
+  bool all_or_none = 2;
+}
+
+message StopOrderDetails {
+  int64 stop_price_cents = 1;
+  bool trailing_stop = 2;
+  int32 trailing_amount_cents = 3;
+}
+
+message MarketOrderDetails {
+  bool immediate_or_cancel = 1;
+}
+
+// Batch message for high-throughput scenarios
+message OrderBatch {
+  repeated Order orders = 1;
+  string batch_id = 2;
+  google.protobuf.Timestamp batch_timestamp = 3;
+}
+
+// gRPC service definition
+service TradingService {
+  // Unary RPC for single orders
+  rpc PlaceOrder(Order) returns (OrderResponse);
+  
+  // Streaming RPC for high-frequency trading
+  rpc PlaceOrderStream(stream Order) returns (stream OrderResponse);
+  
+  // Batch processing for bulk operations
+  rpc PlaceOrderBatch(OrderBatch) returns (OrderBatchResponse);
+}
+
+message OrderResponse {
+  string order_id = 1;
+  OrderStatus status = 2;
+  string error_message = 3;
+  google.protobuf.Timestamp processed_at = 4;
+}
+
+enum OrderStatus {
+  ORDER_STATUS_UNSPECIFIED = 0;
+  ORDER_STATUS_ACCEPTED = 1;
+  ORDER_STATUS_REJECTED = 2;
+  ORDER_STATUS_FILLED = 3;
+  ORDER_STATUS_PARTIALLY_FILLED = 4;
+  ORDER_STATUS_CANCELLED = 5;
+}
+
+message OrderBatchResponse {
+  string batch_id = 1;
+  repeated OrderResponse responses = 2;
+  int32 success_count = 3;
+  int32 error_count = 4;
+}

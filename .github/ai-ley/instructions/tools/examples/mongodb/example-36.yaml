@@ -1,0 +1,190 @@
+# Enterprise MongoDB Production Configuration
+# docker-compose.yml for MongoDB Replica Set
+version: '3.8'
+
+services:
+  mongo-primary:
+    image: mongo:7.0-jammy
+    container_name: mongo-primary
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_REPLICA_SET_NAME: rs0
+    volumes:
+      - mongo-primary-data:/data/db
+      - mongo-primary-config:/data/configdb
+      - ./mongodb.key:/data/mongodb.key:ro
+      - ./mongod-primary.conf:/etc/mongod.conf:ro
+    command: ["mongod", "--config", "/etc/mongod.conf"]
+    networks:
+      - mongo-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mongo-secondary-1:
+    image: mongo:7.0-jammy
+    container_name: mongo-secondary-1
+    restart: always
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_REPLICA_SET_NAME: rs0
+    volumes:
+      - mongo-secondary-1-data:/data/db
+      - mongo-secondary-1-config:/data/configdb
+      - ./mongodb.key:/data/mongodb.key:ro
+      - ./mongod-secondary.conf:/etc/mongod.conf:ro
+    command: ["mongod", "--config", "/etc/mongod.conf"]
+    networks:
+      - mongo-network
+    depends_on:
+      - mongo-primary
+
+  mongo-secondary-2:
+    image: mongo:7.0-jammy
+    container_name: mongo-secondary-2
+    restart: always
+    ports:
+      - "27019:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_REPLICA_SET_NAME: rs0
+    volumes:
+      - mongo-secondary-2-data:/data/db
+      - mongo-secondary-2-config:/data/configdb
+      - ./mongodb.key:/data/mongodb.key:ro
+      - ./mongod-secondary.conf:/etc/mongod.conf:ro
+    command: ["mongod", "--config", "/etc/mongod.conf"]
+    networks:
+      - mongo-network
+    depends_on:
+      - mongo-primary
+
+  mongo-arbiter:
+    image: mongo:7.0-jammy
+    container_name: mongo-arbiter
+    restart: always
+    ports:
+      - "27020:27017"
+    environment:
+      MONGO_REPLICA_SET_NAME: rs0
+    volumes:
+      - ./mongodb.key:/data/mongodb.key:ro
+      - ./mongod-arbiter.conf:/etc/mongod.conf:ro
+    command: ["mongod", "--config", "/etc/mongod.conf"]
+    networks:
+      - mongo-network
+    depends_on:
+      - mongo-primary
+
+  # MongoDB Monitoring Stack
+  mongo-exporter:
+    image: percona/mongodb_exporter:0.40
+    container_name: mongo-exporter
+    restart: always
+    ports:
+      - "9216:9216"
+    environment:
+      MONGODB_URI: "mongodb://admin:${MONGO_ROOT_PASSWORD}@mongo-primary:27017,mongo-secondary-1:27017,mongo-secondary-2:27017/admin?replicaSet=rs0"
+    networks:
+      - mongo-network
+    depends_on:
+      - mongo-primary
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - mongo-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - mongo-network
+    depends_on:
+      - prometheus
+
+volumes:
+  mongo-primary-data:
+  mongo-primary-config:
+  mongo-secondary-1-data:
+  mongo-secondary-1-config:
+  mongo-secondary-2-data:
+  mongo-secondary-2-config:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  mongo-network:
+    driver: bridge
+
+---
+# mongod-primary.conf - Primary node configuration
+storage:
+  dbPath: /data/db
+  journal:
+    enabled: true
+  wiredTiger:
+    engineConfig:
+      cacheSizeGB: 2
+      journalCompressor: snappy
+      directoryForIndexes: true
+    collectionConfig:
+      blockCompressor: snappy
+    indexConfig:
+      prefixCompression: true
+
+systemLog:
+  destination: file
+  logAppend: true
+  path: /var/log/mongodb/mongod.log
+  verbosity: 1
+
+net:
+  port: 27017
+  bindIpAll: true
+  maxIncomingConnections: 1000
+  compression:
+    compressors: snappy,zstd,zlib
+
+security:
+  authorization: enabled
+  keyFile: /data/mongodb.key
+  clusterAuthMode: keyFile
+
+replication:
+  replSetName: rs0
+
+operationProfiling:
+  mode: slowOp
+  slowOpThresholdMs: 100
+
+setParameter:
+  enableLocalhostAuthBypass: false
+  cursorTimeoutMillis: 600000
+  failIndexKeyTooLong: false

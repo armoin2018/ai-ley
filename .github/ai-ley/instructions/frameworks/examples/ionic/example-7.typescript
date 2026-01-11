@@ -1,0 +1,150 @@
+// pages/Tab1.tsx
+import React, { useState, useEffect } from 'react';
+import {
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonAvatar,
+  IonButton,
+  IonIcon,
+  IonSearchbar,
+  IonRefresher,
+  IonRefresherContent,
+  IonLoading,
+  useIonAlert,
+  useIonToast,
+} from '@ionic/react';
+import { trash, refresh } from 'ionicons/icons';
+import { useUsers } from '../hooks/useUsers';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+}
+
+const Tab1: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const { users, loading, error, fetchUsers, deleteUser } = useUsers();
+  const [presentAlert] = useIonAlert();
+  const [presentToast] = useIonToast();
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  useEffect(() => {
+    if (error) {
+      presentToast({
+        message: error,
+        duration: 3000,
+        color: 'danger',
+        position: 'top',
+      });
+    }
+  }, [error, presentToast]);
+
+  const handleDeleteUser = (user: User) => {
+    presentAlert({
+      header: 'Confirm Delete',
+      message: `Are you sure you want to delete ${user.name}?`,
+      buttons: [
+        'Cancel',
+        {
+          text: 'Delete',
+          role: 'destructive',
+          handler: async () => {
+            try {
+              await deleteUser(user.id);
+              presentToast({
+                message: 'User deleted successfully',
+                duration: 2000,
+                color: 'success',
+                position: 'bottom',
+              });
+            } catch (err) {
+              presentToast({
+                message: 'Failed to delete user',
+                duration: 3000,
+                color: 'danger',
+                position: 'top',
+              });
+            }
+          },
+        },
+      ],
+    });
+  };
+
+  const handleRefresh = async (event: CustomEvent) => {
+    await fetchUsers();
+    event.detail.complete();
+  };
+
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
+  return (
+    <IonPage>
+      <IonHeader translucent>
+        <IonToolbar>
+          <IonTitle>Users</IonTitle>
+          <IonButton slot="end" fill="clear" onClick={() => fetchUsers()}>
+            <IonIcon icon={refresh} />
+          </IonButton>
+        </IonToolbar>
+      </IonHeader>
+
+      <IonContent fullscreen>
+        <IonHeader collapse="condense">
+          <IonToolbar>
+            <IonTitle size="large">Users</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+
+        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+          <IonRefresherContent />
+        </IonRefresher>
+
+        <IonSearchbar
+          value={searchTerm}
+          onIonInput={(e) => setSearchTerm(e.detail.value!)}
+          placeholder="Search users..."
+          debounce={300}
+        />
+
+        <IonList>
+          {filteredUsers.map((user) => (
+            <IonItem key={user.id}>
+              <IonAvatar slot="start">
+                <img src={user.avatar || '/assets/default-avatar.png'} alt={user.name} />
+              </IonAvatar>
+
+              <IonLabel>
+                <h2>{user.name}</h2>
+                <p>{user.email}</p>
+              </IonLabel>
+
+              <IonButton fill="clear" slot="end" onClick={() => handleDeleteUser(user)}>
+                <IonIcon icon={trash} color="danger" />
+              </IonButton>
+            </IonItem>
+          ))}
+        </IonList>
+
+        <IonLoading isOpen={loading} message="Loading users..." />
+      </IonContent>
+    </IonPage>
+  );
+};
+
+export default Tab1;

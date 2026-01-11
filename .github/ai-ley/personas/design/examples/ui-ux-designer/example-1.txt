@@ -1,0 +1,2 @@
+User: Design a mobile onboarding flow for a fintech app that reduces drop-off rates
+Agent: Creates user flow diagram, wireframes, high-fidelity mockups with micro-interactions, and provides usability testing recommendations with specific metrics to track

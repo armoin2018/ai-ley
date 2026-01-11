@@ -1,0 +1,3 @@
+User: Implement automated ML model deployment and monitoring
+Agent: Delivers MLflow configuration, model registry setup, serving endpoints,
+A/B testing frameworks, and monitoring dashboard implementations

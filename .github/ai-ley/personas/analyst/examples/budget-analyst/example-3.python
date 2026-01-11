@@ -1,0 +1,220 @@
+# Comprehensive Project Budget Analysis and Control Framework
+from dataclasses import dataclass
+from typing import List, Dict, Optional, Tuple
+from enum import Enum
+import datetime
+
+class ProjectType(Enum):
+    CAPITAL_INFRASTRUCTURE = "capital_infrastructure"
+    IT_IMPLEMENTATION = "it_implementation"
+    RESEARCH_DEVELOPMENT = "research_development"
+    MARKETING_CAMPAIGN = "marketing_campaign"
+    OPERATIONAL_IMPROVEMENT = "operational_improvement"
+    COMPLIANCE_INITIATIVE = "compliance_initiative"
+
+class BudgetStatus(Enum):
+    UNDER_BUDGET = "under_budget"
+    ON_BUDGET = "on_budget"
+    OVER_BUDGET = "over_budget"
+    AT_RISK = "at_risk"
+
+@dataclass
+class ProjectBudget:
+    project_id: str
+    project_name: str
+    project_type: ProjectType
+    total_budget: float
+    approved_budget: float
+    committed_costs: float
+    actual_expenditures: float
+    remaining_budget: float
+    project_timeline: str
+    risk_factors: List[str]
+
+@dataclass
+class BudgetVariance:
+    variance_amount: float
+    variance_percentage: float
+    variance_category: str
+    root_cause: str
+    corrective_action: str
+    responsible_party: str
+
+class BudgetAnalyst:
+    def __init__(self):
+        self.budget_models = {}
+        self.variance_tracking_systems = {}
+        self.forecasting_algorithms = {}
+        self.reporting_frameworks = {}
+
+    def comprehensive_project_budget_analysis(self, project_budget: ProjectBudget) -> Dict:
+        """Execute comprehensive project budget analysis and control"""
+        analysis_results = {
+            'budget_performance_analysis': self.analyze_budget_performance(project_budget),
+            'variance_investigation': self.investigate_budget_variances(project_budget),
+            'forecast_development': self.develop_budget_forecasts(project_budget),
+            'risk_assessment': self.assess_budget_risks(project_budget),
+            'corrective_action_planning': self.plan_corrective_actions(project_budget),
+            'stakeholder_reporting': self.prepare_stakeholder_reports(project_budget)
+        }
+
+        return self._generate_comprehensive_budget_analysis_report(analysis_results, project_budget)
+
+    def analyze_budget_performance(self, project_budget: ProjectBudget) -> Dict:
+        """Analyze comprehensive budget performance and efficiency metrics"""
+        performance_analysis = {
+            'expenditure_trend_analysis': self._analyze_expenditure_trends(project_budget),
+            'budget_utilization_assessment': self._assess_budget_utilization(project_budget),
+            'milestone_cost_analysis': self._analyze_milestone_costs(project_budget),
+            'resource_efficiency_evaluation': self._evaluate_resource_efficiency(project_budget),
+            'cost_per_deliverable_analysis': self._analyze_cost_per_deliverable(project_budget)
+        }
+
+        # Project type-specific analysis
+        if project_budget.project_type == ProjectType.CAPITAL_INFRASTRUCTURE:
+            infrastructure_analysis = {
+                'lifecycle_cost_analysis': self._analyze_lifecycle_costs(project_budget),
+                'public_benefit_assessment': self._assess_public_benefits(project_budget),
+                'environmental_impact_costing': self._cost_environmental_impacts(project_budget),
+                'maintenance_cost_projection': self._project_maintenance_costs(project_budget)
+            }
+            performance_analysis.update(infrastructure_analysis)
+
+        elif project_budget.project_type == ProjectType.IT_IMPLEMENTATION:
+            it_analysis = {
+                'technology_roi_calculation': self._calculate_technology_roi(project_budget),
+                'user_adoption_cost_analysis': self._analyze_user_adoption_costs(project_budget),
+                'system_integration_complexity': self._assess_integration_complexity(project_budget),
+                'ongoing_support_cost_projection': self._project_support_costs(project_budget)
+            }
+            performance_analysis.update(it_analysis)
+
+        elif project_budget.project_type == ProjectType.RESEARCH_DEVELOPMENT:
+            rd_analysis = {
+                'innovation_investment_analysis': self._analyze_innovation_investment(project_budget),
+                'intellectual_property_valuation': self._value_intellectual_property(project_budget),
+                'commercialization_cost_assessment': self._assess_commercialization_costs(project_budget),
+                'research_outcome_probability': self._assess_research_probability(project_budget)
+            }
+            performance_analysis.update(rd_analysis)
+
+        return {
+            'performance_metrics': performance_analysis,
+            'efficiency_indicators': self._calculate_efficiency_indicators(project_budget),
+            'benchmark_comparison': self._compare_against_benchmarks(project_budget),
+            'performance_trend_analysis': self._analyze_performance_trends(project_budget)
+        }
+
+    def investigate_budget_variances(self, project_budget: ProjectBudget) -> Dict:
+        """Investigate and analyze budget variances with root cause analysis"""
+        variance_investigation = {
+            'variance_identification': self._identify_significant_variances(project_budget),
+            'root_cause_analysis': self._conduct_root_cause_analysis(project_budget),
+            'cost_driver_assessment': self._assess_cost_drivers(project_budget),
+            'timeline_impact_analysis': self._analyze_timeline_impacts(project_budget),
+            'quality_impact_evaluation': self._evaluate_quality_impacts(project_budget)
+        }
+
+        # Variance categorization and prioritization
+        variance_categorization = {
+            'controllable_vs_uncontrollable': self._categorize_variance_controllability(project_budget),
+            'temporary_vs_permanent': self._categorize_variance_duration(project_budget),
+            'operational_vs_strategic': self._categorize_variance_impact(project_budget),
+            'risk_level_assessment': self._assess_variance_risk_levels(project_budget)
+        }
+
+        # Corrective action development
+        corrective_action_planning = {
+            'immediate_action_requirements': self._identify_immediate_actions(project_budget),
+            'medium_term_adjustment_planning': self._plan_medium_term_adjustments(project_budget),
+            'long_term_prevention_strategies': self._develop_prevention_strategies(project_budget),
+            'stakeholder_communication_plan': self._plan_stakeholder_communication(project_budget)
+        }
+
+        return {
+            'variance_analysis_framework': variance_investigation,
+            'variance_categorization_system': variance_categorization,
+            'corrective_action_strategy': corrective_action_planning,
+            'variance_monitoring_protocol': self._establish_monitoring_protocol(project_budget),
+            'lessons_learned_documentation': self._document_lessons_learned(project_budget)
+        }
+
+    def develop_budget_forecasts(self, project_budget: ProjectBudget) -> Dict:
+        """Develop comprehensive budget forecasts and scenario planning"""
+        forecast_development = {
+            'completion_cost_projection': self._project_completion_costs(project_budget),
+            'timeline_adjustment_impact': self._assess_timeline_impact(project_budget),
+            'scope_change_cost_analysis': self._analyze_scope_change_costs(project_budget),
+            'resource_availability_impact': self._assess_resource_availability(project_budget),
+            'market_condition_adjustment': self._adjust_for_market_conditions(project_budget)
+        }
+
+        # Scenario planning and sensitivity analysis
+        scenario_planning = {
+            'best_case_scenario_modeling': self._model_best_case_scenario(project_budget),
+            'worst_case_scenario_analysis': self._analyze_worst_case_scenario(project_budget),
+            'most_likely_outcome_projection': self._project_most_likely_outcome(project_budget),
+            'contingency_requirement_assessment': self._assess_contingency_requirements(project_budget)
+        }
+
+        # Probabilistic forecasting
+        probabilistic_analysis = {
+            'monte_carlo_simulation': self._run_monte_carlo_simulation(project_budget),
+            'confidence_interval_calculation': self._calculate_confidence_intervals(project_budget),
+            'risk_adjusted_forecasting': self._develop_risk_adjusted_forecasts(project_budget),
+            'probability_distribution_modeling': self._model_probability_distributions(project_budget)
+        }
+
+        return {
+            'forecast_framework': forecast_development,
+            'scenario_analysis': scenario_planning,
+            'probabilistic_modeling': probabilistic_analysis,
+            'forecast_accuracy_assessment': self._assess_forecast_accuracy(project_budget),
+            'continuous_forecast_refinement': self._establish_forecast_refinement(project_budget)
+        }
+
+# Usage Example for Project Budget Analysis
+budget_analyst = BudgetAnalyst()
+
+# Infrastructure project budget analysis
+infrastructure_project = ProjectBudget(
+    project_id="INFRA-2025-001",
+    project_name="municipal_water_treatment_facility_upgrade",
+    project_type=ProjectType.CAPITAL_INFRASTRUCTURE,
+    total_budget=15000000.0,
+    approved_budget=15000000.0,
+    committed_costs=8500000.0,
+    actual_expenditures=6200000.0,
+    remaining_budget=8800000.0,
+    project_timeline="36_month_implementation_multi_phase",
+    risk_factors=[
+        "environmental_permitting_delays",
+        "steel_price_volatility",
+        "specialized_contractor_availability",
+        "regulatory_compliance_requirements"
+    ]
+)
+
+# Comprehensive budget analysis execution
+infrastructure_results = budget_analyst.comprehensive_project_budget_analysis(infrastructure_project)
+
+# IT implementation project example
+it_project = ProjectBudget(
+    project_id="IT-2025-002",
+    project_name="enterprise_erp_system_implementation",
+    project_type=ProjectType.IT_IMPLEMENTATION,
+    total_budget=3200000.0,
+    approved_budget=3200000.0,
+    committed_costs=1800000.0,
+    actual_expenditures=1200000.0,
+    remaining_budget=2000000.0,
+    project_timeline="18_month_phased_rollout",
+    risk_factors=[
+        "user_adoption_resistance",
+        "data_migration_complexity",
+        "integration_challenges",
+        "vendor_support_quality"
+    ]
+)
+
+it_results = budget_analyst.comprehensive_project_budget_analysis(it_project)

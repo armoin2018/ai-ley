@@ -1,0 +1,9 @@
+import time
+
+def check_data_freshness(timestamp, max_delay_seconds=60):
+    """Check if market data is fresh enough for trading."""
+    if isinstance(timestamp, str):
+        timestamp = pd.to_datetime(timestamp)
+    
+    delay = (datetime.now(timestamp.tz) - timestamp).total_seconds()
+    return delay <= max_delay_seconds

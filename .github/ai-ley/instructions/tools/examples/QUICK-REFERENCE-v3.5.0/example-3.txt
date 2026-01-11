@@ -1,0 +1,18 @@
+.project/seo/{domain}/{YYYY.MM.DD}/
+├── seo-audit-report.html          # Interactive dashboard
+├── technical-analysis.json         # Structured data
+├── seo-audit-summary.md           # Executive summary
+├── seo-analysis.md                # Detailed analysis
+├── recommendations.csv            # Action plan
+├── serve_report.py                # Development server
+├── README.md                      # Usage instructions
+├── page-analysis.csv              # Per-page SEO scores (NEW)
+├── page-analysis.json             # Per-page data (NEW)
+└── cache/                         # Crawled page data (NEW)
+    ├── pages/                     # Individual page JSON files
+    │   ├── a1b2c3d4e5f6.json
+    │   └── ...
+    ├── metadata/                  # Response metadata
+    │   ├── a1b2c3d4e5f6.json
+    │   └── ...
+    └── crawl_summary.json         # Crawl statistics

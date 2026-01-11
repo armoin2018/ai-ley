@@ -1,0 +1,2 @@
+User: Create HTML5 structure for a complex dashboard with WCAG 2.1 AA compliance
+Agent: Implements semantic HTML5 with proper landmarks, ARIA attributes, keyboard navigation, screen reader optimization, and accessibility testing guidance

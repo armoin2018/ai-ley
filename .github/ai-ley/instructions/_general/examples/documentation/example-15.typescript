@@ -1,0 +1,61 @@
+// API route with embedded documentation
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   get:
+ *     summary: Get user by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: User found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: User not found
+ */
+app.get('/api/users/:id', async (req: Request, res: Response) => {
+    const { id } = req.params;
+    
+    if (!isValidUUID(id)) {
+        return res.status(400).json({ error: 'Invalid user ID format' });
+    }
+    
+    const user = await userService.findById(id);
+    if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+    
+    res.json(user);
+});
+
+// Automated tests ensure documentation accuracy
+describe('GET /api/users/:id', () => {
+    it('should return user when valid ID provided', async () => {
+        const user = await createTestUser();
+        const response = await request(app)
+            .get(`/api/users/${user.id}`)
+            .expect(200);
+            
+        expect(response.body).toMatchObject({
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName
+        });
+    });
+    
+    it('should return 404 when user not found', async () => {
+        const nonExistentId = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+        await request(app)
+            .get(`/api/users/${nonExistentId}`)
+            .expect(404);
+    });
+});

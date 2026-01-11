@@ -1,0 +1,21 @@
+{
+    "contributes": {
+        "commands": [
+            {
+                "command": "myExtension.command",
+                "title": "My Command"
+            }
+        ],
+        "languages": [
+            {
+                "id": "mylang",
+                "extensions": [".ml"],
+                "configuration": "./language-configuration.json"
+            }
+        ]
+    },
+    "activationEvents": [
+        "onCommand:myExtension.command",
+        "onLanguage:mylang"
+    ]
+}

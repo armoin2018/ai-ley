@@ -1,0 +1,48 @@
+# Unit testing for flow components
+import unittest
+from unittest.mock import Mock, patch
+
+class TestFlowComponents(unittest.TestCase):
+    def setUp(self):
+        self.mock_openai = Mock()
+        self.mock_vector_store = Mock()
+
+    def test_prompt_template_formatting(self):
+        from langflow.components import PromptTemplate
+
+        template = PromptTemplate(
+            template="Hello {name}, your question: {question}",
+            input_variables=["name", "question"]
+        )
+
+        result = template.format(name="Alice", question="What is AI?")
+        expected = "Hello Alice, your question: What is AI?"
+
+        self.assertEqual(result, expected)
+
+    @patch('openai.ChatCompletion.create')
+    def test_openai_component(self, mock_create):
+        mock_create.return_value = Mock(
+            choices=[Mock(message=Mock(content="Test response"))]
+        )
+
+        from langflow.components import OpenAI
+
+        component = OpenAI(model="gpt-3.5-turbo")
+        result = component.run("Test prompt")
+
+        self.assertEqual(result, "Test response")
+        mock_create.assert_called_once()
+
+    def test_flow_execution(self):
+        # Test complete flow execution
+        flow_config = {
+            "components": [...],
+            "connections": [...]
+        }
+
+        # Execute flow and verify results
+        pass
+
+if __name__ == "__main__":
+    unittest.main()

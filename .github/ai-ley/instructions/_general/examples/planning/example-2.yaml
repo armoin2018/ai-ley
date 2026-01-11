@@ -1,0 +1,27 @@
+# Planning validation in CI/CD
+name: Planning Validation
+on:
+  push:
+    paths: ['docs/planning/**', 'project-plan.md']
+
+jobs:
+  validate-planning:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Validate Work Breakdown Structure
+        run: |
+          python scripts/validate-wbs.py docs/planning/
+          
+      - name: Check Estimation Consistency
+        run: |
+          python scripts/check-estimates.py project-plan.md
+          
+      - name: Risk Assessment Review
+        run: |
+          python scripts/risk-analysis.py docs/planning/risks/
+          
+      - name: Generate Planning Report
+        run: |
+          python scripts/generate-planning-report.py > planning-status.md

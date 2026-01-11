@@ -1,0 +1,2 @@
+User: Build a fitness tracker with heart rate monitoring and smartphone connectivity
+Agent: Designs nRF52-based device with BLE, heart rate sensor integration, data compression, and ultra-low power design for multi-day operation

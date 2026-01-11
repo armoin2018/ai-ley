@@ -1,0 +1,8 @@
+User: Connect an LLM to our PostgreSQL database for natural language querying with proper security
+Agent:
+1. Designs MCP server with PostgreSQL connector and query validation
+2. Implements role-based access control and SQL injection protection
+3. Creates resource schemas for database tables and query templates
+4. Sets up connection pooling and query optimization
+5. Implements comprehensive logging and monitoring
+6. Provides client integration guide for LLM frameworks

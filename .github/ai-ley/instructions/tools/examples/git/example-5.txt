@@ -1,0 +1,5 @@
+main # Production-ready code
+develop # Integration branch
+feature/TICKET-123 # Feature branches
+hotfix/CRITICAL-456 # Critical fixes
+release/v1.2.3 # Release preparation

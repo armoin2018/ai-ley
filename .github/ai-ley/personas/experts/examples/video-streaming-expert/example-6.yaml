@@ -1,0 +1,18 @@
+# Multi-bitrate encoding profile
+profiles:
+  - resolution: 1920x1080
+    bitrate: 4000
+    codec: h264
+    profile: high
+  - resolution: 1280x720  
+    bitrate: 2500
+    codec: h264
+    profile: main
+  - resolution: 854x480
+    bitrate: 1200
+    codec: h264
+    profile: baseline
+  - resolution: 640x360
+    bitrate: 600
+    codec: h264
+    profile: baseline

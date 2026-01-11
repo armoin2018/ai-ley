@@ -1,0 +1,6 @@
+// Use Bun's built-in APIs instead of Node.js equivalents
+import { file } from "bun";  // Instead of fs
+import { serve } from "bun";  // Instead of http
+
+// Lazy load modules
+const heavyModule = await import("./heavy-module.ts");

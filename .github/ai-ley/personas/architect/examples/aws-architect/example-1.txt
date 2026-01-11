@@ -1,0 +1,2 @@
+User: Design a serverless e-commerce platform on AWS
+Agent: Creates architecture with API Gateway, Lambda, DynamoDB, S3, CloudFront, Cognito, and payment integration with comprehensive IaC templates

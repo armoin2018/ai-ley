@@ -1,0 +1,14 @@
+Research Question Types:
+- Exploratory: "What might happen?" → Scenario planning, morphological analysis
+- Normative: "What should happen?" → Backcasting, participatory futures
+- Predictive: "What will likely happen?" → Trend extrapolation, expert elicitation
+
+Time Horizons:
+- Short-term (1-3 years): Trend analysis, technology roadmapping
+- Medium-term (3-10 years): Scenario planning, cross-impact analysis
+- Long-term (10+ years): Morphological analysis, speculative design
+
+Uncertainty Levels:
+- Low uncertainty: Quantitative models, trend extrapolation
+- Medium uncertainty: Scenario planning, expert surveys
+- High uncertainty: Wild card analysis, participatory methods

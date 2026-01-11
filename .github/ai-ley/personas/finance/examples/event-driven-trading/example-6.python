@@ -1,0 +1,81 @@
+# Event-Driven Portfolio Risk Management
+import numpy as np
+import pandas as pd
+from sklearn.cluster import KMeans
+
+class EventDrivenRiskManager:
+    def __init__(self, portfolio_data):
+        self.portfolio = portfolio_data
+        self.risk_metrics = {}
+        
+    def event_correlation_analysis(self):
+        """Analyze correlation between different event types"""
+        event_returns = {}
+        
+        for event_type in ['merger_arb', 'earnings', 'activist', 'special_sits']:
+            # Filter positions by event type
+            event_positions = self.portfolio[
+                self.portfolio['event_type'] == event_type
+            ]
+            
+            # Calculate aggregate returns for this event type
+            event_returns[event_type] = event_positions.groupby('date')['return'].sum()
+        
+        correlation_matrix = pd.DataFrame(event_returns).corr()
+        return correlation_matrix
+    
+    def concentration_risk(self):
+        """Calculate concentration risk by event type, sector, and individual positions"""
+        concentration_metrics = {}
+        
+        # By event type
+        event_concentration = self.portfolio.groupby('event_type')['position_size'].sum()
+        concentration_metrics['event_type_hhi'] = (event_concentration ** 2).sum()
+        
+        # By sector
+        sector_concentration = self.portfolio.groupby('sector')['position_size'].sum()
+        concentration_metrics['sector_hhi'] = (sector_concentration ** 2).sum()
+        
+        # Individual position concentration
+        concentration_metrics['max_position'] = self.portfolio['position_size'].max()
+        concentration_metrics['top_5_concentration'] = (
+            self.portfolio.nlargest(5, 'position_size')['position_size'].sum()
+        )
+        
+        return concentration_metrics
+    
+    def tail_risk_scenarios(self):
+        """Define tail risk scenarios for event-driven strategies"""
+        scenarios = {
+            'market_crash': {
+                'description': 'Broad market decline affecting all deals',
+                'probability': 0.05,
+                'impact_by_event': {
+                    'merger_arb': -0.08,  # Deals break, financing issues
+                    'earnings': -0.15,    # Broad disappointment
+                    'activist': -0.20,    # Long-term focus hurt in crisis
+                    'special_sits': -0.12 # Complexity penalized
+                }
+            },
+            'regulatory_crackdown': {
+                'description': 'Increased antitrust enforcement',
+                'probability': 0.10,
+                'impact_by_event': {
+                    'merger_arb': -0.25,  # Many deals blocked
+                    'earnings': 0.02,     # Minimal impact
+                    'activist': 0.00,     # Neutral
+                    'special_sits': -0.05 # Some regulatory issues
+                }
+            },
+            'liquidity_crisis': {
+                'description': 'Market liquidity dries up',
+                'probability': 0.03,
+                'impact_by_event': {
+                    'merger_arb': -0.12,  # Harder to hedge
+                    'earnings': -0.18,    # Volatility spike
+                    'activist': -0.15,    # Illiquid small caps hurt
+                    'special_sits': -0.22 # Complex structures penalized
+                }
+            }
+        }
+        return scenarios

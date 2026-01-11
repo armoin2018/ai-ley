@@ -1,0 +1,68 @@
+// contracts/AutomationTarget.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
+
+contract AutomationTarget is AutomationCompatibleInterface {
+    uint256 public counter;
+    uint256 public immutable interval;
+    uint256 public lastTimeStamp;
+    
+    mapping(address => uint256) public balances;
+
+    event UpkeepPerformed(uint256 indexed counter, uint256 timestamp);
+
+    constructor(uint256 updateInterval) {
+        interval = updateInterval;
+        lastTimeStamp = block.timestamp;
+        counter = 0;
+    }
+
+    function checkUpkeep(bytes calldata checkData) external view override returns (bool upkeepNeeded, bytes memory performData) {
+        upkeepNeeded = (block.timestamp - lastTimeStamp) > interval;
+        performData = checkData;
+    }
+
+    function performUpkeep(bytes calldata performData) external override {
+        if ((block.timestamp - lastTimeStamp) > interval) {
+            lastTimeStamp = block.timestamp;
+            counter = counter + 1;
+            
+            // Perform automated tasks
+            _rebalancePortfolio();
+            _updateRewards();
+            
+            emit UpkeepPerformed(counter, block.timestamp);
+        }
+    }
+
+    function _rebalancePortfolio() private {
+        // Automated portfolio rebalancing logic
+        // This could involve calling other contracts, updating ratios, etc.
+    }
+
+    function _updateRewards() private {
+        // Automated reward distribution logic
+        // Calculate and distribute rewards to users
+    }
+
+    // Custom upkeep logic with conditions
+    function checkConditionalUpkeep(bytes calldata checkData) external view returns (bool upkeepNeeded, bytes memory performData) {
+        // Complex conditional logic
+        bool conditionMet = _checkMarketConditions() && _checkUserActivity();
+        upkeepNeeded = conditionMet && ((block.timestamp - lastTimeStamp) > interval);
+        performData = abi.encode(counter, block.timestamp);
+    }
+
+    function _checkMarketConditions() private view returns (bool) {
+        // Implement market condition checks
+        // Could integrate with price feeds
+        return true; // Placeholder
+    }
+
+    function _checkUserActivity() private view returns (bool) {
+        // Check if there's been recent user activity
+        return counter > 0; // Placeholder
+    }
+}

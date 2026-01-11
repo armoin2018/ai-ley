@@ -1,0 +1,35 @@
+integration_patterns:
+  real_time_integration:
+    pattern: "Platform Events"
+    use_case: "Order status updates to external fulfillment system"
+    implementation:
+      publisher: "Salesforce Process Builder or Flow"
+      subscriber: "External system via API"
+      error_handling: "Dead letter queue with retry logic"
+      
+  batch_integration:
+    pattern: "Bulk API with ETL"
+    use_case: "Nightly data synchronization with ERP"
+    implementation:
+      tool: "Talend or MuleSoft"
+      frequency: "Daily at 2 AM"
+      error_handling: "Email notifications and rollback procedures"
+      
+  bidirectional_sync:
+    pattern: "Change Data Capture + REST API"
+    use_case: "Customer data synchronization with marketing automation"
+    implementation:
+      salesforce_to_external: "Change Data Capture events"
+      external_to_salesforce: "REST API with upsert operations"
+      conflict_resolution: "Last modified timestamp wins"
+      
+  api_management:
+    rate_limiting:
+      daily_limits: "Per org API limits monitoring"
+      per_user_limits: "Individual user consumption tracking"
+      optimization: "Bulk operations and selective queries"
+      
+    security:
+      authentication: "OAuth 2.0 JWT bearer token"
+      authorization: "Named credentials and permission sets"
+      encryption: "TLS 1.2+ for all API communications"

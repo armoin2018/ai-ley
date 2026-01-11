@@ -1,0 +1,64 @@
+# Smart Contract Infrastructure Security Scanner
+import web3
+import asyncio
+from typing import Dict, List
+import json
+
+class BlockchainInfrastructureScanner:
+    def __init__(self, rpc_endpoints: List[str]):
+        self.rpc_endpoints = rpc_endpoints
+        self.security_issues = []
+
+    async def scan_node_configuration(self, endpoint: str) -> Dict:
+        """Scan blockchain node for security misconfigurations"""
+        w3 = web3.Web3(web3.HTTPProvider(endpoint))
+
+        security_checks = {
+            'rpc_exposed': await self.check_rpc_exposure(w3),
+            'admin_apis_enabled': await self.check_admin_apis(w3),
+            'cors_configuration': await self.check_cors_config(w3),
+            'rate_limiting': await self.check_rate_limiting(w3),
+            'ssl_configuration': await self.check_ssl_config(endpoint)
+        }
+
+        return security_checks
+
+    async def analyze_consensus_security(self, w3: web3.Web3) -> Dict:
+        """Analyze consensus mechanism security properties"""
+        latest_block = w3.eth.get_block('latest')
+
+        return {
+            'validator_diversity': await self.check_validator_centralization(w3),
+            'finalization_time': latest_block['timestamp'],
+            'fork_choice_rule': await self.analyze_fork_choice(w3),
+            'slashing_conditions': await self.check_slashing_params(w3)
+        }
+
+    async def assess_economic_security(self, w3: web3.Web3) -> Dict:
+        """Evaluate economic security parameters"""
+        return {
+            'total_value_locked': await self.calculate_tvl(w3),
+            'validator_economics': await self.analyze_staking_rewards(w3),
+            'mev_resistance': await self.assess_mev_protection(w3),
+            'governance_concentration': await self.check_governance_power(w3)
+        }
+
+    def generate_security_report(self) -> str:
+        """Generate comprehensive security assessment report"""
+        report = {
+            'executive_summary': self.create_executive_summary(),
+            'technical_findings': self.security_issues,
+            'risk_matrix': self.calculate_risk_scores(),
+            'remediation_plan': self.generate_remediation_recommendations()
+        }
+
+        return json.dumps(report, indent=2)
+
+# Usage example
+scanner = BlockchainInfrastructureScanner([
+    'https://mainnet.infura.io/v3/YOUR_PROJECT_ID',
+    'https://eth-mainnet.alchemyapi.io/v2/YOUR_KEY'
+])
+
+security_report = await scanner.generate_security_report()
+print(security_report)

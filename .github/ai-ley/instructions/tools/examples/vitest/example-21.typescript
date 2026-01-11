@@ -1,0 +1,17 @@
+// Hoist mocks to the top of the file
+vi.mock('@/api/client', () => ({
+  apiClient: {
+    get: vi.fn(),
+    post: vi.fn(),
+  },
+}))
+
+// For ES modules, use vi.hoisted
+const mockApiClient = vi.hoisted(() => ({
+  get: vi.fn(),
+  post: vi.fn(),
+}))
+
+vi.mock('@/api/client', () => ({
+  apiClient: mockApiClient,
+}))

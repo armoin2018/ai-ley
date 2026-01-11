@@ -1,0 +1,23 @@
+# PostgreSQL backup configuration
+backup_strategy:
+  full_backup:
+    frequency: "daily"
+    retention: "30 days"
+    compression: "gzip"
+    encryption: "AES-256"
+    
+  incremental_backup:
+    frequency: "hourly"
+    retention: "7 days"
+    wal_archiving: true
+    
+  point_in_time_recovery:
+    enabled: true
+    retention: "14 days"
+    archive_location: "s3://backup-bucket/wal-archive"
+    
+  disaster_recovery:
+    cross_region_replication: true
+    rto_target: "4 hours"
+    rpo_target: "15 minutes"
+    failover_testing: "monthly"

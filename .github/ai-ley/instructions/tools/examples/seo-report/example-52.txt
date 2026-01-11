@@ -1,0 +1,9 @@
+---
+
+## 14. Performance Metrics (KPIs) Section
+
+### Purpose & Metrics Framework
+
+Provide clear, benchmarked metrics against goals and previous periods with visual trend representation and contextual annotations for major changes.
+
+### Core KPI Implementation

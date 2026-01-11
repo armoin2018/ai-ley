@@ -1,0 +1,123 @@
+import { defineConfig, devices } from '@playwright/test'
+
+export default defineConfig({
+  testDir: './tests',
+
+  // Global setup and teardown
+  globalSetup: require.resolve('./global-setup'),
+  globalTeardown: require.resolve('./global-teardown'),
+
+  // Test timeout
+  timeout: 30 * 1000,
+  expect: {
+    timeout: 5000
+  },
+
+  // Test execution
+  fullyParallel: true,
+  workers: process.env.CI ? 1 : '50%',
+  retries: process.env.CI ? 2 : 0,
+
+  // Reporting
+  reporter: [
+    ['html'],
+    ['json', { outputFile: 'test-results/results.json' }],
+    ['junit', { outputFile: 'test-results/results.xml' }],
+    process.env.CI ? ['github'] : ['list']
+  ],
+
+  // Output directories
+  outputDir: './test-results',
+
+  // Global test settings
+  use: {
+    // Browser settings
+    headless: !!process.env.CI,
+    viewport: { width: 1280, height: 720 },
+    ignoreHTTPSErrors: true,
+
+    // Base URL
+    baseURL: process.env.BASE_URL || 'http://localhost:3000',
+
+    // Authentication
+    storageState: 'storage-state.json',
+
+    // Network
+    extraHTTPHeaders: {
+      'Accept-Language': 'en-US,en;q=0.9'
+    },
+
+    // Debugging
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+
+    // Locale and timezone
+    locale: 'en-US',
+    timezoneId: 'America/New_York'
+  },
+
+  // Projects for different browsers and devices
+  projects: [
+    // Desktop browsers
+    {
+      name: 'chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+        // Custom Chrome flags
+        launchOptions: {
+          args: ['--disable-web-security']
+        }
+      }
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] }
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] }
+    },
+
+    // Mobile browsers
+    {
+      name: 'Mobile Chrome',
+      use: { ...devices['Pixel 5'] }
+    },
+    {
+      name: 'Mobile Safari',
+      use: { ...devices['iPhone 12'] }
+    },
+
+    // Branded browsers
+    {
+      name: 'Microsoft Edge',
+      use: {
+        ...devices['Desktop Edge'],
+        channel: 'msedge'
+      }
+    },
+    {
+      name: 'Google Chrome',
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome'
+      }
+    }
+  ],
+
+  // Web server for local development
+  webServer: [
+    {
+      command: 'npm run start:backend',
+      url: 'http://127.0.0.1:8000',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000
+    },
+    {
+      command: 'npm run start:frontend',
+      url: 'http://127.0.0.1:3000',
+      reuseExistingServer: !process.env.CI
+    }
+  ]
+})

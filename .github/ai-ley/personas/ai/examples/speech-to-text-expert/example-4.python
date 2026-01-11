@@ -1,0 +1,62 @@
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+import asyncio
+import json
+from google.cloud import speech
+import pyaudio
+
+app = FastAPI()
+
+class STTService:
+    def __init__(self):
+        self.client = speech.SpeechClient()
+        self.config = speech.RecognitionConfig(
+            encoding=speech.RecognitionConfig.AudioEncoding.WEBM_OPUS,
+            sample_rate_hertz=48000,
+            language_code="en-US",
+            enable_automatic_punctuation=True,
+            enable_speaker_diarization=True,
+            diarization_speaker_count=2
+        )
+        
+    async def stream_recognition(self, audio_generator):
+        streaming_config = speech.StreamingRecognitionConfig(
+            config=self.config,
+            interim_results=True
+        )
+        
+        requests = (speech.StreamingRecognizeRequest(audio_content=chunk)
+                   for chunk in audio_generator)
+        
+        responses = self.client.streaming_recognize(streaming_config, requests)
+        
+        for response in responses:
+            for result in response.results:
+                if result.is_final:
+                    yield {
+                        "transcript": result.alternatives[0].transcript,
+                        "confidence": result.alternatives[0].confidence,
+                        "is_final": True
+                    }
+                else:
+                    yield {
+                        "transcript": result.alternatives[0].transcript,
+                        "confidence": 0,
+                        "is_final": False
+                    }
+
+@app.websocket("/transcribe")
+async def transcribe_websocket(websocket: WebSocket):
+    await websocket.accept()
+    stt_service = STTService()
+    
+    try:
+        async def audio_generator():
+            while True:
+                data = await websocket.receive_bytes()
+                yield data
+                
+        async for result in stt_service.stream_recognition(audio_generator()):
+            await websocket.send_text(json.dumps(result))
+            
+    except WebSocketDisconnect:
+        print("Client disconnected")

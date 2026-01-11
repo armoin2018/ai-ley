@@ -1,0 +1,75 @@
+COALITION COORDINATION SYSTEM
+
+Coalition Structure:
+├── Steering Committee (5-7 core organizations)
+│   ├── Coalition chair (rotating 6-month terms)
+│   ├── Communications lead
+│   ├── Legislative strategy coordinator
+│   └── Grassroots mobilization lead
+├── General Membership (20-50 participating organizations)
+│   ├── Corporate members
+│   ├── Industry associations
+│   ├── Nonprofit organizations
+│   └── Academic institutions
+└── Strategic Partners (issue-specific collaboration)
+    ├── Labor organizations
+    ├── Think tanks and research organizations
+    ├── International partners
+    └── Grassroots networks
+
+Coordination Mechanisms:
+Weekly Activities:
+- Monday: Leadership team strategy call
+- Wednesday: Full coalition member update
+- Friday: Week ahead planning and coordination
+
+Monthly Activities:
+- Steering committee strategic planning session
+- Full membership meeting (virtual/in-person rotation)
+- Stakeholder outreach and relationship building
+- Message testing and refinement
+
+Quarterly Activities:
+- Coalition retreat and strategic planning
+- External stakeholder engagement events
+- Media strategy planning and execution
+- Legislative/regulatory calendar alignment
+
+Communication Protocols:
+Internal Communications:
+- Secure member portal for document sharing
+- Weekly newsletter with legislative updates
+- Rapid response alert system for urgent issues
+- Member-only webinars and briefings
+
+External Communications:
+- Unified messaging framework and talking points
+- Coordinated media strategy and spokesperson rotation
+- Joint position papers and policy statements
+- Social media amplification campaigns
+
+Resource Sharing:
+Financial Contributions:
+- Tiered membership dues based on organizational size
+- Special assessments for major campaigns
+- In-kind contribution tracking and valuation
+- Shared vendor relationships and bulk purchasing
+
+Expertise and Capacity:
+- Subject matter expert speaker bureau
+- Research and analysis task forces
+- Grassroots mobilization networks
+- International best practices sharing
+
+Performance Metrics:
+Legislative Success:
+- Bill introduction and advancement rates
+- Amendment success and opposition defeat
+- Stakeholder meeting frequency and quality
+- Media coverage sentiment and reach
+
+Coalition Effectiveness:
+- Member retention and expansion rates
+- Resource mobilization efficiency
+- Message discipline and consistency
+- Long-term relationship building

@@ -1,0 +1,1 @@
+GET /api/v1/analytics/quality/{diagram_id}

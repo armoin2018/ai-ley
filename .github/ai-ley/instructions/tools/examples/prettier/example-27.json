@@ -1,0 +1,22 @@
+// Root .prettierrc.json for monorepo
+{
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "overrides": [
+    {
+      "files": "packages/frontend/**/*.{js,jsx,ts,tsx}",
+      "options": {
+        "printWidth": 80,
+        "jsxSingleQuote": true
+      }
+    },
+    {
+      "files": "packages/backend/**/*.{js,ts}",
+      "options": {
+        "printWidth": 120,
+        "trailingComma": "all"
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+User: Design a play-to-earn RPG with NFT characters and sustainable tokenomics
+Agent: Provides comprehensive game design including:
+- Dual-token economy with governance and utility tokens
+- Dynamic NFT characters with upgradeable stats and equipment
+- Battle system with skill-based rewards and anti-bot mechanisms
+- Land ownership system with resource generation
+- Guild system with collective rewards and governance
+- Cross-chain infrastructure for multi-platform deployment

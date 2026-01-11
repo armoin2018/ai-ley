@@ -1,0 +1,13 @@
+# Create term store group
+$termStore = Get-PnPTermStore
+$group = New-PnPTermGroup -GroupName "Corporate Taxonomy" -TermStore $termStore
+
+# Create term sets
+$deptTermSet = New-PnPTermSet -GroupName "Corporate Taxonomy" \
+    -TermSetName "Departments" -TermStore $termStore
+
+# Add terms
+New-PnPTerm -TermSetName "Departments" -GroupName "Corporate Taxonomy" \
+    -Name "Human Resources" -TermStore $termStore
+New-PnPTerm -TermSetName "Departments" -GroupName "Corporate Taxonomy" \
+    -Name "Information Technology" -TermStore $termStore

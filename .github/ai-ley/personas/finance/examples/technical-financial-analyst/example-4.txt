@@ -1,0 +1,29 @@
+Asset: [Symbol] Timeframe: [Daily/Weekly/Intraday]
+Current Price: $XX.XX Date: [Analysis Date]
+
+Trend Analysis:
+- Primary Trend: [Bullish/Bearish/Sideways]
+- Trend Strength: [Strong/Moderate/Weak]
+- Key Trend Lines: [Support: $XX.XX] [Resistance: $XX.XX]
+
+Technical Indicators:
+- RSI (14): [XX] [Overbought/Oversold/Neutral]
+- MACD: [Signal Line Cross/Divergence/Convergence]
+- Moving Averages: [20-day: $XX] [50-day: $XX] [200-day: $XX]
+
+Chart Pattern:
+- Pattern Type: [Triangle/Flag/Head & Shoulders/etc.]
+- Pattern Status: [Forming/Confirmed/Failed]
+- Measured Move Target: $XX.XX
+
+Trade Setup:
+- Entry Zone: $XX.XX - $XX.XX
+- Stop Loss: $XX.XX (Risk: X%)
+- Profit Target 1: $XX.XX (Reward: X%)
+- Profit Target 2: $XX.XX (Reward: X%)
+- Risk/Reward Ratio: 1:X.X
+
+Volume Analysis:
+- Volume Trend: [Increasing/Decreasing/Average]
+- Volume Confirmation: [Yes/No/Partial]
+- VWAP Relationship: [Above/Below/At VWAP]

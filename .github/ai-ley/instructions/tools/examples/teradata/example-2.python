@@ -1,0 +1,62 @@
+async def setup_healthcare_analytics():
+    """Example: Setup healthcare analytics platform with HIPAA compliance"""
+
+    config = EnterpriseTeradataConfig(
+        system_id="healthcare-analytics",
+        organization_name="HealthSystem",
+        tier=TeradataTier.PREMIUM,
+        environment=TeradataEnvironment.PRODUCTION,
+        infrastructure_config={
+            "amp_configuration": {
+                "total_amps": 128,
+                "amps_per_node": 8,
+                "nodes": 16
+            }
+        },
+        security_config={
+            "encryption": {
+                "data_at_rest": {"enabled": True, "algorithm": "AES-256"},
+                "column_level_encryption": {
+                    "enabled": True,
+                    "sensitive_columns": ["patient_id", "ssn", "medical_record_number", "diagnosis_code"]
+                }
+            },
+            "compliance": {
+                "hipaa_compliant": True,
+                "gdpr_compliant": True,
+                "data_retention_policies": {
+                    "patient_data": "permanent",
+                    "audit_logs": "permanent",
+                    "research_data": "25_years"
+                }
+            },
+            "access_control": {
+                "row_level_security": True,
+                "column_level_security": True,
+                "dynamic_data_masking": True,
+                "audit_trail": "comprehensive"
+            }
+        }
+    )
+
+    platform = EnterpriseTeradataVantage(config)
+    setup_result = await platform.setup_enterprise_platform()
+
+    # Create healthcare data model
+    healthcare_model = await create_healthcare_data_model(platform)
+
+    # Setup clinical analytics
+    clinical_analytics = await setup_clinical_analytics(platform)
+
+    return {
+        "platform_setup": setup_result,
+        "healthcare_model": healthcare_model,
+        "clinical_analytics": clinical_analytics,
+        "compliance_status": "HIPAA_COMPLIANT"
+    }
+
+# Advanced Teradata SQL Examples
+
+## Complex Analytics Queries
+
+### Time Series Analysis with Temporal Tables

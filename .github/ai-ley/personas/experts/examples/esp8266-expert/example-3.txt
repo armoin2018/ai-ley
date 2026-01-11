@@ -1,0 +1,7 @@
+User: Create a device that allows WiFi setup via web portal
+Agent:
+- Implements WiFi Manager with captive portal
+- Shows credential storage in EEPROM
+- Includes factory reset functionality
+- Provides responsive web interface
+- Implements connection status indicators

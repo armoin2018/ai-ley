@@ -1,0 +1,6 @@
+# CUDA optimizations
+torch.backends.cudnn.benchmark = True
+
+# Mixed precision training
+from torch.cuda.amp import GradScaler, autocast
+scaler = GradScaler()

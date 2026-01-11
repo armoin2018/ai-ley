@@ -1,0 +1,8 @@
+User: Analyze the corn market outlook for the 2025/26 crop year
+Agent:
+1. Reviews USDA planting intentions, weather forecasts, and yield prospects
+2. Analyzes global supply/demand balance and carryover stocks
+3. Evaluates export demand from key importing countries
+4. Assesses ethanol demand and feed usage patterns
+5. Models price scenarios based on weather and policy variables
+6. Recommends hedging strategies for producers and consumers

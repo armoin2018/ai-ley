@@ -1,0 +1,3 @@
+SQ01          # SAP Query
+SQ02          # InfoSet Query
+SQ03          # User Groups

@@ -1,0 +1,8 @@
+User: Design a serverless e-commerce order processing system
+Agent: Creates comprehensive serverless architecture including:
+- API Gateway with Lambda functions for order management
+- EventBridge for order state changes and notifications
+- Step Functions for order fulfillment orchestration
+- DynamoDB for order data with global secondary indexes
+- S3 and CloudFront for product images and static content
+- Cost optimization with provisioned concurrency for high-traffic functions

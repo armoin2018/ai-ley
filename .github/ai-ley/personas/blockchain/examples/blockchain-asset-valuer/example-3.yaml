@@ -1,0 +1,124 @@
+# Comprehensive Digital Asset Risk Assessment Framework
+digital_asset_risk_framework:
+  technology_risk_assessment:
+    smart_contract_risk:
+      code_audit_status:
+        - audited_by_tier1: 0.02 # 2% discount
+        - audited_by_tier2: 0.05 # 5% discount
+        - unaudited: 0.15 # 15% discount
+        - known_vulnerabilities: 0.30 # 30% discount
+
+      protocol_maturity:
+        - battle_tested_2plus_years: 0.00
+        - established_1to2_years: 0.03
+        - new_protocol_6to12_months: 0.08
+        - experimental_under_6_months: 0.20
+
+    consensus_mechanism_risk:
+      proof_of_work:
+        - established_networks: 0.02
+        - emerging_networks: 0.08
+      proof_of_stake:
+        - decentralized_validator_set: 0.03
+        - concentrated_validator_set: 0.10
+      novel_consensus:
+        - theoretical_untested: 0.25
+        - limited_deployment: 0.15
+
+  market_risk_assessment:
+    liquidity_risk:
+      daily_trading_volume:
+        - over_100m_usd: 0.00
+        - 10m_to_100m_usd: 0.05
+        - 1m_to_10m_usd: 0.10
+        - under_1m_usd: 0.25
+
+      exchange_listings:
+        - tier1_exchanges_multiple: 0.00
+        - tier1_exchanges_single: 0.03
+        - tier2_exchanges_only: 0.08
+        - dex_only: 0.15
+
+    volatility_risk:
+      historical_volatility_annualized:
+        - under_50_percent: 0.05
+        - 50_to_100_percent: 0.10
+        - 100_to_200_percent: 0.20
+        - over_200_percent: 0.35
+
+    concentration_risk:
+      holder_distribution:
+        - well_distributed: 0.00
+        - moderate_concentration: 0.05
+        - high_concentration: 0.15
+        - extreme_concentration: 0.30
+
+  regulatory_risk_assessment:
+    legal_classification:
+      securities_classification:
+        - clearly_not_security: 0.00
+        - unclear_classification: 0.10
+        - likely_security_compliant: 0.05
+        - likely_security_noncompliant: 0.25
+
+      regulatory_environment:
+        - clear_regulatory_framework: 0.00
+        - developing_regulations: 0.08
+        - regulatory_uncertainty: 0.15
+        - regulatory_hostility: 0.30
+
+    compliance_status:
+      kyc_aml_compliance:
+        - fully_compliant: 0.00
+        - partially_compliant: 0.05
+        - non_compliant: 0.20
+
+      tax_reporting:
+        - clear_tax_treatment: 0.00
+        - uncertain_tax_treatment: 0.08
+
+  operational_risk_assessment:
+    custody_risk:
+      self_custody:
+        - hardware_wallet_secure: 0.02
+        - software_wallet: 0.05
+        - exchange_custody: 0.08
+        - unknown_custody: 0.20
+
+    counterparty_risk:
+      exchange_security:
+        - tier1_regulated_exchange: 0.01
+        - established_exchange: 0.03
+        - new_unregulated_exchange: 0.10
+        - defi_protocol_risk: 0.08
+
+valuation_adjustment_methodology:
+  risk_weighting_system:
+    technology_risk_weight: 0.25
+    market_risk_weight: 0.30
+    regulatory_risk_weight: 0.25
+    operational_risk_weight: 0.20
+
+  total_risk_discount_calculation:
+    formula: 'Sum of (Risk Category Score × Risk Weight) for all categories'
+    maximum_total_discount: 0.50 # 50% maximum total risk discount
+    minimum_total_discount: 0.01 # 1% minimum risk discount
+
+  confidence_level_determination:
+    high_confidence:
+      criteria:
+        - sufficient_market_data: true
+        - low_total_risk_discount: '< 15%'
+        - established_valuation_precedents: true
+
+    medium_confidence:
+      criteria:
+        - moderate_market_data: true
+        - medium_total_risk_discount: '15% - 30%'
+        - some_valuation_precedents: true
+
+    low_confidence:
+      criteria:
+        - limited_market_data: true
+        - high_total_risk_discount: '> 30%'
+        - few_valuation_precedents: true

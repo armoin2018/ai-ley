@@ -1,0 +1,9 @@
+<!-- Plugin configuration -->
+<plugin>
+  <name>collaboration</name>
+  <version>latest</version>
+  <config>
+    <repository>git_repository_url</repository>
+    <branch>main</branch>
+  </config>
+</plugin>

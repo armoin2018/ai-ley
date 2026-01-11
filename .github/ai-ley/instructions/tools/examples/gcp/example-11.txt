@@ -1,0 +1,5 @@
+### Cloud Run (Containerized Applications)
+
+- **Purpose**: Fully managed serverless platform for containerized applications
+- **Usage**: Deploy containerized applications with automatic scaling
+- **Example**:

@@ -1,0 +1,47 @@
+economic_cycle_framework:
+  cycle_identification:
+    leading_indicators:
+      - yield_curve_shape: "2s10s_spread_inversion_signals"
+      - credit_spreads: "investment_grade_high_yield_widening"
+      - employment_indicators: "jobless_claims_participation_rate"
+      - manufacturing_data: "ism_pmi_regional_fed_surveys"
+      
+    cycle_phases:
+      early_expansion:
+        characteristics: "accommodative_policy_improving_growth"
+        asset_preferences: "equities_credit_cyclicals_small_cap"
+        duration_positioning: "short_duration_steepening_bias"
+        
+      mid_expansion:
+        characteristics: "self_sustaining_growth_policy_normalization"
+        asset_preferences: "equities_growth_quality_international"
+        duration_positioning: "neutral_duration_curve_flattening"
+        
+      late_expansion:
+        characteristics: "tight_policy_margin_pressure_overvaluation"
+        asset_preferences: "defensives_value_dividend_yield"
+        duration_positioning: "extend_duration_curve_inversion"
+        
+      recession:
+        characteristics: "policy_easing_earnings_decline_deleveraging"
+        asset_preferences: "treasuries_investment_grade_utilities"
+        duration_positioning: "long_duration_steep_yield_curves"
+        
+  implementation_matrix:
+    equity_allocation:
+      early_expansion: "overweight_75%"
+      mid_expansion: "market_weight_65%"
+      late_expansion: "underweight_55%"
+      recession: "underweight_45%"
+      
+    fixed_income_allocation:
+      early_expansion: "underweight_20%"
+      mid_expansion: "market_weight_30%"
+      late_expansion: "overweight_40%"
+      recession: "overweight_50%"
+      
+    alternative_allocation:
+      early_expansion: "growth_alternatives_pe_venture"
+      mid_expansion: "diversified_alternatives_infrastructure"
+      late_expansion: "defensive_alternatives_real_estate"
+      recession: "distressed_opportunities_special_situations"

@@ -1,0 +1,58 @@
+import pytest
+import asyncio
+from httpx import AsyncClient
+from myapp.services import AsyncUserService
+
+class TestAsyncUserService:
+    """Test suite for async user operations."""
+
+    @pytest.mark.asyncio
+    async def test_fetch_user_by_id(self, mock_database, sample_user):
+        """Test async user fetching."""
+        # Arrange
+        mock_database.fetch_one.return_value = sample_user
+        service = AsyncUserService(mock_database)
+
+        # Act
+        result = await service.get_user_by_id("123")
+
+        # Assert
+        assert result["id"] == "123"
+        mock_database.fetch_one.assert_called_once_with(
+            "SELECT * FROM users WHERE id = $1", "123"
+        )
+
+    @pytest.mark.asyncio
+    async def test_api_endpoint_create_user(self, async_client, sample_user):
+        """Test API endpoint for user creation."""
+        # Arrange
+        user_data = sample_user
+
+        # Act
+        response = await async_client.post("/users", json=user_data)
+
+        # Assert
+        assert response.status_code == 201
+        data = response.json()
+        assert data["username"] == user_data["username"]
+        assert data["email"] == user_data["email"]
+
+    @pytest.mark.asyncio
+    async def test_concurrent_user_creation(self, async_client):
+        """Test concurrent user creation."""
+        # Arrange
+        users = [
+            {"username": f"user{i}", "email": f"user{i}@example.com"}
+            for i in range(5)
+        ]
+
+        # Act
+        tasks = [
+            async_client.post("/users", json=user)
+            for user in users
+        ]
+        responses = await asyncio.gather(*tasks)
+
+        # Assert
+        for response in responses:
+            assert response.status_code == 201

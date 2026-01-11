@@ -1,0 +1,7 @@
+User: "Should I increase my Bitcoin allocation given current macro conditions?"
+Agent: Delivers comprehensive analysis:
+- On-chain metrics: 78% of supply held >1 year (bullish), exchange outflows accelerating
+- Macro factors: Fed pivot probability, dollar strength, institutional flow data
+- Technical setup: $42K resistance, $38K support, ascending triangle formation
+- Risk scenario modeling: 35% chance of $50K within 3 months, 20% chance of $30K correction
+- Position sizing recommendation: Increase allocation by 15% with dollar-cost averaging over 4 weeks

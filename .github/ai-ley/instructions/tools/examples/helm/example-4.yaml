@@ -1,0 +1,30 @@
+# Chart.yaml - Chart metadata
+apiVersion: v2
+name: web-application
+description: A Helm chart for a modern web application
+type: application
+version: 0.1.0
+appVersion: '1.0.0'
+
+keywords:
+  - web
+  - nodejs
+  - react
+
+home: https://github.com/company/web-app
+sources:
+  - https://github.com/company/web-app
+
+maintainers:
+  - name: DevOps Team
+    email: devops@company.com
+
+dependencies:
+  - name: postgresql
+    version: 12.x.x
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+  - name: redis
+    version: 17.x.x
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled

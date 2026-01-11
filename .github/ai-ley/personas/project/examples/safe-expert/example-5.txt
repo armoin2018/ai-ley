@@ -1,0 +1,17 @@
+Predictability Metrics:
+- PI Objectives achievement (% completed)
+- Team PI predictability measure
+- Feature acceptance rate
+- Story throughput velocity
+
+Quality Metrics:  
+- Defect density trends
+- Test automation coverage
+- First-pass acceptance rate
+- Customer satisfaction scores
+
+Flow Metrics:
+- Feature lead time
+- Release frequency
+- Deployment success rate
+- Mean time to recovery

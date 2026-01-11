@@ -1,0 +1,82 @@
+class CouchDBDocumentPatterns:
+    """Best practices for CouchDB document design."""
+
+    @staticmethod
+    def create_user_document(user_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Create well-structured user document."""
+        from datetime import datetime
+        import uuid
+
+        doc = {
+            '_id': f"user:{uuid.uuid4()}",
+            'type': 'user',
+            'created_at': datetime.utcnow().isoformat() + 'Z',
+            'updated_at': datetime.utcnow().isoformat() + 'Z',
+            'version': 1,
+
+            # User data
+            'profile': {
+                'name': user_data.get('name'),
+                'email': user_data.get('email'),
+                'avatar_url': user_data.get('avatar_url')
+            },
+
+            # Preferences
+            'preferences': user_data.get('preferences', {}),
+
+            # Metadata
+            'metadata': {
+                'source': 'api',
+                'last_login': None,
+                'login_count': 0
+            }
+        }
+
+        return doc
+
+    @staticmethod
+    def create_timestamped_document(doc_type: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Create document with proper timestamp and metadata."""
+        from datetime import datetime
+        import uuid
+
+        doc = {
+            '_id': f"{doc_type}:{uuid.uuid4()}",
+            'type': doc_type,
+            'created_at': datetime.utcnow().isoformat() + 'Z',
+            'updated_at': datetime.utcnow().isoformat() + 'Z',
+            'version': 1
+        }
+
+        # Add data fields
+        doc.update(data)
+
+        return doc
+
+    @staticmethod
+    def update_document_version(doc: Dict[str, Any], updates: Dict[str, Any]) -> Dict[str, Any]:
+        """Update document with version increment."""
+        from datetime import datetime
+
+        # Apply updates
+        for key, value in updates.items():
+            if key not in ['_id', '_rev', 'created_at', 'version']:
+                doc[key] = value
+
+        # Update metadata
+        doc['updated_at'] = datetime.utcnow().isoformat() + 'Z'
+        doc['version'] = doc.get('version', 1) + 1
+
+        return doc
+
+# Usage example
+user_data = {
+    'name': 'Jane Smith',
+    'email': 'jane@example.com',
+    'preferences': {
+        'theme': 'dark',
+        'notifications': True
+    }
+}
+
+user_doc = CouchDBDocumentPatterns.create_user_document(user_data)

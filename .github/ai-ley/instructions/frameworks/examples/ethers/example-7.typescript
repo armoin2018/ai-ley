@@ -1,0 +1,34 @@
+// Contract ABI and bytecode
+import MyTokenABI from './contracts/MyToken.json';
+
+// Create contract instance (read-only)
+const contract = new ethers.Contract(contractAddress, MyTokenABI.abi, provider);
+
+// Contract with signer (can send transactions)
+const contractWithSigner = contract.connect(signer);
+
+// Read contract state (no gas required)
+const totalSupply = await contract.totalSupply();
+const balance = await contract.balanceOf(userAddress);
+const name = await contract.name();
+
+// Write to contract (requires gas and signing)
+const tx = await contractWithSigner.transfer(
+  recipientAddress, 
+  ethers.parseEther('10.0')
+);
+const receipt = await tx.wait(); // Wait for confirmation
+
+// Deploy contract
+const contractFactory = new ethers.ContractFactory(
+  MyTokenABI.abi,
+  MyTokenABI.bytecode,
+  signer
+);
+
+const deployedContract = await contractFactory.deploy(
+  'MyToken',
+  'MTK',
+  ethers.parseEther('1000000') // Constructor parameters
+);
+await deployedContract.waitForDeployment();

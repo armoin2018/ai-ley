@@ -1,0 +1,85 @@
+from __future__ import annotations
+from typing import Optional, Dict, List, Any, Union
+from decimal import Decimal
+from dataclasses import dataclass
+import logging
+
+logger = logging.getLogger(__name__)
+
+# ✅ Good: Pure functions with clear type hints and validation
+def calculate_tax(amount: Decimal, rate: Decimal) -> Decimal:
+    """
+    Calculate tax amount based on principal and rate.
+    
+    Args:
+        amount: The principal amount (must be non-negative)
+        rate: The tax rate as a decimal (must be between 0 and 1)
+        
+    Returns:
+        The calculated tax amount
+        
+    Raises:
+        ValueError: If amount is negative or rate is invalid
+        TypeError: If arguments are not Decimal types
+    """
+    if not isinstance(amount, Decimal) or not isinstance(rate, Decimal):
+        raise TypeError("Amount and rate must be Decimal types")
+    
+    if amount < 0:
+        raise ValueError("Amount must be non-negative")
+        
+    if not 0 <= rate <= 1:
+        raise ValueError("Rate must be between 0 and 1")
+    
+    return amount * rate
+
+# ✅ Good: Data class for structured data
+@dataclass
+class UserProfile:
+    user_id: str
+    name: str
+    email: str
+    is_active: bool = True
+    preferences: Dict[str, Any] = None
+    
+    def __post_init__(self) -> None:
+        if self.preferences is None:
+            self.preferences = {}
+
+# ✅ Good: Async function with proper error handling
+async def fetch_user_data(
+    user_id: str, 
+    *, 
+    include_profile: bool = False,
+    timeout: float = 30.0
+) -> Dict[str, Any]:
+    """
+    Fetch user data from the API.
+    
+    Args:
+        user_id: The unique identifier for the user
+        include_profile: Whether to include profile data
+        timeout: Request timeout in seconds
+        
+    Returns:
+        Dictionary containing user data
+        
+    Raises:
+        UserNotFoundError: When user is not found
+        NetworkError: When network error occurs
+    """
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.get(
+                f"/api/users/{user_id}",
+                params={"include_profile": include_profile}
+            )
+            response.raise_for_status()
+            return response.json()
+            
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 404:
+            raise UserNotFoundError(f"User {user_id} not found") from e
+        raise NetworkError(f"HTTP {e.response.status_code}: {e.response.text}") from e
+    except httpx.RequestError as e:
+        raise NetworkError(f"Network error: {e}") from e

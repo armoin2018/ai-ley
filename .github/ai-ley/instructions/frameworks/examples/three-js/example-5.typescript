@@ -1,0 +1,138 @@
+// systems/CameraController.ts - Advanced camera controls
+import * as THREE from 'three';
+
+export class CameraController {
+    private camera: THREE.PerspectiveCamera;
+    private target: THREE.Vector3 = new THREE.Vector3();
+    private offset: THREE.Vector3 = new THREE.Vector3();
+    private followTarget: THREE.Object3D | null = null;
+    
+    // Mouse controls
+    private isMouseDown: boolean = false;
+    private mouseX: number = 0;
+    private mouseY: number = 0;
+    private rotationSpeed: number = 0.002;
+    
+    // Movement
+    private moveSpeed: number = 5;
+    private keys: Record<string, boolean> = {};
+
+    constructor(camera: THREE.PerspectiveCamera, domElement: HTMLElement) {
+        this.camera = camera;
+        this.setupEventListeners(domElement);
+    }
+
+    private setupEventListeners(domElement: HTMLElement): void {
+        // Mouse controls
+        domElement.addEventListener('mousedown', this.onMouseDown.bind(this));
+        domElement.addEventListener('mousemove', this.onMouseMove.bind(this));
+        domElement.addEventListener('mouseup', this.onMouseUp.bind(this));
+        domElement.addEventListener('wheel', this.onWheel.bind(this));
+
+        // Keyboard controls
+        window.addEventListener('keydown', this.onKeyDown.bind(this));
+        window.addEventListener('keyup', this.onKeyUp.bind(this));
+
+        // Prevent context menu
+        domElement.addEventListener('contextmenu', (e) => e.preventDefault());
+    }
+
+    private onMouseDown(event: MouseEvent): void {
+        this.isMouseDown = true;
+        this.mouseX = event.clientX;
+        this.mouseY = event.clientY;
+    }
+
+    private onMouseMove(event: MouseEvent): void {
+        if (!this.isMouseDown) return;
+
+        const deltaX = event.clientX - this.mouseX;
+        const deltaY = event.clientY - this.mouseY;
+
+        // Rotate camera around target
+        const spherical = new THREE.Spherical();
+        spherical.setFromVector3(this.camera.position.clone().sub(this.target));
+        
+        spherical.theta -= deltaX * this.rotationSpeed;
+        spherical.phi += deltaY * this.rotationSpeed;
+        
+        // Limit vertical rotation
+        spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi));
+
+        this.camera.position.setFromSpherical(spherical).add(this.target);
+        this.camera.lookAt(this.target);
+
+        this.mouseX = event.clientX;
+        this.mouseY = event.clientY;
+    }
+
+    private onMouseUp(): void {
+        this.isMouseDown = false;
+    }
+
+    private onWheel(event: WheelEvent): void {
+        const distance = this.camera.position.distanceTo(this.target);
+        const newDistance = Math.max(1, Math.min(50, distance + event.deltaY * 0.01));
+        
+        const direction = this.camera.position.clone().sub(this.target).normalize();
+        this.camera.position.copy(this.target).add(direction.multiplyScalar(newDistance));
+    }
+
+    private onKeyDown(event: KeyboardEvent): void {
+        this.keys[event.code] = true;
+    }
+
+    private onKeyUp(event: KeyboardEvent): void {
+        this.keys[event.code] = false;
+    }
+
+    public update(deltaTime: number): void {
+        this.handleKeyboardMovement(deltaTime);
+        this.updateFollowTarget();
+    }
+
+    private handleKeyboardMovement(deltaTime: number): void {
+        const moveDistance = this.moveSpeed * deltaTime;
+        const direction = new THREE.Vector3();
+
+        if (this.keys['KeyW']) direction.z -= 1;
+        if (this.keys['KeyS']) direction.z += 1;
+        if (this.keys['KeyA']) direction.x -= 1;
+        if (this.keys['KeyD']) direction.x += 1;
+        if (this.keys['KeyQ']) direction.y -= 1;
+        if (this.keys['KeyE']) direction.y += 1;
+
+        if (direction.length() > 0) {
+            direction.normalize();
+            
+            // Apply camera rotation to movement direction
+            direction.applyQuaternion(this.camera.quaternion);
+            direction.multiplyScalar(moveDistance);
+            
+            this.camera.position.add(direction);
+            this.target.add(direction);
+        }
+    }
+
+    private updateFollowTarget(): void {
+        if (this.followTarget) {
+            const targetPosition = this.followTarget.position.clone().add(this.offset);
+            this.target.lerp(targetPosition, 0.1);
+            this.camera.lookAt(this.target);
+        }
+    }
+
+    public setTarget(target: THREE.Vector3): void {
+        this.target.copy(target);
+        this.camera.lookAt(this.target);
+    }
+
+    public followObject(object: THREE.Object3D, offset: THREE.Vector3 = new THREE.Vector3(0, 5, 10)): void {
+        this.followTarget = object;
+        this.offset.copy(offset);
+    }
+
+    public stopFollowing(): void {
+        this.followTarget = null;
+    }
+}

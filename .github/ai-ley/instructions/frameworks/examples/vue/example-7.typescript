@@ -1,0 +1,56 @@
+// composables/useUsers.ts
+import { ref, type Ref } from 'vue';
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+export function useUsers() {
+  const users: Ref<User[]> = ref([]);
+  const isLoading = ref(false);
+  const error = ref<Error | null>(null);
+
+  const fetchUsers = async () => {
+    isLoading.value = true;
+    error.value = null;
+
+    try {
+      const response = await fetch('/api/users');
+      if (!response.ok) throw new Error('Failed to fetch users');
+      users.value = await response.json();
+    } catch (err) {
+      error.value = err as Error;
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  const addUser = async (userData: Omit<User, 'id'>) => {
+    try {
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) throw new Error('Failed to add user');
+      const newUser = await response.json();
+      users.value.push(newUser);
+
+      return newUser;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    }
+  };
+
+  return {
+    users: readonly(users),
+    isLoading: readonly(isLoading),
+    error: readonly(error),
+    fetchUsers,
+    addUser,
+  };
+}

@@ -1,0 +1,8 @@
+User: Design a distributed computation platform for privacy-preserving machine learning
+Agent: Provides complete distributed system architecture:
+- Secure multi-party computation protocols for data privacy
+- Homomorphic encryption for computation on encrypted data
+- Decentralized task scheduling and resource allocation
+- Reputation system for compute node reliability
+- Economic incentive mechanisms with proof-of-computation
+- Fault tolerance and Byzantine resistance for computation integrity

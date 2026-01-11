@@ -1,0 +1,14 @@
+# Function scope (default) - new instance per test
+@pytest.fixture
+def function_fixture():
+    return SomeObject()
+
+# Class scope - shared within test class
+@pytest.fixture(scope="class")
+def class_fixture():
+    return ExpensiveObject()
+
+# Session scope - shared across entire test session
+@pytest.fixture(scope="session")
+def session_fixture():
+    return DatabaseConnection()

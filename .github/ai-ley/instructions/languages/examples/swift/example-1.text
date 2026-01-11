@@ -1,0 +1,23 @@
+Sources/
+  App/
+    Models/              # Data models and business logic
+      User.swift
+      Product.swift
+    Views/              # SwiftUI views and UIKit view controllers
+      ContentView.swift
+      UserProfileView.swift
+    ViewModels/         # MVVM view models and state management
+      UserViewModel.swift
+      ProductListViewModel.swift
+    Services/           # Business logic and data services
+      NetworkService.swift
+      DataService.swift
+    Utilities/          # Helper classes and extensions
+      Extensions/
+      Helpers/
+    Resources/          # Assets, localizable strings, etc.
+Tests/
+  UnitTests/           # Unit tests for models and services
+  IntegrationTests/    # Integration tests for complete flows
+  UITests/            # UI automation tests
+Package.swift          # Swift Package Manager configuration

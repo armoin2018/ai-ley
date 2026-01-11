@@ -1,0 +1,14 @@
+# S3 bucket with encryption
+S3Bucket:
+  Type: AWS::S3::Bucket
+  Properties:
+    BucketName: my-secure-bucket
+    BucketEncryption:
+      ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: AES256
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true

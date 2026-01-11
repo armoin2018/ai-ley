@@ -1,0 +1,113 @@
+# atmos.yaml - Enterprise Atmos configuration
+cli:
+  colors: true
+  verbose: true
+
+# Schema validation
+schemas:
+  jsonschema:
+    base_path: 'schemas'
+  opa:
+    base_path: 'policies'
+  cue:
+    base_path: 'schemas/cue'
+
+# Component configuration
+components:
+  terraform:
+    base_path: 'components/terraform'
+    apply_auto_approve: false
+    deploy_run_init: true
+    init_run_reconfigure: true
+    auto_generate_backend_file: false
+
+# Stack configuration
+stacks:
+  base_path: 'stacks'
+  included_paths:
+    - 'orgs/**/*'
+    - 'globals/**/*'
+    - 'catalog/**/*'
+  excluded_paths:
+    - '**/_defaults.yaml'
+    - '**/deprecated/**/*'
+  name_pattern: '{namespace}-{tenant}-{environment}-{stage}'
+  name_template: '{{.namespace}}-{{.tenant}}-{{.environment}}-{{.stage}}'
+
+# Workflow configuration
+workflows:
+  base_path: 'workflows'
+
+# Import sources for reusable components
+import:
+  - source: 'git::https://github.com/cloudposse/atmos.git//examples/quick-start/components?ref=v1.63.0'
+    destination: 'components/vendored'
+  - source: 'oci://ghcr.io/cloudposse/atmos-components'
+    version: '>=1.0.0'
+    destination: 'components/vendored/oci'
+
+# Template processing
+templates:
+  settings:
+    enabled: true
+    sprig: true
+    gomplate: true
+    evaluations: 3
+
+# Validation settings
+validation:
+  check_missing_required_vars: true
+  check_stack_name_pattern: true
+
+# Integration settings
+integrations:
+  github:
+    gitops:
+      terraform_version: '1.6.0'
+      atmos_version: '1.63.0'
+      artifact_storage: true
+      opentofu_version: '1.6.0'
+
+  atlantis:
+    path: '.atlantis'
+    config_templates:
+      - name: 'enterprise-workflow'
+        workflow: 'enterprise'
+
+# Logs configuration
+logs:
+  file: '/var/log/atmos/atmos.log'
+  level: 'info'
+
+# Enterprise settings
+settings:
+  enterprise:
+    multi_tenant: true
+    compliance:
+      enabled: true
+      frameworks: ['SOC2', 'PCI-DSS', 'HIPAA', 'CIS']
+      scan_on_plan: true
+      block_on_violations: true
+    cost_management:
+      enabled: true
+      budget_alerts: true
+      resource_tagging_required: true
+    security:
+      drift_detection: true
+      vulnerability_scanning: true
+      secret_scanning: true
+
+# Provider aliases for multi-region deployments
+provider_aliases:
+  aws:
+    primary: 'us-east-1'
+    secondary: 'us-west-2'
+    dr: 'eu-west-1'
+  azure:
+    primary: 'East US'
+    secondary: 'West US 2'
+    dr: 'West Europe'
+  gcp:
+    primary: 'us-central1'
+    secondary: 'us-west1'
+    dr: 'europe-west1'

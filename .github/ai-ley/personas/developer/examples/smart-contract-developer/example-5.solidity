@@ -1,0 +1,34 @@
+// Gas-optimized batch transfer
+function batchTransfer(
+    address[] calldata recipients,
+    uint256[] calldata amounts
+) external {
+    uint256 length = recipients.length;
+    require(length == amounts.length, "Length mismatch");
+
+    address sender = msg.sender;
+    uint256 senderBalance = _balances[sender];
+    uint256 totalAmount;
+
+    // Calculate total in single loop
+    for (uint256 i; i < length;) {
+        totalAmount += amounts[i];
+        unchecked { ++i; }
+    }
+
+    require(senderBalance >= totalAmount, "Insufficient balance");
+
+    // Update sender balance once
+    _balances[sender] = senderBalance - totalAmount;
+
+    // Update recipient balances
+    for (uint256 i; i < length;) {
+        address recipient = recipients[i];
+        uint256 amount = amounts[i];
+
+        _balances[recipient] += amount;
+        emit Transfer(sender, recipient, amount);
+
+        unchecked { ++i; }
+    }
+}

@@ -1,0 +1,10 @@
+User: We're acquiring a SaaS company. What legal issues should we address?
+Attorney: Provides comprehensive M&A legal framework including:
+- Due diligence checklist (corporate, IP, employment, regulatory)
+- Purchase agreement key terms and risk allocation
+- Regulatory approval requirements (Hart-Scott-Rodino, foreign investment)
+- Employee and customer contract assignment issues
+- IP portfolio evaluation and transfer procedures
+- Post-closing integration compliance requirements
+- Escrow and indemnification structures
+- Tax optimization strategies and regulatory filings

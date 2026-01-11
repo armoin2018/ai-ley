@@ -1,0 +1,145 @@
+class CouchDBReplicationManager:
+    """Manage CouchDB replication and synchronization."""
+
+    def __init__(self, couchdb_manager):
+        self.couchdb_manager = couchdb_manager
+        self.server = couchdb_manager.server
+        self.server_url = couchdb_manager.server_url
+
+    def create_replication(self, source_db: str, target_db: str,
+                          continuous: bool = False,
+                          create_target: bool = True,
+                          replication_id: str = None) -> Dict[str, Any]:
+        """Create a replication between databases."""
+        try:
+            replication_doc = {
+                'source': source_db,
+                'target': target_db,
+                'continuous': continuous,
+                'create_target': create_target
+            }
+
+            if replication_id:
+                replication_doc['_id'] = replication_id
+
+            # Create replication using _replicate endpoint
+            response = requests.post(
+                f"{self.server_url}/_replicate",
+                json=replication_doc,
+                headers={'Content-Type': 'application/json'}
+            )
+            response.raise_for_status()
+
+            result = response.json()
+            logging.info(f"Replication created: {source_db} -> {target_db}")
+            return result
+
+        except Exception as e:
+            logging.error(f"Error creating replication: {e}")
+            raise
+
+    def create_continuous_replication(self, source_db: str, target_db: str) -> Dict[str, Any]:
+        """Create continuous bidirectional replication."""
+        try:
+            # Create replication documents in _replicator database
+            replicator_db_name = '_replicator'
+
+            # Ensure _replicator database exists
+            if replicator_db_name not in self.server:
+                self.server.create(replicator_db_name)
+
+            replicator_db = self.server[replicator_db_name]
+
+            # Source to target replication
+            source_to_target = {
+                '_id': f'repl_{source_db}_to_{target_db}',
+                'source': source_db,
+                'target': target_db,
+                'continuous': True,
+                'create_target': True
+            }
+
+            # Target to source replication (bidirectional)
+            target_to_source = {
+                '_id': f'repl_{target_db}_to_{source_db}',
+                'source': target_db,
+                'target': source_db,
+                'continuous': True,
+                'create_target': True
+            }
+
+            # Save replication documents
+            replicator_db.save(source_to_target)
+            replicator_db.save(target_to_source)
+
+            logging.info(f"Continuous bidirectional replication created: {source_db} <-> {target_db}")
+            return {
+                'source_to_target': source_to_target['_id'],
+                'target_to_source': target_to_source['_id'],
+                'success': True
+            }
+
+        except Exception as e:
+            logging.error(f"Error creating continuous replication: {e}")
+            raise
+
+    def get_replication_status(self) -> List[Dict[str, Any]]:
+        """Get status of all replications."""
+        try:
+            response = requests.get(f"{self.server_url}/_scheduler/docs")
+            response.raise_for_status()
+
+            scheduler_docs = response.json()
+
+            replications = []
+            for doc in scheduler_docs.get('docs', []):
+                replications.append({
+                    'id': doc.get('id'),
+                    'database': doc.get('database'),
+                    'doc_id': doc.get('doc_id'),
+                    'source': doc.get('source'),
+                    'target': doc.get('target'),
+                    'state': doc.get('state'),
+                    'info': doc.get('info', {})
+                })
+
+            return replications
+
+        except Exception as e:
+            logging.error(f"Error getting replication status: {e}")
+            raise
+
+    def stop_replication(self, replication_id: str) -> bool:
+        """Stop a continuous replication."""
+        try:
+            replicator_db = self.server['_replicator']
+
+            # Get replication document
+            repl_doc = replicator_db[replication_id]
+
+            # Delete replication document to stop replication
+            replicator_db.delete(repl_doc)
+
+            logging.info(f"Replication stopped: {replication_id}")
+            return True
+
+        except couchdb.ResourceNotFound:
+            logging.warning(f"Replication not found: {replication_id}")
+            return False
+        except Exception as e:
+            logging.error(f"Error stopping replication {replication_id}: {e}")
+            raise
+
+# Usage example
+repl_manager = CouchDBReplicationManager(couchdb_manager)
+
+# Create one-time replication
+repl_manager.create_replication('myapp', 'myapp_backup')
+
+# Create continuous bidirectional replication
+repl_manager.create_continuous_replication('myapp', 'myapp_remote')
+
+# Check replication status
+status = repl_manager.get_replication_status()
+for repl in status:
+    print(f"Replication {repl['id']}: {repl['state']}")

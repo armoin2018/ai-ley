@@ -1,0 +1,161 @@
+// Generated from UML Interface: UserServiceInterface
+import axios, { AxiosResponse } from 'axios';
+import {
+  UserCreateRequest,
+  UserUpdateRequest,
+  UserResponse,
+  UserFilter,
+  Page,
+  ApiError,
+} from './types';
+
+/**
+ * Enterprise User Service Client
+ * Generated from UML Interface: UserServiceInterface
+ * Provides type-safe API access with error handling and retry logic
+ */
+export class UserServiceClient {
+  private readonly baseUrl: string;
+  private readonly timeout: number = 30000;
+  private readonly maxRetries: number = 3;
+
+  constructor(baseUrl: string, private readonly apiKey?: string) {
+    this.baseUrl = baseUrl.replace(/\/$/, ''); // Remove trailing slash
+  }
+
+  /**
+   * Create new user
+   * UML Operation: +createUser(userData: UserCreateRequest): Promise<UserResponse>
+   */
+  async createUser(userData: UserCreateRequest): Promise<UserResponse> {
+    try {
+      const response: AxiosResponse<UserResponse> = await this.executeRequest(
+        'POST',
+        '/api/v1/users',
+        userData,
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleError('createUser', error);
+    }
+  }
+
+  /**
+   * Get users with filtering and pagination
+   * UML Operation: +getUsers(filter: UserFilter, page: number, size: number): Promise<Page<UserResponse>>
+   */
+  async getUsers(
+    filter: UserFilter = {},
+    page: number = 0,
+    size: number = 20,
+  ): Promise<Page<UserResponse>> {
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString(),
+        ...this.serializeFilter(filter),
+      });
+
+      const response: AxiosResponse<Page<UserResponse>> = await this.executeRequest(
+        'GET',
+        `/api/v1/users?${params.toString()}`,
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleError('getUsers', error);
+    }
+  }
+
+  /**
+   * Update user
+   * UML Operation: +updateUser(id: number, userData: UserUpdateRequest): Promise<UserResponse>
+   */
+  async updateUser(id: number, userData: UserUpdateRequest): Promise<UserResponse> {
+    try {
+      const response: AxiosResponse<UserResponse> = await this.executeRequest(
+        'PUT',
+        `/api/v1/users/${id}`,
+        userData,
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleError('updateUser', error);
+    }
+  }
+
+  /**
+   * Delete user
+   * UML Operation: +deleteUser(id: number): Promise<void>
+   */
+  async deleteUser(id: number): Promise<void> {
+    try {
+      await this.executeRequest('DELETE', `/api/v1/users/${id}`);
+    } catch (error) {
+      throw this.handleError('deleteUser', error);
+    }
+  }
+
+  private async executeRequest(
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+    url: string,
+    data?: any,
+  ): Promise<AxiosResponse> {
+    const config = {
+      method,
+      url: `${this.baseUrl}${url}`,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(this.apiKey && { Authorization: `Bearer ${this.apiKey}` }),
+      },
+      timeout: this.timeout,
+      ...(data && { data }),
+    };
+
+    let lastError: any;
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+      try {
+        return await axios(config);
+      } catch (error) {
+        lastError = error;
+        if (attempt < this.maxRetries && this.isRetryableError(error)) {
+          const delay = Math.pow(2, attempt - 1) * 1000; // Exponential backoff
+          await this.sleep(delay);
+          continue;
+        }
+        throw error;
+      }
+    }
+    throw lastError;
+  }
+
+  private isRetryableError(error: any): boolean {
+    if (!error.response) return true; // Network error
+    const status = error.response.status;
+    return status >= 500 || status === 429; // Server error or rate limit
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private serializeFilter(filter: UserFilter): Record<string, string> {
+    const params: Record<string, string> = {};
+
+    if (filter.email) params.email = filter.email;
+    if (filter.firstName) params.firstName = filter.firstName;
+    if (filter.lastName) params.lastName = filter.lastName;
+    if (filter.status) params.status = filter.status;
+    if (filter.roles) params.roles = filter.roles.join(',');
+    if (filter.createdAfter) params.createdAfter = filter.createdAfter.toISOString();
+    if (filter.createdBefore) params.createdBefore = filter.createdBefore.toISOString();
+
+    return params;
+  }
+
+  private handleError(operation: string, error: any): ApiError {
+    const message = error.response?.data?.message || error.message || 'Unknown error';
+    const status = error.response?.status || 500;
+
+    return new ApiError(`${operation} failed: ${message}`, status, error.response?.data);
+  }
+}

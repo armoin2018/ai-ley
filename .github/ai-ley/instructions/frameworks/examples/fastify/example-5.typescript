@@ -1,0 +1,44 @@
+// src/plugins/database.ts
+import { FastifyPluginAsync } from 'fastify'
+import fp from 'fastify-plugin'
+
+export interface DatabasePluginOptions {
+  connectionString: string
+  maxConnections?: number
+}
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    db: {
+      query: (sql: string, params?: any[]) => Promise<any>
+      transaction: <T>(callback: (trx: any) => Promise<T>) => Promise<T>
+    }
+  }
+}
+
+const databasePlugin: FastifyPluginAsync<DatabasePluginOptions> = async (fastify, options) => {
+  // Database connection logic here
+  const db = {
+    query: async (sql: string, params?: any[]) => {
+      // Implementation
+      fastify.log.info(`Executing query: ${sql}`)
+      return []
+    },
+    transaction: async <T>(callback: (trx: any) => Promise<T>): Promise<T> => {
+      // Transaction implementation
+      return callback({})
+    }
+  }
+
+  fastify.decorate('db', db)
+
+  fastify.addHook('onClose', async () => {
+    // Cleanup database connections
+    fastify.log.info('Closing database connections')
+  })
+}
+
+export default fp(databasePlugin, {
+  name: 'database',
+  dependencies: []
+})

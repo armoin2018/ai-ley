@@ -1,0 +1,81 @@
+// user-form.component.ts
+import { Component, inject, output } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-user-form',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  template: `
+    <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          [class.error]="nameControl.invalid && nameControl.touched"
+        />
+        <div *ngIf="nameControl.invalid && nameControl.touched" class="error-message">
+          Name is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          [class.error]="emailControl.invalid && emailControl.touched"
+        />
+        <div *ngIf="emailControl.invalid && emailControl.touched" class="error-message">
+          Valid email is required
+        </div>
+      </div>
+
+      <button type="submit" [disabled]="userForm.invalid || loading()">
+        {{ loading() ? 'Creating...' : 'Create User' }}
+      </button>
+    </form>
+  `,
+  styles: [
+    `
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      .error {
+        border-color: red;
+      }
+      .error-message {
+        color: red;
+        font-size: 0.8rem;
+      }
+    `,
+  ],
+})
+export class UserFormComponent {
+  private fb = inject(FormBuilder);
+
+  loading = input(false);
+  userCreated = output<{ name: string; email: string }>();
+
+  userForm = this.fb.group({
+    name: ['', [Validators.required, Validators.minLength(2)]],
+    email: ['', [Validators.required, Validators.email]],
+  });
+
+  get nameControl() {
+    return this.userForm.controls.name;
+  }
+  get emailControl() {
+    return this.userForm.controls.email;
+  }
+
+  onSubmit() {
+    if (this.userForm.valid) {
+      this.userCreated.emit(this.userForm.value as { name: string; email: string });
+    }
+  }
+}

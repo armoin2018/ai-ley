@@ -1,0 +1,71 @@
+use tokio::{sync::mpsc, time::{sleep, Duration}};
+use futures::stream::{self, StreamExt};
+use std::sync::Arc;
+
+#[derive(Debug, Clone)]
+struct ProcessingConfig {
+    batch_size: usize,
+    worker_count: usize,
+    timeout_ms: u64,
+}
+
+async fn process_data_pipeline(
+    input_data: Vec<String>,
+    config: ProcessingConfig,
+) -> Result<Vec<String>, Box<dyn std::error::Error + Send + Sync>> {
+    let (tx, mut rx) = mpsc::channel::<String>(config.batch_size * 2);
+    let (result_tx, mut result_rx) = mpsc::channel::<String>(config.batch_size);
+    
+    // Producer task
+    let producer = tokio::spawn(async move {
+        for item in input_data {
+            if tx.send(item).await.is_err() {
+                break;
+            }
+        }
+    });
+    
+    // Worker tasks
+    let workers: Vec<_> = (0..config.worker_count)
+        .map(|worker_id| {
+            let mut rx_clone = rx.clone();
+            let result_tx_clone = result_tx.clone();
+            let timeout = Duration::from_millis(config.timeout_ms);
+            
+            tokio::spawn(async move {
+                while let Some(item) = rx_clone.recv().await {
+                    // Simulate processing work
+                    let processed = process_item(item, worker_id, timeout).await;
+                    
+                    if result_tx_clone.send(processed).await.is_err() {
+                        break;
+                    }
+                }
+            })
+        })
+        .collect();
+    
+    // Close the original receiver to signal workers
+    drop(rx);
+    drop(result_tx);
+    
+    // Collect results
+    let mut results = Vec::new();
+    while let Some(result) = result_rx.recv().await {
+        results.push(result);
+    }
+    
+    // Wait for all tasks to complete
+    producer.await?;
+    for worker in workers {
+        worker.await?;
+    }
+    
+    Ok(results)
+}
+
+async fn process_item(item: String, worker_id: usize, timeout: Duration) -> String {
+    // Simulate async work with timeout
+    sleep(Duration::from_millis(10)).await;
+    format!("Worker {}: processed {}", worker_id, item)
+}

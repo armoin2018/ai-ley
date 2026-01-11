@@ -1,0 +1,25 @@
+{
+  "base_url": "https://example.com",
+  "domain": "example.com",
+  "configuration": {
+    "max_pages": 100,
+    "max_depth": 3,
+    "rate_limit": 1.0
+  },
+  "statistics": {
+    "pages_crawled": 87,
+    "pages_failed": 3,
+    "total_time": 142.5,
+    "start_time": "2025-10-03T19:30:00",
+    "end_time": "2025-10-03T19:32:22"
+  },
+  "pages_crawled": [
+    "https://example.com/",
+    "https://example.com/about",
+    ...
+  ],
+  "pages_failed": [
+    "https://example.com/broken-link"
+  ],
+  "total_urls_discovered": 156
+}

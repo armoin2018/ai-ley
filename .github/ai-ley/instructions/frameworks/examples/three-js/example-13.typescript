@@ -1,0 +1,24 @@
+// Handle WebGL context loss
+renderer.domElement.addEventListener('webglcontextlost', (event) => {
+    event.preventDefault();
+    console.log('WebGL context lost');
+    
+    // Stop animation loop
+    cancelAnimationFrame(animationId);
+    
+    // Show user message
+    showContextLostMessage();
+});
+
+renderer.domElement.addEventListener('webglcontextrestored', () => {
+    console.log('WebGL context restored');
+    
+    // Reinitialize scene
+    initializeScene();
+    
+    // Restart animation loop
+    animate();
+    
+    // Hide message
+    hideContextLostMessage();
+});

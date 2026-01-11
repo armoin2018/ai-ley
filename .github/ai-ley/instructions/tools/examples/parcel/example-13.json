@@ -1,0 +1,42 @@
+// package.json for library
+{
+  "name": "@company/my-library",
+  "version": "1.0.0",
+  "description": "A reusable component library",
+  "main": "dist/index.js",
+  "module": "dist/index.module.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "source": "src/index.ts",
+  "scripts": {
+    "build": "parcel build",
+    "dev": "parcel watch",
+    "prepublishOnly": "npm run build",
+    "test": "jest",
+    "type-check": "tsc --noEmit"
+  },
+  "targets": {
+    "main": {
+      "outputFormat": "commonjs"
+    },
+    "module": {
+      "outputFormat": "esmodule"
+    },
+    "types": {
+      "outputFormat": "commonjs"
+    }
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "devDependencies": {
+    "parcel": "^2.9.0",
+    "@parcel/transformer-typescript": "^2.9.0",
+    "typescript": "^5.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

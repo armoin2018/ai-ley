@@ -1,0 +1,2 @@
+User: Convert existing web app to PWA with offline functionality
+Agent: Implements service worker, caching strategies, background sync, push notifications, and app shell architecture with fallbacks

@@ -1,0 +1,4 @@
+vscode.workspace.onDidChangeWorkspaceFolders(event => {
+  event.added.forEach(folder => initializeServices(folder));
+  event.removed.forEach(folder => cleanupServices(folder));
+});

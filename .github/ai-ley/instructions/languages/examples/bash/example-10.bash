@@ -1,0 +1,1 @@
+_Formatters=($(grep -Ei "#Format:" "$_verbFile)" | sed -re "s/#Format://g" | sed -re "s,/ /g"))

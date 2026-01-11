@@ -1,0 +1,185 @@
+# Comprehensive Marketing Copy Editing Framework
+marketing_copy_editing_process:
+  campaign_types:
+    email_marketing:
+      optimization_focus:
+        subject_line_enhancement:
+          length_optimization: '30_50_characters_optimal'
+          personalization_integration: 'first_name_plus_relevant_data'
+          curiosity_gap_creation: 'intrigue_without_clickbait'
+          urgency_and_scarcity: 'time_sensitive_offers'
+          a_b_testing_elements: 'emoji_usage_and_capitalization'
+
+        preview_text_optimization:
+          length_target: '90_110_characters'
+          subject_line_complement: 'expand_rather_than_repeat'
+          value_proposition_preview: 'immediate_benefit_clear'
+          call_to_action_hint: 'action_expectation_setting'
+
+        body_content_refinement:
+          opening_optimization: 'immediate_value_delivery'
+          personalization_strategy: 'behavioral_and_demographic'
+          content_structure: 'inverted_pyramid_approach'
+          mobile_optimization: 'short_paragraphs_scannable'
+          cta_optimization: 'single_primary_action_focus'
+
+      deliverability_considerations:
+        spam_filter_avoidance:
+          trigger_word_elimination: 'free_urgent_guarantee_moderation'
+          image_text_ratio: '60_40_text_to_image_minimum'
+          link_optimization: 'quality_over_quantity'
+          sender_reputation: 'consistent_from_address'
+
+        engagement_optimization:
+          send_time_personalization: 'recipient_timezone_consideration'
+          frequency_management: 'preference_center_integration'
+          content_relevance: 'segmentation_based_messaging'
+          mobile_responsiveness: 'thumb_friendly_design'
+
+    social_media_campaigns:
+      platform_specific_optimization:
+        linkedin_content:
+          tone_requirements: 'professional_thought_leadership'
+          content_length: '1300_characters_engagement_sweet_spot'
+          hashtag_strategy: '3_5_industry_relevant_tags'
+          engagement_hooks: 'question_based_conversation_starters'
+          visual_content: 'professional_infographics_preferred'
+
+        facebook_advertising:
+          headline_optimization: '25_character_mobile_display_limit'
+          description_clarity: '125_character_newsfeed_optimization'
+          call_to_action: 'platform_specific_button_language'
+          audience_targeting_language: 'demographic_appropriate_messaging'
+          visual_text_compliance: '20_percent_rule_adherence'
+
+        twitter_campaigns:
+          character_optimization: '280_character_maximum_utilization'
+          hashtag_integration: '2_3_relevant_trending_tags'
+          threading_strategy: 'story_continuation_techniques'
+          engagement_timing: 'real_time_conversation_joining'
+          visual_content: 'image_and_gif_engagement_boost'
+
+        instagram_marketing:
+          caption_optimization: '125_words_optimal_engagement'
+          storytelling_integration: 'narrative_arc_completion'
+          hashtag_research: 'mix_popular_niche_branded'
+          user_generated_content: 'community_building_encouragement'
+          story_content: 'ephemeral_exclusive_behind_scenes'
+
+    print_advertising:
+      layout_collaboration:
+        headline_hierarchy: 'attention_grabbing_benefit_focused'
+        body_copy_flow: 'visual_path_complementary'
+        white_space_utilization: 'breathing_room_readability'
+        call_to_action_prominence: 'visual_design_integration'
+
+      medium_specific_considerations:
+        magazine_advertising:
+          attention_span: '3_second_initial_engagement_rule'
+          brand_integration: 'subtle_yet_memorable_presence'
+          demographic_alignment: 'publication_audience_matching'
+          seasonal_relevance: 'publication_schedule_timing'
+
+        newspaper_advertising:
+          scanning_behavior: 'f_pattern_layout_optimization'
+          urgency_factors: 'time_sensitive_offer_emphasis'
+          local_relevance: 'geographic_targeting_language'
+          credibility_building: 'trustworthy_straightforward_tone'
+
+        direct_mail:
+          envelope_optimization: 'opening_incentive_creation'
+          personalization_depth: 'variable_data_integration'
+          response_mechanism: 'multiple_contact_options'
+          tracking_integration: 'campaign_performance_measurement'
+
+  brand_voice_consistency:
+    voice_documentation:
+      personality_attributes:
+        primary_traits: ['innovative', 'trustworthy', 'approachable']
+        secondary_traits: ['expert', 'customer_focused', 'results_driven']
+        avoided_characteristics: ['overly_technical', 'pushy', 'impersonal']
+
+      communication_style:
+        formality_level: 'professional_conversational'
+        humor_appropriateness: 'light_industry_appropriate'
+        technical_language: 'explained_accessible_terms'
+        cultural_considerations: 'inclusive_global_perspective'
+
+      messaging_framework:
+        value_proposition: 'consistent_core_benefit_emphasis'
+        competitive_advantage: 'unique_differentiator_highlighting'
+        target_audience_language: 'demographic_specific_terminology'
+        emotional_resonance: 'aspiration_and_problem_solving'
+
+    consistency_enforcement:
+      terminology_standards:
+        product_naming: 'consistent_capitalization_spacing'
+        industry_terms: 'standardized_definitions_usage'
+        branded_phrases: 'trademark_appropriate_usage'
+        competitive_references: 'respectful_factual_positioning'
+
+      style_preferences:
+        sentence_structure: 'varied_but_clear_construction'
+        paragraph_length: 'medium_specific_optimization'
+        punctuation_style: 'ap_style_business_writing'
+        number_formatting: 'style_guide_consistent_presentation'
+
+  conversion_optimization:
+    psychological_triggers:
+      scarcity_implementation:
+        time_limited_offers: 'authentic_deadline_creation'
+        quantity_limitations: 'realistic_inventory_scarcity'
+        exclusive_access: 'vip_member_early_access'
+        seasonal_availability: 'natural_scarcity_emphasis'
+
+      social_proof_integration:
+        customer_testimonials: 'specific_measurable_results'
+        usage_statistics: 'impressive_but_believable_numbers'
+        expert_endorsements: 'industry_authority_quotes'
+        peer_recommendations: 'user_generated_advocacy'
+
+      authority_building:
+        expertise_demonstration: 'credential_and_experience_highlighting'
+        industry_recognition: 'award_and_certification_mention'
+        thought_leadership: 'insight_and_prediction_sharing'
+        case_study_integration: 'success_story_detailed_results'
+
+    call_to_action_optimization:
+      language_psychology:
+        action_oriented_verbs: 'start_discover_transform_unlock'
+        benefit_focused_phrasing: 'value_outcome_emphasis'
+        urgency_creation: 'time_sensitive_language_integration'
+        risk_reduction: 'guarantee_and_trial_language'
+
+      placement_strategy:
+        above_fold_visibility: 'immediate_action_opportunity'
+        content_integration: 'natural_progression_points'
+        repetition_strategy: 'varied_wording_consistent_action'
+        mobile_optimization: 'thumb_friendly_button_sizing'
+
+  quality_assurance_framework:
+    editorial_review_process:
+      content_accuracy:
+        fact_checking: 'verifiable_claim_validation'
+        legal_compliance: 'regulatory_requirement_adherence'
+        brand_guideline_adherence: 'style_guide_compliance'
+        competitor_analysis: 'differentiation_accuracy'
+
+      effectiveness_assessment:
+        message_clarity: 'audience_comprehension_testing'
+        conversion_potential: 'persuasion_element_evaluation'
+        brand_alignment: 'voice_and_value_consistency'
+        platform_optimization: 'medium_specific_best_practices'
+
+    performance_tracking:
+      engagement_metrics:
+        open_rates: 'email_subject_line_effectiveness'
+        click_through_rates: 'content_and_cta_performance'
+        conversion_rates: 'overall_campaign_success'
+        social_engagement: 'likes_shares_comments_analysis'
+
+      optimization_opportunities:
+        a_b_testing_recommendations: 'variable_isolation_testing'
+        continuous_improvement: 'iterative_enhancement_process'
+        seasonal_adjustments: 'campaign_timing_optimization'
+        audience_segmentation: 'personalization_opportunities'

@@ -1,0 +1,10 @@
+{
+  "contributes": {
+    "keybindings": [{
+      "command": "extension.myCommand",
+      "key": "ctrl+f1",
+      "mac": "cmd+f1",
+      "when": "editorTextFocus"
+    }]
+  }
+}

@@ -1,0 +1,16 @@
+MyApp/
+├── app.json              # Expo configuration
+├── App.js/App.tsx        # Main application entry
+├── package.json          # Dependencies and scripts
+├── babel.config.js       # Babel configuration
+├── metro.config.js       # Metro bundler configuration
+├── assets/               # Images, fonts, and static assets
+│   ├── images/
+│   └── fonts/
+├── components/           # Reusable UI components
+├── screens/              # Screen components
+├── navigation/           # Navigation configuration
+├── hooks/                # Custom React hooks
+├── utils/                # Utility functions
+├── constants/            # App constants and configuration
+└── .expo/                # Expo-generated files (gitignored)

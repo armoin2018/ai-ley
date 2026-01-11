@@ -1,0 +1,50 @@
+// JWT Strategy
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor(private configService: ConfigService) {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: configService.get('JWT_SECRET'),
+    });
+  }
+
+  async validate(payload: any) {
+    return { 
+      userId: payload.sub, 
+      username: payload.username,
+      roles: payload.roles 
+    };
+  }
+}
+
+// Role-based Guard
+@Injectable()
+export class RolesGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    
+    if (!requiredRoles) {
+      return true;
+    }
+    
+    const { user } = context.switchToHttp().getRequest();
+    return requiredRoles.some((role) => user.roles?.includes(role));
+  }
+}
+
+// Usage with decorators
+@Controller('admin')
+@UseGuards(JwtAuthGuard, RolesGuard)
+export class AdminController {
+  @Get('users')
+  @Roles(Role.Admin)
+  async getUsers() {
+    // Only admin users can access this endpoint
+  }
+}

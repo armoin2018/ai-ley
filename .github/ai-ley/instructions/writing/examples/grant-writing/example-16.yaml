@@ -1,0 +1,26 @@
+# Professional Grant Writing Workflow
+grant_writing_pipeline:
+  - stage: opportunity_research
+    tools: [funder_databases, opportunity_trackers, intelligence_platforms]
+    outputs: [prospect_list, funder_profiles, opportunity_matrix]
+    timeline: "Ongoing with quarterly reviews"
+
+  - stage: proposal_planning
+    tools: [project_management, collaboration_platforms, template_libraries]
+    outputs: [proposal_outline, timeline, team_assignments]
+    timeline: "4-6 weeks before deadline"
+
+  - stage: content_development
+    tools: [writing_platforms, research_tools, budget_calculators]
+    outputs: [narrative_sections, budget_documents, supporting_materials]
+    timeline: "6-10 weeks development period"
+
+  - stage: review_refinement
+    tools: [review_platforms, quality_checkers, compliance_tools]
+    outputs: [reviewed_proposal, compliance_verification, final_documents]
+    timeline: "2-3 weeks before deadline"
+
+  - stage: submission_followup
+    tools: [submission_platforms, tracking_systems, crm_tools]
+    outputs: [submitted_proposal, confirmation_records, relationship_notes]
+    timeline: "1 week before deadline through decision"

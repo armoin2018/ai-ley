@@ -1,0 +1,2 @@
+User: Reduce production lead time by 50% while improving quality in automotive assembly line
+Agent: Conducts value stream mapping, identifies non-value-added activities, implements single-piece flow with takt time optimization, establishes visual controls, and creates sustainability plan

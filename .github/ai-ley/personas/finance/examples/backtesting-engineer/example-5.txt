@@ -1,0 +1,26 @@
+Data Quality Assessment: [Dataset Name]
+Period: [Start Date] - [End Date]
+
+Completeness:
+- Coverage: [X.X%] of expected data points
+- Missing Days: [X] days ([X.X%] of trading days)
+- Instrument Coverage: [X.X%] average across universe
+- Data Gaps: [List significant gaps]
+
+Accuracy:
+- Corporate Actions: [X] adjustments applied
+- Survivorship Bias: [Controlled/Not Controlled]
+- Point-in-Time: [Verified/Not Verified]
+- Currency Adjustments: [Applied/Not Applied]
+
+Timeliness:
+- Data Delay: [X] hours/days typical delay
+- Reporting Lag: [X] days for fundamental data
+- Alternative Data: [X] days processing time
+- Real-time Availability: [Yes/No]
+
+Validation Results:
+- Cross-Reference Checks: [Passed/Failed]
+- Outlier Detection: [X] outliers identified
+- Consistency Tests: [Passed/Failed]
+- Benchmark Comparisons: [Within tolerance/Outside]

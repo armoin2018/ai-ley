@@ -1,0 +1,2 @@
+User: Optimize CSS for Core Web Vitals and reduce render-blocking resources
+Agent: Analyzes CSS structure, implements critical CSS extraction, removes unused styles, optimizes selectors, and sets up performance monitoring

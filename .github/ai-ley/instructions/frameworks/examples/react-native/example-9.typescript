@@ -1,0 +1,84 @@
+// hooks/useUsers.ts
+import { useState, useCallback } from 'react';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+}
+
+export const useUsers = () => {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('https://api.example.com/users');
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      const data = await response.json();
+      setUsers(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const deleteUser = useCallback(async (userId: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`https://api.example.com/users/${userId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      setUsers((prev) => prev.filter((user) => user.id !== userId));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const addUser = useCallback(async (userData: Omit<User, 'id'>) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('https://api.example.com/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      const newUser = await response.json();
+      setUsers((prev) => [...prev, newUser]);
+      return newUser;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return {
+    users,
+    loading,
+    error,
+    fetchUsers,
+    deleteUser,
+    addUser,
+  };
+};

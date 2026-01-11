@@ -1,0 +1,16 @@
+// Root package.json scripts for full-stack development
+{
+  "scripts": {
+    "dev": "turbo dev --parallel",
+    "dev:web": "turbo dev --filter=@company/web",
+    "dev:api": "turbo dev --filter=@company/api",
+    "dev:mobile": "turbo dev --filter=@company/mobile",
+    "build": "turbo build",
+    "build:libs": "turbo build --filter='./packages/*'",
+    "build:apps": "turbo build --filter='./apps/*'",
+    "test": "turbo test",
+    "test:changed": "turbo test --filter=[HEAD^1]",
+    "deploy:staging": "turbo build --filter=@company/web && turbo deploy:staging --filter=@company/api",
+    "deploy:prod": "turbo build && turbo deploy:prod"
+  }
+}

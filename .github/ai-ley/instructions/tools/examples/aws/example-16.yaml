@@ -1,0 +1,34 @@
+# VPC with public and private subnets
+VPC:
+  Type: AWS::EC2::VPC
+  Properties:
+    CidrBlock: 10.0.0.0/16
+    EnableDnsHostnames: true
+    EnableDnsSupport: true
+    Tags:
+      - Key: Name
+        Value: WebApp-VPC
+
+PublicSubnet:
+  Type: AWS::EC2::Subnet
+  Properties:
+    VpcId: !Ref VPC
+    CidrBlock: 10.0.1.0/24
+    AvailabilityZone: us-east-1a
+    MapPublicIpOnLaunch: true
+
+PrivateSubnet:
+  Type: AWS::EC2::Subnet
+  Properties:
+    VpcId: !Ref VPC
+    CidrBlock: 10.0.2.0/24
+    AvailabilityZone: us-east-1b
+
+InternetGateway:
+  Type: AWS::EC2::InternetGateway
+
+VPCGatewayAttachment:
+  Type: AWS::EC2::VPCGatewayAttachment
+  Properties:
+    VpcId: !Ref VPC
+    InternetGatewayId: !Ref InternetGateway

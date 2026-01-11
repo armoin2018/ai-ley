@@ -1,0 +1,11 @@
+# Create Management Dashboard
+dashboard = TOGAFEnterpriseDashboard(togaf_engine)
+
+dashboard_result = await dashboard.create_enterprise_architecture_dashboard(
+    architecture_id=architecture_result['architecture_id'],
+    dashboard_config={
+        'real_time_updates': True,
+        'predictive_analytics': True,
+        'stakeholder_views': 'role_based'
+    }
+)

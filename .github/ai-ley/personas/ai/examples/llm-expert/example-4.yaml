@@ -1,0 +1,18 @@
+model:
+  architecture: "llama"
+  hidden_size: 4096
+  num_layers: 32
+  num_attention_heads: 32
+  vocabulary_size: 32000
+
+training:
+  optimizer: "adamw"
+  learning_rate: 1.5e-4
+  weight_decay: 0.1
+  warmup_steps: 2000
+  gradient_clipping: 1.0
+  
+distributed:
+  strategy: "deepspeed_zero3"
+  gradient_accumulation_steps: 8
+  micro_batch_size: 4

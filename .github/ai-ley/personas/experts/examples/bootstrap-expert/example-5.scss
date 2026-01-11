@@ -1,0 +1,39 @@
+// Custom Bootstrap Variables
+$primary: #007bff;
+$secondary: #6c757d;
+$success: #28a745;
+$info: #17a2b8;
+$warning: #ffc107;
+$danger: #dc3545;
+$light: #f8f9fa;
+$dark: #343a40;
+
+// Custom CSS Properties for Dynamic Theming
+:root {
+  --bs-primary-rgb: #{to-rgb($primary)};
+  --bs-body-font-family: 'Inter', system-ui, sans-serif;
+  --bs-border-radius: 0.5rem;
+  --bs-box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+// Component Customizations
+.btn {
+  font-weight: 500;
+  border-width: 1px;
+  transition: all 0.15s ease-in-out;
+  
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+  }
+}
+
+.card {
+  border: 0;
+  box-shadow: var(--bs-box-shadow);
+  transition: transform 0.15s ease-in-out;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+}

@@ -1,0 +1,17 @@
+Day 1 - Planning:
+- Business context presentation (30 min)
+- Product/Solution vision (45 min)  
+- Architecture vision and development practices (45 min)
+- Planning context and lunch (90 min)
+- Team breakouts #1 (2 hours)
+- Draft plan review (60 min)
+- Management review and problem solving (90 min)
+
+Day 2 - Finalizing:
+- Planning adjustments (60 min)
+- Team breakouts #2 (2 hours)
+- Final plan review (30 min)
+- ART PI risks and impediments (30 min)
+- PI confidence vote (15 min)
+- Plan rework if needed (45 min)
+- Planning retrospective and moving forward (30 min)

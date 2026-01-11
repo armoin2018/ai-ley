@@ -1,0 +1,31 @@
+# Reduce batch size
+BATCH_SIZE = 16  # Instead of 32 or 64
+
+# Enable memory growth
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+    tf.config.experimental.set_memory_growth(gpus[0], True)
+
+# Use gradient accumulation for large effective batch sizes
+@tf.function
+def train_step_with_accumulation(model, optimizer, loss_fn, x, y, accumulation_steps=4):
+    accumulated_gradients = []
+    accumulated_loss = 0.0
+    
+    for step in range(accumulation_steps):
+        batch_x = x[step::accumulation_steps]
+        batch_y = y[step::accumulation_steps]
+        
+        with tf.GradientTape() as tape:
+            predictions = model(batch_x, training=True)
+            loss = loss_fn(batch_y, predictions) / accumulation_steps
+            accumulated_loss += loss
+        
+        gradients = tape.gradient(loss, model.trainable_variables)
+        if step == 0:
+            accumulated_gradients = gradients
+        else:
+            accumulated_gradients = [acc_grad + grad for acc_grad, grad in zip(accumulated_gradients, gradients)]
+    
+    optimizer.apply_gradients(zip(accumulated_gradients, model.trainable_variables))
+    return accumulated_loss

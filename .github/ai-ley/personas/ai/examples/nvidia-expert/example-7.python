@@ -1,0 +1,23 @@
+import torch
+import gc
+
+class GPUMemoryManager:
+    def __init__(self):
+        self.memory_pool = torch.cuda.memory.MemoryPool()
+        
+    def optimize_memory_usage(self):
+        # Enable memory pool
+        torch.cuda.memory.set_per_process_memory_fraction(0.9)
+        
+        # Use gradient checkpointing
+        torch.utils.checkpoint.checkpoint_sequential
+        
+        # Clear cache periodically
+        if torch.cuda.memory_allocated() > 0.8 * torch.cuda.max_memory_allocated():
+            torch.cuda.empty_cache()
+            gc.collect()
+            
+    def profile_memory(self):
+        print(f"Allocated: {torch.cuda.memory_allocated() / 1e9:.2f} GB")
+        print(f"Cached: {torch.cuda.memory_reserved() / 1e9:.2f} GB")
+        print(f"Max Allocated: {torch.cuda.max_memory_allocated() / 1e9:.2f} GB")

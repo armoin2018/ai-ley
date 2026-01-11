@@ -1,0 +1,15 @@
+import { expectType, expectAssignable, expectNotAssignable } from 'tsd';
+
+// Type-level testing
+expectType<string>(getUserId());
+expectAssignable<User>({ id: '123', name: 'John' });
+expectNotAssignable<UserId>('plain-string');
+
+// Runtime testing with type safety
+describe('TypeSafe API', () => {
+  it('should maintain type safety', async () => {
+    const result = await api.call(userEndpoint, { name: 'John' });
+    expect(result).toMatchObject({ id: expect.any(String) });
+    expectType<User>(result);
+  });
+});

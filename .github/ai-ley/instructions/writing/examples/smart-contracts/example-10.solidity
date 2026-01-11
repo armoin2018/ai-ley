@@ -1,0 +1,15 @@
+// Solidity 0.8+ has built-in overflow protection
+// For older versions, use SafeMath
+
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+
+contract SafeMathExample {
+    using SafeMath for uint256;
+
+    uint256 public totalSupply;
+
+    function safeAdd(uint256 amount) public {
+        totalSupply = totalSupply.add(amount); // SafeMath for 0.7.x
+        // totalSupply += amount; // Built-in for 0.8.x
+    }
+}

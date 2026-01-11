@@ -1,0 +1,34 @@
+modern-web-app/
+├── .parcelrc                    # Parcel configuration
+├── package.json                 # Project dependencies and scripts
+├── tsconfig.json               # TypeScript configuration
+├── postcss.config.js           # PostCSS configuration
+├── .eslintrc.js               # ESLint configuration
+├── jest.config.js             # Jest testing configuration
+├── .gitignore                 # Git ignore rules
+├── README.md                  # Project documentation
+├── src/                       # Source code
+│   ├── index.html            # Entry HTML file
+│   ├── index.ts              # Entry TypeScript file
+│   ├── styles/               # Stylesheets
+│   │   ├── main.scss        # Main styles
+│   │   ├── variables.scss   # SCSS variables
+│   │   └── components/      # Component styles
+│   ├── components/          # React components
+│   │   ├── App.tsx         # Main App component
+│   │   ├── Header.tsx      # Header component
+│   │   └── Footer.tsx      # Footer component
+│   ├── utils/              # Utility functions
+│   │   ├── api.ts         # API utilities
+│   │   └── helpers.ts     # Helper functions
+│   ├── assets/            # Static assets
+│   │   ├── images/        # Image files
+│   │   ├── fonts/         # Font files
+│   │   └── icons/         # Icon files
+│   └── types/             # TypeScript type definitions
+│       └── index.ts       # Type exports
+├── public/                # Public assets
+│   ├── favicon.ico       # Favicon
+│   └── manifest.json     # PWA manifest
+├── dist/                 # Build output (generated)
+└── .parcel-cache/       # Parcel cache (generated)

@@ -1,0 +1,11 @@
+src/
+  core/           # Core application logic
+  drivers/        # Hardware abstraction layer
+  include/        # Public header files  
+  platform/       # Platform-specific code
+  utils/          # Utility functions
+tests/
+  unit/           # Unit tests
+  integration/    # Integration tests
+build/            # Build artifacts
+docs/            # Documentation

@@ -1,0 +1,60 @@
+// pages/api/auth/[...nextauth].ts
+import NextAuth from 'next-auth';
+import GoogleProvider from 'next-auth/providers/google';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import { prisma } from '../../../lib/prisma';
+
+export default NextAuth({
+  adapter: PrismaAdapter(prisma),
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+  ],
+  session: {
+    strategy: 'jwt',
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id as string;
+      }
+      return session;
+    },
+  },
+  pages: {
+    signIn: '/auth/signin',
+    error: '/auth/error',
+  },
+});
+
+// middleware.ts - Auth protection
+import { withAuth } from 'next-auth/middleware';
+
+export default withAuth(
+  function middleware(req) {
+    // Additional middleware logic
+  },
+  {
+    callbacks: {
+      authorized: ({ token, req }) => {
+        // Check if user is authorized for the route
+        if (req.nextUrl.pathname.startsWith('/admin')) {
+          return token?.role === 'admin';
+        }
+        return !!token;
+      },
+    },
+  },
+);
+
+export const config = {
+  matcher: ['/dashboard/:path*', '/admin/:path*'],
+};

@@ -1,0 +1,65 @@
+# inventory/plugins/enterprise_cmdb.py - Enterprise CMDB integration
+#!/usr/bin/env python3
+
+import json
+import requests
+from ansible.plugins.inventory import BaseInventoryPlugin
+
+class InventoryModule(BaseInventoryPlugin):
+    NAME = 'enterprise_cmdb'
+
+    def verify_file(self, path):
+        return path.endswith(('cmdb.yml', 'cmdb.yaml'))
+
+    def parse(self, inventory, loader, path, cache=True):
+        super(InventoryModule, self).parse(inventory, loader, path, cache)
+
+        # Load configuration
+        config = self._read_config_data(path)
+
+        # Fetch from enterprise CMDB
+        servers = self._fetch_from_cmdb(config)
+
+        # Build inventory
+        for server in servers:
+            # Create groups by environment, role, location
+            for group_type in ['environment', 'role', 'location', 'os_family']:
+                group_name = server.get(group_type, 'unknown')
+                self.inventory.add_group(group_name)
+                self.inventory.add_host(server['hostname'], group=group_name)
+
+            # Set host variables
+            for key, value in server.items():
+                self.inventory.set_variable(server['hostname'], key, value)
+
+    def _fetch_from_cmdb(self, config):
+        # Enterprise CMDB API integration
+        response = requests.get(
+            f"{config['cmdb_url']}/api/servers",
+            headers={'Authorization': f"Bearer {config['api_token']}"},
+            params={'active': True, 'managed_by_ansible': True}
+        )
+        return response.json()
+
+# inventory/group_vars/all/enterprise.yml - Enterprise global variables
+---
+# Enterprise Configuration Management
+enterprise:
+  organization: "{{ ansible_organization | default('ACME Corp') }}"
+  domain: "{{ ansible_domain | default('enterprise.local') }}"
+  timezone: "{{ ansible_timezone | default('UTC') }}"
+
+# Security Configuration
+security:
+  hardening_enabled: true
+  compliance_framework: "{{ compliance_framework | default('CIS') }}"
+  audit_logging: true
+  vulnerability_scanning: true
+
+# Monitoring Configuration
+monitoring:
+  enabled: true
+  prometheus_endpoint: "{{ prometheus_server }}"
+  grafana_endpoint: "{{ grafana_server }}"
+  alert_manager: "{{ alertmanager_server }}"
+  log_aggregation: "{{ elk_server }}"

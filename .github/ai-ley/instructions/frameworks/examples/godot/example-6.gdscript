@@ -1,0 +1,147 @@
+# AudioManager.gd - Singleton autoload for audio management
+extends Node
+
+# Audio players
+@onready var music_player: AudioStreamPlayer = AudioStreamPlayer.new()
+@onready var sfx_player: AudioStreamPlayer = AudioStreamPlayer.new()
+
+# Audio buses
+const MASTER_BUS = "Master"
+const MUSIC_BUS = "Music"
+const SFX_BUS = "SFX"
+
+# Audio libraries
+var music_library = {}
+var sfx_library = {}
+
+# Current playing
+var current_music: String = ""
+var music_fade_tween: Tween
+
+func _ready():
+	# Add audio players to scene
+	add_child(music_player)
+	add_child(sfx_player)
+	
+	# Set audio buses
+	music_player.bus = MUSIC_BUS
+	sfx_player.bus = SFX_BUS
+	
+	# Load audio libraries
+	_load_audio_libraries()
+	
+	# Apply saved volume settings
+	_apply_volume_settings()
+
+func _load_audio_libraries():
+	# Load music tracks
+	music_library = {
+		"menu": preload("res://assets/audio/music/menu_theme.ogg"),
+		"level1": preload("res://assets/audio/music/level1_theme.ogg"),
+		"boss": preload("res://assets/audio/music/boss_theme.ogg"),
+		"victory": preload("res://assets/audio/music/victory.ogg"),
+		"game_over": preload("res://assets/audio/music/game_over.ogg")
+	}
+	
+	# Load sound effects
+	sfx_library = {
+		"jump": preload("res://assets/audio/sfx/jump.wav"),
+		"coin": preload("res://assets/audio/sfx/coin.wav"),
+		"hurt": preload("res://assets/audio/sfx/hurt.wav"),
+		"powerup": preload("res://assets/audio/sfx/powerup.wav"),
+		"button_click": preload("res://assets/audio/sfx/button_click.wav"),
+		"explosion": preload("res://assets/audio/sfx/explosion.wav")
+	}
+
+func play_music(track_name: String, fade_in: bool = true):
+	if track_name == current_music:
+		return
+	
+	if not music_library.has(track_name):
+		print("Music track not found: ", track_name)
+		return
+	
+	# Stop current music with fade out
+	if current_music != "" and fade_in:
+		fade_out_music()
+		await get_tree().create_timer(1.0).timeout
+	
+	# Set new music
+	music_player.stream = music_library[track_name]
+	current_music = track_name
+	
+	if fade_in:
+		fade_in_music()
+	else:
+		music_player.volume_db = 0
+		music_player.play()
+
+func fade_in_music():
+	music_player.volume_db = -60
+	music_player.play()
+	
+	if music_fade_tween:
+		music_fade_tween.kill()
+	
+	music_fade_tween = create_tween()
+	music_fade_tween.tween_property(music_player, "volume_db", 0, 1.0)
+
+func fade_out_music():
+	if music_fade_tween:
+		music_fade_tween.kill()
+	
+	music_fade_tween = create_tween()
+	music_fade_tween.tween_property(music_player, "volume_db", -60, 1.0)
+	music_fade_tween.tween_callback(music_player.stop)
+
+func stop_music():
+	music_player.stop()
+	current_music = ""
+
+func play_sfx(sound_name: String, volume_db: float = 0.0):
+	if not sfx_library.has(sound_name):
+		print("Sound effect not found: ", sound_name)
+		return
+	
+	# Create temporary audio player for overlapping sounds
+	var temp_player = AudioStreamPlayer.new()
+	add_child(temp_player)
+	
+	temp_player.stream = sfx_library[sound_name]
+	temp_player.bus = SFX_BUS
+	temp_player.volume_db = volume_db
+	temp_player.play()
+	
+	# Remove player when finished
+	temp_player.finished.connect(_on_temp_sfx_finished.bind(temp_player))
+
+func _on_temp_sfx_finished(player: AudioStreamPlayer):
+	player.queue_free()
+
+func set_master_volume(volume: float):
+	# Volume should be between 0.0 and 1.0
+	var db = linear_to_db(volume)
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(MASTER_BUS), db)
+	
+	# Save to GameManager
+	GameManager.player_data.settings.master_volume = volume
+
+func set_music_volume(volume: float):
+	var db = linear_to_db(volume)
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(MUSIC_BUS), db)
+	GameManager.player_data.settings.music_volume = volume
+
+func set_sfx_volume(volume: float):
+	var db = linear_to_db(volume)
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(SFX_BUS), db)
+	GameManager.player_data.settings.sfx_volume = volume
+
+func _apply_volume_settings():
+	set_master_volume(GameManager.player_data.settings.master_volume)
+	set_music_volume(GameManager.player_data.settings.music_volume)
+	set_sfx_volume(GameManager.player_data.settings.sfx_volume)
+
+func linear_to_db(linear: float) -> float:
+	if linear <= 0:
+		return -80
+	return 20 * log(linear) / log(10)

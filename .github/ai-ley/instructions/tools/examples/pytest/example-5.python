@@ -1,0 +1,84 @@
+import pytest
+import asyncio
+from unittest.mock import Mock, AsyncMock
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from myapp.database import Base
+from myapp.config import TestConfig
+
+# Pytest plugins
+pytest_plugins = ["pytest_asyncio"]
+
+# Test database setup
+@pytest.fixture(scope="session")
+def test_engine():
+    """Create test database engine."""
+    engine = create_engine("sqlite:///test.db")
+    Base.metadata.create_all(engine)
+    yield engine
+    Base.metadata.drop_all(engine)
+
+@pytest.fixture(scope="function")
+def db_session(test_engine):
+    """Create database session for each test."""
+    TestingSessionLocal = sessionmaker(bind=test_engine)
+    session = TestingSessionLocal()
+    try:
+        yield session
+    finally:
+        session.rollback()
+        session.close()
+
+# Async fixtures
+@pytest.fixture(scope="session")
+def event_loop():
+    """Create event loop for async tests."""
+    loop = asyncio.new_event_loop()
+    yield loop
+    loop.close()
+
+@pytest.fixture
+async def async_client():
+    """Create async HTTP client for API testing."""
+    from httpx import AsyncClient
+    from myapp.main import app
+
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        yield client
+
+# Mock fixtures
+@pytest.fixture
+def mock_database():
+    """Mock database for unit tests."""
+    return Mock()
+
+@pytest.fixture
+def mock_redis():
+    """Mock Redis client."""
+    return AsyncMock()
+
+@pytest.fixture
+def mock_external_api():
+    """Mock external API calls."""
+    with patch('myapp.services.external_api') as mock:
+        yield mock
+
+# Sample data fixtures
+@pytest.fixture
+def sample_user():
+    """Sample user data for testing."""
+    return {
+        "id": "123",
+        "username": "testuser",
+        "email": "test@example.com",
+        "is_active": True
+    }
+
+@pytest.fixture
+def sample_users():
+    """Multiple sample users for testing."""
+    return [
+        {"id": "1", "username": "user1", "email": "user1@example.com"},
+        {"id": "2", "username": "user2", "email": "user2@example.com"},
+        {"id": "3", "username": "user3", "email": "user3@example.com"},
+    ]

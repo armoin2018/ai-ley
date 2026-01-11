@@ -1,0 +1,42 @@
+forecasting_model:
+  revenue_drivers:
+    volume_metrics:
+      - units_sold: "historical_growth_trends"
+      - customer_acquisition: "marketing_spend_effectiveness"
+      - market_penetration: "addressable_market_analysis"
+      
+    pricing_metrics:
+      - average_selling_price: "inflation_competitive_dynamics"
+      - price_realization: "discount_rebate_analysis"
+      - pricing_power: "brand_strength_differentiation"
+      
+  cost_structure:
+    variable_costs:
+      - cost_of_goods_sold: "percentage_of_revenue"
+      - sales_commissions: "percentage_of_revenue"
+      - shipping_costs: "per_unit_basis"
+      
+    fixed_costs:
+      - personnel_costs: "headcount_growth_assumptions"
+      - facility_costs: "lease_escalations"
+      - technology_costs: "system_investments"
+      
+  working_capital:
+    components:
+      - accounts_receivable: "days_sales_outstanding"
+      - inventory: "days_inventory_outstanding"
+      - accounts_payable: "days_payable_outstanding"
+      
+    seasonality:
+      - quarterly_patterns: "historical_working_capital_cycles"
+      - cash_conversion_cycle: "operational_efficiency_metrics"
+      
+  capital_expenditures:
+    maintenance_capex:
+      - percentage_of_revenue: "historical_average"
+      - asset_replacement_cycles: "useful_life_analysis"
+      
+    growth_capex:
+      - facility_expansion: "capacity_utilization_thresholds"
+      - technology_investments: "digital_transformation_needs"
+      - equipment_upgrades: "productivity_improvement_projects"

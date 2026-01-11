@@ -1,0 +1,251 @@
+# src/widgets/file_chooser.py - Custom File Chooser Widget
+import gi
+gi.require_version('Gtk', '4.0')
+
+from gi.repository import Gtk, Gio, GObject, GLib
+import os
+
+class FileChooserWidget(Gtk.Box):
+    """Custom file chooser widget with tree view."""
+
+    __gtype_name__ = 'FileChooserWidget'
+    __gsignals__ = {
+        'file-selected': (GObject.SignalFlags.RUN_FIRST, None, (str,))
+    }
+
+    def __init__(self):
+        super().__init__(orientation=Gtk.Orientation.VERTICAL)
+
+        self.current_path = GLib.get_home_dir()
+
+        self.setup_ui()
+        self.load_directory(self.current_path)
+
+    def setup_ui(self):
+        """Setup the file chooser interface."""
+        # Path bar
+        self.setup_path_bar()
+
+        # File tree view
+        self.setup_tree_view()
+
+        # Action buttons
+        self.setup_action_buttons()
+
+    def setup_path_bar(self):
+        """Setup path navigation bar."""
+        path_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        path_box.add_css_class('toolbar')
+
+        # Up directory button
+        up_button = Gtk.Button()
+        up_button.set_icon_name('go-up-symbolic')
+        up_button.set_tooltip_text('Up Directory')
+        up_button.connect('clicked', self.on_up_directory)
+
+        # Home button
+        home_button = Gtk.Button()
+        home_button.set_icon_name('go-home-symbolic')
+        home_button.set_tooltip_text('Home Directory')
+        home_button.connect('clicked', self.on_home_directory)
+
+        # Path entry
+        self.path_entry = Gtk.Entry()
+        self.path_entry.set_hexpand(True)
+        self.path_entry.connect('activate', self.on_path_entry_activate)
+
+        path_box.append(up_button)
+        path_box.append(home_button)
+        path_box.append(self.path_entry)
+
+        self.append(path_box)
+
+    def setup_tree_view(self):
+        """Setup file tree view."""
+        # Create list store
+        self.file_store = Gtk.ListStore(str, str, str)  # name, path, type
+
+        # Create tree view
+        self.tree_view = Gtk.TreeView(model=self.file_store)
+        self.tree_view.set_headers_visible(True)
+        self.tree_view.connect('row-activated', self.on_row_activated)
+
+        # Name column
+        name_column = Gtk.TreeViewColumn('Name')
+        name_renderer = Gtk.CellRendererText()
+        name_column.pack_start(name_renderer, True)
+        name_column.add_attribute(name_renderer, 'text', 0)
+        self.tree_view.append_column(name_column)
+
+        # Type column
+        type_column = Gtk.TreeViewColumn('Type')
+        type_renderer = Gtk.CellRendererText()
+        type_column.pack_start(type_renderer, True)
+        type_column.add_attribute(type_renderer, 'text', 2)
+        self.tree_view.append_column(type_column)
+
+        # Scrolled window
+        scrolled = Gtk.ScrolledWindow()
+        scrolled.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        scrolled.set_vexpand(True)
+        scrolled.set_child(self.tree_view)
+
+        self.append(scrolled)
+
+    def setup_action_buttons(self):
+        """Setup action buttons."""
+        button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        button_box.set_homogeneous(True)
+        button_box.add_css_class('toolbar')
+
+        # Refresh button
+        refresh_button = Gtk.Button(label='Refresh')
+        refresh_button.connect('clicked', self.on_refresh)
+
+        # New folder button
+        new_folder_button = Gtk.Button(label='New Folder')
+        new_folder_button.connect('clicked', self.on_new_folder)
+
+        button_box.append(refresh_button)
+        button_box.append(new_folder_button)
+
+        self.append(button_box)
+
+    def load_directory(self, path):
+        """Load directory contents into tree view."""
+        self.file_store.clear()
+        self.current_path = path
+        self.path_entry.set_text(path)
+
+        try:
+            entries = []
+
+            # Add directories first
+            for entry in os.listdir(path):
+                entry_path = os.path.join(path, entry)
+
+                if os.path.isdir(entry_path):
+                    entries.append((entry, entry_path, 'Directory'))
+
+            # Add files
+            for entry in os.listdir(path):
+                entry_path = os.path.join(path, entry)
+
+                if os.path.isfile(entry_path):
+                    file_type = self.get_file_type(entry_path)
+                    entries.append((entry, entry_path, file_type))
+
+            # Sort entries
+            entries.sort(key=lambda x: (x[2] != 'Directory', x[0].lower()))
+
+            # Add to store
+            for name, path, file_type in entries:
+                self.file_store.append([name, path, file_type])
+
+        except PermissionError:
+            self.show_error('Permission denied')
+        except Exception as e:
+            self.show_error(f'Error loading directory: {e}')
+
+    def get_file_type(self, file_path):
+        """Get file type based on extension."""
+        _, ext = os.path.splitext(file_path)
+
+        file_types = {
+            '.txt': 'Text File',
+            '.py': 'Python File',
+            '.c': 'C Source File',
+            '.h': 'C Header File',
+            '.cpp': 'C++ Source File',
+            '.rs': 'Rust Source File',
+            '.js': 'JavaScript File',
+            '.html': 'HTML File',
+            '.css': 'CSS File',
+            '.json': 'JSON File',
+            '.xml': 'XML File',
+            '.md': 'Markdown File',
+            '.png': 'PNG Image',
+            '.jpg': 'JPEG Image',
+            '.gif': 'GIF Image',
+            '.pdf': 'PDF Document',
+        }
+
+        return file_types.get(ext.lower(), 'File')
+
+    def on_row_activated(self, tree_view, path, column):
+        """Handle tree view row activation."""
+        model = tree_view.get_model()
+        iter = model.get_iter(path)
+
+        name = model.get_value(iter, 0)
+        file_path = model.get_value(iter, 1)
+        file_type = model.get_value(iter, 2)
+
+        if file_type == 'Directory':
+            self.load_directory(file_path)
+        else:
+            self.emit('file-selected', file_path)
+
+    def on_up_directory(self, button):
+        """Navigate to parent directory."""
+        parent = os.path.dirname(self.current_path)
+        if parent != self.current_path:  # Not at root
+            self.load_directory(parent)
+
+    def on_home_directory(self, button):
+        """Navigate to home directory."""
+        self.load_directory(GLib.get_home_dir())
+
+    def on_path_entry_activate(self, entry):
+        """Handle path entry activation."""
+        path = entry.get_text()
+        if os.path.isdir(path):
+            self.load_directory(path)
+        else:
+            entry.set_text(self.current_path)
+
+    def on_refresh(self, button):
+        """Refresh current directory."""
+        self.load_directory(self.current_path)
+
+    def on_new_folder(self, button):
+        """Create new folder dialog."""
+        dialog = Gtk.Dialog(
+            title='New Folder',
+            transient_for=self.get_root(),
+            modal=True
+        )
+        dialog.add_buttons(
+            'Cancel', Gtk.ResponseType.CANCEL,
+            'Create', Gtk.ResponseType.OK
+        )
+
+        content_area = dialog.get_content_area()
+
+        label = Gtk.Label(label='Folder name:')
+        entry = Gtk.Entry()
+        entry.set_text('New Folder')
+
+        content_area.append(label)
+        content_area.append(entry)
+
+        dialog.connect('response', self.on_new_folder_response, entry)
+        dialog.present()
+
+    def on_new_folder_response(self, dialog, response_id, entry):
+        """Handle new folder dialog response."""
+        if response_id == Gtk.ResponseType.OK:
+            folder_name = entry.get_text().strip()
+            if folder_name:
+                folder_path = os.path.join(self.current_path, folder_name)
+                try:
+                    os.makedirs(folder_path, exist_ok=True)
+                    self.load_directory(self.current_path)
+                except Exception as e:
+                    self.show_error(f'Failed to create folder: {e}')
+
+        dialog.destroy()
+
+    def show_error(self, message):
+        """Show error message."""
+        print(f'Error: {message}')  # In real app, show proper dialog

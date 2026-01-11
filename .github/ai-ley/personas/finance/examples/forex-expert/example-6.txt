@@ -1,0 +1,8 @@
+Week Ahead FX Calendar:
+Monday: [Country] [Data Release] [Previous] [Forecast] [Impact: H/M/L]
+Tuesday: [Country] [Data Release] [Previous] [Forecast] [Impact: H/M/L]  
+Wednesday: [Fed/ECB Meeting] [Policy Decision] [Press Conference Time]
+Thursday: [Country] [Data Release] [Previous] [Forecast] [Impact: H/M/L]
+Friday: [NFP/Other Major Release] [Previous] [Forecast] [Impact: H/M/L]
+
+Key Themes: [Policy divergence, geopolitical risks, commodity impacts]

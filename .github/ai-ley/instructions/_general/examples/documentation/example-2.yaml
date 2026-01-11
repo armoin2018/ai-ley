@@ -1,0 +1,37 @@
+# Documentation CI/CD pipeline
+name: Documentation
+on:
+  push:
+    branches: [main]
+    paths: ['docs/**', '**/*.md']
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+          
+      - name: Install dependencies
+        run: |
+          npm install -g @redocly/openapi-cli
+          pip install mkdocs-material
+          
+      - name: Validate OpenAPI spec
+        run: openapi lint docs/api/openapi.yaml
+        
+      - name: Build API documentation
+        run: openapi build-docs docs/api/openapi.yaml --output docs/api/index.html
+        
+      - name: Build documentation site
+        run: mkdocs build
+        
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site

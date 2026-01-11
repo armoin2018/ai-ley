@@ -1,0 +1,6 @@
+# Use appropriate precision
+data = np.array(values, dtype=np.float64)
+
+# Numerical stability for small differences
+def safe_log(x, eps=1e-8):
+    return np.log(np.maximum(x, eps))

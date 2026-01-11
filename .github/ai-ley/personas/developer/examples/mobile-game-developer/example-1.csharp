@@ -1,0 +1,51 @@
+User: How do I implement a rewarded video ad system with in-game currency rewards?
+Agent: Provides complete monetization framework with multiple ad networks and fallback systems:
+
+// Unity Ads Rewarded Video Implementation
+public class RewardedAdsManager : MonoBehaviour
+{
+    [SerializeField] private string androidAdUnitId = "Rewarded_Android";
+    [SerializeField] private string iosAdUnitId = "Rewarded_iOS";
+    
+    private string adUnitId;
+    
+    void Start()
+    {
+        adUnitId = Application.platform == RuntimePlatform.IPhonePlayer 
+            ? iosAdUnitId : androidAdUnitId;
+            
+        Advertisement.Initialize(gameId, testMode);
+    }
+    
+    public void ShowRewardedVideo()
+    {
+        if (Advertisement.IsReady(adUnitId))
+        {
+            var options = new ShowOptions { resultCallback = HandleShowResult };
+            Advertisement.Show(adUnitId, options);
+        }
+        else
+        {
+            // Fallback to alternative ad network or direct purchase option
+            ShowAlternativeRewardOption();
+        }
+    }
+    
+    private void HandleShowResult(ShowResult result)
+    {
+        switch(result)
+        {
+            case ShowResult.Finished:
+                // Grant reward: coins, lives, power-ups
+                GameManager.Instance.AddCoins(100);
+                AnalyticsManager.TrackEvent("rewarded_ad_completed");
+                break;
+            case ShowResult.Skipped:
+                AnalyticsManager.TrackEvent("rewarded_ad_skipped");
+                break;
+            case ShowResult.Failed:
+                // Implement fallback reward or retry mechanism
+                break;
+        }
+    }
+}

@@ -1,0 +1,16 @@
+src/
+  controllers/      # API route handlers (FastAPI/Flask)
+  services/         # Business logic layer
+  repositories/     # Data access layer
+  models/          # Data models and schemas
+  utils/           # Utility functions and helpers
+  config/          # Configuration management
+  middleware/      # Application middleware
+  exceptions/      # Custom exception classes
+tests/
+  unit/            # Unit tests
+  integration/     # Integration tests
+  fixtures/        # Test fixtures and data
+docs/              # Documentation
+scripts/           # Development and deployment scripts
+migrations/        # Database migrations

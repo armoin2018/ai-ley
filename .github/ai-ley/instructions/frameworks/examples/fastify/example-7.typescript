@@ -1,0 +1,54 @@
+// src/plugins/auth.ts
+import { FastifyPluginAsync } from 'fastify'
+import fp from 'fastify-plugin'
+
+declare module 'fastify' {
+  interface FastifyRequest {
+    user?: {
+      id: string
+      email: string
+      roles: string[]
+    }
+  }
+}
+
+const authPlugin: FastifyPluginAsync = async (fastify) => {
+  // Register JWT plugin
+  await fastify.register(import('@fastify/jwt'), {
+    secret: process.env.JWT_SECRET || 'supersecret'
+  })
+
+  // Authentication decorator
+  fastify.decorate('authenticate', async (request, reply) => {
+    try {
+      await request.jwtVerify()
+    } catch (err) {
+      reply.send(err)
+    }
+  })
+
+  // Authorization decorator
+  fastify.decorate('authorize', (roles: string[]) => {
+    return async (request, reply) => {
+      if (!request.user) {
+        return reply.code(401).send({
+          error: 'Unauthorized',
+          message: 'Authentication required'
+        })
+      }
+
+      const hasRole = roles.some(role => request.user!.roles.includes(role))
+      if (!hasRole) {
+        return reply.code(403).send({
+          error: 'Forbidden',
+          message: 'Insufficient permissions'
+        })
+      }
+    }
+  })
+}
+
+export default fp(authPlugin, {
+  name: 'auth',
+  dependencies: []
+})

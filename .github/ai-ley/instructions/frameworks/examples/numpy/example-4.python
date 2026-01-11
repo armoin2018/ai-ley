@@ -1,0 +1,11 @@
+# Broadcasting example
+matrix = np.random.randn(100, 10)
+row_means = np.mean(matrix, axis=1, keepdims=True)
+centered_matrix = matrix - row_means
+
+# Vectorized operations
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+# Works on arrays of any shape
+result = sigmoid(matrix)

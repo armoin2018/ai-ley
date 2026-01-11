@@ -1,0 +1,5 @@
+### Native Platform Integration
+
+- **Purpose**: Access platform-specific features through method channels
+- **Setup**: Configure platform channels in android/ and ios/ directories
+- **Usage**:

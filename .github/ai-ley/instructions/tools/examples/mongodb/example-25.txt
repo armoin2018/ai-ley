@@ -1,0 +1,3 @@
+## Production Deployment Patterns
+
+### MongoDB Replica Set with Docker Compose

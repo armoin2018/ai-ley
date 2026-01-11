@@ -1,0 +1,98 @@
+// tests/ThreeJSApp.test.ts - Unit testing Three.js components
+import * as THREE from 'three';
+import { ThreeJSApp } from '../src/ThreeJSApp';
+
+// Mock Three.js for testing
+jest.mock('three', () => ({
+    Scene: jest.fn().mockImplementation(() => ({
+        add: jest.fn(),
+        remove: jest.fn(),
+        traverse: jest.fn()
+    })),
+    PerspectiveCamera: jest.fn().mockImplementation(() => ({
+        position: { set: jest.fn() },
+        updateProjectionMatrix: jest.fn()
+    })),
+    WebGLRenderer: jest.fn().mockImplementation(() => ({
+        setSize: jest.fn(),
+        setPixelRatio: jest.fn(),
+        render: jest.fn(),
+        domElement: document.createElement('canvas')
+    }))
+}));
+
+describe('ThreeJSApp', () => {
+    let container: HTMLElement;
+    let app: ThreeJSApp;
+
+    beforeEach(() => {
+        container = document.createElement('div');
+        document.body.appendChild(container);
+    });
+
+    afterEach(() => {
+        if (app) {
+            app.dispose();
+        }
+        document.body.removeChild(container);
+    });
+
+    test('should initialize properly', () => {
+        app = new ThreeJSApp(container);
+        
+        expect(THREE.Scene).toHaveBeenCalled();
+        expect(THREE.PerspectiveCamera).toHaveBeenCalled();
+        expect(THREE.WebGLRenderer).toHaveBeenCalled();
+    });
+
+    test('should handle window resize', () => {
+        app = new ThreeJSApp(container);
+        
+        // Simulate window resize
+        Object.defineProperty(window, 'innerWidth', { value: 1920 });
+        Object.defineProperty(window, 'innerHeight', { value: 1080 });
+        
+        window.dispatchEvent(new Event('resize'));
+        
+        // Verify camera and renderer updates
+        // Add specific assertions based on your implementation
+    });
+});
+
+// tests/MaterialManager.test.ts - Testing material management
+describe('MaterialManager', () => {
+    let materialManager: MaterialManager;
+
+    beforeEach(() => {
+        materialManager = new MaterialManager();
+    });
+
+    afterEach(() => {
+        materialManager.dispose();
+    });
+
+    test('should create PBR material', () => {
+        const material = materialManager.createPBRMaterial({
+            name: 'test-material',
+            color: 0xff0000,
+            metalness: 0.5,
+            roughness: 0.3
+        });
+
+        expect(material).toBeInstanceOf(THREE.MeshStandardMaterial);
+        expect(material.color.getHex()).toBe(0xff0000);
+        expect(material.metalness).toBe(0.5);
+        expect(material.roughness).toBe(0.3);
+    });
+
+    test('should cache and retrieve materials', () => {
+        const material1 = materialManager.createPBRMaterial({
+            name: 'cached-material',
+            color: 0x00ff00
+        });
+
+        const material2 = materialManager.getMaterial('cached-material');
+        
+        expect(material1).toBe(material2);
+    });
+});

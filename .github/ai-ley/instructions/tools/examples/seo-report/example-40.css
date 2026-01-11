@@ -1,0 +1,57 @@
+/* Essential CSS for professional report appearance */
+:root {
+  --primary-color: #2563eb;
+  --secondary-color: #0ea5e9;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+}
+
+/* Animated score cards */
+.score-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.score-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Color-coded score values */
+.score-excellent {
+  color: var(--success-color);
+}
+.score-good {
+  color: #10b981;
+}
+.score-fair {
+  color: var(--warning-color);
+}
+.score-poor {
+  color: var(--danger-color);
+}
+
+/* Responsive navigation */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Print-friendly styles */
+@media print {
+  .nav,
+  .header {
+    display: none;
+  }
+  .section {
+    display: block !important;
+    page-break-inside: avoid;
+  }
+}

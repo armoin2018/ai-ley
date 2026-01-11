@@ -1,0 +1,67 @@
+// Basic Objective-C project structure
+// AppDelegate.h
+#import <UIKit/UIKit.h>
+
+@interface AppDelegate : UIResponder <UIApplicationDelegate>
+
+@property (strong, nonatomic) UIWindow *window;
+
+@end
+
+// AppDelegate.m
+#import "AppDelegate.h"
+
+@implementation AppDelegate
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    // Override point for customization after application launch.
+    return YES;
+}
+
+@end
+
+// Example class definition
+// Person.h
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface Person : NSObject
+
+@property (nonatomic, strong) NSString *firstName;
+@property (nonatomic, strong) NSString *lastName;
+@property (nonatomic, assign) NSInteger age;
+
+- (instancetype)initWithFirstName:(NSString *)firstName lastName:(NSString *)lastName age:(NSInteger)age;
+- (NSString *)fullName;
+- (void)celebrateBirthday;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+// Person.m
+#import "Person.h"
+
+@implementation Person
+
+- (instancetype)initWithFirstName:(NSString *)firstName lastName:(NSString *)lastName age:(NSInteger)age {
+    self = [super init];
+    if (self) {
+        _firstName = firstName;
+        _lastName = lastName;
+        _age = age;
+    }
+    return self;
+}
+
+- (NSString *)fullName {
+    return [NSString stringWithFormat:@"%@ %@", self.firstName, self.lastName];
+}
+
+- (void)celebrateBirthday {
+    self.age++;
+    NSLog(@"Happy Birthday %@! You are now %ld years old.", [self fullName], (long)self.age);
+}
+
+@end

@@ -1,0 +1,3 @@
+User: Create RFQ for 500 laptops with specific technical requirements and 3-year warranty
+Agent: Provides detailed specifications, pricing format, delivery terms,
+warranty requirements, and supplier evaluation criteria

@@ -1,0 +1,13 @@
+# bunfig.toml (production)
+[install]
+dev = false
+optional = false
+production = true
+exact = true
+
+[run]
+silent = true
+
+[bundler]
+minify = true
+sourcemap = "none"

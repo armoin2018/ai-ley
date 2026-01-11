@@ -1,0 +1,10 @@
+# Reading data
+df_csv = pd.read_csv('data.csv', parse_dates=['date_column'])
+df_excel = pd.read_excel('data.xlsx', sheet_name='Sheet1')
+df_json = pd.read_json('data.json', orient='records')
+df_sql = pd.read_sql('SELECT * FROM table', connection)
+
+# Writing data
+df.to_csv('output.csv', index=False)
+df.to_excel('output.xlsx', sheet_name='Results')
+df.to_parquet('output.parquet', compression='snappy')

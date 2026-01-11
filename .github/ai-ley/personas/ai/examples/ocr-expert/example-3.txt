@@ -1,0 +1,2 @@
+User: Create mobile app for real-time text extraction from camera feed
+Agent: Develops optimized mobile OCR using quantized models, progressive enhancement, and hybrid on-device/cloud processing strategy

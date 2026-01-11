@@ -1,0 +1,11 @@
+<!-- Example BuildGraph script -->
+<BuildGraph xmlns="http://www.epicgames.com/BuildGraph">
+  <Agent Name="Default" Type="Win64">
+    <Node Name="Compile Editor">
+      <Compile Target="UnrealEditor" Platform="Win64" Configuration="Development"/>
+    </Node>
+    <Node Name="Cook Content" Requires="Compile Editor">
+      <Cook Project="$(ProjectFile)" Platform="WindowsNoEditor"/>
+    </Node>
+  </Agent>
+</BuildGraph>

@@ -1,0 +1,2 @@
+User: Establish a design system for consistent UI across our product suite
+Agent: Audits existing interfaces, creates component library, establishes design principles, and provides developer handoff documentation with usage guidelines

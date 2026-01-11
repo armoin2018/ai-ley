@@ -1,0 +1,112 @@
+function New-AzureWebAppStack {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$ResourceGroupName,
+        
+        [Parameter(Mandatory)]
+        [string]$AppName,
+        
+        [Parameter(Mandatory)]
+        [string]$Location,
+        
+        [Parameter()]
+        [string]$AppServicePlanTier = 'B1',
+        
+        [Parameter()]
+        [hashtable]$AppSettings = @{},
+        
+        [Parameter()]
+        [hashtable]$ConnectionStrings = @{}
+    )
+    
+    try {
+        # Ensure we're connected to Azure
+        $context = Get-AzContext
+        if (-not $context) {
+            throw "Not connected to Azure. Please run Connect-AzAccount first."
+        }
+        
+        Write-Information "Creating Azure Web App stack for: $AppName" -InformationAction Continue
+        
+        # Create resource group if it doesn't exist
+        $resourceGroup = Get-AzResourceGroup -Name $ResourceGroupName -ErrorAction SilentlyContinue
+        if (-not $resourceGroup) {
+            Write-Verbose "Creating resource group: $ResourceGroupName"
+            $resourceGroup = New-AzResourceGroup -Name $ResourceGroupName -Location $Location
+        }
+        
+        # Create App Service Plan
+        $appServicePlanName = "$AppName-plan"
+        $appServicePlan = Get-AzAppServicePlan -ResourceGroupName $ResourceGroupName -Name $appServicePlanName -ErrorAction SilentlyContinue
+        if (-not $appServicePlan) {
+            Write-Verbose "Creating App Service Plan: $appServicePlanName"
+            $appServicePlan = New-AzAppServicePlan `
+                -ResourceGroupName $ResourceGroupName `
+                -Name $appServicePlanName `
+                -Location $Location `
+                -Tier $AppServicePlanTier
+        }
+        
+        # Create Web App
+        $webApp = Get-AzWebApp -ResourceGroupName $ResourceGroupName -Name $AppName -ErrorAction SilentlyContinue
+        if (-not $webApp) {
+            Write-Verbose "Creating Web App: $AppName"
+            $webApp = New-AzWebApp `
+                -ResourceGroupName $ResourceGroupName `
+                -Name $AppName `
+                -Location $Location `
+                -AppServicePlan $appServicePlanName
+        }
+        
+        # Configure application settings
+        if ($AppSettings.Count -gt 0) {
+            Write-Verbose "Configuring application settings"
+            Set-AzWebApp -ResourceGroupName $ResourceGroupName -Name $AppName -AppSettings $AppSettings
+        }
+        
+        # Configure connection strings
+        if ($ConnectionStrings.Count -gt 0) {
+            Write-Verbose "Configuring connection strings"
+            $connectionStringSettings = @{}
+            foreach ($cs in $ConnectionStrings.GetEnumerator()) {
+                $connectionStringSettings[$cs.Key] = @{
+                    Value = $cs.Value
+                    Type = 'SQLServer'  # Default type, could be parameterized
+                }
+            }
+            Set-AzWebApp -ResourceGroupName $ResourceGroupName -Name $AppName -ConnectionStrings $connectionStringSettings
+        }
+        
+        # Enable HTTPS only
+        Set-AzWebApp -ResourceGroupName $ResourceGroupName -Name $AppName -HttpsOnly $true
+        
+        # Return web app information
+        $result = [PSCustomObject]@{
+            ResourceGroupName = $ResourceGroupName
+            AppName = $AppName
+            AppServicePlan = $appServicePlanName
+            DefaultHostName = $webApp.DefaultHostName
+            State = $webApp.State
+            Location = $Location
+            CreatedTime = Get-Date
+        }
+        
+        Write-Output $result
+    }
+    catch {
+        $PSCmdlet.ThrowTerminatingError($_)
+    }
+}
+
+# Usage example
+$appSettings = @{
+    'ASPNETCORE_ENVIRONMENT' = 'Production'
+    'ApplicationInsights:InstrumentationKey' = '12345678-1234-1234-1234-123456789012'
+}
+
+$connectionStrings = @{
+    'DefaultConnection' = 'Server=myserver.database.windows.net;Database=mydb;User Id=myuser;Password=mypass;'
+}
+
+New-AzureWebAppStack -ResourceGroupName 'MyApp-RG' -AppName 'mywebapp' -Location 'East US' -AppSettings $appSettings -ConnectionStrings $connectionStrings

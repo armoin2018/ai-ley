@@ -1,0 +1,38 @@
+advanced-nwjs-app/
+├── package.json
+├── webpack.config.js        # Webpack configuration
+├── babel.config.js          # Babel configuration
+├── src/
+│   ├── index.html
+│   ├── main.js
+│   ├── renderer/            # Renderer process code
+│   │   ├── app.js
+│   │   ├── components/
+│   │   │   ├── App.vue      # If using Vue
+│   │   │   ├── FileManager.vue
+│   │   │   └── Settings.vue
+│   │   ├── stores/          # State management
+│   │   │   ├── app-store.js
+│   │   │   └── file-store.js
+│   │   ├── services/        # API services
+│   │   │   ├── file-service.js
+│   │   │   └── system-service.js
+│   │   └── styles/          # SCSS/CSS files
+│   │       ├── main.scss
+│   │       └── components.scss
+│   ├── main/                # Main process code
+│   │   ├── app-controller.js
+│   │   ├── file-controller.js
+│   │   ├── window-manager.js
+│   │   └── menu-manager.js
+│   └── shared/              # Shared utilities
+│       ├── constants.js
+│       ├── ipc-channels.js
+│       └── validation.js
+├── static/                  # Static assets
+├── build/                   # Build and packaging scripts
+├── tests/                   # Tests
+│   ├── unit/
+│   ├── integration/
+│   └── e2e/
+└── docs/                    # Documentation

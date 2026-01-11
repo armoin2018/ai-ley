@@ -1,0 +1,122 @@
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import streamlit as st
+from datetime import datetime, timedelta
+
+class BIAnalytics:
+    def __init__(self, data_source):
+        self.data_source = data_source
+        self.df = None
+        
+    def load_data(self):
+        """Load data from various sources"""
+        if self.data_source.endswith('.csv'):
+            self.df = pd.read_csv(self.data_source)
+        elif 'sql://' in self.data_source:
+            # Database connection logic
+            pass
+        
+        # Data preprocessing
+        self.df['date'] = pd.to_datetime(self.df['date'])
+        self.df['month'] = self.df['date'].dt.to_period('M')
+        
+    def create_executive_summary(self):
+        """Generate executive summary metrics"""
+        current_month = self.df['month'].max()
+        prev_month = current_month - 1
+        
+        current_revenue = self.df[self.df['month'] == current_month]['revenue'].sum()
+        prev_revenue = self.df[self.df['month'] == prev_month]['revenue'].sum()
+        growth_rate = ((current_revenue - prev_revenue) / prev_revenue) * 100
+        
+        return {
+            'current_revenue': current_revenue,
+            'growth_rate': growth_rate,
+            'total_customers': self.df['customer_id'].nunique(),
+            'avg_order_value': self.df['order_value'].mean()
+        }
+    
+    def create_trend_visualization(self):
+        """Create interactive trend charts"""
+        monthly_data = self.df.groupby('month').agg({
+            'revenue': 'sum',
+            'customer_id': 'nunique',
+            'order_value': 'mean'
+        }).reset_index()
+        
+        fig = make_subplots(
+            rows=2, cols=2,
+            subplot_titles=('Revenue Trend', 'Customer Growth', 
+                          'Average Order Value', 'Growth Rate'),
+            specs=[[{"secondary_y": True}, {"secondary_y": True}],
+                   [{"secondary_y": True}, {"secondary_y": True}]]
+        )
+        
+        # Revenue trend
+        fig.add_trace(
+            go.Scatter(x=monthly_data['month'].astype(str), 
+                      y=monthly_data['revenue'],
+                      name='Revenue', line=dict(color='blue')),
+            row=1, col=1
+        )
+        
+        # Customer growth
+        fig.add_trace(
+            go.Bar(x=monthly_data['month'].astype(str), 
+                   y=monthly_data['customer_id'],
+                   name='Unique Customers', marker_color='green'),
+            row=1, col=2
+        )
+        
+        fig.update_layout(height=600, showlegend=True)
+        return fig
+    
+    def generate_insights(self):
+        """Generate automated insights"""
+        summary = self.create_executive_summary()
+        insights = []
+        
+        if summary['growth_rate'] > 10:
+            insights.append("Strong revenue growth indicates healthy business expansion")
+        elif summary['growth_rate'] < -5:
+            insights.append("Revenue decline requires immediate attention and analysis")
+            
+        return insights
+
+# Streamlit app integration
+def create_bi_dashboard():
+    st.set_page_config(page_title="BI Dashboard", layout="wide")
+    
+    st.title("Executive Business Intelligence Dashboard")
+    
+    analytics = BIAnalytics("sales_data.csv")
+    analytics.load_data()
+    
+    # Key metrics
+    col1, col2, col3, col4 = st.columns(4)
+    summary = analytics.create_executive_summary()
+    
+    with col1:
+        st.metric("Revenue", f"${summary['current_revenue']:,.0f}", 
+                 delta=f"{summary['growth_rate']:.1f}%")
+    
+    with col2:
+        st.metric("Customers", summary['total_customers'])
+    
+    with col3:
+        st.metric("Avg Order Value", f"${summary['avg_order_value']:.2f}")
+    
+    # Visualizations
+    fig = analytics.create_trend_visualization()
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # Insights
+    st.subheader("Key Insights")
+    insights = analytics.generate_insights()
+    for insight in insights:
+        st.write(f"• {insight}")
+
+if __name__ == "__main__":
+    create_bi_dashboard()

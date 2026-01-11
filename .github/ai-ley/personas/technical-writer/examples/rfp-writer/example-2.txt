@@ -1,0 +1,3 @@
+User: Develop RFP for managed IT services covering helpdesk, infrastructure, and security
+Agent: Delivers service level requirements, performance metrics, pricing models,
+transition planning, and governance framework

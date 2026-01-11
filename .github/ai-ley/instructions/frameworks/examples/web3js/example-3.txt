@@ -1,0 +1,17 @@
+web3-dapp/
+├── src/
+│   ├── contracts/           # Contract ABIs and addresses
+│   │   ├── MyToken.json
+│   │   └── addresses.json
+│   ├── services/           # Web3 service layer
+│   │   ├── web3Service.js
+│   │   └── contractService.js
+│   ├── utils/              # Utility functions
+│   │   ├── web3Utils.js
+│   │   └── formatters.js
+│   ├── hooks/              # React hooks (if using React)
+│   │   └── useWeb3.js
+│   └── components/         # UI components
+├── config/
+│   └── networks.json       # Network configurations
+└── package.json

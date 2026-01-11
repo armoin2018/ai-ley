@@ -1,0 +1,106 @@
+# Player.gd - Player character controller
+extends CharacterBody2D
+class_name Player
+
+# Exported variables (visible in editor)
+@export var speed: float = 300.0
+@export var jump_velocity: float = -400.0
+@export var health: int = 100
+
+# Node references
+@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var collision_shape: CollisionShape2D = $CollisionShape2D
+@onready var health_bar: ProgressBar = $UI/HealthBar
+
+# Signals
+signal health_changed(new_health: int)
+signal player_died
+
+# Built-in variables
+var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
+var is_jumping = false
+var facing_direction = 1
+
+func _ready():
+	# Initialize player
+	health_bar.max_value = health
+	health_bar.value = health
+	
+	# Connect signals
+	health_changed.connect(_on_health_changed)
+	
+	# Setup animations
+	sprite.play("idle")
+
+func _physics_process(delta):
+	# Handle gravity
+	if not is_on_floor():
+		velocity.y += gravity * delta
+	
+	# Handle jump
+	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
+		velocity.y = jump_velocity
+		is_jumping = true
+		sprite.play("jump")
+	
+	# Handle horizontal movement
+	var direction = Input.get_axis("ui_left", "ui_right")
+	if direction != 0:
+		velocity.x = direction * speed
+		facing_direction = sign(direction)
+		sprite.flip_h = facing_direction < 0
+		
+		if is_on_floor() and not is_jumping:
+			sprite.play("run")
+	else:
+		velocity.x = move_toward(velocity.x, 0, speed)
+		if is_on_floor() and not is_jumping:
+			sprite.play("idle")
+	
+	# Check if landing
+	if is_jumping and is_on_floor():
+		is_jumping = false
+		sprite.play("idle")
+	
+	move_and_slide()
+
+func take_damage(amount: int):
+	health -= amount
+	health_changed.emit(health)
+	
+	# Flash effect
+	_flash_damage()
+	
+	if health <= 0:
+		die()
+
+func heal(amount: int):
+	health = min(health + amount, 100)
+	health_changed.emit(health)
+
+func die():
+	# Death animation
+	sprite.play("death")
+	set_physics_process(false)
+	
+	# Emit death signal
+	player_died.emit()
+	
+	# Wait for animation to finish
+	await sprite.animation_finished
+	
+	# Respawn or game over logic
+	_handle_death()
+
+func _flash_damage():
+	# Simple damage flash effect
+	var tween = create_tween()
+	tween.tween_property(sprite, "modulate", Color.RED, 0.1)
+	tween.tween_property(sprite, "modulate", Color.WHITE, 0.1)
+
+func _on_health_changed(new_health: int):
+	health_bar.value = new_health
+
+func _handle_death():
+	# Implement respawn or game over logic
+	get_tree().reload_current_scene()

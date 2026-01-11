@@ -1,0 +1,31 @@
+architecture_layers:
+  business_architecture:
+    - business_capabilities
+    - value_streams
+    - organizational_structure
+    - business_processes
+    
+  information_architecture:
+    - data_architecture
+    - information_governance
+    - master_data_management
+    - analytics_strategy
+    
+  application_architecture:
+    - application_portfolio
+    - integration_patterns
+    - api_strategy
+    - modernization_roadmap
+    
+  technology_architecture:
+    - infrastructure_platforms
+    - cloud_strategy
+    - security_architecture
+    - operational_model
+
+governance:
+  architecture_review_board:
+    - principles_compliance
+    - standard_adherence
+    - risk_assessment
+    - investment_approval

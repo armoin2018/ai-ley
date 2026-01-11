@@ -1,0 +1,17 @@
+// Optimize function performance
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Set timeout early
+  res.setHeader('Cache-Control', 's-maxage=60');
+
+  try {
+    // Use Promise.race for timeout control
+    const result = await Promise.race([
+      expensiveOperation(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 25000)),
+    ]);
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ error: 'Operation failed' });
+  }
+}

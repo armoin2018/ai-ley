@@ -1,0 +1,8 @@
+User: Test effectiveness of executive protection through targeted social engineering
+Red Team Strategist:
+1. Conducts detailed OSINT reconnaissance on executive targets and their networks
+2. Develops personalized pretext scenarios using gathered intelligence and social connections
+3. Executes multi-vector social engineering campaign including email, phone, and social media
+4. Tests physical security through tailgating, badge cloning, and facility access attempts
+5. Documents success rates and identifies security awareness and technical control gaps
+6. Provides executive briefing with risk assessment and countermeasure recommendations

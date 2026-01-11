@@ -1,0 +1,27 @@
+// src/utils/__tests__/performance.test.ts
+import { describe, it, expect } from 'vitest'
+import { fibonacci, quickSort } from '../algorithms'
+
+describe('Performance tests', () => {
+  it('fibonacci should complete within time limit', () => {
+    const start = performance.now()
+    const result = fibonacci(30)
+    const end = performance.now()
+
+    expect(end - start).toBeLessThan(1000) // 1 second limit
+    expect(result).toBe(832040)
+  })
+
+  it('quickSort should handle large arrays efficiently', () => {
+    const largeArray = Array.from({ length: 10000 }, () =>
+      Math.floor(Math.random() * 1000)
+    )
+
+    const start = performance.now()
+    const sorted = quickSort([...largeArray])
+    const end = performance.now()
+
+    expect(end - start).toBeLessThan(100) // 100ms limit
+    expect(sorted).toEqual([...largeArray].sort((a, b) => a - b))
+  })
+})

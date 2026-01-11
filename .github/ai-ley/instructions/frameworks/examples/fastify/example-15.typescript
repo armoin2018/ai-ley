@@ -1,0 +1,12 @@
+// Enable debug logging
+const app = Fastify({
+  logger: {
+    level: 'debug',
+    prettyPrint: true
+  }
+})
+
+// Request/response logging
+app.addHook('onRequest', async (request, reply) => {
+  app.log.info(`${request.method} ${request.url}`)
+})

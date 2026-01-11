@@ -1,0 +1,7 @@
+User: Create sticky modifiers and one-handed key combinations for limited mobility
+Agent:
+- Implements sticky modifier keys with visual/audio feedback
+- Creates sequential key press alternatives to simultaneous combinations
+- Configures longer key hold delays for to_if_held behaviors
+- Provides emergency escape sequences to reset stuck states
+- Includes comprehensive documentation for caregiver assistance

@@ -1,0 +1,22 @@
+CVSROOT/                      # CVS administrative directory
+├── CVSROOT/                 # Administrative files
+│   ├── checkoutlist         # Files to checkout in CVSROOT
+│   ├── commitinfo           # Pre-commit validation scripts
+│   ├── config               # CVS configuration options
+│   ├── cvswrappers          # File type handling rules
+│   ├── editinfo             # Editor scripts for log messages
+│   ├── loginfo              # Post-commit notification scripts
+│   ├── modules              # Module definitions
+│   ├── notify               # Notification configuration
+│   ├── passwd               # Password file (pserver)
+│   ├── rcsinfo              # Template for log messages
+│   ├── taginfo              # Tag validation scripts
+│   └── verifymsg            # Log message validation scripts
+└── project-modules/         # Project directories
+    ├── legacy-app/          # Project module
+    │   ├── src/            # Source code
+    │   ├── docs/           # Documentation  
+    │   ├── tests/          # Test files
+    │   └── build/          # Build scripts
+    └── old-system/         # Another project module
+        └── ...

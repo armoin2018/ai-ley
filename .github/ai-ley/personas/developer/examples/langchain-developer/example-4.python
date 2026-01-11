@@ -1,0 +1,69 @@
+from langchain.agents import Tool, AgentExecutor, create_react_agent
+from langchain.memory import ConversationBufferMemory
+from langchain.tools import DuckDuckGoSearchRun
+from langchain.prompts import PromptTemplate
+
+class MultiAgentOrchestrator:
+    def __init__(self):
+        self.research_agent = self._create_research_agent()
+        self.analysis_agent = self._create_analysis_agent()
+        self.shared_memory = ConversationBufferMemory(
+            memory_key="chat_history",
+            return_messages=True
+        )
+
+    def _create_research_agent(self):
+        search = DuckDuckGoSearchRun()
+        tools = [
+            Tool(
+                name="search",
+                description="Search for current information",
+                func=search.run
+            )
+        ]
+
+        prompt = PromptTemplate.from_template("""
+        You are a research specialist. Your job is to gather comprehensive
+        information about the given topic using available tools.
+
+        Question: {input}
+        {agent_scratchpad}
+        """)
+
+        agent = create_react_agent(llm, tools, prompt)
+        return AgentExecutor(agent=agent, tools=tools, memory=self.shared_memory)
+
+    def _create_analysis_agent(self):
+        tools = [
+            Tool(
+                name="analyze_data",
+                description="Analyze research data and provide insights",
+                func=self._analyze_research_data
+            )
+        ]
+
+        prompt = PromptTemplate.from_template("""
+        You are an analysis specialist. Use the research data from your
+        colleague to provide detailed analysis and recommendations.
+
+        Research Context: {chat_history}
+        Analysis Request: {input}
+        {agent_scratchpad}
+        """)
+
+        agent = create_react_agent(llm, tools, prompt)
+        return AgentExecutor(agent=agent, tools=tools, memory=self.shared_memory)
+
+    async def process_request(self, request: str):
+        # Research phase
+        research_result = await self.research_agent.arun(request)
+
+        # Analysis phase
+        analysis_prompt = f"Analyze this research: {research_result}"
+        analysis_result = await self.analysis_agent.arun(analysis_prompt)
+
+        return {
+            "research": research_result,
+            "analysis": analysis_result,
+            "conversation_history": self.shared_memory.chat_memory.messages
+        }

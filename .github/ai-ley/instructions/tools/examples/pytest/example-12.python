@@ -1,0 +1,65 @@
+import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from myapp.database import Base, User
+from myapp.services import UserService
+
+class TestDatabaseIntegration:
+    """Integration tests with real database."""
+
+    @pytest.fixture(scope="class")
+    def engine(self):
+        """Create test database engine for class."""
+        engine = create_engine("sqlite:///test_class.db")
+        Base.metadata.create_all(engine)
+        yield engine
+        Base.metadata.drop_all(engine)
+
+    @pytest.fixture
+    def session(self, engine):
+        """Create fresh database session for each test."""
+        SessionLocal = sessionmaker(bind=engine)
+        session = SessionLocal()
+        try:
+            yield session
+        finally:
+            session.rollback()
+            session.close()
+
+    def test_user_crud_operations(self, session):
+        """Test complete CRUD operations for users."""
+        service = UserService(session)
+
+        # Create
+        user_data = {"username": "testuser", "email": "test@example.com"}
+        user = service.create_user(user_data)
+        assert user.id is not None
+
+        # Read
+        retrieved_user = service.get_user_by_id(user.id)
+        assert retrieved_user.username == "testuser"
+
+        # Update
+        updated_user = service.update_user(user.id, {"username": "newname"})
+        assert updated_user.username == "newname"
+
+        # Delete
+        result = service.delete_user(user.id)
+        assert result is True
+
+        # Verify deletion
+        with pytest.raises(NotFoundError):
+            service.get_user_by_id(user.id)
+
+    def test_database_constraints(self, session):
+        """Test database constraints and validations."""
+        service = UserService(session)
+
+        # Create first user
+        user1_data = {"username": "user1", "email": "unique@example.com"}
+        service.create_user(user1_data)
+
+        # Try to create user with duplicate email
+        user2_data = {"username": "user2", "email": "unique@example.com"}
+        with pytest.raises(ValidationError, match="Email already exists"):
+            service.create_user(user2_data)

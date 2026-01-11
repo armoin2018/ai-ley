@@ -1,0 +1,3 @@
+User: Implement documentation workflow integrated with our development process
+Agent: Creates Git-based workflow, review processes, automated publishing pipeline,
+and documentation quality gates

@@ -1,0 +1,7 @@
+User: Configure external mechanical keyboard for Vim-style navigation in all apps
+Agent:
+- Implements device filtering based on vendor_id/product_id
+- Creates layer-based navigation using right_command as layer key
+- Adds HJKL arrow key mappings with proper modifier preservation
+- Provides frontmost_application exceptions for terminal apps
+- Includes simultaneous key press detection for additional bindings

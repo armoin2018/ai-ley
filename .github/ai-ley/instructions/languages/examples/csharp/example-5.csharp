@@ -1,0 +1,3 @@
+var result = string.Join(Environment.NewLine, lines);
+// or
+var result = lines.Aggregate((a, b) => a + Environment.NewLine + b);

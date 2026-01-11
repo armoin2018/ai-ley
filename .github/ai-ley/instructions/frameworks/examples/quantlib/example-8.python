@@ -1,0 +1,96 @@
+class BondPortfolio:
+    """Fixed income portfolio management."""
+    
+    def __init__(self, yield_curve):
+        self.yield_curve = yield_curve
+        self.bonds = []
+    
+    def create_fixed_rate_bond(self, face_amount, coupon_rate, issue_date, 
+                              maturity_date, frequency=ql.Semiannual):
+        """Create fixed rate bond."""
+        calendar = ql.UnitedStates(ql.UnitedStates.NYSE)
+        business_convention = ql.ModifiedFollowing
+        day_count = ql.ActualActual(ql.ActualActual.ISDA)
+        
+        # Create schedule
+        schedule = ql.Schedule(
+            issue_date, maturity_date, ql.Period(frequency),
+            calendar, business_convention, business_convention,
+            ql.DateGeneration.Backward, False
+        )
+        
+        # Create bond
+        bond = ql.FixedRateBond(
+            2,  # settlement days
+            face_amount,
+            schedule,
+            [coupon_rate],
+            day_count
+        )
+        
+        # Set pricing engine
+        engine = ql.DiscountingBondEngine(self.yield_curve)
+        bond.setPricingEngine(engine)
+        
+        return bond
+    
+    def create_floating_rate_bond(self, face_amount, index, issue_date, 
+                                 maturity_date, spread=0.0):
+        """Create floating rate bond."""
+        calendar = ql.UnitedStates(ql.UnitedStates.NYSE)
+        business_convention = ql.ModifiedFollowing
+        
+        # Create schedule
+        schedule = ql.Schedule(
+            issue_date, maturity_date, index.tenor(),
+            calendar, business_convention, business_convention,
+            ql.DateGeneration.Backward, False
+        )
+        
+        # Create floating rate bond
+        bond = ql.FloatingRateBond(
+            2,  # settlement days
+            face_amount,
+            schedule,
+            index,
+            ql.ActualActual(ql.ActualActual.ISDA),
+            business_convention,
+            2,  # fixing days
+            [1.0],  # gearings
+            [spread],  # spreads
+            [],  # caps
+            [],  # floors
+            False  # in arrears
+        )
+        
+        # Set pricing engine
+        engine = ql.DiscountingBondEngine(self.yield_curve)
+        bond.setPricingEngine(engine)
+        
+        return bond
+    
+    def calculate_duration_convexity(self, bond):
+        """Calculate bond duration and convexity."""
+        try:
+            # Modified duration
+            mod_duration = ql.BondFunctions.duration(
+                bond, self.yield_curve, ql.Duration.Modified
+            )
+            
+            # Macaulay duration
+            mac_duration = ql.BondFunctions.duration(
+                bond, self.yield_curve, ql.Duration.Macaulay
+            )
+            
+            # Convexity
+            convexity = ql.BondFunctions.convexity(bond, self.yield_curve)
+            
+            return {
+                'modified_duration': mod_duration,
+                'macaulay_duration': mac_duration,
+                'convexity': convexity
+            }
+            
+        except Exception as e:
+            print(f"Error calculating duration/convexity: {e}")
+            return None

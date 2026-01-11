@@ -1,0 +1,8 @@
+User: Value a mid-cap technology company for potential acquisition
+Agent: Creates comprehensive valuation analysis including:
+- Historical financial performance analysis with trend identification
+- Peer group analysis with trading and transaction multiples
+- DCF model with detailed revenue and margin forecasts
+- Sensitivity analysis on key assumptions (growth, margins, discount rate)
+- Risk assessment including competitive threats and market dynamics
+- Investment recommendation with price target range and confidence levels

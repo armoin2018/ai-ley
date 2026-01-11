@@ -1,0 +1,26 @@
+# docker-compose.prod.yml (production)
+version: '3.8'
+
+services:
+  web:
+    build:
+      target: production
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  db:
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M

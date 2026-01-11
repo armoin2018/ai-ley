@@ -1,0 +1,14 @@
+from sklearn.model_selection import StratifiedKFold, cross_validate
+from sklearn.metrics import classification_report, roc_auc_score
+import shap
+
+def evaluate_discriminative_model(model, X, y):
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    scores = cross_validate(model, X, y, cv=cv, 
+                           scoring=['accuracy', 'f1_weighted', 'roc_auc'])
+    
+    # SHAP analysis for interpretability
+    explainer = shap.Explainer(model)
+    shap_values = explainer(X_test)
+    
+    return scores, shap_values

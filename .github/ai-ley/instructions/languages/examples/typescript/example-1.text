@@ -1,0 +1,16 @@
+src/
+  components/       # React/Vue components
+  pages/           # Next.js pages or route components
+  services/        # Business logic and API clients
+  types/           # Type definitions
+  utils/           # Utility functions
+  hooks/           # React custom hooks
+  stores/          # State management (Redux, Zustand)
+  styles/          # CSS/SCSS files
+tests/
+  unit/            # Unit tests
+  integration/     # Integration tests
+  e2e/            # End-to-end tests
+types/             # Global type declarations
+public/           # Static assets
+dist/             # Compiled output

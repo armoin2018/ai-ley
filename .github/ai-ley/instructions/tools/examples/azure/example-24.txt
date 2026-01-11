@@ -1,0 +1,5 @@
+### Azure Service Bus
+
+- **Purpose**: Enterprise messaging service for reliable communication
+- **Usage**: Decouple applications, implement messaging patterns
+- **Example**:

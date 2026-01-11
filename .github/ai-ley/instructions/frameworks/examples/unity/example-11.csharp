@@ -1,0 +1,45 @@
+// Performance monitoring
+public class PerformanceMonitor : MonoBehaviour
+{
+    [SerializeField] private bool showFPS = true;
+    [SerializeField] private bool showMemory = true;
+    
+    private float deltaTime = 0.0f;
+    private GUIStyle style;
+    
+    void Update()
+    {
+        deltaTime += (Time.unscaledDeltaTime - deltaTime) * 0.1f;
+    }
+    
+    void OnGUI()
+    {
+        if (!showFPS && !showMemory) return;
+        
+        if (style == null)
+        {
+            style = new GUIStyle();
+            style.alignment = TextAnchor.UpperLeft;
+            style.fontSize = 24;
+            style.normal.textColor = Color.white;
+        }
+        
+        Rect rect = new Rect(10, 10, 200, 50);
+        
+        if (showFPS)
+        {
+            float msec = deltaTime * 1000.0f;
+            float fps = 1.0f / deltaTime;
+            string fpsText = string.Format("{0:0.0} ms ({1:0.} fps)", msec, fps);
+            GUI.Label(rect, fpsText, style);
+            rect.y += 30;
+        }
+        
+        if (showMemory)
+        {
+            long memory = System.GC.GetTotalMemory(false) / (1024 * 1024);
+            string memoryText = $"Memory: {memory} MB";
+            GUI.Label(rect, memoryText, style);
+        }
+    }
+}

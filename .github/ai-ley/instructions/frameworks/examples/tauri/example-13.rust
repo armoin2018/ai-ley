@@ -1,0 +1,48 @@
+// src-tauri/src/commands/file_ops.rs - Tests
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use tempfile::tempdir;
+
+    #[tokio::test]
+    async fn test_read_file_success() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("test.txt");
+        let content = "Hello, Tauri!";
+
+        fs::write(&file_path, content).unwrap();
+
+        let result = read_file(file_path.to_string_lossy().to_string()).await.unwrap();
+
+        assert!(result.success);
+        assert_eq!(result.data.unwrap(), content);
+    }
+
+    #[tokio::test]
+    async fn test_read_file_not_found() {
+        let result = read_file("/nonexistent/file.txt".to_string()).await.unwrap();
+
+        assert!(!result.success);
+        assert!(result.error.is_some());
+    }
+
+    #[tokio::test]
+    async fn test_write_file_success() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("output.txt");
+        let content = "Test content";
+
+        let request = SaveRequest {
+            path: file_path.to_string_lossy().to_string(),
+            content: content.to_string(),
+        };
+
+        let result = write_file(request).await.unwrap();
+
+        assert!(result.success);
+
+        let written_content = fs::read_to_string(&file_path).unwrap();
+        assert_eq!(written_content, content);
+    }
+}

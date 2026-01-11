@@ -1,0 +1,5 @@
+### Screenshot and Visual Testing
+
+- **Purpose**: Capture screenshots for debugging and visual validation
+- **Usage**: Essential for test reporting and visual regression testing
+- **Example**:

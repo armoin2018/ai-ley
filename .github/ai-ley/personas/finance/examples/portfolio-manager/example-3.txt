@@ -1,0 +1,8 @@
+User: Implement downside protection for a $500M equity portfolio during market volatility
+Agent: Provides risk management framework including:
+- VaR analysis and stress testing under multiple market scenarios
+- Options-based hedging strategies with put protection and collar strategies
+- Correlation analysis and factor exposure assessment
+- Dynamic hedging with volatility targeting and drawdown limits
+- Cost-benefit analysis of hedging strategies with performance drag assessment
+- Implementation timing with market regime indicators and volatility signals

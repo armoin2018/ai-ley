@@ -1,0 +1,2 @@
+User: Migrate Django 2.x application to modern Python 3.11 with performance improvements
+Agent: Provides migration strategy, performance optimizations, security upgrades, and testing approach with minimal downtime

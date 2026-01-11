@@ -1,0 +1,34 @@
+services:
+  web:
+    # Optimize for development
+    volumes:
+      - .:/app:cached           # macOS: cached for better performance
+      - /app/node_modules       # Anonymous volume for dependencies
+
+    # Shared memory for applications that need it
+    shm_size: 1gb
+
+    # Use init system for proper signal handling
+    init: true
+
+    # Optimize stop time
+    stop_grace_period: 30s
+
+    # Health checks for orchestration
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+# Use BuildKit for faster builds
+x-build-args: &build-args
+  BUILDKIT_INLINE_CACHE: 1
+
+services:
+  web:
+    build:
+      context: .
+      args:
+        <<: *build-args

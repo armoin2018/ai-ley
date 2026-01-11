@@ -1,0 +1,291 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'PCI-DSS Compliant Network Architecture'
+
+Parameters:
+  Environment:
+    Type: String
+    AllowedValues: [dev, staging, production]
+    Default: dev
+
+Resources:
+  # PCI-DSS Compliant VPC
+  PCIDSSVpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: !Sub 'PCI-DSS-VPC-${Environment}'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Compliance
+          Value: PCI-DSS
+        - Key: DataClassification
+          Value: restricted
+
+  # Public subnets for web tier (DMZ)
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref PCIDSSVpc
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select [0, !GetAZs '']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub 'PCI-DSS-Public-1-${Environment}'
+        - Key: Tier
+          Value: DMZ
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref PCIDSSVpc
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Select [1, !GetAZs '']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub 'PCI-DSS-Public-2-${Environment}'
+        - Key: Tier
+          Value: DMZ
+
+  # Private subnets for application tier
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref PCIDSSVpc
+      CidrBlock: 10.0.11.0/24
+      AvailabilityZone: !Select [0, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: !Sub 'PCI-DSS-App-1-${Environment}'
+        - Key: Tier
+          Value: Application
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref PCIDSSVpc
+      CidrBlock: 10.0.12.0/24
+      AvailabilityZone: !Select [1, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: !Sub 'PCI-DSS-App-2-${Environment}'
+        - Key: Tier
+          Value: Application
+
+  # Database subnets for data tier (CDE - Cardholder Data Environment)
+  DatabaseSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref PCIDSSVpc
+      CidrBlock: 10.0.21.0/24
+      AvailabilityZone: !Select [0, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: !Sub 'PCI-DSS-DB-1-${Environment}'
+        - Key: Tier
+          Value: Database
+        - Key: CDE
+          Value: 'true'
+
+  DatabaseSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref PCIDSSVpc
+      CidrBlock: 10.0.22.0/24
+      AvailabilityZone: !Select [1, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: !Sub 'PCI-DSS-DB-2-${Environment}'
+        - Key: Tier
+          Value: Database
+        - Key: CDE
+          Value: 'true'
+
+  # Security Groups with PCI-DSS requirements
+  WebTierSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub 'PCI-DSS-WebTier-SG-${Environment}'
+      GroupDescription: PCI-DSS Web Tier Security Group
+      VpcId: !Ref PCIDSSVpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          Description: HTTPS from internet
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+          Description: HTTP redirect to HTTPS
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          DestinationSecurityGroupId: !Ref AppTierSecurityGroup
+          Description: HTTPS to app tier
+      Tags:
+        - Key: Name
+          Value: !Sub 'PCI-DSS-WebTier-SG-${Environment}'
+        - Key: Tier
+          Value: Web
+        - Key: PCI-DSS-Requirement
+          Value: '1.2'
+
+  AppTierSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub 'PCI-DSS-AppTier-SG-${Environment}'
+      GroupDescription: PCI-DSS Application Tier Security Group
+      VpcId: !Ref PCIDSSVpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId: !Ref WebTierSecurityGroup
+          Description: HTTPS from web tier
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          SourceSecurityGroupId: !Ref BastionSecurityGroup
+          Description: SSH from bastion host
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          DestinationSecurityGroupId: !Ref DatabaseSecurityGroup
+          Description: MySQL to database
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          Description: HTTPS for API calls
+      Tags:
+        - Key: Name
+          Value: !Sub 'PCI-DSS-AppTier-SG-${Environment}'
+        - Key: Tier
+          Value: Application
+        - Key: PCI-DSS-Requirement
+          Value: '1.2'
+
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub 'PCI-DSS-Database-SG-${Environment}'
+      GroupDescription: PCI-DSS Database Security Group (CDE)
+      VpcId: !Ref PCIDSSVpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          SourceSecurityGroupId: !Ref AppTierSecurityGroup
+          Description: MySQL from app tier only
+      Tags:
+        - Key: Name
+          Value: !Sub 'PCI-DSS-Database-SG-${Environment}'
+        - Key: Tier
+          Value: Database
+        - Key: CDE
+          Value: 'true'
+        - Key: PCI-DSS-Requirement
+          Value: '1.2.1'
+
+  BastionSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub 'PCI-DSS-Bastion-SG-${Environment}'
+      GroupDescription: PCI-DSS Bastion Host Security Group
+      VpcId: !Ref PCIDSSVpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0 # Restrict to specific admin IPs in production
+          Description: SSH access for administrators
+      Tags:
+        - Key: Name
+          Value: !Sub 'PCI-DSS-Bastion-SG-${Environment}'
+        - Key: Purpose
+          Value: Administrative access
+        - Key: PCI-DSS-Requirement
+          Value: '2.2.4'
+
+  # Network ACLs for additional layer of security
+  PCIDSSNetworkAcl:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId: !Ref PCIDSSVpc
+      Tags:
+        - Key: Name
+          Value: !Sub 'PCI-DSS-NACL-${Environment}'
+
+  # VPC Flow Logs for monitoring
+  VPCFlowLogsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: vpc-flow-logs.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: VPCFlowLogsPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogGroups
+                  - logs:DescribeLogStreams
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/vpc/flowlogs/*'
+
+  VPCFlowLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/vpc/flowlogs/${Environment}'
+      RetentionInDays: 365 # PCI-DSS requires 1 year minimum
+
+  VPCFlowLogs:
+    Type: AWS::EC2::FlowLog
+    Properties:
+      ResourceType: VPC
+      ResourceId: !Ref PCIDSSVpc
+      TrafficType: ALL
+      LogDestinationType: cloud-watch-logs
+      LogGroupName: !Ref VPCFlowLogsGroup
+      DeliverLogsPermissionArn: !GetAtt VPCFlowLogsRole.Arn
+      Tags:
+        - Key: Name
+          Value: !Sub 'PCI-DSS-FlowLogs-${Environment}'
+        - Key: PCI-DSS-Requirement
+          Value: '10.2'
+
+Outputs:
+  VPCId:
+    Description: PCI-DSS Compliant VPC ID
+    Value: !Ref PCIDSSVpc
+    Export:
+      Name: !Sub '${AWS::StackName}-VPC'
+
+  DatabaseSubnetIds:
+    Description: Database subnet IDs for CDE
+    Value: !Join [',', [!Ref DatabaseSubnet1, !Ref DatabaseSubnet2]]
+    Export:
+      Name: !Sub '${AWS::StackName}-DatabaseSubnets'
+
+  DatabaseSecurityGroupId:
+    Description: Database security group ID
+    Value: !Ref DatabaseSecurityGroup
+    Export:
+      Name: !Sub '${AWS::StackName}-DatabaseSG'

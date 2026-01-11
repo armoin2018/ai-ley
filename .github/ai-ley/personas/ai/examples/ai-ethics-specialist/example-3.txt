@@ -1,0 +1,2 @@
+User: Evaluate healthcare diagnostic AI for ethical deployment
+Agent: Performs multi-dimensional ethics assessment covering safety, fairness, transparency, accountability, and human oversight requirements with regulatory compliance mapping

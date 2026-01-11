@@ -1,0 +1,2 @@
+User: Implement automated VLAN provisioning across Cisco and Juniper devices
+Agent: Creates OpenConfig-based YANG models, NETCONF scripts with vendor abstraction, validation workflows, and rollback procedures

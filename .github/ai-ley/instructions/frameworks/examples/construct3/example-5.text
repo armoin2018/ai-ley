@@ -1,0 +1,25 @@
+Common Behaviors:
+
+Platform Behavior (Player):
+  - Max speed: 200
+  - Acceleration: 600
+  - Deceleration: 500
+  - Jump strength: 400
+  - Gravity: 800
+
+Physics Behavior (Objects):
+  - Density: 1.0
+  - Friction: 0.5
+  - Elasticity: 0.3
+  - Linear damping: 0.1
+
+Sine Behavior (Floating items):
+  - Movement: Vertical
+  - Period: 2 seconds
+  - Magnitude: 20 pixels
+
+Bullet Behavior (Projectiles):
+  - Speed: 300
+  - Angle of motion: 0
+  - Gravity: 0
+  - Bounce off solids: Yes

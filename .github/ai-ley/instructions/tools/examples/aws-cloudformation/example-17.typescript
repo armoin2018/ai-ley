@@ -1,0 +1,174 @@
+// cdk-pipeline-cloudformation.ts
+import * as cdk from 'aws-cdk-lib';
+import * as codepipeline from 'aws-cdk-lib/aws-codepipeline';
+import * as codepipeline_actions from 'aws-cdk-lib/aws-codepipeline-actions';
+import * as codebuild from 'aws-cdk-lib/aws-codebuild';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import { Construct } from 'constructs';
+
+export interface CdkCloudFormationPipelineProps {
+  repositoryName: string;
+  branchName: string;
+  cloudFormationStackName: string;
+  templatePath: string;
+}
+
+export class CdkCloudFormationPipeline extends Construct {
+  public readonly pipeline: codepipeline.Pipeline;
+  public readonly artifactBucket: s3.Bucket;
+
+  constructor(scope: Construct, id: string, props: CdkCloudFormationPipelineProps) {
+    super(scope, id);
+
+    // S3 Bucket for pipeline artifacts
+    this.artifactBucket = new s3.Bucket(this, 'PipelineArtifacts', {
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      lifecycleRules: [
+        {
+          id: 'CleanupOldArtifacts',
+          enabled: true,
+          expiration: cdk.Duration.days(30),
+        },
+      ],
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    // CodeBuild project for CloudFormation validation
+    const validateProject = new codebuild.Project(this, 'ValidateCloudFormation', {
+      environment: {
+        buildImage: codebuild.LinuxBuildImage.STANDARD_5_0,
+      },
+      buildSpec: codebuild.BuildSpec.fromObject({
+        version: '0.2',
+        phases: {
+          install: {
+            'runtime-versions': {
+              python: '3.9',
+            },
+            commands: ['pip install cfn-lint', 'pip install checkov', 'npm install -g cfn-nag'],
+          },
+          pre_build: {
+            commands: ['echo Validating CloudFormation templates...'],
+          },
+          build: {
+            commands: [
+              `cfn-lint ${props.templatePath}`,
+              `cfn_nag_scan --input-path ${props.templatePath}`,
+              `checkov -f ${props.templatePath}`,
+              'echo CloudFormation template validation completed',
+            ],
+          },
+        },
+        artifacts: {
+          files: ['**/*'],
+        },
+      }),
+    });
+
+    // Pipeline artifacts
+    const sourceOutput = new codepipeline.Artifact('SourceOutput');
+    const validateOutput = new codepipeline.Artifact('ValidateOutput');
+
+    // Create pipeline
+    this.pipeline = new codepipeline.Pipeline(this, 'CloudFormationPipeline', {
+      artifactBucket: this.artifactBucket,
+      stages: [
+        {
+          stageName: 'Source',
+          actions: [
+            new codepipeline_actions.CodeCommitSourceAction({
+              actionName: 'Source',
+              repository: codebuild.Repository.fromRepositoryName(
+                this,
+                'Repository',
+                props.repositoryName,
+              ),
+              branch: props.branchName,
+              output: sourceOutput,
+            }),
+          ],
+        },
+        {
+          stageName: 'Validate',
+          actions: [
+            new codepipeline_actions.CodeBuildAction({
+              actionName: 'ValidateTemplate',
+              project: validateProject,
+              input: sourceOutput,
+              outputs: [validateOutput],
+            }),
+          ],
+        },
+        {
+          stageName: 'Deploy-Dev',
+          actions: [
+            new codepipeline_actions.CloudFormationCreateUpdateStackAction({
+              actionName: 'CreateUpdateStack-Dev',
+              stackName: `${props.cloudFormationStackName}-dev`,
+              templatePath: validateOutput.atPath(props.templatePath),
+              adminPermissions: true,
+              parameterOverrides: {
+                Environment: 'dev',
+              },
+            }),
+          ],
+        },
+        {
+          stageName: 'Deploy-Prod',
+          actions: [
+            new codepipeline_actions.ManualApprovalAction({
+              actionName: 'ManualApproval',
+              additionalInformation:
+                'Please review the changes and approve deployment to production',
+            }),
+            new codepipeline_actions.CloudFormationCreateUpdateStackAction({
+              actionName: 'CreateUpdateStack-Prod',
+              stackName: `${props.cloudFormationStackName}-prod`,
+              templatePath: validateOutput.atPath(props.templatePath),
+              adminPermissions: true,
+              parameterOverrides: {
+                Environment: 'prod',
+              },
+            }),
+          ],
+        },
+      ],
+    });
+
+    // Add drift detection post-deployment
+    const driftDetectionProject = new codebuild.Project(this, 'DriftDetection', {
+      environment: {
+        buildImage: codebuild.LinuxBuildImage.STANDARD_5_0,
+      },
+      buildSpec: codebuild.BuildSpec.fromObject({
+        version: '0.2',
+        phases: {
+          install: {
+            'runtime-versions': {
+              python: '3.9',
+            },
+            commands: ['pip install boto3'],
+          },
+          build: {
+            commands: ['python drift_detection.py'],
+          },
+        },
+      }),
+    });
+
+    // Add drift detection permissions
+    driftDetectionProject.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          'cloudformation:DetectStackDrift',
+          'cloudformation:DescribeStackDriftDetectionStatus',
+          'cloudformation:DescribeStackResourceDrifts',
+        ],
+        resources: ['*'],
+      }),
+    );
+  }
+}

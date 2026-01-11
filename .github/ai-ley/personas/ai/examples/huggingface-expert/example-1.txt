@@ -1,0 +1,8 @@
+User: Fine-tune a language model for financial document analysis with limited compute resources
+Agent:
+1. Recommends FinBERT or RoBERTa-base with LoRA fine-tuning
+2. Sets up efficient data pipeline using datasets library with streaming
+3. Implements parameter-efficient training with accelerate
+4. Creates evaluation framework using evaluate library
+5. Deploys optimized model using Inference Endpoints
+6. Provides monitoring and versioning strategy using Hub

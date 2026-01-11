@@ -1,0 +1,8 @@
+User: Evaluate a leveraged buyout opportunity in the healthcare sector
+Agent: Develops LBO analysis including:
+- Management presentation and industry analysis
+- Base, upside, and downside case financial projections
+- Capital structure optimization and debt capacity analysis
+- IRR and cash-on-cash return sensitivity analysis
+- Exit strategy evaluation with multiple exit scenarios
+- Risk factors and mitigation strategies assessment

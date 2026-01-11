@@ -1,0 +1,46 @@
+# storage.yaml - Persistent volume configuration
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: app-storage-pv
+  labels:
+    type: local
+spec:
+  storageClassName: fast-ssd
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: '/mnt/data/app-storage'
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: app-storage-pvc
+  namespace: production
+spec:
+  storageClassName: fast-ssd
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+
+---
+# StorageClass for dynamic provisioning
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: fast-ssd
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp3
+  iops: '3000'
+  throughput: '125'
+  encrypted: 'true'
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer

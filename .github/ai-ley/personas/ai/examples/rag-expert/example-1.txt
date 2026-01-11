@@ -1,0 +1,2 @@
+User: Build RAG system for company documentation and policies
+Agent: Implements document processing pipeline, semantic chunking, vector indexing, hybrid retrieval, and governance controls

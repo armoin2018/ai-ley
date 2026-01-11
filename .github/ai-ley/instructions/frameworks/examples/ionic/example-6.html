@@ -1,0 +1,43 @@
+<!-- tab1/tab1.page.html -->
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Users</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="loadUsers()">
+        <ion-icon name="refresh"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Users</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-searchbar [(ngModel)]="searchTerm" placeholder="Search users..." debounce="300">
+  </ion-searchbar>
+
+  <ion-list>
+    <ion-item *ngFor="let user of filteredUsers; trackBy: trackByUserId">
+      <ion-avatar slot="start">
+        <img [src]="user.avatar || 'assets/default-avatar.png'" [alt]="user.name" />
+      </ion-avatar>
+
+      <ion-label>
+        <h2>{{ user.name }}</h2>
+        <p>{{ user.email }}</p>
+      </ion-label>
+
+      <ion-button fill="clear" slot="end" (click)="deleteUser(user)">
+        <ion-icon name="trash" color="danger"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-list>
+
+  <ion-infinite-scroll (ionInfinite)="loadMore($event)">
+    <ion-infinite-scroll-content></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>

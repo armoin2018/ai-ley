@@ -1,0 +1,19 @@
+// Use proper async patterns
+it('handles async operations', async () => {
+  const promise = asyncFunction()
+  await expect(promise).resolves.toBe('expected value')
+})
+
+// Wait for elements to appear
+it('waits for elements', async () => {
+  render(<AsyncComponent />)
+
+  await waitFor(() => {
+    expect(screen.getByText('Loaded')).toBeInTheDocument()
+  })
+})
+
+// Custom timeout for slow operations
+it('handles slow operations', async () => {
+  await slowAsyncFunction()
+}, 30000) // 30 second timeout

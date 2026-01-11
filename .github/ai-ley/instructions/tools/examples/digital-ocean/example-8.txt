@@ -1,0 +1,3 @@
+## Best Practices
+
+### Droplet Configuration and Management

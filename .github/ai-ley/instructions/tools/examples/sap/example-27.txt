@@ -1,0 +1,4 @@
+/nSU01        # User Maintenance
+/nSU10        # Mass User Changes
+/nSU53        # Evaluate Authorization Check
+/nPFCG        # Role Maintenance

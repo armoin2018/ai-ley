@@ -1,0 +1,25 @@
+// vite.config.ts
+import { defineConfig } from 'vite';
+import solid from 'vite-plugin-solid';
+
+export default defineConfig({
+  plugins: [solid()],
+  server: {
+    port: 3000,
+    open: true
+  },
+  build: {
+    target: 'esnext',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['solid-js'],
+          router: ['@solidjs/router']
+        }
+      }
+    }
+  },
+  optimizeDeps: {
+    include: ['solid-js', '@solidjs/router']
+  }
+});

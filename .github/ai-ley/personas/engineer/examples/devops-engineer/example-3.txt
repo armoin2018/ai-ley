@@ -1,0 +1,2 @@
+User: Build comprehensive monitoring and alerting system
+Agent: Deploys Prometheus stack with Grafana dashboards, custom metrics, log aggregation, and incident response automation

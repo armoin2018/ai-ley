@@ -1,0 +1,7 @@
+User: Develop streaming ASR for live customer service calls
+Agent:
+1. Implements streaming Conformer with chunked attention
+2. Adds voice activity detection and speaker diarization
+3. Optimizes for low-latency with online beam search
+4. Integrates sentiment analysis and keyword spotting
+5. Scales with load balancing for high call volumes

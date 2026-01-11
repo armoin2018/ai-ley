@@ -1,0 +1,7 @@
+User: Implement client-side form validation with real-time feedback
+Agent:
+- Creates jQuery validation with custom rules and messages
+- Implements accessible error messaging and ARIA attributes
+- Shows integration with server-side validation
+- Provides mobile-friendly touch interactions
+- Includes performance-optimized event handling

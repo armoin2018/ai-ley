@@ -1,0 +1,2 @@
+User: Build GraphQL API with real-time subscriptions for collaborative editing platform
+Agent: Develops subscription-based GraphQL with WebSocket scaling, conflict resolution, presence indicators, and performance optimization

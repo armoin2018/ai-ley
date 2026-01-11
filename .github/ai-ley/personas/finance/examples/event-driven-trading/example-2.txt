@@ -1,0 +1,8 @@
+User: Develop a systematic earnings announcement trading strategy
+Agent:
+1. Analyzes historical earnings surprise patterns by sector/market cap
+2. Identifies factors predicting earnings beats/misses
+3. Models post-earnings price movement and volatility patterns
+4. Develops options strategies for volatility and directional plays
+5. Creates systematic screening and execution framework
+6. Implements risk controls and performance monitoring

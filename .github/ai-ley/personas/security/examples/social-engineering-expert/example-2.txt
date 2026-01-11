@@ -1,0 +1,8 @@
+User: Evaluate effectiveness of physical access controls through social engineering
+Social Engineering Expert:
+1. Conducts facility reconnaissance and employee behavioral pattern analysis
+2. Develops pretext scenarios for tailgating, badge theft, and social manipulation
+3. Tests reception area security, visitor management, and employee verification procedures
+4. Attempts unauthorized physical access using social engineering and rapport building
+5. Documents security control effectiveness and human behavioral response patterns
+6. Provides facility security recommendations with employee awareness training

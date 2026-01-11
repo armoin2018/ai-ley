@@ -1,0 +1,55 @@
+# ml_pipeline.py
+import mlflow
+import mlflow.pytorch
+from mlflow.tracking import MlflowClient
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader
+from sklearn.metrics import accuracy_score, f1_score
+import hydra
+from omegaconf import DictConfig
+
+class MLPipeline:
+    def __init__(self, config: DictConfig):
+        self.config = config
+        self.client = MlflowClient()
+        
+    @hydra.main(config_path="config", config_name="training")
+    def train_model(self, cfg: DictConfig):
+        with mlflow.start_run(experiment_id=cfg.experiment_id) as run:
+            # Log parameters
+            mlflow.log_params(dict(cfg.model))
+            mlflow.log_params(dict(cfg.training))
+            
+            # Prepare data
+            train_loader, val_loader = self.prepare_data(cfg)
+            
+            # Initialize model
+            model = self.create_model(cfg.model)
+            optimizer = torch.optim.Adam(model.parameters(), lr=cfg.training.learning_rate)
+            criterion = nn.CrossEntropyLoss()
+            
+            # Training loop with logging
+            best_val_accuracy = 0.0
+            for epoch in range(cfg.training.epochs):
+                train_loss = self.train_epoch(model, train_loader, optimizer, criterion)
+                val_loss, val_accuracy = self.validate_epoch(model, val_loader, criterion)
+                
+                # Log metrics
+                mlflow.log_metrics({
+                    "train_loss": train_loss,
+                    "val_loss": val_loss,
+                    "val_accuracy": val_accuracy
+                }, step=epoch)
+                
+                # Save best model
+                if val_accuracy > best_val_accuracy:
+                    best_val_accuracy = val_accuracy
+                    mlflow.pytorch.log_model(model, "best_model")
+                    
+            # Register model if performance threshold met
+            if best_val_accuracy > cfg.deployment.min_accuracy:
+                model_uri = f"runs:/{run.info.run_id}/best_model"
+                mlflow.register_model(model_uri, cfg.model.name)
+                
+            return run.info.run_id

@@ -1,0 +1,65 @@
+- **Scanning Engine**: TCP/UDP port scanning with stealth and timing options
+- **Service Detection**: Version detection and application fingerprinting capabilities
+- **Scripting Engine**: NSE (Nmap Scripting Engine) for custom vulnerability checks
+- **Output Formats**: Multiple formats including XML, JSON for integration with other tools
+
+### Security and Compliance Guidelines
+
+- **Legal Authorization**: Always obtain written permission before scanning any network
+- **Scope Definition**: Clearly define target ranges, timing windows, and acceptable scan types
+- **Data Protection**: Secure handling of scan results and sensitive network information
+- **Audit Trail**: Maintain detailed logs of all scanning activities and findings
+- **Responsible Disclosure**: Follow proper vulnerability disclosure practices
+
+### Performance Best Practices
+
+- **Timing Control**: Use appropriate timing templates to avoid network disruption
+- **Target Optimization**: Scan only necessary hosts and ports to minimize impact
+- **Resource Management**: Consider network bandwidth and target system load
+- **Parallel Scanning**: Balance speed with stealth and system resource consumption
+
+### AI Assistant Guidelines
+
+- Always emphasize legal and ethical requirements before providing Nmap guidance
+- Include authorization verification steps in all scanning workflows
+- Recommend starting with minimal, non-intrusive scanning techniques
+- Provide clear warnings about potential legal and technical risks
+- Include proper output handling and results interpretation guidance
+- Suggest integration with vulnerability management and compliance frameworks
+
+## Security Tool Overview
+
+- **Tool Name**: Nmap (Network Mapper)
+- **Version**: 7.9+ (Latest stable)
+- **Type**: Network Discovery and Security Scanner
+- **License**: GPL v2 (Open Source)
+- **Use Cases**: Network reconnaissance, port scanning, service detection, vulnerability assessment
+
+### Key Benefits
+
+- Comprehensive network reconnaissance and mapping
+- Fast and efficient scanning algorithms
+- Extensive service and OS fingerprinting database
+- Powerful scripting engine for custom vulnerability checks
+- Cross-platform compatibility with consistent results
+- Industry-standard tool for security assessments
+
+### Common Misconceptions
+
+- **Myth**: Nmap is only for malicious activities
+  **Reality**: Nmap is a legitimate security tool used by professionals for authorized network assessment
+- **Myth**: Nmap scans are always detectable
+  **Reality**: Nmap offers stealth scanning techniques to minimize detection
+
+## Implementation Framework
+
+### Getting Started
+
+#### Prerequisites
+
+- Administrative privileges for certain scan types
+- Network access to target systems
+- Understanding of TCP/IP networking concepts
+- Authorization to scan target networks (critical for legal compliance)
+
+#### Initial Setup

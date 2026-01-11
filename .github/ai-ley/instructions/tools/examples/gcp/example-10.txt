@@ -1,0 +1,5 @@
+### Cloud Functions (Serverless)
+
+- **Purpose**: Event-driven serverless compute platform
+- **Usage**: Handle HTTP requests, process events, integrate with other GCP services
+- **Example**:

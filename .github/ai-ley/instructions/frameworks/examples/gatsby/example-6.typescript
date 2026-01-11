@@ -1,0 +1,33 @@
+// src/components/hero-image.tsx
+import React from 'react';
+import { GatsbyImage, getImage, IGatsbyImageData } from 'gatsby-plugin-image';
+
+interface HeroImageProps {
+  image: {
+    childImageSharp: {
+      gatsbyImageData: IGatsbyImageData;
+    };
+  };
+  alt: string;
+  title?: string;
+}
+
+export const HeroImage: React.FC<HeroImageProps> = ({ image, alt, title }) => {
+  const gatsbyImage = getImage(image);
+
+  if (!gatsbyImage) {
+    return null;
+  }
+
+  return (
+    <div className="hero-image">
+      <GatsbyImage
+        image={gatsbyImage}
+        alt={alt}
+        title={title}
+        loading="eager"
+        placeholder="blurred"
+      />
+    </div>
+  );
+};

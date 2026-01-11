@@ -1,0 +1,4 @@
+MB5B          # Stock on Posting Date
+MC.9          # Material Analysis
+ME2N          # Purchase Orders by Material
+MCBA          # Material Consumption Analysis

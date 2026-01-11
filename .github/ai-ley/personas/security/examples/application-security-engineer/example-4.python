@@ -1,0 +1,47 @@
+import secrets
+import hashlib
+import hmac
+from datetime import datetime, timedelta
+import jwt
+from cryptography.fernet import Fernet
+
+class SecureAuthManager:
+    def __init__(self, secret_key: str, jwt_secret: str):
+        self.secret_key = secret_key.encode()
+        self.jwt_secret = jwt_secret
+        self.cipher_suite = Fernet(Fernet.generate_key())
+    
+    def hash_password(self, password: str, salt: bytes = None) -> tuple:
+        """Secure password hashing with salt"""
+        if salt is None:
+            salt = secrets.token_bytes(32)
+        
+        # Use PBKDF2 with SHA-256
+        key = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000)
+        return key, salt
+    
+    def verify_password(self, password: str, hashed: bytes, salt: bytes) -> bool:
+        """Verify password against hash"""
+        key, _ = self.hash_password(password, salt)
+        return hmac.compare_digest(key, hashed)
+    
+    def generate_jwt(self, user_id: str, roles: list) -> str:
+        """Generate secure JWT token"""
+        payload = {
+            'user_id': user_id,
+            'roles': roles,
+            'iat': datetime.utcnow(),
+            'exp': datetime.utcnow() + timedelta(hours=1),
+            'jti': secrets.token_urlsafe(16)  # JWT ID for blacklisting
+        }
+        return jwt.encode(payload, self.jwt_secret, algorithm='HS256')
+    
+    def verify_jwt(self, token: str) -> dict:
+        """Verify and decode JWT token"""
+        try:
+            payload = jwt.decode(token, self.jwt_secret, algorithms=['HS256'])
+            return payload
+        except jwt.ExpiredSignatureError:
+            raise SecurityError("Token has expired")
+        except jwt.InvalidTokenError:
+            raise SecurityError("Invalid token")

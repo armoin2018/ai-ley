@@ -1,0 +1,94 @@
+// src/tests/services/user.service.test.ts
+import { UserService } from '../../services/user.service';
+import { User } from '../../models/user.model';
+import { AppError } from '../../utils/AppError';
+
+// Mock the User model
+jest.mock('../../models/user.model');
+const MockedUser = User as jest.Mocked<typeof User>;
+
+describe('UserService', () => {
+  let userService: UserService;
+
+  beforeEach(() => {
+    userService = new UserService();
+    jest.clearAllMocks();
+  });
+
+  describe('getAllUsers', () => {
+    it('should return paginated users with search', async () => {
+      const mockUsers = [
+        { _id: '1', firstName: 'John', lastName: 'Doe', email: 'john@example.com' },
+        { _id: '2', firstName: 'Jane', lastName: 'Smith', email: 'jane@example.com' },
+      ];
+
+      MockedUser.find = jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          skip: jest.fn().mockReturnValue({
+            limit: jest.fn().mockReturnValue({
+              sort: jest.fn().mockResolvedValue(mockUsers)
+            })
+          })
+        })
+      });
+
+      MockedUser.countDocuments = jest.fn().mockResolvedValue(2);
+
+      const result = await userService.getAllUsers({
+        page: 1,
+        limit: 10,
+        search: 'John'
+      });
+
+      expect(result.data).toEqual(mockUsers);
+      expect(result.pagination.total).toBe(2);
+      expect(MockedUser.find).toHaveBeenCalledWith({
+        $or: [
+          { firstName: { $regex: 'John', $options: 'i' } },
+          { lastName: { $regex: 'John', $options: 'i' } },
+          { email: { $regex: 'John', $options: 'i' } },
+        ],
+      });
+    });
+  });
+
+  describe('createUser', () => {
+    it('should create a new user successfully', async () => {
+      const userData = {
+        email: 'test@example.com',
+        password: 'Test123!@#',
+        firstName: 'Test',
+        lastName: 'User',
+      };
+
+      const mockUser = {
+        _id: 'user-id',
+        ...userData,
+        save: jest.fn().mockResolvedValue(true),
+      };
+
+      MockedUser.findOne = jest.fn().mockResolvedValue(null);
+      MockedUser.mockImplementation(() => mockUser as any);
+
+      const result = await userService.createUser(userData);
+
+      expect(result.user).toBeDefined();
+      expect(result.token).toBeDefined();
+      expect(MockedUser.findOne).toHaveBeenCalledWith({ email: userData.email });
+    });
+
+    it('should throw error if user already exists', async () => {
+      const userData = {
+        email: 'existing@example.com',
+        password: 'Test123!@#',
+        firstName: 'Test',
+        lastName: 'User',
+      };
+
+      MockedUser.findOne = jest.fn().mockResolvedValue({ email: userData.email });
+
+      await expect(userService.createUser(userData)).rejects.toThrow(AppError);
+      await expect(userService.createUser(userData)).rejects.toThrow('User with this email already exists');
+    });
+  });
+});

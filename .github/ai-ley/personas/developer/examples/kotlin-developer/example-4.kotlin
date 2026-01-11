@@ -1,0 +1,14 @@
+plugins {
+    kotlin("jvm") version "1.9.22"
+    kotlin("plugin.serialization") version "1.9.22"
+    id("org.springframework.boot") version "3.2.2"
+}
+
+dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
+    implementation("io.ktor:ktor-client-core:2.3.7")
+    
+    testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
+    testImplementation("io.mockk:mockk:1.13.8")
+}

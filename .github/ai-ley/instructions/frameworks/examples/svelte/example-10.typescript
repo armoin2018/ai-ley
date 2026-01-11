@@ -1,0 +1,40 @@
+// src/routes/api/users/+server.ts
+import { json } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: 'admin' | 'user';
+}
+
+// Mock database
+let users: User[] = [
+  { id: 1, name: 'John Doe', email: 'john@example.com', role: 'admin' },
+  { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'user' }
+];
+
+export const GET: RequestHandler = async () => {
+  return json(users);
+};
+
+export const POST: RequestHandler = async ({ request }) => {
+  try {
+    const data = await request.json();
+    const newUser: User = {
+      id: Date.now(),
+      name: data.name,
+      email: data.email,
+      role: data.role || 'user'
+    };
+    
+    users.push(newUser);
+    return json(newUser, { status: 201 });
+  } catch (error) {
+    return json(
+      { error: 'Invalid request data' },
+      { status: 400 }
+    );
+  }
+};

@@ -1,0 +1,2 @@
+User: Connect multiple microservices with consistent API patterns
+Agent: Implements service mesh communication, API gateway configuration, circuit breakers, and monitoring across service boundaries

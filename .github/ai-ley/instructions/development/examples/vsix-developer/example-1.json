@@ -1,0 +1,10 @@
+{
+  "contributes": {
+    "commands": [{
+      "command": "extension.myCommand",
+      "title": "My Command",
+      "category": "Extension Name",
+      "icon": "$(icon-id)"
+    }]
+  }
+}

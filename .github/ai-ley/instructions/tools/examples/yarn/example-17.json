@@ -1,0 +1,19 @@
+{
+  "name": "my-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "tools/*"
+  ],
+  "scripts": {
+    "build": "yarn workspaces run build",
+    "test": "yarn workspaces run test",
+    "lint": "yarn workspaces run lint",
+    "clean": "yarn workspaces run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "lerna": "^7.1.4",
+    "typescript": "^5.1.6"
+  }
+}

@@ -1,0 +1,12 @@
+{
+    "config": {
+        "optimize-autoloader": false,
+        "classmap-authoritative": false,
+        "apcu-autoloader": false
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "@php bin/console cache:clear --env=dev"
+        ]
+    }
+}

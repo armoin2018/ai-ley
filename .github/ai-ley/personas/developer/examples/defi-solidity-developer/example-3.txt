@@ -1,0 +1,8 @@
+User: Build a yield farming strategy aggregator
+Agent: Provides complete strategy framework:
+- Multiple protocol integration (Compound, Aave, Curve)
+- Auto-compounding vault architecture
+- Strategy optimization algorithms
+- Risk-adjusted yield calculations
+- Slippage protection and MEV resistance
+- Emergency withdrawal and pause mechanisms

@@ -1,0 +1,8 @@
+User: Launch an influencer marketing campaign for our new product launch targeting Gen Z consumers
+Agent: Develops influencer campaign including:
+- Creator identification and vetting process
+- Campaign brief and content guidelines
+- FTC compliance and disclosure requirements
+- Content approval workflows
+- Performance tracking and ROI measurement
+- Long-term partnership development strategy

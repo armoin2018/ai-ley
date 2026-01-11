@@ -1,0 +1,9 @@
+## Monitoring and Alerting
+
+### Key Metrics
+
+- **Performance Metrics**: Query response time, operations per second, connection count
+- **Resource Metrics**: CPU usage, memory usage, disk I/O, network throughput
+- **Database Metrics**: Lock percentage, page faults, cache hit ratio, index usage
+
+### Monitoring Setup

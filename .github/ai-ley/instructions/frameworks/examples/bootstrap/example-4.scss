@@ -1,0 +1,31 @@
+// src/scss/styles.scss - Custom Bootstrap compilation
+// Import Bootstrap functions first
+@import 'bootstrap/scss/functions';
+
+// Custom variables (override defaults)
+$primary: #007bff;
+$secondary: #6c757d;
+$border-radius: 0.375rem;
+$font-family-base: 'Inter', sans-serif;
+
+// Import Bootstrap variables and mixins
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+// Import specific Bootstrap components (tree-shaking)
+@import 'bootstrap/scss/root';
+@import 'bootstrap/scss/reboot';
+@import 'bootstrap/scss/type';
+@import 'bootstrap/scss/grid';
+@import 'bootstrap/scss/containers';
+@import 'bootstrap/scss/buttons';
+@import 'bootstrap/scss/forms';
+@import 'bootstrap/scss/navbar';
+@import 'bootstrap/scss/card';
+@import 'bootstrap/scss/modal';
+@import 'bootstrap/scss/utilities';
+
+// Custom styles
+.custom-button {
+  @include button-variant($primary, $primary);
+}

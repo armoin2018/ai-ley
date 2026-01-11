@@ -1,0 +1,20 @@
+Daily P&L Breakdown:
+- Spread Capture: $X
+- Inventory Alpha: $X  
+- Adverse Selection: -$X
+- Hedging Costs: -$X
+- Net P&L: $X
+
+Risk Metrics:
+- Portfolio Delta: X contracts
+- Portfolio Gamma: X contracts  
+- Portfolio Vega: $X per vol point
+- Portfolio Theta: $X per day
+- VaR (1-day, 95%): $X
+- Inventory Turnover: X times/day
+
+Performance Statistics:
+- Sharpe Ratio: X.X
+- Maximum Drawdown: X%
+- Win Rate: X%
+- Average Trade Duration: X minutes

@@ -1,0 +1,22 @@
+neutralino-extended-app/
+├── neutralino.config.json
+├── app/                    # Main application
+│   ├── index.html
+│   ├── js/
+│   └── css/
+├── extensions/             # Backend extensions
+│   ├── file-processor/     # File processing extension
+│   │   ├── main.py
+│   │   ├── requirements.txt
+│   │   └── extension.json
+│   ├── database/           # Database extension
+│   │   ├── db.js
+│   │   ├── package.json
+│   │   └── extension.json
+│   └── system-monitor/     # System monitoring
+│       ├── monitor.cpp
+│       ├── CMakeLists.txt
+│       └── extension.json
+├── shared/                 # Shared utilities
+├── tests/                  # Testing
+└── scripts/                # Build scripts

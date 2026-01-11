@@ -1,0 +1,31 @@
+# Security-focused input validation
+security_validator = {
+    "type": "PythonFunction",
+    "code": """
+import re
+import html
+
+def secure_input_validation(user_input: str) -> dict:
+    # Check for injection attacks
+    sql_patterns = ['select', 'drop', 'insert', 'update', 'delete', 'union']
+    script_patterns = ['<script', 'javascript:', 'onload=', 'onerror=']
+
+    lower_input = user_input.lower()
+
+    # SQL injection detection
+    if any(pattern in lower_input for pattern in sql_patterns):
+        return {"safe": False, "reason": "Potential SQL injection detected"}
+
+    # XSS detection
+    if any(pattern in lower_input for pattern in script_patterns):
+        return {"safe": False, "reason": "Potential XSS attempt detected"}
+
+    # Sanitize HTML
+    sanitized = html.escape(user_input)
+
+    # Remove excessive whitespace
+    sanitized = re.sub(r'\\s+', ' ', sanitized).strip()
+
+    return {"safe": True, "sanitized_input": sanitized}
+    """
+}

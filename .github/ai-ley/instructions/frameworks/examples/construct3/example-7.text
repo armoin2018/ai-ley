@@ -1,0 +1,26 @@
+Event Sheet: Player Movement
+
+Event: Keyboard ▶ Left arrow is down
+  ↳ Action: Player ▶ Simulate Platform pressing Left
+
+Event: Keyboard ▶ Right arrow is down
+  ↳ Action: Player ▶ Simulate Platform pressing Right
+
+Event: Keyboard ▶ Up arrow is down
+  Condition: Player ▶ Platform is on floor
+  ↳ Action: Player ▶ Simulate Platform pressing Jump
+
+Event: Player ▶ On collision with Solid
+  Condition: Player ▶ Platform is moving
+  ↳ Action: Audio ▶ Play "step_sound"
+
+Event: Player ▶ Platform vector X > 0
+  ↳ Action: Player ▶ Set mirrored (Horizontal: false)
+  ↳ Action: Player ▶ Set animation to "run"
+
+Event: Player ▶ Platform vector X < 0
+  ↳ Action: Player ▶ Set mirrored (Horizontal: true)
+  ↳ Action: Player ▶ Set animation to "run"
+
+Event: Player ▶ Platform vector X = 0
+  ↳ Action: Player ▶ Set animation to "idle"

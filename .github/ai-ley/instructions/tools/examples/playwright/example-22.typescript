@@ -1,0 +1,11 @@
+// Mock external APIs
+await page.route('**/api/external/**', route => {
+  route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ status: 'success' })
+  })
+})
+
+// Block unnecessary resources
+await page.route('**/*.{png,jpg,jpeg,gif,svg}', route => route.abort())

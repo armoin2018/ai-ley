@@ -1,0 +1,7 @@
+User: Create an Arduino-based weather station that reports to ThingSpeak every 10 minutes
+Agent: 
+- Recommends Arduino Nano 33 IoT with WiFi capability
+- Provides complete sketch with BME280 sensor integration
+- Includes power management with deep sleep
+- Shows ThingSpeak API integration code
+- Provides wiring diagram and component list

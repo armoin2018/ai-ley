@@ -1,0 +1,26 @@
+// Simplified PoS validator selection
+pub struct ValidatorSet {
+    validators: Vec<Validator>,
+    total_stake: u128,
+}
+
+impl ValidatorSet {
+    pub fn select_proposer(&self, round: u64) -> &Validator {
+        let seed = self.generate_randomness(round);
+        self.weighted_selection(seed)
+    }
+    
+    fn weighted_selection(&self, seed: u64) -> &Validator {
+        // Weighted random selection based on stake
+        let target = seed % self.total_stake;
+        let mut cumulative = 0;
+        
+        for validator in &self.validators {
+            cumulative += validator.stake;
+            if cumulative >= target {
+                return validator;
+            }
+        }
+        unreachable!()
+    }
+}

@@ -1,0 +1,73 @@
+// src/components/Button.tsx
+import React from 'react'
+
+interface ButtonProps {
+  children: React.ReactNode
+  onClick?: () => void
+  disabled?: boolean
+  variant?: 'primary' | 'secondary'
+}
+
+export function Button({
+  children,
+  onClick,
+  disabled = false,
+  variant = 'primary'
+}: ButtonProps) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`btn btn--${variant}`}
+      data-testid="button"
+    >
+      {children}
+    </button>
+  )
+}
+
+// src/components/__tests__/Button.test.tsx
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { Button } from '../Button'
+
+describe('Button', () => {
+  it('renders children correctly', () => {
+    render(<Button>Click me</Button>)
+    expect(screen.getByText('Click me')).toBeInTheDocument()
+  })
+
+  it('applies correct CSS classes', () => {
+    render(<Button variant="secondary">Test</Button>)
+    const button = screen.getByTestId('button')
+    expect(button).toHaveClass('btn', 'btn--secondary')
+  })
+
+  it('handles click events', async () => {
+    const handleClick = vi.fn()
+    const user = userEvent.setup()
+
+    render(<Button onClick={handleClick}>Click me</Button>)
+
+    await user.click(screen.getByText('Click me'))
+    expect(handleClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('respects disabled state', async () => {
+    const handleClick = vi.fn()
+    const user = userEvent.setup()
+
+    render(
+      <Button onClick={handleClick} disabled>
+        Disabled
+      </Button>
+    )
+
+    const button = screen.getByTestId('button')
+    expect(button).toBeDisabled()
+
+    await user.click(button)
+    expect(handleClick).not.toHaveBeenCalled()
+  })
+})

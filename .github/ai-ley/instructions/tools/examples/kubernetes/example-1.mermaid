@@ -1,0 +1,48 @@
+graph TB
+    subgraph "Enterprise Kubernetes Platform"
+        subgraph "Control Plane"
+            API[API Server + RBAC]
+            ETCD[ETCD Cluster]
+            SCHED[Scheduler]
+            CM[Controller Manager]
+        end
+
+        subgraph "Security Layer"
+            OPA[OPA Gatekeeper]
+            PSS[Pod Security Standards]
+            NP[Network Policies]
+            FALCO[Falco Runtime Security]
+        end
+
+        subgraph "Service Mesh"
+            ISTIO[Istio Control Plane]
+            ENVOY[Envoy Proxies]
+            GATEWAY[Istio Gateway]
+        end
+
+        subgraph "GitOps"
+            ARGO[ArgoCD]
+            FLUX[Flux]
+            GIT[Git Repositories]
+        end
+
+        subgraph "Observability"
+            PROM[Prometheus]
+            GRAF[Grafana]
+            JAEGER[Jaeger]
+            LOKI[Loki]
+        end
+
+        subgraph "Workload Nodes"
+            APPS[Applications]
+            SERVICES[Services]
+            STORAGE[Persistent Storage]
+        end
+    end
+
+    API --> OPA
+    OPA --> PSS
+    ISTIO --> ENVOY
+    ARGO --> GIT
+    PROM --> GRAF
+    APPS --> SERVICES

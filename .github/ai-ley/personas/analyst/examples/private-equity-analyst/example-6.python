@@ -1,0 +1,167 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from datetime import datetime, timedelta
+
+class IndustryAnalysis:
+    def __init__(self, industry_data):
+        self.data = industry_data
+        self.metrics = {}
+
+    def market_sizing_analysis(self):
+        """Analyze total addressable market and growth trends"""
+        market_data = self.data['market_size']
+
+        # Calculate CAGR
+        years = len(market_data)
+        cagr = (market_data.iloc[-1] / market_data.iloc[0]) ** (1/years) - 1
+
+        # Growth trend analysis
+        growth_rates = market_data.pct_change().dropna()
+        avg_growth = growth_rates.mean()
+        volatility = growth_rates.std()
+
+        return {
+            'market_size_current': market_data.iloc[-1],
+            'cagr': cagr,
+            'avg_growth': avg_growth,
+            'growth_volatility': volatility,
+            'trend': 'accelerating' if growth_rates.tail(3).mean() > avg_growth else 'decelerating'
+        }
+
+    def competitive_landscape(self):
+        """Analyze competitive dynamics and market concentration"""
+        competitors = self.data['competitors']
+
+        # Market share analysis
+        market_shares = competitors.groupby('company')['revenue'].sum()
+        total_market = market_shares.sum()
+        share_pct = (market_shares / total_market * 100).sort_values(ascending=False)
+
+        # HHI calculation
+        hhi = (share_pct ** 2).sum()
+
+        # Identify market leaders
+        top_3_share = share_pct.head(3).sum()
+
+        return {
+            'market_leaders': share_pct.head(5).to_dict(),
+            'hhi_index': hhi,
+            'top_3_concentration': top_3_share,
+            'market_structure': self._classify_market_structure(hhi),
+            'competitive_intensity': 'High' if hhi < 1500 else 'Medium' if hhi < 2500 else 'Low'
+        }
+
+    def profitability_benchmarking(self):
+        """Benchmark profitability metrics across industry players"""
+        financials = self.data['financial_metrics']
+
+        # Calculate key metrics
+        metrics = {
+            'gross_margin': financials['gross_profit'] / financials['revenue'],
+            'ebitda_margin': financials['ebitda'] / financials['revenue'],
+            'operating_margin': financials['operating_income'] / financials['revenue'],
+            'roc': financials['operating_income'] / financials['invested_capital'],
+            'roe': financials['net_income'] / financials['shareholders_equity']
+        }
+
+        # Percentile analysis
+        benchmarks = {}
+        for metric, values in metrics.items():
+            benchmarks[metric] = {
+                'median': values.median(),
+                'top_quartile': values.quantile(0.75),
+                'top_decile': values.quantile(0.90),
+                'bottom_quartile': values.quantile(0.25)
+            }
+
+        return benchmarks
+
+    def cyclicality_assessment(self):
+        """Assess industry cyclicality and economic sensitivity"""
+        revenue_data = self.data['historical_revenue']
+        gdp_data = self.data['gdp_data']
+
+        # Calculate correlation with GDP
+        correlation = revenue_data.corrwith(gdp_data)
+
+        # Volatility analysis
+        revenue_volatility = revenue_data.std() / revenue_data.mean()
+
+        # Peak-to-trough analysis
+        peaks = revenue_data.rolling(window=3).max()
+        troughs = revenue_data.rolling(window=3).min()
+        max_drawdown = ((troughs - peaks) / peaks).min()
+
+        return {
+            'gdp_correlation': correlation.mean(),
+            'revenue_volatility': revenue_volatility,
+            'max_drawdown': max_drawdown,
+            'cyclical_classification': self._classify_cyclicality(correlation.mean(), revenue_volatility)
+        }
+
+    def _classify_market_structure(self, hhi):
+        if hhi < 1500:
+            return 'Competitive'
+        elif hhi < 2500:
+            return 'Moderately Concentrated'
+        else:
+            return 'Highly Concentrated'
+
+    def _classify_cyclicality(self, correlation, volatility):
+        if correlation > 0.7 and volatility > 0.15:
+            return 'Highly Cyclical'
+        elif correlation > 0.4 or volatility > 0.10:
+            return 'Moderately Cyclical'
+        else:
+            return 'Defensive'
+
+    def generate_investment_implications(self):
+        """Generate strategic implications for private equity investment"""
+        market_analysis = self.market_sizing_analysis()
+        competitive_analysis = self.competitive_landscape()
+        profitability_analysis = self.profitability_benchmarking()
+        cyclicality_analysis = self.cyclicality_assessment()
+
+        implications = []
+
+        # Market growth implications
+        if market_analysis['cagr'] > 0.10:
+            implications.append("Strong market tailwinds support revenue growth strategies")
+        elif market_analysis['cagr'] < 0.02:
+            implications.append("Slow market growth requires focus on market share gains")
+
+        # Competitive implications
+        if competitive_analysis['competitive_intensity'] == 'High':
+            implications.append("Fragmented market presents roll-up opportunities")
+        else:
+            implications.append("Concentrated market requires differentiation strategies")
+
+        # Profitability implications
+        ebitda_median = profitability_analysis['ebitda_margin']['median']
+        if ebitda_median > 0.20:
+            implications.append("High-margin industry supports premium valuations")
+
+        # Cyclicality implications
+        if cyclicality_analysis['cyclical_classification'] == 'Highly Cyclical':
+            implications.append("Timing and cycle positioning critical for entry/exit")
+
+        return implications
+
+# Usage example
+def analyze_target_industry(company_data):
+    """Comprehensive industry analysis for PE investment evaluation"""
+
+    analyzer = IndustryAnalysis(company_data)
+
+    # Generate comprehensive analysis
+    analysis_results = {
+        'market_dynamics': analyzer.market_sizing_analysis(),
+        'competitive_position': analyzer.competitive_landscape(),
+        'profitability_benchmarks': analyzer.profitability_benchmarking(),
+        'cyclicality_profile': analyzer.cyclicality_assessment(),
+        'investment_implications': analyzer.generate_investment_implications()
+    }
+
+    return analysis_results

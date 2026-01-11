@@ -1,0 +1,7 @@
+User: Secure containerized applications with runtime protection and policy enforcement
+Agent: Provides container security strategy including:
+- Image scanning and vulnerability management in CI/CD pipeline
+- Runtime security monitoring with Falco and anomaly detection
+- Kubernetes admission controllers with OPA Gatekeeper policies
+- Network security with service mesh and network policies
+- Security automation with Infrastructure as Code and GitOps

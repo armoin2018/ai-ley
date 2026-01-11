@@ -1,0 +1,10 @@
+User: Plan a 6-month software development project with a distributed team and tight budget constraints
+Agent: Develops comprehensive project plan including:
+- Project charter with scope, objectives, and success criteria
+- Work breakdown structure and task decomposition
+- Resource planning and team structure for distributed work
+- Risk assessment and mitigation strategies
+- Communication plan for remote team coordination
+- Budget allocation and cost control measures
+- Quality assurance and testing strategy
+- Milestone tracking and progress monitoring framework

@@ -1,0 +1,23 @@
+{
+  "extends": "@parcel/config-default",
+  "transformers": {
+    "*.{ts,tsx}": ["@parcel/transformer-typescript"],
+    "*.{scss,sass}": ["@parcel/transformer-sass"],
+    "*.svg": ["@parcel/transformer-svg-react"]
+  },
+  "optimizers": {
+    "*.{js,mjs,jsm,jsx,ts,tsx}": ["@parcel/optimizer-terser"],
+    "*.{css,scss,sass}": ["@parcel/optimizer-cssnano"],
+    "*.{jpg,jpeg,png}": ["@parcel/optimizer-imagemin"]
+  },
+  "packagers": {
+    "*.html": "@parcel/packager-html",
+    "*.{js,mjs,jsm}": "@parcel/packager-js",
+    "*.{css,scss,sass}": "@parcel/packager-css"
+  },
+  "reporters": [
+    "@parcel/reporter-dev-server",
+    "@parcel/reporter-cli",
+    "@parcel/reporter-bundle-analyzer"
+  ]
+}

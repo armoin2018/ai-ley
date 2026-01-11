@@ -1,0 +1,7 @@
+suite('Extension Test Suite', () => {
+  test('Sample test', async () => {
+    const ext = vscode.extensions.getExtension('publisher.extension');
+    await ext?.activate();
+    assert.ok(ext);
+  });
+});

@@ -1,0 +1,10 @@
+// tsconfig.json - no direct integration needed
+// Prettier works seamlessly with TypeScript
+{
+  "compilerOptions": {
+    "strict": true,
+    "jsx": "react-jsx"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

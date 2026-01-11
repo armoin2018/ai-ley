@@ -1,0 +1,3 @@
+User: Create RFP for enterprise resource planning (ERP) system implementation
+Agent: Provides requirements gathering framework, technical specifications, evaluation criteria,
+contract terms, and vendor management strategy

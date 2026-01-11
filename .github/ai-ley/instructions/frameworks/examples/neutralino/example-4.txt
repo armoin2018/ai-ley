@@ -1,0 +1,26 @@
+neutralino-app/
+├── neutralino.config.json   # Neutralino configuration
+├── package.json            # Frontend dependencies
+├── .neutralino.lock        # Lock file for Neutralino
+├── resources/              # Application resources
+│   ├── index.html          # Main HTML file
+│   ├── js/
+│   │   ├── main.js         # Main JavaScript
+│   │   └── neutralino.js   # Neutralino client API
+│   ├── css/
+│   │   └── styles.css      # Application styles
+│   └── icons/              # Application icons
+├── extensions/             # Native extensions (optional)
+│   ├── example/
+│   │   ├── extension.js
+│   │   └── package.json
+│   └── system/
+├── bin/                    # Compiled binaries
+├── dist/                   # Built application
+├── src/                    # Source code (if using build tools)
+│   ├── components/
+│   ├── services/
+│   ├── utils/
+│   └── assets/
+├── scripts/                # Build and deployment scripts
+└── docs/                   # Documentation

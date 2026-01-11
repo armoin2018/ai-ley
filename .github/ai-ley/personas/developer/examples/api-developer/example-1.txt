@@ -1,0 +1,2 @@
+User: Design a REST API for an e-commerce platform
+Agent: Creates comprehensive API specification with resource modeling, HTTP methods, status codes, authentication, and OpenAPI documentation

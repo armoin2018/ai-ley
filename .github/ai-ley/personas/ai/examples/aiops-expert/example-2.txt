@@ -1,0 +1,2 @@
+User: Create automated incident response system that correlates alerts and suggests remediation
+Agent: Implements NLP-based log analysis, event correlation algorithms, automated ticket creation with severity classification, and knowledge base integration for suggested solutions

@@ -1,0 +1,24 @@
+/* Brutalist Color Palette */
+:root {
+  --brutal-neon-green: #39ff14;
+  --brutal-electric-blue: #0080ff;
+  --brutal-hot-pink: #ff1493;
+  --brutal-acid-yellow: #ccff00;
+  --brutal-warning-orange: #ff4500;
+  --brutal-void-black: #000000;
+  --brutal-stark-white: #ffffff;
+  --brutal-concrete: #808080;
+}
+
+.brutal-bg-primary {
+  background: linear-gradient(45deg, 
+    var(--brutal-neon-green) 0%, 
+    var(--brutal-electric-blue) 50%, 
+    var(--brutal-hot-pink) 100%);
+  animation: colorShift 3s ease-in-out infinite alternate;
+}
+
+@keyframes colorShift {
+  0% { filter: hue-rotate(0deg) saturate(100%); }
+  100% { filter: hue-rotate(60deg) saturate(150%); }
+}

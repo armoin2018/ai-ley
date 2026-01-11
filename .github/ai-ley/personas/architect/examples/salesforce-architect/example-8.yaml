@@ -1,0 +1,38 @@
+security_compliance:
+  access_management:
+    principle_of_least_privilege:
+      - role_based_access_with_profiles
+      - permission_sets_for_additional_access
+      - regular_access_reviews_and_cleanup
+      
+    data_classification:
+      - field_level_security_for_sensitive_data
+      - platform_encryption_for_pii
+      - custom_settings_for_security_configuration
+      
+  compliance_frameworks:
+    gdpr_compliance:
+      - data_subject_access_requests
+      - right_to_be_forgotten_implementation
+      - data_processing_consent_tracking
+      
+    hipaa_compliance:
+      - business_associate_agreement
+      - phi_data_encryption
+      - audit_trail_maintenance
+      
+    sox_compliance:
+      - segregation_of_duties
+      - change_management_controls
+      - financial_data_access_controls
+      
+  security_monitoring:
+    login_forensics:
+      - suspicious_login_detection
+      - ip_range_restrictions
+      - two_factor_authentication_enforcement
+      
+    data_loss_prevention:
+      - data_export_monitoring
+      - email_attachment_scanning
+      - api_usage_anomaly_detection

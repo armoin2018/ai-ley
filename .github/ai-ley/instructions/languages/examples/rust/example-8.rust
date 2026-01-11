@@ -1,0 +1,29 @@
+use std::hint::black_box;
+
+// Efficient data processing with iterators
+fn process_large_dataset(data: &[DataItem]) -> Vec<ProcessedItem> {
+    data.par_iter() // Use rayon for parallel processing
+        .filter(|item| item.is_valid())
+        .map(|item| item.process())
+        .collect()
+}
+
+// Benchmark critical functions
+#[cfg(test)]
+mod benches {
+    use super::*;
+    use criterion::{criterion_group, criterion_main, Criterion};
+    
+    fn benchmark_process_dataset(c: &mut Criterion) {
+        let data: Vec<DataItem> = (0..1000)
+            .map(|i| DataItem::new(i))
+            .collect();
+        
+        c.bench_function("process_dataset", |b| {
+            b.iter(|| black_box(process_large_dataset(black_box(&data))))
+        });
+    }
+    
+    criterion_group!(benches, benchmark_process_dataset);
+    criterion_main!(benches);
+}

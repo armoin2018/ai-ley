@@ -1,0 +1,26 @@
+gatsby-site/
+├── src/
+│   ├── components/          # React components
+│   │   ├── layout.tsx      # Layout components
+│   │   ├── seo.tsx         # SEO component
+│   │   └── header.tsx      # Header component
+│   ├── pages/              # Page components (auto-routing)
+│   │   ├── index.tsx       # Homepage
+│   │   ├── about.tsx       # About page
+│   │   └── 404.tsx         # 404 page
+│   ├── templates/          # Page templates
+│   │   ├── blog-post.tsx   # Blog post template
+│   │   └── product.tsx     # Product template
+│   ├── hooks/              # Custom React hooks
+│   ├── utils/              # Utility functions
+│   ├── styles/             # Global styles
+│   └── images/             # Static images
+├── content/                # Markdown/MDX content
+│   ├── blog/              # Blog posts
+│   └── pages/             # Content pages
+├── static/                 # Static assets
+├── gatsby-config.js       # Gatsby configuration
+├── gatsby-node.js         # Node.js APIs
+├── gatsby-browser.js      # Browser APIs
+├── gatsby-ssr.js          # Server-side rendering APIs
+└── package.json

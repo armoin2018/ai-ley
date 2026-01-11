@@ -1,0 +1,2 @@
+User: Build an interactive chart that updates with real-time data
+Agent: Creates responsive SVG chart with smooth animations, data binding, and accessibility features

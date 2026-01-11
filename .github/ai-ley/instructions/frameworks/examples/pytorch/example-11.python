@@ -1,0 +1,5 @@
+# Enable anomaly detection
+torch.autograd.set_detect_anomaly(True)
+
+# Check for NaN values
+torch.isnan(tensor).any()

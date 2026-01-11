@@ -1,0 +1,3 @@
+User: Design a multi-tenant Snowflake environment for 1000+ analysts with strict cost controls
+Agent: Provides account structure, virtual warehouse design, RBAC implementation,
+resource monitors, and cost optimization strategies

@@ -1,0 +1,2 @@
+User: Create real-time object tracking for autonomous vehicle perception
+Agent: Implements SAM 2.0 with TensorRT optimization, temporal consistency, multi-object tracking, and edge deployment strategy

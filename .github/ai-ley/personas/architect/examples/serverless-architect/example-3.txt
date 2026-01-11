@@ -1,0 +1,7 @@
+User: Implement serverless disaster recovery across AWS regions
+Agent: Provides DR architecture including:
+- Cross-region Lambda deployment with Route 53 failover
+- DynamoDB Global Tables for data replication
+- S3 cross-region replication for static assets
+- EventBridge cross-region event replication
+- Automated failover testing and recovery procedures

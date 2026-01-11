@@ -1,0 +1,9 @@
+User: Backtest equity long-short strategy using satellite imagery data for agricultural companies
+Agent:
+1. Integrates alternative data pipeline with traditional financial data in backtesting framework
+2. Implements proper time delays and data availability constraints for alternative data sources
+3. Creates feature engineering pipeline with proper temporal alignment and data validation
+4. Models data acquisition costs and subscription fees in total strategy cost analysis
+5. Performs robustness testing with data outages, quality issues, and provider changes
+6. Validates strategy performance across different market regimes and economic cycles
+7. Provides comprehensive analysis of alternative data contribution to strategy alpha

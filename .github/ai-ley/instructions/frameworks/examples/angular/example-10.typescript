@@ -1,0 +1,50 @@
+// user-card.component.spec.ts
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
+import { UserCardComponent } from './user-card.component';
+
+describe('UserCardComponent', () => {
+  let component: UserCardComponent;
+  let fixture: ComponentFixture<UserCardComponent>;
+
+  const mockUser = {
+    id: 1,
+    name: 'John Doe',
+    email: 'john@example.com',
+    avatar: '/avatar.jpg',
+  };
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [UserCardComponent],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(UserCardComponent);
+    component = fixture.componentInstance;
+
+    // Set input signals
+    fixture.componentRef.setInput('user', mockUser);
+    fixture.componentRef.setInput('loading', false);
+
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should display user information', () => {
+    const compiled = fixture.nativeElement;
+    expect(compiled.querySelector('h3').textContent).toContain('John Doe');
+    expect(compiled.querySelector('p').textContent).toContain('john@example.com');
+  });
+
+  it('should emit edit event when button clicked', () => {
+    spyOn(component.edit, 'emit');
+
+    const button = fixture.nativeElement.querySelector('button');
+    button.click();
+
+    expect(component.edit.emit).toHaveBeenCalledWith(mockUser);
+  });
+});

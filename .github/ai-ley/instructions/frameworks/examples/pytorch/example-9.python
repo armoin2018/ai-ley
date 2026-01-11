@@ -1,0 +1,5 @@
+# Reduce batch size
+batch_size = 16
+
+# Clear cache periodically
+torch.cuda.empty_cache()

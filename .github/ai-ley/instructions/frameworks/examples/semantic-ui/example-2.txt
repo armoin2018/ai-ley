@@ -1,0 +1,10 @@
+project-root/
+├── src/
+│   ├── semantic/
+│   │   ├── dist/           # Compiled CSS/JS
+│   │   ├── src/            # Source files for customization
+│   │   └── tasks/          # Build tasks
+│   ├── components/         # Custom components
+│   └── pages/
+├── semantic.json           # Configuration
+└── gulpfile.js            # Build configuration

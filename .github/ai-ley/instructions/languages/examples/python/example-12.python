@@ -1,0 +1,60 @@
+# ❌ Bad: Mutable default arguments
+def process_items(items, processed=[]):  # DON'T DO THIS
+    processed.append(len(items))
+    return processed
+
+# ✅ Good: Use None and create new instance
+def process_items(items: List[Any], processed: Optional[List[int]] = None) -> List[int]:
+    if processed is None:
+        processed = []
+    processed.append(len(items))
+    return processed
+
+# ❌ Bad: Catching all exceptions
+try:
+    risky_operation()
+except:  # DON'T DO THIS
+    pass
+
+# ✅ Good: Catch specific exceptions
+try:
+    risky_operation()
+except (ValueError, TypeError) as e:
+    logger.error(f"Operation failed: {e}")
+    raise
+
+# ❌ Bad: Using string concatenation in loops
+result = ""
+for item in items:
+    result += str(item)  # DON'T DO THIS
+
+# ✅ Good: Use join for string concatenation
+result = "".join(str(item) for item in items)
+
+# ❌ Bad: Modifying list while iterating
+for item in items:
+    if should_remove(item):
+        items.remove(item)  # DON'T DO THIS
+
+# ✅ Good: Create new list or iterate backwards
+items = [item for item in items if not should_remove(item)]
+# OR
+for i in range(len(items) - 1, -1, -1):
+    if should_remove(items[i]):
+        del items[i]
+
+# ❌ Bad: Using global variables
+config = {}  # DON'T DO THIS
+
+def get_setting(key):
+    return config.get(key)
+
+# ✅ Good: Use dependency injection or configuration class
+@dataclass
+class Config:
+    database_url: str
+    api_key: str
+    debug: bool = False
+
+def get_setting(config: Config, key: str) -> Any:
+    return getattr(config, key, None)

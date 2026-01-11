@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://api.example.com/schemas/product.json",
+  "title": "Product",
+  "description": "An e-commerce product",
+  "type": "object",
+  "required": ["id", "name", "price", "status"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}-\\d{6}$",
+      "description": "Unique product identifier"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Product display name"
+    },
+    "description": {
+      "type": ["string", "null"],
+      "maxLength": 2000,
+      "description": "Product description"
+    },
+    "price": {
+      "type": "object",
+      "required": ["amount", "currency"],
+      "properties": {
+        "amount": {
+          "type": "number",
+          "minimum": 0,
+          "multipleOf": 0.01
+        },
+        "currency": {
+          "type": "string",
+          "enum": ["USD", "EUR", "GBP", "JPY"]
+        }
+      }
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "attributes": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z_][a-z0-9_]*$": {
+          "type": ["string", "number", "boolean"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "inactive", "discontinued"]
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

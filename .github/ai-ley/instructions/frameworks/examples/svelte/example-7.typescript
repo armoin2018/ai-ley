@@ -1,0 +1,53 @@
+// stores/user.ts
+import { writable, derived } from 'svelte/store';
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: 'admin' | 'user';
+}
+
+// Writable stores
+export const users = writable<User[]>([]);
+export const currentUser = writable<User | null>(null);
+export const loading = writable(false);
+export const error = writable<string | null>(null);
+
+// Derived stores
+export const userCount = derived(users, ($users) => $users.length);
+export const adminUsers = derived(users, ($users) => 
+  $users.filter(user => user.role === 'admin')
+);
+export const isAuthenticated = derived(currentUser, ($currentUser) => 
+  $currentUser !== null
+);
+
+// Store actions
+export const userActions = {
+  async fetchUsers() {
+    loading.set(true);
+    error.set(null);
+    try {
+      const response = await fetch('/api/users');
+      if (!response.ok) throw new Error('Failed to fetch users');
+      const data = await response.json();
+      users.set(data);
+    } catch (err) {
+      error.set(err instanceof Error ? err.message : 'Unknown error');
+    } finally {
+      loading.set(false);
+    }
+  },
+  
+  addUser(newUser: Omit<User, 'id'>) {
+    users.update(($users) => [
+      ...$users,
+      { ...newUser, id: Date.now() }
+    ]);
+  },
+  
+  removeUser(id: number) {
+    users.update(($users) => $users.filter(user => user.id !== id));
+  }
+};

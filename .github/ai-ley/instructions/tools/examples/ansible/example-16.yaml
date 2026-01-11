@@ -1,0 +1,60 @@
+# roles/monitoring.elasticsearch/tasks/main.yml - Elasticsearch deployment
+---
+- name: Add Elasticsearch repository key
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Add Elasticsearch repository
+  apt_repository:
+    repo: "deb https://artifacts.elastic.co/packages/8.x/apt stable main"
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Install Elasticsearch
+  package:
+    name: elasticsearch
+    state: present
+
+- name: Configure Elasticsearch
+  template:
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+    backup: true
+  notify: restart elasticsearch
+
+- name: Configure Elasticsearch JVM options
+  template:
+    src: jvm.options.j2
+    dest: /etc/elasticsearch/jvm.options.d/heap.options
+  notify: restart elasticsearch
+
+- name: Start and enable Elasticsearch
+  systemd:
+    name: elasticsearch
+    state: started
+    enabled: true
+
+- name: Wait for Elasticsearch to start
+  wait_for:
+    port: 9200
+    delay: 30
+
+- name: Configure Elasticsearch index templates
+  uri:
+    url: "http://localhost:9200/_index_template/{{ item.name }}"
+    method: PUT
+    body_format: json
+    body: "{{ item.template }}"
+    status_code: [200, 201]
+  loop: "{{ elasticsearch_index_templates }}"
+
+- name: Configure Elasticsearch index lifecycle policies
+  uri:
+    url: "http://localhost:9200/_ilm/policy/{{ item.name }}"
+    method: PUT
+    body_format: json
+    body: "{{ item.policy }}"
+    status_code: [200, 201]
+  loop: "{{ elasticsearch_ilm_policies }}"

@@ -1,0 +1,11 @@
+Go-Kit Deployment:
+□ HF Transceiver (battery/AC capable)
+□ VHF/UHF Handheld and mobile radios
+□ Antenna tuner and SWR meter
+□ Portable antennas (HF dipole, VHF/UHF vertical)
+□ Battery system (sealed lead-acid, lithium)
+□ Solar panel and charge controller
+□ Coax cables, adapters, and tools
+□ Logging materials and message forms
+□ Emergency power cords and extension cables
+□ Personal supplies (72-hour minimum)

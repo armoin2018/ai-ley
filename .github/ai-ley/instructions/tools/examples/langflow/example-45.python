@@ -1,0 +1,54 @@
+# SEO-optimized content generation
+seo_workflow = {
+    "components": [
+        {
+            "type": "TextInput",
+            "name": "target_keyword"
+        },
+        {
+            "type": "TextInput",
+            "name": "content_brief"
+        },
+        {
+            "type": "OpenAI",
+            "name": "keyword_research",
+            "config": {
+                "model": "gpt-4",
+                "prompt": """
+Generate related keywords and search intent for: {keyword}
+
+Provide:
+1. Primary keywords (3-5)
+2. Long-tail keywords (5-10)
+3. Semantic keywords (5-8)
+4. Search intent analysis
+5. Competitor analysis suggestions
+                """,
+                "temperature": 0.3
+            }
+        },
+        {
+            "type": "OpenAI",
+            "name": "content_generator",
+            "config": {
+                "model": "gpt-4",
+                "prompt": """
+Create SEO-optimized content based on:
+
+Target Keyword: {keyword}
+Content Brief: {brief}
+Keyword Research: {keyword_research}
+
+Requirements:
+- 1500-2000 words
+- Keyword density 1-2%
+- H1, H2, H3 structure
+- Meta title (60 chars)
+- Meta description (160 chars)
+- Internal linking suggestions
+                """,
+                "temperature": 0.6
+            }
+        }
+    ]
+}

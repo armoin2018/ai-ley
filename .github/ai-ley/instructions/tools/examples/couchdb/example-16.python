@@ -1,0 +1,36 @@
+def optimize_view_performance():
+    """Tips for optimizing view performance."""
+
+    # Use built-in reduce functions when possible
+    optimized_view = {
+        'by_status': {
+            'map': '''
+            function(doc) {
+                if (doc.type === 'order') {
+                    emit(doc.status, 1);
+                }
+            }
+            ''',
+            'reduce': '_count'  # Built-in reduce function
+        }
+    }
+
+    # Create compound keys for complex queries
+    compound_key_view = {
+        'by_date_and_status': {
+            'map': '''
+            function(doc) {
+                if (doc.type === 'order') {
+                    emit([doc.created_date, doc.status], doc);
+                }
+            }
+            '''
+        }
+    }
+
+    return {
+        'optimized_views': {
+            'orders': optimized_view,
+            'complex_queries': compound_key_view
+        }
+    }

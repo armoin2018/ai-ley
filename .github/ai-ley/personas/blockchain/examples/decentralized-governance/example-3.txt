@@ -1,0 +1,8 @@
+User: Create a governance system that works across multiple blockchain networks
+Agent: Provides multi-chain governance solution including:
+- Cross-chain message passing for synchronized voting across networks
+- Token bridge integration for unified governance token representation
+- Layer 2 voting with mainnet execution for gas optimization
+- Multi-chain treasury management with cross-chain fund transfers
+- Governance relayer network for proposal execution across chains
+- Security mechanisms for cross-chain governance attacks

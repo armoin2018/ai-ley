@@ -1,0 +1,13 @@
+/* Avoid overly specific selectors */
+body div.container ul.navigation li.nav-item a.nav-link {
+  color: blue !important; /* Avoid !important */
+}
+
+/* Avoid inefficient selectors */
+* {
+  box-sizing: border-box; /* Too broad */
+}
+
+.content > div > p > span {
+  font-weight: bold; /* Too specific */
+}

@@ -1,0 +1,8 @@
+User: Build an ERC-721 contract with metadata generation and royalty support
+Agent: Provides complete implementation including:
+- Gas-optimized ERC-721 using ERC721A pattern for batch minting
+- On-chain metadata generation with Base64 encoding
+- ERC-2981 royalty standard implementation
+- Comprehensive test suite with Foundry
+- Gas optimization analysis and storage layout planning
+- Deployment script with verify commands

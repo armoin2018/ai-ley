@@ -1,0 +1,36 @@
+web/
+  modules/
+    custom/
+      my_module/
+        src/
+          Controller/
+          Entity/
+          Form/
+          Plugin/
+          Service/
+        templates/
+        js/
+        config/
+          install/
+          schema/
+        my_module.info.yml
+        my_module.module
+        my_module.routing.yml
+        my_module.services.yml
+        my_module.libraries.yml
+  themes/
+    custom/
+      my_theme/
+        src/
+        templates/
+        css/
+        js/
+        images/
+        my_theme.info.yml
+        my_theme.theme
+        my_theme.libraries.yml
+config/
+  sync/
+    core.entity_form_display.*
+    core.entity_view_display.*
+    views.view.*

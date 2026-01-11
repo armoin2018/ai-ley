@@ -1,0 +1,93 @@
+# velero-disaster-recovery.yaml - Comprehensive backup and disaster recovery
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: velero
+---
+apiVersion: velero.io/v1
+kind: BackupStorageLocation
+metadata:
+  name: aws-backup-location
+  namespace: velero
+spec:
+  provider: aws
+  objectStorage:
+    bucket: company-k8s-backups
+    prefix: production-cluster
+  config:
+    region: us-west-2
+    s3ForcePathStyle: 'false'
+---
+apiVersion: velero.io/v1
+kind: VolumeSnapshotLocation
+metadata:
+  name: aws-snapshot-location
+  namespace: velero
+spec:
+  provider: aws
+  config:
+    region: us-west-2
+---
+# Scheduled backup for critical namespaces
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: production-daily-backup
+  namespace: velero
+spec:
+  schedule: '0 1 * * *' # Daily at 1 AM
+  template:
+    includedNamespaces:
+      - production
+      - monitoring
+      - istio-system
+    excludedResources:
+      - pods
+      - replicasets
+    includedClusterResources:
+      - clusterroles
+      - clusterrolebindings
+      - customresourcedefinitions
+    storageLocation: aws-backup-location
+    volumeSnapshotLocations:
+      - aws-snapshot-location
+    ttl: 168h0m0s # 7 days retention
+    hooks:
+      resources:
+        - name: postgres-backup-hook
+          includedNamespaces:
+            - production
+          includedResources:
+            - pods
+          labelSelector:
+            matchLabels:
+              app: postgresql
+          pre:
+            - exec:
+                container: postgresql
+                command:
+                  - /bin/bash
+                  - -c
+                  - pg_dump -U postgres mydb > /tmp/backup.sql
+                onError: Continue
+          post:
+            - exec:
+                container: postgresql
+                command:
+                  - rm
+                  - /tmp/backup.sql
+---
+# Weekly full cluster backup
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: full-cluster-weekly-backup
+  namespace: velero
+spec:
+  schedule: '0 2 * * 0' # Weekly on Sunday at 2 AM
+  template:
+    defaultVolumesToRestic: true
+    storageLocation: aws-backup-location
+    volumeSnapshotLocations:
+      - aws-snapshot-location
+    ttl: 720h0m0s # 30 days retention

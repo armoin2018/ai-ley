@@ -1,0 +1,2 @@
+User: Extract text from historical documents in Arabic, Chinese, and English
+Agent: Implements Surya + TrOCR pipeline with language detection, proper Unicode handling, and specialized preprocessing for historical document conditions

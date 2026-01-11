@@ -1,0 +1,33 @@
+# .github/workflows/ci.yml - GitHub Actions example
+name: CI/CD Pipeline
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history for better Git operations
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+      - name: Create Release
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "CI Bot"
+          git config user.email "ci@example.com"
+          npm version patch
+          git push --follow-tags

@@ -1,0 +1,169 @@
+class MomentumStrategy:
+    """Example momentum-based trading strategy."""
+    
+    def __init__(self, alpaca_client, symbols, lookback_period=20, momentum_threshold=0.02):
+        self.api = alpaca_client.api
+        self.symbols = symbols
+        self.lookback_period = lookback_period
+        self.momentum_threshold = momentum_threshold
+        
+        self.market_data = MarketDataManager(alpaca_client)
+        self.order_manager = OrderManager(alpaca_client)
+        self.portfolio_manager = PortfolioManager(alpaca_client)
+        
+        self.signals = {}
+        self.active_trades = {}
+    
+    def calculate_momentum(self, symbol):
+        """Calculate momentum signal for a symbol."""
+        try:
+            # Get historical data
+            end_date = datetime.now()
+            start_date = end_date - timedelta(days=self.lookback_period * 2)
+            
+            df = self.market_data.get_historical_data(
+                symbol, 
+                timeframe='1Day',
+                start=start_date,
+                end=end_date,
+                limit=self.lookback_period + 10
+            )
+            
+            if df is None or len(df) < self.lookback_period:
+                return None
+            
+            # Calculate momentum indicators
+            df = df[df['symbol'] == symbol].copy()
+            df['sma_short'] = df['close'].rolling(window=5).mean()
+            df['sma_long'] = df['close'].rolling(window=self.lookback_period).mean()
+            df['momentum'] = (df['close'] - df['close'].shift(self.lookback_period)) / df['close'].shift(self.lookback_period)
+            
+            latest = df.iloc[-1]
+            
+            signal = {
+                'symbol': symbol,
+                'momentum': latest['momentum'],
+                'sma_short': latest['sma_short'],
+                'sma_long': latest['sma_long'],
+                'current_price': latest['close'],
+                'signal_strength': 0
+            }
+            
+            # Generate trading signal
+            if (latest['momentum'] > self.momentum_threshold and 
+                latest['sma_short'] > latest['sma_long']):
+                signal['signal_strength'] = 1  # Buy signal
+            elif (latest['momentum'] < -self.momentum_threshold and 
+                  latest['sma_short'] < latest['sma_long']):
+                signal['signal_strength'] = -1  # Sell signal
+            
+            return signal
+            
+        except Exception as e:
+            logging.error(f"Error calculating momentum for {symbol}: {e}")
+            return None
+    
+    def execute_strategy(self):
+        """Execute trading strategy based on signals."""
+        try:
+            # Update portfolio state
+            self.portfolio_manager.update_positions()
+            
+            # Calculate signals for all symbols
+            for symbol in self.symbols:
+                signal = self.calculate_momentum(symbol)
+                if signal is None:
+                    continue
+                
+                self.signals[symbol] = signal
+                
+                # Check for trade opportunities
+                if signal['signal_strength'] == 1:  # Buy signal
+                    self._handle_buy_signal(signal)
+                elif signal['signal_strength'] == -1:  # Sell signal
+                    self._handle_sell_signal(signal)
+            
+            # Check exit conditions for existing trades
+            self._check_exit_conditions()
+            
+        except Exception as e:
+            logging.error(f"Error executing strategy: {e}")
+    
+    def _handle_buy_signal(self, signal):
+        """Handle buy signal."""
+        symbol = signal['symbol']
+        current_price = signal['current_price']
+        
+        # Check if already have position
+        if symbol in self.portfolio_manager.positions:
+            logging.info(f"Already have position in {symbol}")
+            return
+        
+        # Calculate position size
+        stop_loss_price = current_price * 0.95  # 5% stop loss
+        position_size = self.portfolio_manager.calculate_position_size(
+            symbol, current_price, stop_loss_price
+        )
+        
+        if position_size <= 0:
+            logging.info(f"Position size too small for {symbol}")
+            return
+        
+        # Check risk limits
+        if not self.portfolio_manager.check_risk_limits(symbol, position_size, current_price):
+            logging.warning(f"Risk limits exceeded for {symbol}")
+            return
+        
+        # Place bracket order
+        take_profit_price = current_price * 1.10  # 10% take profit
+        
+        bracket_orders = self.order_manager.place_bracket_order(
+            symbol=symbol,
+            quantity=position_size,
+            side=OrderSide.BUY,
+            entry_price=current_price * 1.001,  # Slight premium for market entry
+            take_profit_price=take_profit_price,
+            stop_loss_price=stop_loss_price
+        )
+        
+        if bracket_orders:
+            self.active_trades[symbol] = {
+                'orders': bracket_orders,
+                'entry_signal': signal,
+                'entry_time': datetime.now()
+            }
+            logging.info(f"Buy order placed for {symbol}: {position_size} shares @ ${current_price:.2f}")
+    
+    def _handle_sell_signal(self, signal):
+        """Handle sell signal."""
+        symbol = signal['symbol']
+        
+        # Check if have position to sell
+        if symbol in self.portfolio_manager.positions:
+            position = self.portfolio_manager.positions[symbol]
+            
+            # Place market sell order
+            order = self.order_manager.place_order(
+                symbol=symbol,
+                quantity=abs(position.quantity),
+                side=OrderSide.SELL,
+                order_type=OrderType.MARKET
+            )
+            
+            if order:
+                logging.info(f"Sell order placed for {symbol}: {position.quantity} shares")
+    
+    def _check_exit_conditions(self):
+        """Check exit conditions for active trades."""
+        for symbol, trade_data in list(self.active_trades.items()):
+            # Check if main order was filled
+            main_order = trade_data['orders']['main_order']
+            updated_order = self.api.get_order(main_order.id)
+            
+            if updated_order.status == 'filled':
+                logging.info(f"Entry order filled for {symbol}")
+                # Keep monitoring until exit orders are filled
+            elif updated_order.status in ['cancelled', 'rejected']:
+                # Remove from active trades
+                del self.active_trades[symbol]
+                logging.info(f"Entry order {updated_order.status} for {symbol}")

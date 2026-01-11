@@ -1,0 +1,32 @@
+# Application Configuration
+[application]
+name = "my-service"
+version = "1.0.0"
+description = "Production service configuration"
+
+[application.server]
+host = "0.0.0.0"
+port = 8080
+workers = 4
+timeout = 30
+
+[application.database]
+url = "postgresql://localhost:5432/mydb"
+pool_size = 10
+connection_timeout = 5
+
+[application.logging]
+level = "info"
+format = "json"
+file = "/var/log/app.log"
+
+# Environment-specific overrides
+[environments.development]
+server.host = "127.0.0.1"
+database.url = "postgresql://localhost:5432/mydb_dev"
+logging.level = "debug"
+
+[environments.production]
+server.workers = 8
+database.pool_size = 20
+logging.file = "/var/log/prod/app.log"

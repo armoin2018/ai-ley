@@ -1,0 +1,2 @@
+User: Configure Jira for 5 Scrum teams with sprint planning and release tracking
+Agent: Creates optimized Scrum project configuration with custom workflows, automated sprint creation, velocity tracking, and integrated reporting dashboards

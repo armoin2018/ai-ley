@@ -1,0 +1,44 @@
+# Vector store health check
+vector_store_diagnostics = {
+    "pinecone": {
+        "check_connection": """
+import pinecone
+
+try:
+    pinecone.init(api_key="your-key", environment="your-env")
+    index = pinecone.Index("your-index")
+    stats = index.describe_index_stats()
+    print(f"Index stats: {stats}")
+    return True
+except Exception as e:
+    print(f"Pinecone connection failed: {e}")
+    return False
+        """,
+        "common_issues": [
+            "API key expired or invalid",
+            "Environment mismatch",
+            "Index not found",
+            "Quota exceeded"
+        ]
+    },
+    "chroma": {
+        "check_connection": """
+import chromadb
+
+try:
+    client = chromadb.Client()
+    collections = client.list_collections()
+    print(f"Available collections: {collections}")
+    return True
+except Exception as e:
+    print(f"Chroma connection failed: {e}")
+    return False
+        """,
+        "common_issues": [
+            "Service not running",
+            "Port conflicts",
+            "Permission issues",
+            "Disk space problems"
+        ]
+    }
+}

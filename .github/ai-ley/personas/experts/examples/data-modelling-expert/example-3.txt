@@ -1,0 +1,2 @@
+User: Create data model for IoT sensor data processing and analytics
+Agent: Designs time-series data model with event schemas, aggregation strategies, partitioning approach, and real-time processing architecture

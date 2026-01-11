@@ -1,0 +1,25 @@
+<!-- Avoid inline styles -->
+<div style="color: red; font-size: 16px;">Content</div>
+
+<!-- Avoid inline scripts -->
+<button onclick="doSomething()">Click me</button>
+
+<!-- Avoid blocking scripts in head -->
+<head>
+  <script src="/assets/js/large-library.js"></script>
+</head>
+
+<!-- Avoid excessive nesting -->
+<div class="wrapper">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <div class="content">
+          <div class="inner">
+            <p>Overly nested content</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

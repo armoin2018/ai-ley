@@ -1,0 +1,53 @@
+import json
+import ijson
+from typing import Iterator, Dict, Any
+
+def process_large_json_stream(file_path: str, processor_func) -> Iterator[Dict[str, Any]]:
+    """
+    Process large JSON files using streaming to minimize memory usage.
+    """
+    try:
+        with open(file_path, 'rb') as file:
+            # Parse JSON objects one at a time
+            parser = ijson.parse(file)
+            current_item = {}
+            path_stack = []
+            
+            for prefix, event, value in parser:
+                if event == 'start_map' and prefix == 'items.item':
+                    current_item = {}
+                elif event == 'end_map' and prefix == 'items.item':
+                    # Process complete item
+                    processed_item = processor_func(current_item)
+                    if processed_item:
+                        yield processed_item
+                    current_item = {}
+                elif prefix.startswith('items.item.') and event in ('string', 'number', 'boolean'):
+                    field_name = prefix.split('.')[-1]
+                    current_item[field_name] = value
+                    
+    except (json.JSONDecodeError, IOError) as e:
+        raise ValueError(f"Error processing JSON file: {str(e)}")
+
+# Usage example
+def transform_product(item: Dict[str, Any]) -> Dict[str, Any]:
+    """Transform and validate product data."""
+    if not item.get('id') or not item.get('name'):
+        return None
+    
+    return {
+        'product_id': item['id'],
+        'display_name': item['name'],
+        'price_cents': int(float(item.get('price', 0)) * 100),
+        'is_active': item.get('status') == 'active',
+        'categories': item.get('categories', []),
+        'metadata': {
+            'processed_at': '2025-08-14T12:00:00Z',
+            'source': 'legacy_import'
+        }
+    }
+
+# Process the file
+for processed_product in process_large_json_stream('large_products.json', transform_product):
+    # Send to database, API, or further processing
+    save_to_database(processed_product)

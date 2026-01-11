@@ -1,0 +1,19 @@
+# Avoid loops
+# Bad
+result = []
+for i in range(len(data)):
+    result.append(data[i] ** 2)
+
+# Good
+result = data ** 2
+
+# Use NumPy functions
+# Bad
+def manual_sum(arr):
+    total = 0
+    for x in arr:
+        total += x
+    return total
+
+# Good
+total = np.sum(arr)

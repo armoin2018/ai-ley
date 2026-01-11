@@ -1,0 +1,30 @@
+import dlt
+from pyspark.sql.functions import *
+
+@dlt.table(
+  comment="Raw sales data ingestion",
+  table_properties={
+    "quality": "bronze"
+  }
+)
+def sales_raw():
+  return (
+    spark.readStream
+      .format("cloudFiles")
+      .option("cloudFiles.format", "json")
+      .load("/mnt/raw/sales")
+  )
+
+@dlt.table(
+  comment="Cleaned sales data",
+  table_properties={
+    "quality": "silver"
+  }
+)
+@dlt.expect("valid_sale_amount", "sale_amount > 0")
+def sales_clean():
+  return (
+    dlt.read("sales_raw")
+      .filter(col("sale_amount") > 0)
+      .withColumn("processed_at", current_timestamp())
+  )

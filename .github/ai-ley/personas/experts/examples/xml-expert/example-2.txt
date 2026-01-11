@@ -1,0 +1,2 @@
+User: Optimize XML processing for 100MB+ documents with memory constraints
+Agent: Implements streaming SAX parser solution with event-driven processing, memory profiling, and performance benchmarks

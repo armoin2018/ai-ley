@@ -1,0 +1,13 @@
+# S3 Cross-Region Replication
+S3BucketReplication:
+  Type: AWS::S3::Bucket
+  Properties:
+    ReplicationConfiguration:
+      Role: !GetAtt ReplicationRole.Arn
+      Rules:
+        - Id: ReplicateEverything
+          Status: Enabled
+          Prefix: ''
+          Destination:
+            Bucket: !Sub 'arn:aws:s3:::${BackupBucket}'
+            StorageClass: STANDARD_IA

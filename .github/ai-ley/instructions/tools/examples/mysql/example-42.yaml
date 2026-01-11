@@ -1,0 +1,265 @@
+# Enterprise MySQL Cluster - Docker Compose Configuration
+version: '3.8'
+
+services:
+  mysql-master:
+    image: mysql:8.0-enterprise
+    container_name: mysql-master
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_REPLICATION_USER: replicator
+      MYSQL_REPLICATION_PASSWORD: ${MYSQL_REPLICATION_PASSWORD}
+    volumes:
+      - mysql-master-data:/var/lib/mysql
+      - ./mysql-config/master.cnf:/etc/mysql/conf.d/master.cnf:ro
+      - ./mysql-scripts:/docker-entrypoint-initdb.d:ro
+    networks:
+      - mysql-cluster
+    command: >
+      --server-id=1
+      --log-bin=mysql-bin
+      --binlog-format=ROW
+      --sync-binlog=1
+      --innodb-flush-log-at-trx-commit=1
+      --innodb-buffer-pool-size=2G
+      --innodb-log-file-size=256M
+      --slow-query-log=1
+      --slow-query-log-file=/var/lib/mysql/slow.log
+      --long-query-time=2
+      --general-log=1
+      --general-log-file=/var/lib/mysql/general.log
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mysql-slave-1:
+    image: mysql:8.0-enterprise
+    container_name: mysql-slave-1
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_REPLICATION_USER: replicator
+      MYSQL_REPLICATION_PASSWORD: ${MYSQL_REPLICATION_PASSWORD}
+    volumes:
+      - mysql-slave-1-data:/var/lib/mysql
+      - ./mysql-config/slave.cnf:/etc/mysql/conf.d/slave.cnf:ro
+    networks:
+      - mysql-cluster
+    depends_on:
+      - mysql-master
+    command: >
+      --server-id=2
+      --relay-log=mysql-relay-bin
+      --read-only=1
+      --innodb-buffer-pool-size=1G
+      --slave-skip-errors=1062,1032
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mysql-slave-2:
+    image: mysql:8.0-enterprise
+    container_name: mysql-slave-2
+    restart: always
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_REPLICATION_USER: replicator
+      MYSQL_REPLICATION_PASSWORD: ${MYSQL_REPLICATION_PASSWORD}
+    volumes:
+      - mysql-slave-2-data:/var/lib/mysql
+      - ./mysql-config/slave.cnf:/etc/mysql/conf.d/slave.cnf:ro
+    networks:
+      - mysql-cluster
+    depends_on:
+      - mysql-master
+    command: >
+      --server-id=3
+      --relay-log=mysql-relay-bin
+      --read-only=1
+      --innodb-buffer-pool-size=1G
+      --slave-skip-errors=1062,1032
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # MySQL Router for connection pooling and load balancing
+  mysql-router:
+    image: mysql/mysql-router:8.0
+    container_name: mysql-router
+    restart: always
+    ports:
+      - "6446:6446"  # Read-write connections
+      - "6447:6447"  # Read-only connections
+    environment:
+      MYSQL_HOST: mysql-master
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_INNODB_CLUSTER_MEMBERS: 3
+    networks:
+      - mysql-cluster
+    depends_on:
+      - mysql-master
+      - mysql-slave-1
+      - mysql-slave-2
+
+  # MySQL Monitoring Stack
+  mysql-exporter:
+    image: prom/mysqld-exporter:latest
+    container_name: mysql-exporter
+    restart: always
+    ports:
+      - "9104:9104"
+    environment:
+      DATA_SOURCE_NAME: "exporter:${MYSQL_EXPORTER_PASSWORD}@(mysql-master:3306)/"
+    networks:
+      - mysql-cluster
+    depends_on:
+      - mysql-master
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - mysql-cluster
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - mysql-cluster
+    depends_on:
+      - prometheus
+
+volumes:
+  mysql-master-data:
+  mysql-slave-1-data:
+  mysql-slave-2-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  mysql-cluster:
+    driver: bridge
+
+---
+# master.cnf - MySQL Master Configuration
+[mysqld]
+# Server identification
+server-id = 1
+
+# Binary logging
+log-bin = mysql-bin
+binlog-format = ROW
+sync-binlog = 1
+binlog-cache-size = 32K
+max-binlog-cache-size = 2G
+binlog-stmt-cache-size = 32K
+max-binlog-stmt-cache-size = 2G
+
+# InnoDB settings
+innodb-buffer-pool-size = 4G
+innodb-buffer-pool-instances = 4
+innodb-log-file-size = 512M
+innodb-log-buffer-size = 64M
+innodb-flush-log-at-trx-commit = 1
+innodb-file-per-table = 1
+innodb-open-files = 4000
+
+# Query cache (disabled in MySQL 8.0, but shown for reference)
+# query-cache-type = 1
+# query-cache-size = 256M
+
+# Connection settings
+max-connections = 1000
+max-connect-errors = 10000
+connect-timeout = 10
+wait-timeout = 600
+interactive-timeout = 600
+
+# Performance settings
+tmp-table-size = 512M
+max-heap-table-size = 512M
+sort-buffer-size = 8M
+read-buffer-size = 2M
+read-rnd-buffer-size = 16M
+join-buffer-size = 8M
+
+# Logging
+slow-query-log = 1
+slow-query-log-file = /var/lib/mysql/slow.log
+long-query-time = 2
+log-queries-not-using-indexes = 1
+
+# Security
+ssl-ca = /var/lib/mysql/ca-cert.pem
+ssl-cert = /var/lib/mysql/server-cert.pem
+ssl-key = /var/lib/mysql/server-key.pem
+require-secure-transport = ON
+
+---
+# slave.cnf - MySQL Slave Configuration
+[mysqld]
+# Server identification
+server-id = 2  # Increment for each slave
+
+# Relay logging
+relay-log = mysql-relay-bin
+relay-log-index = mysql-relay-bin.index
+
+# Read-only slave
+read-only = 1
+super-read-only = 1
+
+# Replication settings
+slave-skip-errors = 1062,1032
+slave-net-timeout = 60
+slave-parallel-type = LOGICAL_CLOCK
+slave-parallel-workers = 4
+
+# InnoDB settings (smaller than master)
+innodb-buffer-pool-size = 2G
+innodb-buffer-pool-instances = 2
+innodb-log-file-size = 256M
+innodb-log-buffer-size = 32M
+innodb-flush-log-at-trx-commit = 2
+
+# Performance settings
+max-connections = 500
+tmp-table-size = 256M
+max-heap-table-size = 256M
+sort-buffer-size = 4M
+read-buffer-size = 1M

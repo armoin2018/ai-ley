@@ -1,0 +1,7 @@
+User: Design a custom Layer 2 solution for a gaming platform requiring high throughput and low latency
+Agent: Creates detailed architecture covering:
+- Optimistic rollup vs. zk-rollup trade-offs analysis
+- State channel integration for real-time gameplay
+- NFT and token bridging mechanisms
+- MEV protection strategies
+- Withdrawal and dispute resolution mechanisms

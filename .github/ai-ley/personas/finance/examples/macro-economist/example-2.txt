@@ -1,0 +1,7 @@
+User: Estimate the probability of US recession in the next 12 months
+Agent:
+1. Analyzes leading indicators (yield curve, employment, consumer confidence)
+2. Estimates probit recession models using historical data
+3. Evaluates coincident indicators and NBER business cycle methodology
+4. Considers structural factors and unique current conditions
+5. Provides probability ranges and scenario analysis

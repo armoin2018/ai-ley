@@ -1,0 +1,205 @@
+# Enterprise UML Security Framework
+from typing import Dict, List, Optional, Set
+from dataclasses import dataclass
+from enum import Enum
+import jwt
+import bcrypt
+import logging
+from datetime import datetime, timedelta
+
+class Permission(Enum):
+    READ = "read"
+    WRITE = "write"
+    DELETE = "delete"
+    ADMIN = "admin"
+    REVIEW = "review"
+    APPROVE = "approve"
+
+class Role(Enum):
+    VIEWER = "viewer"
+    MODELER = "modeler"
+    ARCHITECT = "architect"
+    ADMIN = "admin"
+    SECURITY_OFFICER = "security_officer"
+
+@dataclass
+class SecurityContext:
+    user_id: str
+    username: str
+    roles: Set[Role]
+    permissions: Set[Permission]
+    organization_id: str
+    session_token: str
+    expires_at: datetime
+    ip_address: str
+    user_agent: str
+
+class UMLSecurityManager:
+    """
+    Enterprise UML Platform Security Manager
+    Handles authentication, authorization, and audit logging
+    """
+
+    def __init__(self, config: Dict):
+        self.config = config
+        self.logger = logging.getLogger(__name__)
+        self.role_permissions = self._initialize_role_permissions()
+        self.audit_logger = logging.getLogger('uml.audit')
+
+    def authenticate_user(self, username: str, password: str, ip_address: str, user_agent: str) -> Optional[SecurityContext]:
+        """Authenticate user with enterprise security policies"""
+        try:
+            self.logger.info(f"Authentication attempt for user: {username}")
+
+            # Rate limiting check
+            if self._is_rate_limited(username, ip_address):
+                self.audit_logger.warning(f"Rate limit exceeded for user: {username}, IP: {ip_address}")
+                return None
+
+            # User lookup and password verification
+            user = self._get_user(username)
+            if not user or not self._verify_password(password, user['password_hash']):
+                self.audit_logger.warning(f"Failed authentication for user: {username}")
+                self._record_failed_attempt(username, ip_address)
+                return None
+
+            # Account status checks
+            if not user['is_active'] or user['is_locked']:
+                self.audit_logger.warning(f"Authentication rejected - account inactive/locked: {username}")
+                return None
+
+            # Multi-factor authentication if enabled
+            if self.config['mfa_enabled'] and not self._verify_mfa(user, username):
+                self.audit_logger.info(f"MFA required for user: {username}")
+                return None
+
+            # Create security context
+            security_context = self._create_security_context(user, ip_address, user_agent)
+
+            # Log successful authentication
+            self.audit_logger.info(f"Successful authentication for user: {username}")
+
+            return security_context
+
+        except Exception as e:
+            self.logger.error(f"Authentication error: {e}")
+            return None
+
+    def authorize_action(self, context: SecurityContext, resource: str, action: str) -> bool:
+        """Authorize user action based on RBAC policies"""
+        try:
+            # Check session validity
+            if not self._is_session_valid(context):
+                self.audit_logger.warning(f"Invalid session for user: {context.username}")
+                return False
+
+            # Resource-based authorization
+            required_permission = self._get_required_permission(resource, action)
+            if required_permission not in context.permissions:
+                self.audit_logger.warning(
+                    f"Insufficient permissions for user: {context.username}, "
+                    f"resource: {resource}, action: {action}"
+                )
+                return False
+
+            # Additional business rules
+            if not self._check_business_rules(context, resource, action):
+                self.audit_logger.warning(f"Business rule violation for user: {context.username}")
+                return False
+
+            # Log authorized access
+            self.audit_logger.info(
+                f"Authorized access - user: {context.username}, "
+                f"resource: {resource}, action: {action}"
+            )
+
+            return True
+
+        except Exception as e:
+            self.logger.error(f"Authorization error: {e}")
+            return False
+
+    def audit_model_access(self, context: SecurityContext, model_id: str, action: str, details: Dict):
+        """Comprehensive audit logging for model access"""
+        audit_record = {
+            'timestamp': datetime.utcnow().isoformat(),
+            'user_id': context.user_id,
+            'username': context.username,
+            'organization_id': context.organization_id,
+            'model_id': model_id,
+            'action': action,
+            'ip_address': context.ip_address,
+            'user_agent': context.user_agent,
+            'session_token': context.session_token[:16] + '...',  # Truncated for security
+            'details': details,
+            'compliance_tags': self._get_compliance_tags(action)
+        }
+
+        self.audit_logger.info(f"MODEL_ACCESS: {audit_record}")
+
+        # Store in compliance database
+        self._store_audit_record(audit_record)
+
+        # Real-time security monitoring
+        self._check_security_anomalies(context, action, details)
+
+    def _initialize_role_permissions(self) -> Dict[Role, Set[Permission]]:
+        """Initialize role-based permission mappings"""
+        return {
+            Role.VIEWER: {Permission.READ},
+            Role.MODELER: {Permission.READ, Permission.WRITE},
+            Role.ARCHITECT: {Permission.READ, Permission.WRITE, Permission.REVIEW},
+            Role.ADMIN: {Permission.READ, Permission.WRITE, Permission.DELETE, Permission.ADMIN},
+            Role.SECURITY_OFFICER: {Permission.READ, Permission.ADMIN}
+        }
+
+    def _create_security_context(self, user: Dict, ip_address: str, user_agent: str) -> SecurityContext:
+        """Create comprehensive security context"""
+        user_roles = {Role(role) for role in user['roles']}
+        user_permissions = set()
+
+        for role in user_roles:
+            user_permissions.update(self.role_permissions.get(role, set()))
+
+        # Generate JWT token
+        session_token = self._generate_session_token(user, ip_address)
+        expires_at = datetime.utcnow() + timedelta(hours=self.config['session_timeout_hours'])
+
+        return SecurityContext(
+            user_id=user['id'],
+            username=user['username'],
+            roles=user_roles,
+            permissions=user_permissions,
+            organization_id=user['organization_id'],
+            session_token=session_token,
+            expires_at=expires_at,
+            ip_address=ip_address,
+            user_agent=user_agent
+        )
+
+    def _generate_session_token(self, user: Dict, ip_address: str) -> str:
+        """Generate secure JWT session token"""
+        payload = {
+            'user_id': user['id'],
+            'username': user['username'],
+            'organization_id': user['organization_id'],
+            'ip_address': ip_address,
+            'issued_at': datetime.utcnow().timestamp(),
+            'expires_at': (datetime.utcnow() + timedelta(hours=self.config['session_timeout_hours'])).timestamp()
+        }
+
+        return jwt.encode(payload, self.config['jwt_secret'], algorithm='HS256')
+
+    def _check_security_anomalies(self, context: SecurityContext, action: str, details: Dict):
+        """Real-time security anomaly detection"""
+        # Check for unusual access patterns
+        if self._detect_unusual_access_pattern(context, action):
+            self.audit_logger.warning(f"SECURITY_ANOMALY: Unusual access pattern detected for user: {context.username}")
+
+        # Check for privilege escalation attempts
+        if self._detect_privilege_escalation(context, action, details):
+            self.audit_logger.critical(f"SECURITY_ALERT: Privilege escalation attempt by user: {context.username}")
+
+        # Check for data exfiltration patterns
+        if self._detect_data_exfiltration(context, action, details):
+            self.audit_logger.critical(f"SECURITY_ALERT: Potential data exfiltration by user: {context.username}")

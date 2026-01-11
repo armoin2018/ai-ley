@@ -1,0 +1,37 @@
+# HuggingFace model deployment configuration
+from huggingface_hub import HfApi, Repository
+import yaml
+
+class HuggingFaceDeployment:
+    def __init__(self, model_name, token):
+        self.api = HfApi(token=token)
+        self.model_name = model_name
+    
+    def create_model_card(self, metrics, training_details):
+        """Generate comprehensive model card"""
+        model_card = f"""
+---
+language: en
+license: mit
+tags:
+- transformers
+- {training_details['task']}
+metrics:
+- accuracy: {metrics['accuracy']}
+- f1: {metrics['f1']}
+---
+
+# {self.model_name}
+
+## Model Description
+{training_details['description']}
+
+## Training Details
+- Dataset: {training_details['dataset']}
+- Training time: {training_details['training_time']}
+- Hardware: {training_details['hardware']}
+
+## Performance
+{yaml.dump(metrics, default_flow_style=False)}
+
+## Usage

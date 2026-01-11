@@ -1,0 +1,12 @@
+# Python sqlite3 configuration
+import sqlite3
+
+connection = sqlite3.connect(
+    'database.db',
+    check_same_thread=False,  # Allow multi-threading
+    timeout=20.0,  # Connection timeout
+    isolation_level=None  # Autocommit mode
+)
+
+# Enable foreign keys
+connection.execute("PRAGMA foreign_keys = ON")

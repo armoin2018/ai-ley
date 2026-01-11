@@ -1,0 +1,18 @@
+# Microservices ArchiMate Pattern
+pattern_elements:
+  microservice:
+    type: Application Component
+    description: 'Independent deployable service'
+
+  api_gateway:
+    type: Application Component
+    description: 'Service aggregation and routing'
+
+  service_registry:
+    type: Application Component
+    description: 'Service discovery mechanism'
+
+relationships:
+  - api_gateway serves business_process
+  - microservice serves api_gateway
+  - service_registry serves microservice

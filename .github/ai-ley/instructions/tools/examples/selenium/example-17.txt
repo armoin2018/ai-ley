@@ -1,0 +1,5 @@
+### Wait Strategies and Synchronization
+
+- **Purpose**: Handle dynamic content and asynchronous operations
+- **Usage**: Critical for reliable test execution with modern web applications
+- **Example**:

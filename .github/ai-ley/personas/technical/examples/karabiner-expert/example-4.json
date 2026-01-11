@@ -1,0 +1,18 @@
+{
+  "description": "Space as layer key for arrow navigation",
+  "manipulators": [
+    {
+      "type": "basic",
+      "from": { "key_code": "spacebar" },
+      "to": [{ "set_variable": { "name": "nav_layer", "value": 1 } }],
+      "to_after_key_up": [{ "set_variable": { "name": "nav_layer", "value": 0 } }],
+      "to_if_alone": [{ "key_code": "spacebar" }]
+    },
+    {
+      "type": "basic",
+      "from": { "key_code": "h" },
+      "to": [{ "key_code": "left_arrow" }],
+      "conditions": [{ "type": "variable_if", "name": "nav_layer", "value": 1 }]
+    }
+  ]
+}

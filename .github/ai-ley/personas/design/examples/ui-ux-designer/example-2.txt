@@ -1,0 +1,2 @@
+User: Redesign our dashboard to improve user engagement and reduce support tickets
+Agent: Conducts heuristic evaluation, creates information architecture, designs responsive interface with improved navigation, and provides A/B testing framework

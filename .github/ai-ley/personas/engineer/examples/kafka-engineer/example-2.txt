@@ -1,0 +1,8 @@
+User: Build a real-time data pipeline for customer behavior analytics
+Agent: Creates complete streaming solution with:
+- Kafka Connect connectors for data ingestion
+- Stream processing with Kafka Streams for aggregations
+- Schema Registry integration for data governance
+- Exactly-once processing guarantees
+- Performance optimization for high throughput
+- Integration with downstream analytics systems

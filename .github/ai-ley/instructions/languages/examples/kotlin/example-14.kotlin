@@ -1,0 +1,27 @@
+/**
+ * Service responsible for user management operations.
+ * 
+ * This service handles user creation, updates, and deletion while maintaining
+ * business rules and sending appropriate notifications.
+ * 
+ * @property userRepository Repository for user data persistence
+ * @property emailService Service for sending user-related emails
+ * @constructor Creates a UserService with the specified dependencies
+ */
+class UserService(
+    private val userRepository: UserRepository,
+    private val emailService: EmailService
+) {
+    
+    /**
+     * Creates a new user with the provided information.
+     * 
+     * Validates the user data, ensures the email is unique, creates the user,
+     * and sends a welcome email.
+     * 
+     * @param userData The user information for registration
+     * @return Result containing the created User or an error
+     * @throws ValidationException if user data is invalid
+     */
+    suspend fun createUser(userData: UserCreationData): Result<User>
+}

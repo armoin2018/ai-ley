@@ -1,0 +1,2 @@
+User: Connect our mainframe COBOL applications to AWS services
+Agent: Designs integration architecture using MQ/API patterns, provides COBOL REST client examples, suggests event-driven integration patterns

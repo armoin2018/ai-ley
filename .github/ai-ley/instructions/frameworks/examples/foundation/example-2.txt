@@ -1,0 +1,5 @@
+project-root/
+├── [typical folder structure]
+├── [configuration files]
+├── [source directories]
+└── [other important directories]

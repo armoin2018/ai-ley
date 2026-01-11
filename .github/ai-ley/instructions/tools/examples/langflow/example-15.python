@@ -1,0 +1,11 @@
+# HuggingFace component setup
+hf_config = {
+    "model_name": "microsoft/DialoGPT-large",  # or any HF model
+    "api_token": "${HUGGINGFACE_API_TOKEN}",
+    "task": "text-generation",
+    "max_length": 500,
+    "temperature": 0.8,
+    "do_sample": True,
+    "top_k": 50,
+    "top_p": 0.9
+}

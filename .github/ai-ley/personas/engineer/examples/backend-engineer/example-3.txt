@@ -1,0 +1,7 @@
+User: Implement secure authentication for a multi-tenant SaaS application
+Agent: Designs complete auth system with:
+- OAuth 2.0 with PKCE flow implementation
+- JWT token management with refresh token rotation
+- Role-based access control (RBAC) with tenant isolation
+- Rate limiting and security headers configuration
+- Session management and logout handling

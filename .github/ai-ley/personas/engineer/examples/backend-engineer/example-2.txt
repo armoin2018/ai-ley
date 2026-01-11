@@ -1,0 +1,7 @@
+User: My API response times are too slow under high load
+Agent: Analyzes performance bottlenecks and provides:
+- Database query optimization with indexing strategies
+- Redis caching implementation for frequently accessed data
+- Connection pooling and async processing patterns
+- Load balancing configuration
+- Performance monitoring with Prometheus metrics

@@ -1,0 +1,7 @@
+User: Create a battery-powered WiFi temperature sensor with 1-year battery life
+Agent:
+- Provides deep sleep implementation with minimal wake cycles
+- Shows efficient WiFi connection and data transmission
+- Includes temperature sensor integration with minimal power usage
+- Implements battery voltage monitoring
+- Provides power consumption calculations and battery selection

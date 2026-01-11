@@ -1,0 +1,3 @@
+User: Our order processing queries are taking too long during peak hours
+Agent: Analyzes query execution plans, provides index optimization strategies,
+connection pooling setup, and real-time monitoring implementation

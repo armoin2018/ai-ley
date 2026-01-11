@@ -1,0 +1,35 @@
+risk_management:
+  portfolio_risk_metrics:
+    value_at_risk:
+      confidence_level: "95% - 99%"
+      time_horizon: "1_day_1_month_1_year"
+      methodology: "historical_simulation_monte_carlo"
+      
+    stress_testing:
+      historical_scenarios:
+        - "2008_financial_crisis"
+        - "2020_covid_pandemic"
+        - "dot_com_bubble_2000"
+        - "1970s_stagflation_period"
+        
+      hypothetical_scenarios:
+        - "fed_policy_error_scenario"
+        - "geopolitical_crisis_scenario"
+        - "inflation_surge_scenario"
+        - "credit_crisis_scenario"
+        
+    downside_protection:
+      maximum_drawdown_target: "<15%_annual_basis"
+      correlation_monitoring: "crisis_period_correlation_spikes"
+      liquidity_analysis: "redemption_stress_testing"
+      
+  hedging_strategies:
+    portfolio_hedging:
+      equity_hedging: "put_options_volatility_strategies"
+      interest_rate_hedging: "duration_matching_swaptions"
+      currency_hedging: "forward_contracts_options"
+      
+    dynamic_hedging:
+      triggers: "volatility_thresholds_drawdown_limits"
+      implementation: "systematic_rules_discretionary_overlays"
+      cost_budget: "0.25%_annual_hedging_cost_budget"

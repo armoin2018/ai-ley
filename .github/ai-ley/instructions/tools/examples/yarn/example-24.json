@@ -1,0 +1,7 @@
+{
+  "resolutions": {
+    "lodash": "^4.17.21",
+    "some-package/lodash": "^4.17.21",
+    "**/lodash": "^4.17.21"
+  }
+}

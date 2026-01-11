@@ -1,0 +1,43 @@
+{
+  "analysis_date": "2025-10-03T20:15:30.123456",
+  "cache_directory": "./cache/example",
+  "total_pages": 87,
+  "pages": [
+    {
+      "url": "...",
+      "url_id": "...",
+      "overall_score": 72,
+      "priority": "MEDIUM",
+      "scores": {
+        "title": 85,
+        "meta_description": 65,
+        "headings": 90,
+        "content": 60,
+        "links": 80,
+        "images": 75,
+        "schema": 40
+      },
+      "issues": {
+        "title": [],
+        "meta_description": ["No call-to-action"],
+        "headings": [],
+        "content": ["Content below ideal length"],
+        "links": [],
+        "images": [],
+        "schema": ["No schema.org markup"]
+      },
+      "metadata": {
+        "title": "About Us",
+        "title_length": 42,
+        "meta_description_length": 135,
+        "word_count": 1250,
+        "internal_links": 45,
+        "external_links": 8,
+        "images": 15,
+        "images_without_alt": 2,
+        "h1_count": 1,
+        "response_time": 0.85
+      }
+    }
+  ]
+}

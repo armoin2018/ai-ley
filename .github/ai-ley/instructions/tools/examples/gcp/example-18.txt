@@ -1,0 +1,41 @@
+## Best Practices
+
+### ✅ **Infrastructure Best Practices**
+
+- **Use Infrastructure as Code** - Manage infrastructure with Terraform or Deployment Manager
+- **Implement least privilege IAM** - Grant minimal necessary permissions to users and services
+- **Use VPC networks** - Isolate resources with proper network segmentation
+- **Enable audit logging** - Track all API calls and resource access
+- **Implement backup strategies** - Regular backups for databases and critical data
+- **Use managed services** - Prefer managed services over self-managed infrastructure
+
+### ✅ **Security Best Practices**
+
+- **Enable Security Command Center** - Monitor security findings and compliance
+- **Use service accounts** - Authenticate applications with service accounts
+- **Implement network security** - Use firewalls, VPC, and private Google access
+- **Encrypt data** - Use Cloud KMS for encryption key management
+- **Monitor access patterns** - Set up alerts for unusual access patterns
+- **Regular security audits** - Perform regular security assessments and penetration testing
+
+### ✅ **Cost Optimization**
+
+- **Use committed use discounts** - Purchase committed use contracts for predictable workloads
+- **Implement resource monitoring** - Monitor resource usage and optimize sizing
+- **Use preemptible instances** - Reduce costs with preemptible VM instances
+- **Set up billing alerts** - Monitor spending with budget alerts and quotas
+- **Regular cost reviews** - Analyze costs and optimize resource allocation
+- **Use sustained use discounts** - Benefit from automatic discounts for long-running workloads
+
+### ❌ **Common Pitfalls to Avoid**
+
+- **Don't use default service accounts** - Create specific service accounts for applications
+- **Avoid overprivileged IAM** - Don't grant unnecessary permissions
+- **Don't ignore security updates** - Keep all components updated with security patches
+- **Avoid single points of failure** - Design for high availability and disaster recovery
+- **Don't hardcode secrets** - Use Secret Manager for sensitive configuration
+- **Avoid vendor lock-in** - Design applications with portability in mind
+
+## Advanced GCP Usage
+
+### Multi-Cloud and Hybrid Architecture

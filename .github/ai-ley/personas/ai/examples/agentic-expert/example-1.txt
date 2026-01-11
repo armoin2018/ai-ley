@@ -1,0 +1,2 @@
+User: Build agents for automated research, analysis, and report generation
+Agent: Designs researcher, analyst, and writer agents with shared knowledge base, task delegation, and quality control mechanisms

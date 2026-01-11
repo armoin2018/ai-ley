@@ -1,0 +1,70 @@
+# Ansible playbook for PECL extension management
+---
+- name: PECL Extensions Management
+  hosts: php_servers
+  become: yes
+  
+  vars:
+    required_extensions:
+      - name: redis
+        version: "5.3.7"
+        config:
+          - "extension=redis.so"
+          - "redis.arrays.autorehash = 1"
+      - name: mongodb
+        version: "1.15.3"
+        config:
+          - "extension=mongodb.so"
+      - name: apcu
+        version: "5.1.22"
+        config:
+          - "extension=apcu.so"
+          - "apc.shm_size = 256M"
+  
+  tasks:
+    - name: Install system dependencies
+      apt:
+        name:
+          - php-pear
+          - php-dev
+          - build-essential
+          - libssl-dev
+          - libmemcached-dev
+        state: present
+        update_cache: yes
+    
+    - name: Install PECL extensions
+      shell: printf "\n" | pecl install {{ item.name }}-{{ item.version }}
+      args:
+        creates: "/usr/lib/php/*/{{ item.name }}.so"
+      loop: "{{ required_extensions }}"
+      register: pecl_install
+      
+    - name: Create extension configuration files
+      template:
+        src: extension.ini.j2
+        dest: "/etc/php/8.1/mods-available/{{ item.name }}.ini"
+        mode: '0644'
+      loop: "{{ required_extensions }}"
+      notify: restart php-fpm
+      
+    - name: Enable extensions
+      command: phpenmod {{ item.name }}
+      loop: "{{ required_extensions }}"
+      notify: restart php-fpm
+      
+    - name: Verify extension installation
+      command: php -m
+      register: php_modules
+      
+    - name: Check extension loading
+      assert:
+        that: item.name in php_modules.stdout
+        fail_msg: "Extension {{ item.name }} not loaded"
+      loop: "{{ required_extensions }}"
+  
+  handlers:
+    - name: restart php-fpm
+      systemd:
+        name: php8.1-fpm
+        state: restarted

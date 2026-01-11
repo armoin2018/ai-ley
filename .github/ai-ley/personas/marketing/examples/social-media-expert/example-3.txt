@@ -1,0 +1,8 @@
+User: We're facing negative feedback going viral on Twitter - help manage this crisis
+Agent: Provides crisis response strategy including:
+- Immediate response protocol and messaging framework
+- Stakeholder communication plan
+- Content moderation and engagement guidelines
+- Media monitoring and sentiment tracking
+- Long-term reputation recovery strategy
+- Prevention measures for future incidents

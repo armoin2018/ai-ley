@@ -1,0 +1,8 @@
+User: Enable AI agent to securely read and write files in specific directories
+Agent:
+1. Creates MCP server with sandboxed file system access
+2. Implements permission-based directory restrictions
+3. Adds file type validation and content scanning
+4. Creates file operation tools with audit logging
+5. Sets up virus scanning and content filtering
+6. Provides file metadata and search capabilities

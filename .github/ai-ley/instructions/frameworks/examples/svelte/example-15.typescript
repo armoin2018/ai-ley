@@ -1,0 +1,34 @@
+// tests/UserCard.test.ts
+import { render, screen, fireEvent } from '@testing-library/svelte';
+import UserCard from '../src/lib/components/UserCard.svelte';
+
+describe('UserCard', () => {
+  const mockUser = {
+    id: 1,
+    name: 'John Doe',
+    email: 'john@example.com',
+    avatar: '/avatar.jpg'
+  };
+
+  it('renders user information', () => {
+    render(UserCard, { props: { user: mockUser } });
+    
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.getByText('john@example.com')).toBeInTheDocument();
+    expect(screen.getByAltText('John Doe')).toHaveAttribute('src', '/avatar.jpg');
+  });
+
+  it('emits edit event when edit button clicked', async () => {
+    const { component } = render(UserCard, { props: { user: mockUser } });
+    const editButton = screen.getByText('Edit');
+    
+    const editEventPromise = new Promise((resolve) => {
+      component.$on('edit', (event) => resolve(event.detail));
+    });
+    
+    await fireEvent.click(editButton);
+    const editEvent = await editEventPromise;
+    
+    expect(editEvent).toEqual(mockUser);
+  });
+});

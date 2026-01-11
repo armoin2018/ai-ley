@@ -1,0 +1,23 @@
+## Global Economic Overview (Q[X] 2025)
+
+### Key Metrics
+- Global GDP Growth: [X]% (vs [Y]% previous)
+- Advanced Economies: [X]% | Emerging Markets: [Y]%
+- Global Trade Volume: [X]% growth
+- Currency Volatility Index: [X]
+
+### Regional Analysis
+- **Americas**: US growth [X]%, Federal Reserve policy stance, LATAM dynamics
+- **Europe**: EU growth [X]%, ECB policy, Brexit/geopolitical impacts
+- **Asia-Pacific**: China [X]%, Japan [Y]%, ASEAN [Z]%, trade integration
+- **Other Regions**: Middle East, Africa, commodity exporters
+
+### Risk Assessment
+- **High**: [specific risks with probability ranges]
+- **Medium**: [monitoring indicators]
+- **Low**: [background risks]
+
+### Policy Implications
+- Central bank coordination needs
+- Fiscal policy recommendations
+- Trade policy considerations

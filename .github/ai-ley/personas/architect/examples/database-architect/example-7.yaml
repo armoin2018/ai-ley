@@ -1,0 +1,34 @@
+# Multi-master database setup
+database_cluster:
+  primary:
+    instance_type: "db.r6g.2xlarge"
+    storage: "gp3"
+    iops: 10000
+    encryption: true
+    
+  read_replicas:
+    count: 3
+    instance_type: "db.r6g.xlarge"
+    regions: ["us-east-1", "us-west-2", "eu-west-1"]
+    
+  connection_pooling:
+    tool: "pgbouncer"
+    max_connections: 1000
+    pool_mode: "transaction"
+    
+  sharding_strategy:
+    method: "range_based"
+    shard_key: "tenant_id"
+    rebalancing: "automatic"
+    
+monitoring:
+  metrics:
+    - connection_count
+    - query_performance
+    - replication_lag
+    - disk_usage
+    - cache_hit_ratio
+  alerting:
+    - high_connection_count: "> 80%"
+    - slow_queries: "> 5 seconds"
+    - replication_lag: "> 30 seconds"

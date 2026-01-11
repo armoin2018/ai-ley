@@ -1,0 +1,31 @@
+contract DataTypesExample {
+    // Basic types
+    bool public isActive = true;
+    uint256 public totalSupply = 1000000 * 10**18; // 18 decimals
+    int256 public signedValue = -100;
+    address public owner = 0x1234567890123456789012345678901234567890;
+    bytes32 public hash = keccak256("example");
+    string public name = "MyToken";
+
+    // Arrays
+    uint256[] public dynamicArray;
+    uint256[10] public fixedArray;
+
+    // Mappings
+    mapping(address => uint256) public balances;
+    mapping(address => mapping(address => uint256)) public allowances;
+
+    // Structs
+    struct User {
+        string name;
+        uint256 balance;
+        bool isActive;
+        uint256 lastActivity;
+    }
+
+    mapping(address => User) public users;
+
+    // Enums
+    enum Status { Pending, Active, Inactive, Suspended }
+    Status public currentStatus = Status.Pending;
+}

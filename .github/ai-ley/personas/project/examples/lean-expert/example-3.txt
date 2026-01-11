@@ -1,0 +1,2 @@
+User: Implement just-in-time delivery with suppliers to reduce inventory and improve cash flow
+Agent: Develops supplier assessment framework, implements vendor development program, designs pull-based replenishment system, and creates supplier performance measurement system

@@ -1,0 +1,96 @@
+// hooks/useEthers.ts
+import { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
+import { ProviderService } from '../services/provider';
+
+export function useEthers() {
+  const [provider, setProvider] = useState<ethers.Provider | null>(null);
+  const [signer, setSigner] = useState<ethers.Signer | null>(null);
+  const [account, setAccount] = useState<string | null>(null);
+  const [chainId, setChainId] = useState<number | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+
+  const providerService = ProviderService.getInstance();
+
+  useEffect(() => {
+    const initializeEthers = async () => {
+      try {
+        const provider = await providerService.initializeProvider();
+        setProvider(provider);
+
+        if (provider instanceof ethers.BrowserProvider) {
+          try {
+            const signer = await provider.getSigner();
+            const address = await signer.getAddress();
+            const network = await provider.getNetwork();
+
+            setSigner(signer);
+            setAccount(address);
+            setChainId(Number(network.chainId));
+            setIsConnected(true);
+          } catch (error) {
+            // User not connected or rejected
+            console.log('User not connected');
+          }
+        }
+      } catch (error) {
+        console.error('Failed to initialize ethers:', error);
+      }
+    };
+
+    initializeEthers();
+
+    // Listen for account changes
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', (accounts: string[]) => {
+        if (accounts.length === 0) {
+          setAccount(null);
+          setSigner(null);
+          setIsConnected(false);
+        } else {
+          setAccount(accounts[0]);
+          // Re-initialize signer
+          initializeEthers();
+        }
+      });
+
+      window.ethereum.on('chainChanged', (chainId: string) => {
+        setChainId(parseInt(chainId, 16));
+        // Re-initialize on network change
+        initializeEthers();
+      });
+    }
+
+    return () => {
+      if (window.ethereum) {
+        window.ethereum.removeAllListeners('accountsChanged');
+        window.ethereum.removeAllListeners('chainChanged');
+      }
+    };
+  }, []);
+
+  const connectWallet = async () => {
+    if (window.ethereum) {
+      try {
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const signer = await providerService.getSigner();
+        const address = await signer.getAddress();
+        
+        setSigner(signer);
+        setAccount(address);
+        setIsConnected(true);
+      } catch (error) {
+        console.error('Failed to connect wallet:', error);
+      }
+    }
+  };
+
+  return {
+    provider,
+    signer,
+    account,
+    chainId,
+    isConnected,
+    connectWallet
+  };
+}

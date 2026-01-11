@@ -1,0 +1,2 @@
+User: How should I implement objective c developer best practices in my current project?
+Agent: Analyzes current setup and provides specific recommendations with code examples and configuration guidelines

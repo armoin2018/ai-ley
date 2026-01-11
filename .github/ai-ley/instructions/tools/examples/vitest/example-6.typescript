@@ -1,0 +1,26 @@
+// src/test/mocks.ts
+import { vi } from 'vitest'
+
+// Mock external dependencies
+vi.mock('axios', () => ({
+  default: {
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+  },
+}))
+
+// Mock browser APIs
+vi.mock('localStorage', () => ({
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+}))
+
+// Mock environment variables
+vi.mock('@/config/env', () => ({
+  API_URL: 'http://localhost:3000/api',
+  NODE_ENV: 'test',
+}))

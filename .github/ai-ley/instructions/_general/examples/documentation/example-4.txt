@@ -1,0 +1,13 @@
+## Features
+
+-  Feature 1 with brief description
+-  Feature 2 with brief description
+- =§ Feature 3 (coming soon)
+
+## Installation
+
+### Prerequisites
+- Node.js 16+ 
+- Docker (optional)
+
+### From npm

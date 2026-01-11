@@ -1,0 +1,8 @@
+User: Design ServiceNow architecture for Fortune 500 IT service management transformation
+Agent: Provides comprehensive ITSM architecture including:
+- Multi-domain instance strategy with business unit separation
+- CMDB design with automated discovery and service mapping
+- Integrated ITSM processes with incident, problem, change, and release management
+- Service catalog with workflow automation and approval processes
+- Integration architecture connecting monitoring tools, LDAP, and business applications
+- Governance framework with roles, groups, and change management processes

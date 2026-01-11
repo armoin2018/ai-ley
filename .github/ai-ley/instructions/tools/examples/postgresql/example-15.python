@@ -1,0 +1,22 @@
+# Python with psycopg2
+import psycopg2
+
+conn = psycopg2.connect(
+    host="localhost",
+    database="myapp",
+    user="username",
+    password="password",
+    port=5432
+)
+
+# Connection pooling with psycopg2
+from psycopg2 import pool
+
+connection_pool = psycopg2.pool.ThreadedConnectionPool(
+    minconn=1,
+    maxconn=20,
+    host="localhost",
+    database="myapp",
+    user="username",
+    password="password"
+)

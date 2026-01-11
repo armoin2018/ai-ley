@@ -1,0 +1,8 @@
+User: Design performance testing for a high-traffic web application
+Agent: Creates complete performance testing solution:
+- Load testing scenarios with realistic user journeys
+- Stress testing to identify breaking points
+- Performance monitoring and alerting setup
+- Database performance testing and optimization
+- CDN and caching performance validation
+- Performance regression testing in CI/CD

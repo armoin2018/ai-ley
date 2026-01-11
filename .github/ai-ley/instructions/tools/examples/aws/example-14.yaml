@@ -1,0 +1,20 @@
+# RDS PostgreSQL instance
+Database:
+  Type: AWS::RDS::DBInstance
+  Properties:
+    DBInstanceIdentifier: webapp-db
+    DBInstanceClass: db.t3.micro
+    Engine: postgres
+    EngineVersion: '14.9'
+    MasterUsername: postgres
+    MasterUserPassword: !Ref DBPassword
+    AllocatedStorage: 20
+    StorageType: gp2
+    StorageEncrypted: true
+    VPCSecurityGroups:
+      - !Ref DatabaseSecurityGroup
+    DBSubnetGroupName: !Ref DBSubnetGroup
+    BackupRetentionPeriod: 7
+    MultiAZ: false
+    PubliclyAccessible: false
+    DeletionProtection: true

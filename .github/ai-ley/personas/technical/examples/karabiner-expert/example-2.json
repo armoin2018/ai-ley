@@ -1,0 +1,16 @@
+{
+  "description": "Caps Lock → Hyper (⌃⌥⇧⌘) when held, Escape when tapped",
+  "manipulators": [
+    {
+      "type": "basic",
+      "from": { "key_code": "caps_lock" },
+      "to": [
+        {
+          "key_code": "left_shift",
+          "modifiers": ["left_control", "left_option", "left_command"]
+        }
+      ],
+      "to_if_alone": [{ "key_code": "escape" }]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+User: Restructure our marketing team to support aggressive growth targets while improving efficiency
+Agent: Develops organizational strategy including:
+- Current state analysis and capability assessment
+- Future state organizational design and role definitions
+- Talent acquisition and development strategy
+- Performance management and accountability framework
+- Technology and process optimization
+- Budget reallocation and resource optimization
+- Change management and communication plan
+- Success metrics and milestone tracking

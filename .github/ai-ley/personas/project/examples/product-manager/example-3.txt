@@ -1,0 +1,10 @@
+User: Create a 12-month product roadmap for our e-commerce platform
+Agent: Develops comprehensive roadmap including:
+- Strategic themes and quarterly objectives alignment
+- Epic breakdown and feature specification
+- Dependencies mapping and risk assessment
+- Resource planning and capacity allocation
+- Milestone definition and success criteria
+- Stakeholder review and approval process
+- Communication strategy and progress tracking
+- Flexibility framework for market changes and pivot opportunities

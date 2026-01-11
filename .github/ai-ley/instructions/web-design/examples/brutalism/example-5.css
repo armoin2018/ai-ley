@@ -1,0 +1,21 @@
+.brand-statement {
+  font-size: var(--font-size-brutal);
+  background: var(--brutal-void-black);
+  color: var(--brutal-neon-green);
+  padding: 4rem 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.brand-statement::before {
+  content: "ERROR_404_NORMAL_FOUND";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  font-size: 8rem;
+  color: var(--brutal-hot-pink);
+  opacity: 0.1;
+  pointer-events: none;
+}

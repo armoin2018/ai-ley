@@ -1,0 +1,37 @@
+# Basic input -> process -> output chain
+linear_chain = {
+    "components": [
+        {
+            "type": "TextInput",
+            "name": "user_query",
+            "config": {
+                "placeholder": "Enter your question..."
+            }
+        },
+        {
+            "type": "PromptTemplate",
+            "name": "format_prompt",
+            "config": {
+                "template": "Please answer the following question: {query}",
+                "input_variables": ["query"]
+            }
+        },
+        {
+            "type": "OpenAI",
+            "name": "llm_processor",
+            "config": {
+                "model": "gpt-4",
+                "temperature": 0.3
+            }
+        },
+        {
+            "type": "TextOutput",
+            "name": "final_response"
+        }
+    ],
+    "connections": [
+        {"from": "user_query.text", "to": "format_prompt.query"},
+        {"from": "format_prompt.formatted_prompt", "to": "llm_processor.prompt"},
+        {"from": "llm_processor.text", "to": "final_response.text"}
+    ]
+}

@@ -1,0 +1,14 @@
+# Performance validation script
+async def validate_performance():
+    test_scenarios = [
+        {"name": "Load Test", "users": 1000, "duration": "10m"},
+        {"name": "Stress Test", "users": 5000, "duration": "5m"},
+        {"name": "Spike Test", "users": 10000, "duration": "2m"},
+        {"name": "Endurance Test", "users": 500, "duration": "2h"}
+    ]
+
+    for scenario in test_scenarios:
+        result = await run_performance_test(scenario)
+        assert result["response_time"] < 500  # ms
+        assert result["error_rate"] < 0.1     # %
+        assert result["throughput"] > 100     # rps

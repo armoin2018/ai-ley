@@ -1,0 +1,2 @@
+User: Build a Laravel application that handles 100k+ daily active users
+Agent: Implements optimized Laravel architecture with caching layers, queue processing, database optimization, CDN integration, and horizontal scaling setup

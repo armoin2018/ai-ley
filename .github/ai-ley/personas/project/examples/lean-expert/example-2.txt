@@ -1,0 +1,2 @@
+User: Improve customer service response time and eliminate errors in insurance claims processing
+Agent: Maps current service value stream, identifies waste and bottlenecks, designs mistake-proofing solutions, implements kanban flow system, and establishes performance measurement

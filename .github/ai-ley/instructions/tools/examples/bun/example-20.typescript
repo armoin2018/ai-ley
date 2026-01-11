@@ -1,0 +1,37 @@
+// server.ts
+const server = Bun.serve({
+  port: 3000,
+  fetch(req) {
+    const url = new URL(req.url);
+    const { pathname } = url;
+
+    // Static files
+    if (pathname.startsWith("/static/")) {
+      const filePath = `./public${pathname}`;
+      return new Response(Bun.file(filePath));
+    }
+
+    // API routes
+    if (pathname.startsWith("/api/")) {
+      return handleAPI(req);
+    }
+
+    // SPA fallback
+    return new Response(Bun.file("./public/index.html"));
+  },
+});
+
+async function handleAPI(req: Request) {
+  const url = new URL(req.url);
+
+  if (url.pathname === "/api/users" && req.method === "GET") {
+    return Response.json(await getUsers());
+  }
+
+  if (url.pathname === "/api/users" && req.method === "POST") {
+    const user = await req.json();
+    return Response.json(await createUser(user));
+  }
+
+  return new Response("Not Found", { status: 404 });
+}

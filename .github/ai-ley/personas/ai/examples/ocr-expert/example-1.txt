@@ -1,0 +1,2 @@
+User: Build OCR system to process 10,000+ invoices daily with 99%+ accuracy
+Agent: Designs multi-engine pipeline with PaddleOCR + AWS Textract, implements confidence-based routing, quality validation, and horizontal scaling architecture

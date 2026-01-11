@@ -1,0 +1,31 @@
+.component {
+  /* Positioning */
+  position: relative;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  
+  /* Box Model */
+  display: flex;
+  width: 100%;
+  height: auto;
+  padding: 1rem;
+  margin: 0 auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  
+  /* Typography */
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  text-align: left;
+  
+  /* Visual */
+  background-color: white;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  opacity: 1;
+  
+  /* Animation */
+  transition: all 0.3s ease;
+}

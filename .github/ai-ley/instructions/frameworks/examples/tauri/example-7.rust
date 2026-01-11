@@ -1,0 +1,152 @@
+// src-tauri/src/main.rs
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
+mod commands;
+mod services;
+mod utils;
+
+use commands::file_ops::*;
+use commands::system_info::*;
+use services::app_state::{AppState, get_settings, update_settings, add_recent_file, clear_recent_files};
+use tauri::{CustomMenuItem, Manager, Menu, MenuItem, Submenu, Window, WindowEvent};
+
+fn create_menu() -> Menu {
+    let file_menu = Submenu::new(
+        "File",
+        Menu::new()
+            .add_item(CustomMenuItem::new("new", "New").accelerator("CmdOrCtrl+N"))
+            .add_item(CustomMenuItem::new("open", "Open").accelerator("CmdOrCtrl+O"))
+            .add_item(CustomMenuItem::new("save", "Save").accelerator("CmdOrCtrl+S"))
+            .add_item(CustomMenuItem::new("save_as", "Save As").accelerator("CmdOrCtrl+Shift+S"))
+            .add_native_item(MenuItem::Separator)
+            .add_item(CustomMenuItem::new("quit", "Quit").accelerator("CmdOrCtrl+Q")),
+    );
+
+    let edit_menu = Submenu::new(
+        "Edit",
+        Menu::new()
+            .add_native_item(MenuItem::Undo)
+            .add_native_item(MenuItem::Redo)
+            .add_native_item(MenuItem::Separator)
+            .add_native_item(MenuItem::Cut)
+            .add_native_item(MenuItem::Copy)
+            .add_native_item(MenuItem::Paste)
+            .add_native_item(MenuItem::SelectAll),
+    );
+
+    let view_menu = Submenu::new(
+        "View",
+        Menu::new()
+            .add_item(CustomMenuItem::new("toggle_devtools", "Toggle DevTools"))
+            .add_item(CustomMenuItem::new("reload", "Reload").accelerator("CmdOrCtrl+R"))
+            .add_native_item(MenuItem::Separator)
+            .add_item(CustomMenuItem::new("zoom_in", "Zoom In").accelerator("CmdOrCtrl+Plus"))
+            .add_item(CustomMenuItem::new("zoom_out", "Zoom Out").accelerator("CmdOrCtrl+-"))
+            .add_item(CustomMenuItem::new("reset_zoom", "Reset Zoom").accelerator("CmdOrCtrl+0")),
+    );
+
+    Menu::new()
+        .add_submenu(file_menu)
+        .add_submenu(edit_menu)
+        .add_submenu(view_menu)
+}
+
+fn handle_menu_event(event_id: &str, window: &Window) {
+    match event_id {
+        "new" => {
+            window.emit("menu:new", {}).unwrap();
+        }
+        "open" => {
+            window.emit("menu:open", {}).unwrap();
+        }
+        "save" => {
+            window.emit("menu:save", {}).unwrap();
+        }
+        "save_as" => {
+            window.emit("menu:save_as", {}).unwrap();
+        }
+        "quit" => {
+            std::process::exit(0);
+        }
+        "toggle_devtools" => {
+            if window.is_devtools_open() {
+                window.close_devtools();
+            } else {
+                window.open_devtools();
+            }
+        }
+        "reload" => {
+            window.eval("location.reload()").unwrap();
+        }
+        "zoom_in" => {
+            window.eval("document.body.style.zoom = (parseFloat(document.body.style.zoom || '1') + 0.1).toString()").unwrap();
+        }
+        "zoom_out" => {
+            window.eval("document.body.style.zoom = (parseFloat(document.body.style.zoom || '1') - 0.1).toString()").unwrap();
+        }
+        "reset_zoom" => {
+            window.eval("document.body.style.zoom = '1'").unwrap();
+        }
+        _ => {}
+    }
+}
+
+fn main() {
+    let app_state = AppState::new();
+
+    tauri::Builder::default()
+        .menu(create_menu())
+        .manage(app_state)
+        .invoke_handler(tauri::generate_handler![
+            // File operations
+            read_file,
+            write_file,
+            get_file_info,
+            list_directory,
+            open_file_dialog,
+            save_file_dialog,
+            // Settings
+            get_settings,
+            update_settings,
+            add_recent_file,
+            clear_recent_files,
+            // System info
+            get_system_info,
+            get_memory_usage,
+            get_cpu_usage,
+        ])
+        .setup(|app| {
+            let window = app.get_window("main").unwrap();
+
+            // Load and apply saved window state
+            if let Ok(app_state) = app.state::<AppState>().load_settings() {
+                println!("Loaded app settings: {:?}", app_state);
+            }
+
+            // Set minimum window size
+            window.set_min_size(Some(tauri::Size::Physical(tauri::PhysicalSize {
+                width: 800,
+                height: 600,
+            }))).unwrap();
+
+            Ok(())
+        })
+        .on_menu_event(|event| {
+            handle_menu_event(&event.menu_item_id(), &event.window());
+        })
+        .on_window_event(|event| {
+            match event.event() {
+                WindowEvent::CloseRequested { api, .. } => {
+                    // Handle unsaved changes
+                    event.window().emit("window:close-requested", {}).unwrap();
+                    api.prevent_close();
+                }
+                WindowEvent::Resized(_) => {
+                    // Save window state
+                }
+                _ => {}
+            }
+        })
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}

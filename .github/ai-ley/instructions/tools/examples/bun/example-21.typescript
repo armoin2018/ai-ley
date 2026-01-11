@@ -1,0 +1,30 @@
+#!/usr/bin/env bun
+// cli.ts
+
+import { parseArgs } from "util";
+
+const { values, positionals } = parseArgs({
+  args: Bun.argv,
+  options: {
+    verbose: { type: 'boolean', short: 'v' },
+    output: { type: 'string', short: 'o' }
+  },
+  allowPositionals: true
+});
+
+if (values.verbose) {
+  console.log("Verbose mode enabled");
+}
+
+const command = positionals[2]; // First positional after script name
+
+switch (command) {
+  case "build":
+    await buildProject(values.output);
+    break;
+  case "dev":
+    await startDevelopment();
+    break;
+  default:
+    console.log("Usage: bun cli.ts [build|dev] [options]");
+}

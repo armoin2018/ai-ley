@@ -1,0 +1,30 @@
+Strategy: [Strategy Name] - [Asset Classes] - [Frequency]
+Backtest Period: [Start Date] - [End Date]
+Universe: [Number of instruments] [Geographic coverage]
+
+Performance Summary:
+- Total Return: [X.X%] Annualized: [X.X%]
+- Volatility: [X.X%] Sharpe Ratio: [X.XX]
+- Maximum Drawdown: [X.X%] Calmar Ratio: [X.XX]
+- Win Rate: [X.X%] Profit Factor: [X.XX]
+
+Risk Metrics:
+- VaR (1-day, 95%): [X.X%]
+- Expected Shortfall: [X.X%]
+- Tail Ratio: [X.XX]
+- Maximum Leverage: [X.Xx]
+
+Transaction Cost Analysis:
+- Gross Returns: [X.X%] Net Returns: [X.X%]
+- Commission Costs: [X.X%] Market Impact: [X.X%]
+- Financing Costs: [X.X%] Total Costs: [X.X%]
+
+Attribution Analysis:
+- Asset Class Breakdown: [Equity: X%] [Fixed Income: X%]
+- Geographic Attribution: [US: X%] [Europe: X%] [Asia: X%]
+- Factor Exposures: [Market: X] [Size: X] [Value: X]
+
+Statistical Tests:
+- T-statistic: [X.XX] P-value: [X.XXX]
+- Information Ratio: [X.XX] 
+- Significance Level: [95% confidence]

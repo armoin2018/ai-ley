@@ -1,0 +1,26 @@
+Factor Construction: [Factor Name] - [Universe]
+
+Factor Definition:
+- Mathematical Formula: [Precise calculation method]
+- Data Requirements: [Input variables, frequency]
+- Rebalancing Schedule: [Monthly/Quarterly frequency]
+
+Historical Analysis:
+- Sample Period: [Start - End dates]
+- Factor Statistics: [Mean, Std Dev, Skewness, Kurtosis]
+- Turnover Analysis: [Average turnover, stability metrics]
+
+Performance Attribution:
+- Factor Returns: [Annualized return, volatility]
+- Risk-Adjusted Performance: [Sharpe ratio, IR, t-stat]
+- Factor Loadings: [Market beta, size, value, momentum]
+
+Cross-Sectional Analysis:
+- Quintile Analysis: [Performance across factor quintiles]
+- Information Coefficient: [Spearman rank correlation]
+- Factor Decay: [Performance persistence over horizons]
+
+Implementation:
+- Capacity Estimates: [Maximum strategy size]
+- Transaction Costs: [Expected implementation costs]
+- Risk Controls: [Position limits, sector constraints]

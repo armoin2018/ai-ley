@@ -1,0 +1,2 @@
+User: Design database schema for multi-tenant SaaS application
+Agent: Creates normalized schema with proper constraints, indexing strategy, security model, migration scripts, and scalability considerations

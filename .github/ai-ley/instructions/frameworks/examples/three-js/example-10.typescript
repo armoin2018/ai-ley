@@ -1,0 +1,105 @@
+// components/ThreeScene.tsx - React component wrapper
+import React, { useEffect, useRef, useState } from 'react';
+import { ThreeJSApp } from '../three/ThreeJSApp';
+
+interface ThreeSceneProps {
+    onLoadingProgress?: (progress: number) => void;
+    onSceneReady?: () => void;
+}
+
+export const ThreeScene: React.FC<ThreeSceneProps> = ({
+    onLoadingProgress,
+    onSceneReady
+}) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const appRef = useRef<ThreeJSApp | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        if (containerRef.current && !appRef.current) {
+            appRef.current = new ThreeJSApp(containerRef.current);
+            
+            // Listen for loading events
+            const handleLoadingProgress = (event: CustomEvent) => {
+                onLoadingProgress?.(event.detail.progress);
+            };
+            
+            const handleAssetsLoaded = () => {
+                setIsLoading(false);
+                onSceneReady?.();
+            };
+            
+            document.addEventListener('loadingProgress', handleLoadingProgress as EventListener);
+            document.addEventListener('assetsLoaded', handleAssetsLoaded);
+            
+            return () => {
+                document.removeEventListener('loadingProgress', handleLoadingProgress as EventListener);
+                document.removeEventListener('assetsLoaded', handleAssetsLoaded);
+                
+                if (appRef.current) {
+                    appRef.current.dispose();
+                    appRef.current = null;
+                }
+            };
+        }
+    }, [onLoadingProgress, onSceneReady]);
+
+    return (
+        <div className="three-scene-container">
+            <div 
+                ref={containerRef} 
+                style={{ 
+                    width: '100vw', 
+                    height: '100vh',
+                    position: 'relative'
+                }} 
+            />
+            {isLoading && (
+                <div className="loading-overlay">
+                    <div className="loading-spinner">Loading 3D Scene...</div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// App.tsx - Main React application
+import React, { useState } from 'react';
+import { ThreeScene } from './components/ThreeScene';
+
+export const App: React.FC = () => {
+    const [loadingProgress, setLoadingProgress] = useState(0);
+    const [sceneReady, setSceneReady] = useState(false);
+
+    return (
+        <div className="app">
+            <ThreeScene 
+                onLoadingProgress={setLoadingProgress}
+                onSceneReady={() => setSceneReady(true)}
+            />
+            
+            {!sceneReady && (
+                <div className="ui-overlay">
+                    <div className="progress-bar">
+                        <div 
+                            className="progress-fill"
+                            style={{ width: `${loadingProgress}%` }}
+                        />
+                    </div>
+                    <p>Loading: {Math.round(loadingProgress)}%</p>
+                </div>
+            )}
+            
+            {sceneReady && (
+                <div className="ui-controls">
+                    <button onClick={() => console.log('Reset scene')}>
+                        Reset
+                    </button>
+                    <button onClick={() => console.log('Screenshot')}>
+                        Screenshot
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};

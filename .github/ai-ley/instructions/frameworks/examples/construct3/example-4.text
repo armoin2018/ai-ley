@@ -1,0 +1,16 @@
+Event Sheet Structure:
+
+Event 1: System ▶ On start of layout
+  ↳ Action: Player ▶ Set position to (100, 100)
+  ↳ Action: Audio ▶ Play "bgmusic" (looping)
+
+Event 2: Player ▶ On collision with Enemy
+  ↳ Condition: Player ▶ Is animation "running" playing
+  ↳ Action: Player ▶ Subtract 1 from health
+  ↳ Action: System ▶ Wait 1 second
+  ↳ Action: Player ▶ Set position to checkpoint
+
+Event 3: Keyboard ▶ On Space pressed
+  ↳ Condition: Player ▶ Is on floor
+  ↳ Action: Player ▶ Set Platform vector Y to -400
+  ↳ Action: Audio ▶ Play "jump_sound"

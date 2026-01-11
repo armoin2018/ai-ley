@@ -1,0 +1,25 @@
+// src/routes/users/+page.ts
+import type { PageLoad } from './$types';
+
+export const load: PageLoad = async ({ fetch }) => {
+  try {
+    const response = await fetch('/api/users');
+    if (!response.ok) {
+      throw new Error('Failed to fetch users');
+    }
+    const users = await response.json();
+    
+    return {
+      users,
+      meta: {
+        title: 'Users',
+        description: 'Manage application users'
+      }
+    };
+  } catch (error) {
+    return {
+      users: [],
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+};

@@ -1,0 +1,109 @@
+# .github/workflows/deploy.yml
+name: Digital Ocean Deployment
+on:
+  push:
+    branches: [main, staging, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+  REGISTRY: registry.digitalocean.com/webcorp
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run security audit
+        run: npm audit --audit-level high
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Build container image
+        run: docker build -t $REGISTRY/webcorp-app:$GITHUB_SHA .
+
+      - name: Log in to DO Container Registry
+        run: doctl registry login --expiry-seconds 600
+
+      - name: Push image to DO Container Registry
+        run: docker push $REGISTRY/webcorp-app:$GITHUB_SHA
+
+  deploy-staging:
+    needs: build
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Save DigitalOcean kubeconfig
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 webcorp-k8s
+
+      - name: Deploy to staging
+        run: |
+          kubectl set image deployment/webcorp-app webcorp-app=$REGISTRY/webcorp-app:$GITHUB_SHA -n staging
+          kubectl rollout status deployment/webcorp-app -n staging
+
+      - name: Run smoke tests
+        run: |
+          kubectl run smoke-test --image=$REGISTRY/webcorp-app:$GITHUB_SHA --rm -i --restart=Never -- npm run test:smoke
+
+  deploy-production:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Save DigitalOcean kubeconfig
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 webcorp-k8s
+
+      - name: Deploy to production
+        run: |
+          kubectl set image deployment/webcorp-app webcorp-app=$REGISTRY/webcorp-app:$GITHUB_SHA -n production
+          kubectl rollout status deployment/webcorp-app -n production
+
+      - name: Run health checks
+        run: |
+          kubectl run health-check --image=$REGISTRY/webcorp-app:$GITHUB_SHA --rm -i --restart=Never -- curl -f http://webcorp-app-service/health
+
+      - name: Notify team
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#deployments'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}

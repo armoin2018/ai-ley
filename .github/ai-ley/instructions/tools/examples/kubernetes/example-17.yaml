@@ -1,0 +1,95 @@
+# policies/required-labels.yaml - Required labels policy
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: k8srequiredlabels
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sRequiredLabels
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            labels:
+              type: array
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8srequiredlabels
+
+        violation[{"msg": msg}] {
+          provided := input.review.object.metadata.labels
+          required := input.parameters.labels
+          missing := required[_]
+          not provided[missing]
+          msg := sprintf("Missing required label: %v", [missing])
+        }
+
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredLabels
+metadata:
+  name: must-have-required-labels
+spec:
+  match:
+    kinds:
+      - apiGroups: ['apps']
+        kinds: ['Deployment']
+      - apiGroups: ['']
+        kinds: ['Service']
+  parameters:
+    labels: ['environment', 'team', 'cost-center', 'compliance']
+
+---
+# policies/security-constraints.yaml - Security policy
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: k8ssecuritycontext
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sSecurityContext
+      validation:
+        openAPIV3Schema:
+          type: object
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8ssecuritycontext
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not container.securityContext.runAsNonRoot
+          msg := "Container must run as non-root user"
+        }
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          container.securityContext.allowPrivilegeEscalation == true
+          msg := "Container must not allow privilege escalation"
+        }
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not container.securityContext.readOnlyRootFilesystem
+          msg := "Container must have read-only root filesystem"
+        }
+
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sSecurityContext
+metadata:
+  name: enforce-security-context
+spec:
+  match:
+    kinds:
+      - apiGroups: ['']
+        kinds: ['Pod']
+      - apiGroups: ['apps']
+        kinds: ['Deployment']

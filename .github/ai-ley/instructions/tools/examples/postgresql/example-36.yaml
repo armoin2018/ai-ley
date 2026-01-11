@@ -1,0 +1,62 @@
+# Docker Compose HA PostgreSQL Setup
+version: '3.8'
+services:
+  postgres-primary:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: myapp
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_REPLICATION_USER: replicator
+      POSTGRES_REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
+    volumes:
+      - postgres_primary_data:/var/lib/postgresql/data
+      - ./postgresql.primary.conf:/etc/postgresql/postgresql.conf
+      - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
+    ports:
+      - '5432:5432'
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+
+  postgres-replica:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGUSER: postgres
+    volumes:
+      - postgres_replica_data:/var/lib/postgresql/data
+      - ./postgresql.replica.conf:/etc/postgresql/postgresql.conf
+    ports:
+      - '5433:5432'
+    depends_on:
+      - postgres-primary
+    command: |
+      bash -c "
+        if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
+          pg_basebackup -h postgres-primary -D /var/lib/postgresql/data -U replicator -W
+          echo 'standby_mode = on' >> /var/lib/postgresql/data/recovery.conf
+          echo 'primary_conninfo = \"host=postgres-primary port=5432 user=replicator\"' >> /var/lib/postgresql/data/recovery.conf
+        fi
+        postgres -c config_file=/etc/postgresql/postgresql.conf
+      "
+
+  pgbouncer:
+    image: pgbouncer/pgbouncer:latest
+    environment:
+      DATABASES_HOST: postgres-primary
+      DATABASES_PORT: 5432
+      DATABASES_USER: postgres
+      DATABASES_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASES_DBNAME: myapp
+      POOL_MODE: transaction
+      SERVER_RESET_QUERY: DISCARD ALL
+      MAX_CLIENT_CONN: 1000
+      DEFAULT_POOL_SIZE: 50
+    ports:
+      - '6432:5432'
+    depends_on:
+      - postgres-primary
+
+volumes:
+  postgres_primary_data:
+  postgres_replica_data:

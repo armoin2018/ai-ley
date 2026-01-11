@@ -1,0 +1,2 @@
+User: Transform traditional waterfall team to agile development methodology
+Agent: Provides comprehensive transformation plan with Scrum implementation, team training, ceremony facilitation, metrics establishment, and continuous improvement framework

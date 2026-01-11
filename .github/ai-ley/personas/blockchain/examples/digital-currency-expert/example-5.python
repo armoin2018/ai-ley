@@ -1,0 +1,77 @@
+class RegulatoryComplianceChecker:
+    def __init__(self):
+        self.jurisdictions = {
+            'US': {
+                'securities_regulator': 'SEC',
+                'aml_requirements': True,
+                'kyc_requirements': True,
+                'registration_required': True,
+                'prohibited_activities': ['privacy_coins', 'anonymous_transactions']
+            },
+            'EU': {
+                'securities_regulator': 'ESMA',
+                'aml_requirements': True,
+                'kyc_requirements': True,
+                'mica_compliance': True,
+                'prohibited_activities': ['anonymous_transactions']
+            },
+            'JP': {
+                'securities_regulator': 'FSA',
+                'aml_requirements': True,
+                'kyc_requirements': True,
+                'whitelist_required': True
+            }
+        }
+    
+    def assess_compliance(self, project_details: Dict, target_jurisdictions: List[str]) -> Dict:
+        compliance_status = {}
+        
+        for jurisdiction in target_jurisdictions:
+            if jurisdiction not in self.jurisdictions:
+                continue
+                
+            rules = self.jurisdictions[jurisdiction]
+            compliance_issues = []
+            
+            # Check securities classification
+            if self.is_security(project_details):
+                if rules.get('registration_required'):
+                    compliance_issues.append(f"Securities registration required with {rules['securities_regulator']}")
+            
+            # Check AML/KYC requirements
+            if rules.get('aml_requirements') and not project_details.get('aml_implemented'):
+                compliance_issues.append("AML compliance program required")
+            
+            if rules.get('kyc_requirements') and not project_details.get('kyc_implemented'):
+                compliance_issues.append("KYC verification required")
+            
+            # Check prohibited activities
+            for prohibited in rules.get('prohibited_activities', []):
+                if prohibited in project_details.get('features', []):
+                    compliance_issues.append(f"Prohibited feature: {prohibited}")
+            
+            compliance_status[jurisdiction] = {
+                'compliant': len(compliance_issues) == 0,
+                'issues': compliance_issues,
+                'risk_level': 'LOW' if len(compliance_issues) == 0 else 'MEDIUM' if len(compliance_issues) <= 2 else 'HIGH'
+            }
+        
+        return compliance_status
+    
+    def is_security(self, project_details: Dict) -> bool:
+        """Apply Howey Test for securities classification"""
+        
+        # Investment of money
+        has_investment = project_details.get('token_sale', False)
+        
+        # Common enterprise
+        common_enterprise = project_details.get('centralized_management', False)
+        
+        # Expectation of profits
+        profit_expectation = project_details.get('profit_sharing', False) or \
+                           project_details.get('speculative_token', False)
+        
+        # Efforts of others
+        reliant_on_others = project_details.get('team_dependent', True)
+        
+        return has_investment and common_enterprise and profit_expectation and reliant_on_others

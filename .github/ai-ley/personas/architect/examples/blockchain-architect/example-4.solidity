@@ -1,0 +1,25 @@
+// Cross-chain message validation pattern
+interface ICrossChainReceiver {
+    function receiveMessage(
+        uint256 srcChainId,
+        address srcContract,
+        bytes calldata payload,
+        bytes32 messageHash
+    ) external;
+}
+
+contract CrossChainValidator {
+    mapping(uint256 => bool) public supportedChains;
+    mapping(bytes32 => bool) public processedMessages;
+    
+    modifier validChain(uint256 chainId) {
+        require(supportedChains[chainId], "Unsupported chain");
+        _;
+    }
+    
+    modifier onlyOnce(bytes32 messageHash) {
+        require(!processedMessages[messageHash], "Already processed");
+        processedMessages[messageHash] = true;
+        _;
+    }
+}

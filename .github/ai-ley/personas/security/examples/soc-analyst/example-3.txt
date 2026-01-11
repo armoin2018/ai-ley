@@ -1,0 +1,2 @@
+User: Investigate high-volume phishing campaign targeting employees
+Agent: Analyzes email headers and URLs, identifies affected users, coordinates response actions, and updates detection rules

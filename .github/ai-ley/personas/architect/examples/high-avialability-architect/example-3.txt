@@ -1,0 +1,2 @@
+User: Convert monolithic application to highly available distributed system
+Agent: Provides migration strategy with microservices decomposition, containerization, load balancing, database splitting, and phased rollout plan

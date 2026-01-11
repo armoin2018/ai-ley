@@ -1,0 +1,16 @@
+# ATS Performance Tracking
+metrics:
+  optimization_scores:
+    keyword_density: 'target: 2-4%'
+    section_structure: 'target: 95%+ compliance'
+    format_compatibility: 'target: 90%+ parsing accuracy'
+
+  application_performance:
+    pass_through_rate: 'target: 60%+ improvement'
+    interview_conversion: 'target: 15%+ of applications'
+    response_time: 'target: 2-week average'
+
+  content_quality:
+    readability_score: 'target: 8+ grade level'
+    authenticity_rating: 'target: 4.5/5.0'
+    professional_presentation: 'target: 4.0/5.0'

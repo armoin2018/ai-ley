@@ -1,0 +1,21 @@
+# Assessment model structure
+current_state:
+  business_capabilities:
+    - capability_elements
+    - maturity_assessment
+  application_portfolio:
+    - application_components
+    - technology_debt
+  technology_infrastructure:
+    - infrastructure_elements
+    - lifecycle_status
+
+analysis:
+  gap_analysis:
+    - missing_capabilities
+    - technology_gaps
+    - process_inefficiencies
+  dependency_analysis:
+    - critical_dependencies
+    - single_points_failure
+    - integration_complexity

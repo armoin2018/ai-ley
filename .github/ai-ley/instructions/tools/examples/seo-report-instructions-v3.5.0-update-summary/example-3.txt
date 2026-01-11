@@ -1,0 +1,2 @@
+Overall Score = (Title × 0.20) + (Meta × 0.15) + (Headings × 0.15) +
+                (Content × 0.25) + (Links × 0.15) + (Images × 0.05) + (Schema × 0.05)

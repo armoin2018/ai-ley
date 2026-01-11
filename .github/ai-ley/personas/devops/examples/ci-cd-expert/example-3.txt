@@ -1,0 +1,2 @@
+User: Migrate legacy Java application from manual deployment to automated CI/CD
+Agent: Builds comprehensive pipeline with containerization, automated testing integration, database migration handling, and phased rollout strategy with monitoring

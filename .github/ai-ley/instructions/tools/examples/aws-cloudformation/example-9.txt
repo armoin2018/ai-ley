@@ -1,0 +1,28 @@
+# Configure AWS SSO for enterprise access
+
+aws configure sso
+
+# SSO start URL: https://your-org.awsapps.com/start
+
+# SSO region: us-east-1
+
+# Account ID: 123456789012
+
+# Role name: AdministratorAccess
+
+# Set up enterprise MFA configuration
+
+aws configure set cli_pager ""
+aws configure set max_concurrent_requests 20
+aws configure set max_queue_size 10000
+aws configure set s3.max_concurrent_requests 20
+aws configure set s3.max_queue_size 10000
+
+# Configure AWS Organizations and Control Tower integration
+
+aws organizations describe-organization
+aws controltower list-enabled-controls
+
+# Set up session manager for secure access
+
+aws ssm start-session --target i-1234567890abcdef0

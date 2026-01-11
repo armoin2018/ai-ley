@@ -1,0 +1,11 @@
+vscode.window.withProgress({
+  location: vscode.ProgressLocation.Notification,
+  title: "Processing...",
+  cancellable: true
+}, async (progress, token) => {
+  progress.report({ increment: 0 });
+  // Do work
+  progress.report({ increment: 50, message: "Halfway" });
+  // More work
+  progress.report({ increment: 100 });
+});

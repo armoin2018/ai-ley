@@ -1,0 +1,41 @@
+/* Stylelint configuration example */
+/* .stylelintrc.json */
+{
+  "extends": ["stylelint-config-standard"],
+  "rules": {
+    "indentation": 2,
+    "string-quotes": "single",
+    "no-duplicate-selectors": true,
+    "color-hex-case": "lower",
+    "color-hex-length": "short",
+    "declaration-block-trailing-semicolon": "always",
+    "declaration-colon-space-after": "always",
+    "declaration-colon-space-before": "never",
+    "block-opening-brace-space-before": "always",
+    "selector-combinator-space-after": "always",
+    "selector-combinator-space-before": "always"
+  }
+}
+
+/* Accessibility testing considerations */
+.accessible-button {
+  /* Ensure sufficient color contrast */
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  
+  /* Ensure adequate touch target size */
+  min-height: 44px;
+  min-width: 44px;
+  
+  /* Provide focus indicators */
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.accessible-button:focus {
+  outline-color: var(--color-primary);
+}
+
+.accessible-button:focus:not(:focus-visible) {
+  outline: none;
+}

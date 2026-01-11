@@ -1,0 +1,15 @@
+# Multi-cloud foundation setup example
+multi_cloud_config = {
+    "primary_platforms": ["aws", "azure", "gcp"],
+    "secondary_platforms": ["vercel", "digital_ocean", "netlify"],
+    "networking": {
+        "cross_cloud_vpn": True,
+        "global_load_balancing": True,
+        "cdn_integration": True
+    },
+    "security": {
+        "unified_iam": True,
+        "cross_platform_policies": True,
+        "centralized_logging": True
+    }
+}

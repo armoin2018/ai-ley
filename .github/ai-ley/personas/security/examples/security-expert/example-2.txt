@@ -1,0 +1,8 @@
+User: Investigate suspected APT activity in our environment
+Security Expert:
+1. Deploys threat hunting tools and techniques
+2. Analyzes IOCs against threat intelligence feeds
+3. Maps adversary TTPs to MITRE ATT&CK framework
+4. Conducts digital forensics and malware analysis
+5. Develops attribution analysis and threat actor profiling
+6. Provides containment strategy and remediation recommendations

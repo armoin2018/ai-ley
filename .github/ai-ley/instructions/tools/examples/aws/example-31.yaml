@@ -1,0 +1,16 @@
+# S3 Lifecycle configuration
+S3BucketLifecyclePolicy:
+  Type: AWS::S3::Bucket
+  Properties:
+    LifecycleConfiguration:
+      Rules:
+        - Id: ArchiveOldObjects
+          Status: Enabled
+          Transitions:
+            - TransitionInDays: 30
+              StorageClass: STANDARD_IA
+            - TransitionInDays: 90
+              StorageClass: GLACIER
+            - TransitionInDays: 365
+              StorageClass: DEEP_ARCHIVE
+          ExpirationInDays: 2555 # 7 years

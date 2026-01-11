@@ -1,0 +1,62 @@
+# docker-compose.yml for SQLite application with backup
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: sqlite-app
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DB_PATH=/app/data/app.db
+      - BACKUP_INTERVAL=3600 # Backup every hour
+    volumes:
+      - sqlite_data:/app/data
+      - sqlite_backups:/app/backups
+    ports:
+      - '3000:3000'
+    healthcheck:
+      test: ['CMD', 'sqlite3', '/app/data/app.db', 'SELECT 1;']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  backup-service:
+    image: alpine:latest
+    container_name: sqlite-backup
+    restart: unless-stopped
+    environment:
+      - BACKUP_RETENTION_DAYS=30
+    volumes:
+      - sqlite_data:/data:ro
+      - sqlite_backups:/backups
+    entrypoint: |
+      sh -c "
+        apk add --no-cache sqlite
+        while true; do
+          timestamp=$$(date +%Y%m%d_%H%M%S)
+          echo 'Creating backup at' $$timestamp
+          sqlite3 /data/app.db \".backup /backups/app_backup_$$timestamp.db\"
+          
+          # Compress backup
+          gzip /backups/app_backup_$$timestamp.db
+          
+          # Clean old backups
+          find /backups -name '*.db.gz' -mtime +$$BACKUP_RETENTION_DAYS -delete
+          
+          echo 'Backup completed, sleeping for 1 hour'
+          sleep 3600
+        done
+      "
+
+volumes:
+  sqlite_data:
+    driver: local
+  sqlite_backups:
+    driver: local

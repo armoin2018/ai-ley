@@ -1,0 +1,11 @@
+# Install pytest-asyncio
+# pip install pytest-asyncio
+
+# Configure in pytest.ini or pyproject.toml
+# asyncio_mode = auto
+
+# Use proper async fixtures
+@pytest.fixture
+async def async_fixture():
+    async with SomeAsyncContext() as context:
+        yield context

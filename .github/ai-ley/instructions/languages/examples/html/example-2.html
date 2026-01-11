@@ -1,0 +1,59 @@
+<body>
+  <!-- Skip navigation for accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  
+  <!-- Page header -->
+  <header role="banner">
+    <nav role="navigation" aria-label="Main navigation">
+      <ul>
+        <li><a href="/" aria-current="page">Home</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/services">Services</a></li>
+        <li><a href="/contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+  
+  <!-- Main content area -->
+  <main id="main-content" role="main">
+    <h1>Page Title</h1>
+    
+    <section aria-labelledby="intro-heading">
+      <h2 id="intro-heading">Introduction</h2>
+      <p>Page introduction content...</p>
+    </section>
+    
+    <section aria-labelledby="content-heading">
+      <h2 id="content-heading">Main Content</h2>
+      
+      <article>
+        <h3>Article Title</h3>
+        <time datetime="2025-01-08">January 8, 2025</time>
+        <p>Article content...</p>
+        
+        <figure>
+          <img src="/assets/images/example.jpg" 
+               alt="Descriptive alt text for image"
+               loading="lazy"
+               width="800" 
+               height="600">
+          <figcaption>Image caption describing the content</figcaption>
+        </figure>
+      </article>
+    </section>
+    
+    <!-- Sidebar content -->
+    <aside aria-labelledby="sidebar-heading">
+      <h2 id="sidebar-heading">Related Information</h2>
+      <p>Sidebar content...</p>
+    </aside>
+  </main>
+  
+  <!-- Page footer -->
+  <footer role="contentinfo">
+    <p>&copy; 2025 Company Name. All rights reserved.</p>
+  </footer>
+  
+  <!-- Scripts at bottom for performance -->
+  <script src="/assets/js/main.js" defer></script>
+</body>

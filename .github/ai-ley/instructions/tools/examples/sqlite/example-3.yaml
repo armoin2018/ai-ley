@@ -1,0 +1,151 @@
+# sqlite-app-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sqlite-app
+  labels:
+    app: sqlite-app
+spec:
+  replicas: 1 # SQLite doesn't support clustering, use 1 replica
+  selector:
+    matchLabels:
+      app: sqlite-app
+  template:
+    metadata:
+      labels:
+        app: sqlite-app
+    spec:
+      containers:
+        - name: app
+          image: my-sqlite-app:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: 'production'
+            - name: DB_PATH
+              value: '/app/data/app.db'
+            - name: WAL_MODE
+              value: 'true'
+          volumeMounts:
+            - name: sqlite-storage
+              mountPath: /app/data
+            - name: backup-storage
+              mountPath: /app/backups
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '250m'
+            limits:
+              memory: '512Mi'
+              cpu: '500m'
+          livenessProbe:
+            exec:
+              command:
+                - sqlite3
+                - /app/data/app.db
+                - 'SELECT 1;'
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - sqlite3
+                - /app/data/app.db
+                - 'SELECT 1;'
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+      volumes:
+        - name: sqlite-storage
+          persistentVolumeClaim:
+            claimName: sqlite-pvc
+        - name: backup-storage
+          persistentVolumeClaim:
+            claimName: sqlite-backup-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sqlite-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce # SQLite requires single-node access
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: fast-ssd
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sqlite-backup-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: standard
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sqlite-app-service
+spec:
+  selector:
+    app: sqlite-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP
+
+---
+# Backup CronJob
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: sqlite-backup-job
+spec:
+  schedule: '0 */6 * * *' # Every 6 hours
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: backup
+              image: alpine:latest
+              command:
+                - sh
+                - -c
+                - |
+                  apk add --no-cache sqlite
+                  timestamp=$(date +%Y%m%d_%H%M%S)
+                  echo "Creating backup at $timestamp"
+                  sqlite3 /data/app.db ".backup /backups/app_backup_$timestamp.db"
+                  gzip /backups/app_backup_$timestamp.db
+                  find /backups -name "*.db.gz" -mtime +30 -delete
+                  echo "Backup completed"
+              volumeMounts:
+                - name: sqlite-storage
+                  mountPath: /data
+                  readOnly: true
+                - name: backup-storage
+                  mountPath: /backups
+          volumes:
+            - name: sqlite-storage
+              persistentVolumeClaim:
+                claimName: sqlite-pvc
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: sqlite-backup-pvc
+          restartPolicy: OnFailure
+
+## Advanced Real-World Schema Examples
+
+### Desktop Application: Personal Finance Manager

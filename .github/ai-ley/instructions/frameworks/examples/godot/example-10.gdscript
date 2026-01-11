@@ -1,0 +1,13 @@
+# Set up in Project Settings -> Input Map
+# Example input actions:
+# - ui_accept (Space, Enter)
+# - ui_cancel (Escape)
+# - move_left (A, Left Arrow)
+# - move_right (D, Right Arrow)
+# - jump (Space, W, Up Arrow)
+# - attack (Left Mouse Button, X)
+
+# Export settings for different platforms
+# Project Settings -> Export
+# Install export templates for target platforms
+# Configure platform-specific settings

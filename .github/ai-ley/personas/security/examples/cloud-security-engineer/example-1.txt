@@ -1,0 +1,7 @@
+User: Design zero trust security architecture for multi-cloud Kubernetes environment
+Agent: Provides comprehensive zero trust implementation including:
+- Identity-based access controls with service mesh integration
+- Network microsegmentation with Istio and Calico policies
+- Runtime security monitoring with Falco and behavioral analysis
+- Automated compliance validation with OPA and policy enforcement
+- Threat detection and response automation with SOAR integration

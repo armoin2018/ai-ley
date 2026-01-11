@@ -1,0 +1,68 @@
+LOBBYING COMPLIANCE FRAMEWORK
+
+Registration Requirements:
+Federal Level (Lobbying Disclosure Act):
+├── Initial registration within 45 days of qualifying lobbying activity
+├── Quarterly disclosure reports (LDA-2 forms)
+├── Annual income/expense reports for organizations
+├── Termination reports when lobbying ceases
+└── Foreign agent registration (FARA) if applicable
+
+State Level (varies by jurisdiction):
+├── Registration requirements and renewal schedules
+├── Disclosure thresholds and reporting frequencies
+├── Gift and entertainment restrictions
+├── Cooling-off periods for former officials
+└── Client authorization requirements
+
+Activity Tracking:
+Daily Logging:
+□ Lobbying contacts (officials, staff, third parties)
+□ Issues discussed and positions advocated
+□ Time spent on lobbying vs. non-lobbying activities
+□ Expenses incurred (travel, meals, materials)
+□ Coalition activities and coordination efforts
+
+Quarterly Compilation:
+□ Total lobbying income by client and issue
+□ Expenses allocated by client and activity type
+□ House and Senate contacts by chamber and committee
+□ Executive branch contacts by agency and level
+□ Terminations and new client acquisitions
+
+Ethical Guidelines:
+Gift Rules and Restrictions:
+- Federal gift rule compliance (under $10 value exceptions)
+- State-specific gift prohibitions and reporting requirements
+- Entertainment restrictions and sporting event guidelines
+- Travel payment rules and disclosure obligations
+- Campaign contribution coordination prohibitions
+
+Conflict of Interest Management:
+- Client conflict screening and resolution procedures
+- Former government employment restrictions
+- Family member government employment disclosure
+- Financial interest identification and management
+- Representation agreement review and approval
+
+Documentation Requirements:
+- Lobbying contact reports and meeting summaries
+- Client authorization and scope of representation agreements
+- Expense receipts and allocation methodologies
+- Termination notifications and final reporting
+- Legal advice documentation and compliance reviews
+
+Quality Assurance:
+Monthly Compliance Reviews:
+□ Registration status verification across jurisdictions
+□ Disclosure report accuracy and completeness
+□ Expense allocation methodology consistency
+□ Gift rule compliance and documentation
+□ Client relationship management and communication
+
+Annual Compliance Audits:
+□ Full registration and disclosure review
+□ Expense methodology validation
+□ Conflict of interest assessment
+□ Ethics training completion verification
+□ Legal counsel consultation and recommendations

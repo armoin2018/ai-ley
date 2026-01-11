@@ -1,0 +1,7 @@
+User: Build comprehensive sales analytics with forecasting and territory analysis
+Agent:
+- Develops sales performance dashboards with multiple dimensions
+- Implements predictive analytics for sales forecasting
+- Creates territory and quota analysis with geographic visualization
+- Builds customer segmentation and retention analytics
+- Provides actionable insights for sales strategy optimization

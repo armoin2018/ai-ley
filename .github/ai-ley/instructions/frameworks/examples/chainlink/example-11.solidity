@@ -1,0 +1,82 @@
+// contracts/ChainlinkDataMonitor.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
+contract ChainlinkDataMonitor {
+    struct FeedStatus {
+        bool isStale;
+        bool isPriceValid;
+        uint256 lastUpdate;
+        int256 lastPrice;
+        uint256 staleDuration;
+    }
+
+    mapping(address => FeedStatus) public feedStatuses;
+    mapping(address => uint256) public maxStaleDuration;
+
+    event FeedStatusUpdated(address indexed feed, bool isStale, bool isPriceValid);
+    event StaleDataDetected(address indexed feed, uint256 timeSinceUpdate);
+
+    function checkFeedStatus(address _feedAddress) public returns (FeedStatus memory) {
+        AggregatorV3Interface feed = AggregatorV3Interface(_feedAddress);
+        
+        try feed.latestRoundData() returns (
+            uint80 roundID,
+            int256 price,
+            uint256 startedAt,
+            uint256 timeStamp,
+            uint80 answeredInRound
+        ) {
+            uint256 timeSinceUpdate = block.timestamp - timeStamp;
+            uint256 maxStale = maxStaleDuration[_feedAddress];
+            if (maxStale == 0) maxStale = 3600; // Default 1 hour
+
+            bool isStale = timeSinceUpdate > maxStale;
+            bool isPriceValid = price > 0 && timeStamp > 0;
+
+            feedStatuses[_feedAddress] = FeedStatus({
+                isStale: isStale,
+                isPriceValid: isPriceValid,
+                lastUpdate: timeStamp,
+                lastPrice: price,
+                staleDuration: timeSinceUpdate
+            });
+
+            if (isStale) {
+                emit StaleDataDetected(_feedAddress, timeSinceUpdate);
+            }
+
+            emit FeedStatusUpdated(_feedAddress, isStale, isPriceValid);
+            return feedStatuses[_feedAddress];
+            
+        } catch {
+            feedStatuses[_feedAddress] = FeedStatus({
+                isStale: true,
+                isPriceValid: false,
+                lastUpdate: 0,
+                lastPrice: 0,
+                staleDuration: type(uint256).max
+            });
+
+            emit FeedStatusUpdated(_feedAddress, true, false);
+            return feedStatuses[_feedAddress];
+        }
+    }
+
+    function setStaleDuration(address _feedAddress, uint256 _duration) external {
+        maxStaleDuration[_feedAddress] = _duration;
+    }
+
+    function batchCheckFeeds(address[] calldata _feeds) external returns (bool allHealthy) {
+        allHealthy = true;
+        
+        for (uint256 i = 0; i < _feeds.length; i++) {
+            FeedStatus memory status = checkFeedStatus(_feeds[i]);
+            if (status.isStale || !status.isPriceValid) {
+                allHealthy = false;
+            }
+        }
+    }
+}

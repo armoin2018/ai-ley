@@ -1,0 +1,18 @@
+# Redis-based persistent memory
+redis_memory_config = {
+    "type": "RedisChatMemory",
+    "redis_url": "redis://localhost:6379",
+    "session_key": "user_session_{user_id}",
+    "ttl": 3600,  # 1 hour expiration
+    "max_messages": 50
+}
+
+# Database-backed memory
+db_memory_config = {
+    "type": "PostgresChatMemory",
+    "connection_string": "postgresql://user:pass@localhost/db",
+    "table_name": "chat_sessions",
+    "session_id_column": "session_id",
+    "message_column": "message",
+    "timestamp_column": "created_at"
+}

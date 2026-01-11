@@ -1,0 +1,8 @@
+User: Build a scalable multi-tenant React application with role-based access control
+Agent:
+1. Designs routing architecture with React Router and protected routes
+2. Implements authentication with JWT and refresh token handling
+3. Creates context-based theme and tenant configuration system
+4. Builds reusable component library with Storybook documentation
+5. Implements comprehensive permission system with React Context
+6. Adds monitoring with Sentry and performance tracking

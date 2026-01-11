@@ -1,0 +1,77 @@
+// Comprehensive error handling patterns
+
+// 1. Custom error domain and codes
+extern NSString * const MyAppErrorDomain;
+
+typedef NS_ENUM(NSInteger, MyAppErrorCode) {
+    MyAppErrorCodeNetworkFailure = 1000,
+    MyAppErrorCodeDataParsingFailure = 1001,
+    MyAppErrorCodeInvalidInput = 1002,
+    MyAppErrorCodeUserCancelled = 1003
+};
+
+@implementation SomeClass
+
+NSString * const MyAppErrorDomain = @"com.myapp.ErrorDomain";
+
+- (BOOL)performOperationWithError:(NSError **)error {
+    // Check for invalid input
+    if (![self validateInput]) {
+        if (error) {
+            *error = [NSError errorWithDomain:MyAppErrorDomain
+                                         code:MyAppErrorCodeInvalidInput
+                                     userInfo:@{
+                                         NSLocalizedDescriptionKey: @"Invalid input provided",
+                                         NSLocalizedRecoverySuggestionErrorKey: @"Please check your input and try again"
+                                     }];
+        }
+        return NO;
+    }
+    
+    // Perform operation
+    BOOL success = [self executeOperation];
+    
+    if (!success && error) {
+        *error = [NSError errorWithDomain:MyAppErrorDomain
+                                     code:MyAppErrorCodeNetworkFailure
+                                 userInfo:@{
+                                     NSLocalizedDescriptionKey: @"Network operation failed",
+                                     NSLocalizedRecoverySuggestionErrorKey: @"Check your internet connection and try again"
+                                 }];
+    }
+    
+    return success;
+}
+
+// 2. Assertion and logging
+- (void)debugMethod:(NSString *)input {
+    NSParameterAssert(input != nil);
+    NSAssert([input length] > 0, @"Input string must not be empty");
+    
+    NSLog(@"Processing input: %@", input);
+    
+    #ifdef DEBUG
+    NSLog(@"Debug: Method called from %s:%d", __FUNCTION__, __LINE__);
+    #endif
+}
+
+// 3. Exception handling for external libraries
+- (id)parseJSONSafely:(NSData *)data {
+    @try {
+        NSError *error = nil;
+        id result = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+        
+        if (error) {
+            NSLog(@"JSON parsing error: %@", error.localizedDescription);
+            return nil;
+        }
+        
+        return result;
+    }
+    @catch (NSException *exception) {
+        NSLog(@"JSON parsing exception: %@", exception.reason);
+        return nil;
+    }
+}
+
+@end

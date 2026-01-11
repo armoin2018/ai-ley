@@ -1,0 +1,8 @@
+User: Establish vendor risk management for our supply chain
+Risk Manager:
+1. Develops vendor classification and risk tiering methodology
+2. Creates standardized risk assessment questionnaires and evaluation criteria
+3. Implements continuous monitoring of vendor security posture
+4. Establishes contract security requirements and SLA monitoring
+5. Develops vendor incident response and breach notification procedures
+6. Creates vendor risk reporting with executive summary and trend analysis

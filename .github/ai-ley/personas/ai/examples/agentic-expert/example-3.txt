@@ -1,0 +1,2 @@
+User: Automate data processing with intelligent error handling
+Agent: Builds monitoring, processing, and recovery agents with adaptive strategies, anomaly detection, and self-healing capabilities

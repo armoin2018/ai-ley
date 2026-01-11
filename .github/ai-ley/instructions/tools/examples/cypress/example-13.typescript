@@ -1,0 +1,24 @@
+// cypress/support/e2e.ts - TypeScript support
+/// <reference types="cypress" />
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      login(email: string, password: string): Chainable<void>;
+      uploadFile(selector: string, fileName: string, fileType?: string): Chainable<void>;
+      seedDatabase(fixture: string): Chainable<void>;
+      checkA11y(context?: any, options?: any): Chainable<void>;
+    }
+  }
+}
+
+// Custom command with TypeScript
+Cypress.Commands.add('login', (email: string, password: string): void => {
+  cy.session([email, password], () => {
+    cy.visit('/login');
+    cy.get('[data-cy=email-input]').type(email);
+    cy.get('[data-cy=password-input]').type(password);
+    cy.get('[data-cy=login-button]').click();
+    cy.url().should('include', '/dashboard');
+  });
+});

@@ -1,0 +1,28 @@
+contract GasOptimized {
+    // Pack structs efficiently
+    struct OptimizedStruct {
+        uint128 value1;    // 16 bytes
+        uint128 value2;    // 16 bytes - fits in same slot
+        bool isActive;     // 1 byte - new slot
+        address owner;     // 20 bytes - same slot as bool
+    }
+
+    // Use appropriate data types
+    uint8 public smallValue;    // For values < 256
+    uint256 public largeValue;  // For larger values
+
+    // Batch operations
+    function batchTransfer(address[] calldata recipients, uint256[] calldata amounts)
+        external
+    {
+        require(recipients.length == amounts.length, "Length mismatch");
+
+        for (uint256 i = 0; i < recipients.length; i++) {
+            _transfer(recipients[i], amounts[i]);
+        }
+    }
+
+    function _transfer(address to, uint256 amount) internal {
+        // Transfer logic
+    }
+}

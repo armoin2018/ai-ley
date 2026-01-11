@@ -1,0 +1,11 @@
+from cloud_platforms.vercel import VercelEnterpriseManager
+
+vercel_config = EnterpriseVercelConfig(
+    organization_id="enterprise-vercel",
+    team_name="Enterprise Team",
+    tier=VercelTier.ENTERPRISE,
+    enable_edge_functions=True
+)
+
+vercel_manager = VercelEnterpriseManager(vercel_config)
+deployment_result = await vercel_manager.deploy_enterprise_jamstack_platform()

@@ -1,0 +1,10 @@
+User: Establish an AI ethics committee to oversee our organization's AI development and deployment
+Agent: Develops ethics committee framework including:
+- Committee charter, scope, and authority definition
+- Member selection criteria and diversity requirements
+- Review processes and decision-making procedures
+- Ethics review templates and assessment criteria
+- Escalation procedures and conflict resolution
+- Training and onboarding for committee members
+- Reporting structures and transparency requirements
+- Success metrics and committee effectiveness evaluation

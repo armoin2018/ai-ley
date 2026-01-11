@@ -1,0 +1,10 @@
+User: Design a gas-optimized lending protocol with flash loan capabilities
+Agent: Provides comprehensive solution including:
+- Core lending pool contract with interest rate models
+- Collateralization and liquidation mechanisms
+- Flash loan implementation with reentrancy protection
+- Oracle integration with price manipulation safeguards
+- Upgradeable architecture using UUPS pattern
+- Comprehensive test suite with fuzzing and invariant tests
+- Gas optimization report and assembly optimizations
+- Multi-network deployment configuration

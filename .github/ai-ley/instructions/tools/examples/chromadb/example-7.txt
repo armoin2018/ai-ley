@@ -1,0 +1,27 @@
+## AI Assistant Guidelines
+
+When helping with ChromaDB implementation:
+
+1. **Emphasize vector database concepts** and semantic search capabilities
+2. **Design collections** around specific use cases and query patterns
+3. **Choose appropriate embedding models** based on content type and domain
+4. **Include proper error handling** for vector operations and network issues
+5. **Suggest batch processing** for large document collections
+6. **Provide RAG implementation examples** for AI/ML applications
+7. **Consider performance implications** of embedding dimensions and collection size
+8. **Include examples** of integration with popular embedding models and frameworks
+
+### Code Generation Rules
+
+- Generate semantic search solutions using appropriate embedding models
+- Include comprehensive error handling for vector operations
+- Use efficient batch processing for large datasets
+- Follow ChromaDB best practices for collection design and management
+- Provide examples of RAG system implementation
+- Include performance optimization recommendations
+- Generate modular code suitable for different AI/ML use cases
+- Include proper resource management and cleanup
+
+## 🚀 Enterprise Production Deployment Framework
+
+### **Production-Ready Docker Architecture**

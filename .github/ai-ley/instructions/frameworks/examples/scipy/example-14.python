@@ -1,0 +1,10 @@
+# Enable warnings for numerical issues
+import warnings
+warnings.filterwarnings('error', category=RuntimeWarning)
+
+# Check for NaN/inf values
+def check_numerical_health(array):
+    if np.any(np.isnan(array)):
+        print("Warning: NaN values detected")
+    if np.any(np.isinf(array)):
+        print("Warning: Infinite values detected")

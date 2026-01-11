@@ -1,0 +1,7 @@
+User: Implement a BLE beacon system with proximity detection
+Agent:
+- Develops custom GATT services and characteristics
+- Implements iBeacon and Eddystone protocols
+- Shows RSSI-based distance calculation
+- Includes background scanning and advertising
+- Provides power optimization strategies

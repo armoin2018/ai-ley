@@ -1,0 +1,73 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+library MathOptimized {
+    // Gas-optimized square root using assembly
+    function sqrt(uint256 x) internal pure returns (uint256 result) {
+        if (x == 0) return 0;
+        
+        assembly {
+            // Initial guess
+            result := x
+            let xAux := x
+            
+            // Newton's method with assembly optimization
+            if iszero(lt(xAux, 0x100000000000000000000000000000000)) {
+                xAux := shr(128, xAux)
+                result := shl(64, result)
+            }
+            if iszero(lt(xAux, 0x10000000000000000)) {
+                xAux := shr(64, xAux)
+                result := shl(32, result)
+            }
+            if iszero(lt(xAux, 0x100000000)) {
+                xAux := shr(32, xAux)
+                result := shl(16, result)
+            }
+            if iszero(lt(xAux, 0x10000)) {
+                xAux := shr(16, xAux)
+                result := shl(8, result)
+            }
+            if iszero(lt(xAux, 0x100)) {
+                xAux := shr(8, xAux)
+                result := shl(4, result)
+            }
+            if iszero(lt(xAux, 0x10)) {
+                xAux := shr(4, xAux)
+                result := shl(2, result)
+            }
+            if iszero(lt(xAux, 0x8)) {
+                result := shl(1, result)
+            }
+            
+            // Newton's method iterations
+            result := shr(1, add(result, div(x, result)))
+            result := shr(1, add(result, div(x, result)))
+            result := shr(1, add(result, div(x, result)))
+            result := shr(1, add(result, div(x, result)))
+            result := shr(1, add(result, div(x, result)))
+            result := shr(1, add(result, div(x, result)))
+            result := shr(1, add(result, div(x, result)))
+            
+            // Round down
+            let roundedDownResult := div(x, result)
+            if lt(roundedDownResult, result) {
+                result := roundedDownResult
+            }
+        }
+    }
+    
+    // Optimized power function for integer exponents
+    function pow(uint256 base, uint256 exponent) internal pure returns (uint256 result) {
+        assembly {
+            result := 1
+            for {} gt(exponent, 0) {} {
+                if mod(exponent, 2) {
+                    result := mul(result, base)
+                }
+                base := mul(base, base)
+                exponent := shr(1, exponent)
+            }
+        }
+    }
+}

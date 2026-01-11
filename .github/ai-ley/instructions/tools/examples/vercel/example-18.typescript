@@ -1,0 +1,52 @@
+// lib/analytics.ts
+import { Analytics } from '@vercel/analytics/react';
+import { track } from '@vercel/analytics';
+
+export function trackEvent(name: string, properties?: Record<string, any>) {
+  track(name, properties);
+}
+
+export function trackPageView(page: string) {
+  track('page_view', { page });
+}
+
+export function trackPurchase(value: number, currency: string = 'USD') {
+  track('purchase', { value, currency });
+}
+
+// pages/_app.tsx
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <>
+      <Component {...pageProps} />
+      <Analytics />
+      <SpeedInsights />
+    </>
+  );
+}
+
+// components/ProductCard.tsx
+import { trackEvent } from '../lib/analytics';
+
+export default function ProductCard({ product }: { product: Product }) {
+  const handleAddToCart = () => {
+    trackEvent('add_to_cart', {
+      product_id: product.id,
+      product_name: product.name,
+      price: product.price,
+    });
+
+    // Add to cart logic
+  };
+
+  return (
+    <div className="product-card">
+      <h3>{product.name}</h3>
+      <p>${product.price}</p>
+      <button onClick={handleAddToCart}>Add to Cart</button>
+    </div>
+  );
+}

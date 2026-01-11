@@ -1,0 +1,60 @@
+# Problem: High memory usage with large result sets
+# Solution: Use generators and streaming queries
+
+import sqlite3
+
+class SQLiteStreamer:
+    def __init__(self, database_path):
+        self.database_path = database_path
+
+    def stream_query(self, query, params=None, chunk_size=1000):
+        """Stream large query results in chunks"""
+        conn = sqlite3.connect(self.database_path)
+        conn.row_factory = sqlite3.Row
+
+        try:
+            cursor = conn.execute(query, params or [])
+
+            while True:
+                rows = cursor.fetchmany(chunk_size)
+                if not rows:
+                    break
+                yield from rows
+
+        finally:
+            conn.close()
+
+    def process_large_dataset(self, table_name, batch_processor):
+        """Process large datasets in manageable chunks"""
+        offset = 0
+        chunk_size = 1000
+
+        while True:
+            query = f"""
+                SELECT * FROM {table_name}
+                ORDER BY id
+                LIMIT {chunk_size} OFFSET {offset}
+            """
+
+            chunk = []
+            for row in self.stream_query(query):
+                chunk.append(row)
+
+            if not chunk:
+                break
+
+            # Process the chunk
+            batch_processor(chunk)
+
+            offset += chunk_size
+            print(f"Processed {offset} rows...")
+
+# Usage example
+def process_batch(rows):
+    """Process a batch of rows"""
+    for row in rows:
+        # Perform processing on each row
+        print(f"Processing task: {row['title']}")
+
+streamer = SQLiteStreamer("large_database.db")
+streamer.process_large_dataset("tasks", process_batch)

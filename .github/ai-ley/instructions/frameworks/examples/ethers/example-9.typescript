@@ -1,0 +1,75 @@
+// services/contracts.ts
+import { ethers } from 'ethers';
+import { ProviderService } from './provider';
+import MyTokenABI from '../contracts/MyToken.json';
+
+interface TokenContract extends ethers.Contract {
+  name(): Promise<string>;
+  symbol(): Promise<string>;
+  totalSupply(): Promise<bigint>;
+  balanceOf(account: string): Promise<bigint>;
+  transfer(to: string, amount: bigint): Promise<ethers.ContractTransactionResponse>;
+  allowance(owner: string, spender: string): Promise<bigint>;
+  approve(spender: string, amount: bigint): Promise<ethers.ContractTransactionResponse>;
+}
+
+export class ContractService {
+  private providerService: ProviderService;
+  private tokenContract: TokenContract | null = null;
+
+  constructor() {
+    this.providerService = ProviderService.getInstance();
+  }
+
+  async getTokenContract(address: string): Promise<TokenContract> {
+    if (!this.tokenContract) {
+      const provider = this.providerService.getProvider();
+      this.tokenContract = new ethers.Contract(
+        address,
+        MyTokenABI.abi,
+        provider
+      ) as TokenContract;
+    }
+    return this.tokenContract;
+  }
+
+  async getTokenInfo(contractAddress: string) {
+    const contract = await this.getTokenContract(contractAddress);
+    
+    const [name, symbol, totalSupply] = await Promise.all([
+      contract.name(),
+      contract.symbol(),
+      contract.totalSupply()
+    ]);
+
+    return {
+      name,
+      symbol,
+      totalSupply: ethers.formatEther(totalSupply)
+    };
+  }
+
+  async transferTokens(
+    contractAddress: string,
+    to: string,
+    amount: string
+  ): Promise<ethers.ContractTransactionResponse> {
+    const signer = await this.providerService.getSigner();
+    const contract = (await this.getTokenContract(contractAddress)).connect(signer);
+    
+    const amountWei = ethers.parseEther(amount);
+    return await contract.transfer(to, amountWei);
+  }
+
+  async approveTokens(
+    contractAddress: string,
+    spender: string,
+    amount: string
+  ): Promise<ethers.ContractTransactionResponse> {
+    const signer = await this.providerService.getSigner();
+    const contract = (await this.getTokenContract(contractAddress)).connect(signer);
+    
+    const amountWei = ethers.parseEther(amount);
+    return await contract.approve(spender, amountWei);
+  }
+}

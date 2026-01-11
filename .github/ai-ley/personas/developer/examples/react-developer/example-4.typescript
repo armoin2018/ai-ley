@@ -1,0 +1,136 @@
+// High-quality TypeScript React component with hooks
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { z } from 'zod';
+
+// Props validation schema
+const PropsSchema = z.object({
+  id: z.string(),
+  onUpdate: z.function().optional(),
+  className: z.string().optional(),
+});
+
+type Props = z.infer<typeof PropsSchema>;
+
+interface DataItem {
+  id: string;
+  name: string;
+  status: 'active' | 'inactive';
+  updatedAt: string;
+}
+
+export const DataComponent: React.FC<Props> = ({ id, onUpdate, className }) => {
+  // Validate props
+  const validatedProps = PropsSchema.parse({ id, onUpdate, className });
+  
+  // Local state
+  const [localState, setLocalState] = useState<string>('');
+  
+  // Query client for cache updates
+  const queryClient = useQueryClient();
+  
+  // Data fetching with React Query
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['data-item', id],
+    queryFn: () => fetchDataItem(id),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 10 * 60 * 1000, // 10 minutes
+  });
+  
+  // Mutations with optimistic updates
+  const updateMutation = useMutation({
+    mutationFn: updateDataItem,
+    onMutate: async (newData) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['data-item', id] });
+      
+      // Snapshot previous value
+      const previousData = queryClient.getQueryData(['data-item', id]);
+      
+      // Optimistically update
+      queryClient.setQueryData(['data-item', id], newData);
+      
+      return { previousData };
+    },
+    onError: (err, newData, context) => {
+      // Rollback on error
+      queryClient.setQueryData(['data-item', id], context?.previousData);
+    },
+    onSettled: () => {
+      // Refetch after error or success
+      queryClient.invalidateQueries({ queryKey: ['data-item', id] });
+    },
+  });
+  
+  // Memoized computed values
+  const computedValue = useMemo(() => {
+    if (!data) return null;
+    return data.name.toUpperCase();
+  }, [data?.name]);
+  
+  // Event handlers with useCallback
+  const handleUpdate = useCallback((newValue: string) => {
+    setLocalState(newValue);
+    updateMutation.mutate({ id, name: newValue });
+    onUpdate?.(newValue);
+  }, [id, updateMutation, onUpdate]);
+  
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      // Cleanup logic
+    };
+  }, []);
+  
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="animate-pulse bg-gray-200 h-20 rounded" role="status" aria-label="Loading">
+        <span className="sr-only">Loading...</span>
+      </div>
+    );
+  }
+  
+  // Error state
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded" role="alert">
+        <h3 className="font-medium">Error loading data</h3>
+        <p>{error.message}</p>
+      </div>
+    );
+  }
+  
+  return (
+    <div className={`p-4 border rounded-lg ${className}`}>
+      <h2 className="text-lg font-semibold">{computedValue}</h2>
+      <input
+        type="text"
+        value={localState}
+        onChange={(e) => handleUpdate(e.target.value)}
+        className="mt-2 p-2 border rounded"
+        aria-label="Update data item name"
+      />
+      <p className="text-sm text-gray-600 mt-2">
+        Status: {data?.status} | Updated: {data?.updatedAt}
+      </p>
+    </div>
+  );
+};
+
+// API functions
+async function fetchDataItem(id: string): Promise<DataItem> {
+  const response = await fetch(`/api/data/${id}`);
+  if (!response.ok) throw new Error('Failed to fetch data');
+  return response.json();
+}
+
+async function updateDataItem({ id, name }: { id: string; name: string }): Promise<DataItem> {
+  const response = await fetch(`/api/data/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  });
+  if (!response.ok) throw new Error('Failed to update data');
+  return response.json();
+}

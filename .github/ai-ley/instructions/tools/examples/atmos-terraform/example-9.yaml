@@ -1,0 +1,168 @@
+# .github/workflows/atmos-terraform.yml - Enterprise GitOps workflow
+name: 'Atmos Terraform Enterprise Workflow'
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'components/**'
+      - 'stacks/**'
+      - 'schemas/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'components/**'
+      - 'stacks/**'
+      - 'schemas/**'
+
+env:
+  ATMOS_CLI_CONFIG_PATH: './atmos.yaml'
+  AWS_REGION: 'us-east-1'
+
+jobs:
+  validate:
+    name: 'Validate Configuration'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Atmos
+        uses: cloudposse/github-action-setup-atmos@v1
+        with:
+          atmos-version: '1.63.0'
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.6.0'
+
+      - name: Validate YAML
+        run: |
+          find stacks -name "*.yaml" -o -name "*.yml" | xargs yamllint -c .yamllint.yml
+
+      - name: Validate Atmos Configuration
+        run: atmos validate stacks
+
+      - name: Validate Terraform Components
+        run: |
+          for component in components/terraform/*/; do
+            if [ -d "$component" ]; then
+              echo "Validating $component"
+              cd "$component"
+              terraform init -backend=false
+              terraform validate
+              cd ../../../
+            fi
+          done
+
+  security-scan:
+    name: 'Security Scanning'
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: components/terraform
+          framework: terraform
+          output_format: sarif
+          output_file_path: checkov-results.sarif
+
+      - name: Run TFSec
+        uses: aquasecurity/tfsec-sarif-action@v0.1.4
+        with:
+          sarif_file: tfsec-results.sarif
+          working_directory: components/terraform
+
+      - name: Upload SARIF files
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: '.'
+
+  plan:
+    name: 'Plan Infrastructure Changes'
+    runs-on: ubuntu-latest
+    needs: [validate, security-scan]
+    strategy:
+      matrix:
+        stack:
+          - 'enterprise-platform-dev-us-east-1'
+          - 'enterprise-platform-staging-us-east-1'
+          - 'enterprise-platform-prod-us-east-1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Atmos
+        uses: cloudposse/github-action-setup-atmos@v1
+        with:
+          atmos-version: '1.63.0'
+
+      - name: Plan VPC
+        run: |
+          atmos terraform plan vpc -s ${{ matrix.stack }}
+
+      - name: Plan EKS
+        run: |
+          atmos terraform plan eks -s ${{ matrix.stack }}
+
+      - name: Comment PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const output = `
+            #### Atmos Terraform Plan 📖 \`${{ matrix.stack }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`
+            ${{ steps.plan.outputs.stdout }}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+  deploy:
+    name: 'Deploy Infrastructure'
+    runs-on: ubuntu-latest
+    needs: plan
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Atmos
+        uses: cloudposse/github-action-setup-atmos@v1
+        with:
+          atmos-version: '1.63.0'
+
+      - name: Apply Infrastructure Changes
+        run: |
+          atmos terraform apply vpc -s enterprise-platform-prod-us-east-1 --auto-approve
+          atmos terraform apply eks -s enterprise-platform-prod-us-east-1 --auto-approve

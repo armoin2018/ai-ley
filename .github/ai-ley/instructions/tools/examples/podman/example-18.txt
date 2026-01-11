@@ -1,0 +1,8 @@
+- podman inspect/logs/top; check user namespace mappings; validate SELinux denials (audit2allow)
+- Networking issues: verify netavark networks, IP conflicts, and host firewall rules
+- Enterprise diagnostics with comprehensive system analysis and security validation
+- Automated troubleshooting scripts and performance monitoring
+
+## Enterprise Governance & Compliance
+
+### CIS Benchmark Automation

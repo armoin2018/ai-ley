@@ -1,0 +1,10 @@
+graph TD
+    A[Global DNS] --> B[US - AWS]
+    A --> C[EU - Azure]
+    A --> D[APAC - GCP]
+    B --> E[US Applications]
+    C --> F[EU Applications]
+    D --> G[APAC Applications]
+    E --> H[Cross-Region Replication]
+    F --> H
+    G --> H

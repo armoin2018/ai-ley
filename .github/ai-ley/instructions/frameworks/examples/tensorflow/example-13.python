@@ -1,0 +1,5 @@
+# Save model for serving
+model.save('saved_model/1')
+
+# TensorFlow Serving with Docker
+# docker run -p 8501:8501 --mount type=bind,source=/path/to/saved_model,target=/models/model_name -e MODEL_NAME=model_name -t tensorflow/serving

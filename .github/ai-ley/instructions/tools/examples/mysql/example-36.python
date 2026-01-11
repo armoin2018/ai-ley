@@ -1,0 +1,162 @@
+#!/usr/bin/env python3
+# mysql_monitor.py
+
+import mysql.connector
+import json
+import datetime
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+class MySQLMonitor:
+    def __init__(self, config):
+        self.config = config
+        self.alerts = []
+
+    def connect(self):
+        return mysql.connector.connect(**self.config)
+
+    def check_slow_queries(self, threshold_seconds=2):
+        """Check for slow queries exceeding threshold"""
+        conn = self.connect()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT
+                SUBSTRING(digest_text, 1, 100) as query_sample,
+                count_star as exec_count,
+                avg_timer_wait/1000000000000 as avg_seconds,
+                sum_timer_wait/1000000000000 as total_seconds
+            FROM performance_schema.events_statements_summary_by_digest
+            WHERE avg_timer_wait/1000000000000 > %s
+            ORDER BY avg_timer_wait DESC
+            LIMIT 10
+        """, (threshold_seconds,))
+
+        slow_queries = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        if slow_queries:
+            self.alerts.append({
+                'type': 'slow_queries',
+                'count': len(slow_queries),
+                'details': slow_queries[:5]  # Top 5
+            })
+
+    def check_connection_usage(self, threshold_percent=80):
+        """Check connection usage percentage"""
+        conn = self.connect()
+        cursor = conn.cursor()
+
+        cursor.execute("SHOW VARIABLES LIKE 'max_connections'")
+        max_connections = int(cursor.fetchone()[1])
+
+        cursor.execute("SHOW STATUS LIKE 'Threads_connected'")
+        current_connections = int(cursor.fetchone()[1])
+
+        usage_percent = (current_connections / max_connections) * 100
+
+        cursor.close()
+        conn.close()
+
+        if usage_percent > threshold_percent:
+            self.alerts.append({
+                'type': 'high_connection_usage',
+                'current': current_connections,
+                'max': max_connections,
+                'usage_percent': round(usage_percent, 2)
+            })
+
+    def check_replication_lag(self, threshold_seconds=60):
+        """Check replication lag on slaves"""
+        conn = self.connect()
+        cursor = conn.cursor(dictionary=True)
+
+        try:
+            cursor.execute("SHOW SLAVE STATUS")
+            slave_status = cursor.fetchone()
+
+            if slave_status:
+                lag = slave_status.get('Seconds_Behind_Master')
+                if lag and lag > threshold_seconds:
+                    self.alerts.append({
+                        'type': 'replication_lag',
+                        'lag_seconds': lag,
+                        'threshold': threshold_seconds
+                    })
+        except mysql.connector.Error:
+            # Not a slave server
+            pass
+        finally:
+            cursor.close()
+            conn.close()
+
+    def check_innodb_buffer_pool(self, threshold_percent=90):
+        """Check InnoDB buffer pool usage"""
+        conn = self.connect()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT
+                pool_size,
+                free_buffers,
+                (pool_size - free_buffers) / pool_size * 100 as usage_percent
+            FROM information_schema.innodb_buffer_pool_stats
+        """)
+
+        result = cursor.fetchone()
+        if result:
+            usage_percent = float(result[2])
+            if usage_percent > threshold_percent:
+                self.alerts.append({
+                    'type': 'high_buffer_pool_usage',
+                    'usage_percent': round(usage_percent, 2),
+                    'threshold': threshold_percent
+                })
+
+        cursor.close()
+        conn.close()
+
+    def send_alerts(self):
+        """Send email alerts if any issues found"""
+        if not self.alerts:
+            print("All checks passed - no alerts")
+            return
+
+        # Format alert message
+        message = "MySQL Performance Alerts:\n\n"
+
+        for alert in self.alerts:
+            if alert['type'] == 'slow_queries':
+                message += f"• {alert['count']} slow queries detected\n"
+            elif alert['type'] == 'high_connection_usage':
+                message += f"• High connection usage: {alert['usage_percent']}% ({alert['current']}/{alert['max']})\n"
+            elif alert['type'] == 'replication_lag':
+                message += f"• Replication lag: {alert['lag_seconds']} seconds\n"
+            elif alert['type'] == 'high_buffer_pool_usage':
+                message += f"• High buffer pool usage: {alert['usage_percent']}%\n"
+
+        print("Alerts detected:", message)
+
+        # Send email (configure SMTP settings)
+        # self._send_email("MySQL Performance Alert", message)
+
+    def run_all_checks(self):
+        """Run all monitoring checks"""
+        self.check_slow_queries()
+        self.check_connection_usage()
+        self.check_replication_lag()
+        self.check_innodb_buffer_pool()
+        self.send_alerts()
+
+if __name__ == "__main__":
+    config = {
+        'host': 'localhost',
+        'user': 'monitor_user',
+        'password': 'monitor_password',
+        'database': 'myapp'
+    }
+
+    monitor = MySQLMonitor(config)
+    monitor.run_all_checks()

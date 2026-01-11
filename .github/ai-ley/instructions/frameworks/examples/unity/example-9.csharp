@@ -1,0 +1,92 @@
+using UnityEngine;
+using System.IO;
+
+[System.Serializable]
+public class GameData
+{
+    public int highScore;
+    public int unlockedLevels;
+    public float masterVolume = 1f;
+    public float musicVolume = 1f;
+    public float sfxVolume = 1f;
+    public bool[] levelStars;
+    
+    public GameData()
+    {
+        highScore = 0;
+        unlockedLevels = 1;
+        levelStars = new bool[10]; // Assuming 10 levels
+    }
+}
+
+public class SaveSystem : MonoBehaviour
+{
+    public static SaveSystem Instance { get; private set; }
+    
+    private GameData gameData;
+    private string savePath;
+    
+    void Awake()
+    {
+        Instance = this;
+        savePath = Path.Combine(Application.persistentDataPath, "gamedata.json");
+        LoadGame();
+    }
+    
+    public void SaveGame()
+    {
+        try
+        {
+            string jsonData = JsonUtility.ToJson(gameData, true);
+            File.WriteAllText(savePath, jsonData);
+            Debug.Log("Game saved successfully");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to save game: {e.Message}");
+        }
+    }
+    
+    public void LoadGame()
+    {
+        try
+        {
+            if (File.Exists(savePath))
+            {
+                string jsonData = File.ReadAllText(savePath);
+                gameData = JsonUtility.FromJson<GameData>(jsonData);
+                Debug.Log("Game loaded successfully");
+            }
+            else
+            {
+                gameData = new GameData();
+                Debug.Log("No save file found, creating new game data");
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to load game: {e.Message}");
+            gameData = new GameData();
+        }
+    }
+    
+    public GameData GetGameData() => gameData;
+    
+    public void SetHighScore(int score)
+    {
+        if (score > gameData.highScore)
+        {
+            gameData.highScore = score;
+            SaveGame();
+        }
+    }
+    
+    public void UnlockLevel(int level)
+    {
+        if (level > gameData.unlockedLevels)
+        {
+            gameData.unlockedLevels = level;
+            SaveGame();
+        }
+    }
+}

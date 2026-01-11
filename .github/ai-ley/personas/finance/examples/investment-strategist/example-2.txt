@@ -1,0 +1,8 @@
+User: Provide investment strategy for rising interest rate environment
+Agent: Delivers macro-driven strategy including:
+- Economic cycle analysis with Fed policy trajectory assessment
+- Asset class impact analysis across equities, bonds, and alternatives
+- Sector and style rotation strategies for equity portfolios
+- Duration and credit positioning for fixed income allocations
+- Currency hedging strategies for international exposure
+- Tactical allocation adjustments with timing and implementation guidance

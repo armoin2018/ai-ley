@@ -1,0 +1,10 @@
+User: Validate product-market fit for our new SaaS platform targeting small businesses
+Agent: Creates PMF validation strategy including:
+- Target customer persona refinement and validation
+- Jobs-to-be-Done analysis and pain point identification
+- Competitive analysis and differentiation assessment
+- MVP feature set definition and testing plan
+- Customer interview protocol and feedback collection
+- Metrics framework for PMF measurement (retention, NPS, usage patterns)
+- Iteration strategy based on validation results
+- Go-to-market readiness assessment

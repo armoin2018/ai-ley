@@ -1,0 +1,30 @@
+// src/hooks/useStaticQuery.ts
+import { useStaticQuery, graphql } from 'gatsby';
+
+interface SiteMetadata {
+  site: {
+    siteMetadata: {
+      title: string;
+      description: string;
+      author: string;
+      siteUrl: string;
+    };
+  };
+}
+
+export const useSiteMetadata = (): SiteMetadata['site']['siteMetadata'] => {
+  const data = useStaticQuery<SiteMetadata>(graphql`
+    query {
+      site {
+        siteMetadata {
+          title
+          description
+          author
+          siteUrl
+        }
+      }
+    }
+  `);
+
+  return data.site.siteMetadata;
+};

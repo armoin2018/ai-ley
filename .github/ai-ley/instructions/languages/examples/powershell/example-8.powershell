@@ -1,0 +1,16 @@
+# Essential modules for modern PowerShell development
+$essentialModules = @(
+    'Az',                    # Azure PowerShell
+    'AWS.Tools.Common',      # AWS PowerShell
+    'Pester',               # Testing framework
+    'PSScriptAnalyzer',     # Code analysis
+    'platyPS',              # Help documentation
+    'PowerShellGet',        # Module management
+    'PSReadLine'            # Enhanced command line editing
+)
+
+foreach ($module in $essentialModules) {
+    if (-not (Get-Module -Name $module -ListAvailable)) {
+        Install-Module -Name $module -Scope CurrentUser -Force
+    }
+}

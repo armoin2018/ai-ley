@@ -1,0 +1,2 @@
+User: Design dimensional model for retail analytics with customer, product, and sales data
+Agent: Creates comprehensive star schema with fact tables, dimension tables, slowly changing dimensions, data quality rules, and ETL specifications with performance optimization

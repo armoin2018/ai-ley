@@ -1,0 +1,22 @@
+/* Efficient selector patterns */
+.btn { /* Base styles */ }
+.btn-primary { /* Modifier styles */ }
+.btn-large { /* Size modifier */ }
+
+/* Avoid deep nesting */
+.nav .nav-list .nav-item .nav-link { /* Too nested */ }
+.nav-link { /* Better - direct class targeting */ }
+
+/* Use efficient properties for animations */
+.smooth-transform {
+  will-change: transform;
+  transform: translateZ(0); /* Force hardware acceleration */
+}
+
+/* Optimize font loading */
+@font-face {
+  font-family: 'CustomFont';
+  src: url('/fonts/custom-font.woff2') format('woff2'),
+       url('/fonts/custom-font.woff') format('woff');
+  font-display: swap; /* Improve loading performance */
+}

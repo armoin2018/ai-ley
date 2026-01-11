@@ -1,0 +1,15 @@
+# Core QuantLib operations
+import QuantLib as ql
+
+# Date and calendar operations
+today = ql.Date(15, 12, 2023)
+calendar = ql.UnitedStates(ql.UnitedStates.NYSE)
+business_day = calendar.advance(today, 1, ql.Days)
+
+# Interest rate and yield curve operations
+rate = ql.SimpleQuote(0.05)
+curve = ql.FlatForward(today, ql.QuoteHandle(rate), ql.ActualActual())
+
+# Option and derivative pricing
+spot = ql.SimpleQuote(100)
+process = ql.BlackScholesProcess(ql.QuoteHandle(spot), curve, curve)

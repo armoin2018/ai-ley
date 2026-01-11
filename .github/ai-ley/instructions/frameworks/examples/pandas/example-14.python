@@ -1,0 +1,3 @@
+df.plot(kind='scatter', x='col1', y='col2')
+df['column'].hist(bins=30)
+df.boxplot(column='value', by='category')

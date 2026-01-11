@@ -1,0 +1,105 @@
+@startuml EnterpriseArchitecture
+!theme aws-orange
+!define ENTERPRISE_STYLE
+!include enterprise-styles.puml
+
+title Enterprise System Architecture - Order Management Platform
+
+package "Frontend Tier" {
+  [Web Application] as webapp
+  [Mobile App] as mobile
+  [Admin Portal] as admin
+}
+
+package "API Gateway Tier" {
+  [API Gateway] as gateway
+  [Authentication Service] as auth
+  [Rate Limiter] as ratelimit
+}
+
+package "Application Tier" {
+  [Order Service] as orderservice
+  [User Service] as userservice
+  [Payment Service] as paymentservice
+  [Inventory Service] as inventoryservice
+  [Notification Service] as notificationservice
+}
+
+package "Integration Tier" {
+  [Message Queue] as mq
+  [Event Bus] as eventbus
+  [Cache Layer] as cache
+}
+
+package "Data Tier" {
+  database "Order DB" as orderdb
+  database "User DB" as userdb
+  database "Payment DB" as paymentdb
+  database "Inventory DB" as inventorydb
+}
+
+package "External Systems" {
+  [Payment Gateway] as extpayment
+  [Shipping Provider] as extshipping
+  [Email Service] as extemail
+}
+
+' Frontend connections
+webapp --> gateway : HTTPS/REST
+mobile --> gateway : HTTPS/REST
+admin --> gateway : HTTPS/REST
+
+' API Gateway connections
+gateway --> auth : Authentication
+gateway --> ratelimit : Rate Limiting
+gateway --> orderservice : Route Requests
+gateway --> userservice : Route Requests
+gateway --> paymentservice : Route Requests
+
+' Service connections
+orderservice --> orderdb : CRUD
+orderservice --> mq : Publish Events
+orderservice --> cache : Cache Data
+orderservice --> inventoryservice : Check Stock
+
+userservice --> userdb : CRUD
+userservice --> cache : Cache Sessions
+userservice --> notificationservice : Send Notifications
+
+paymentservice --> paymentdb : CRUD
+paymentservice --> extpayment : Process Payments
+paymentservice --> mq : Publish Events
+
+inventoryservice --> inventorydb : CRUD
+inventoryservice --> eventbus : Inventory Updates
+
+notificationservice --> extemail : Send Emails
+notificationservice --> mobile : Push Notifications
+
+' Message flow
+mq --> orderservice : Order Events
+mq --> paymentservice : Payment Events
+mq --> notificationservice : Notification Events
+
+eventbus --> inventoryservice : Stock Updates
+eventbus --> orderservice : Inventory Events
+
+note right of gateway
+  Enterprise API Gateway
+  - OAuth 2.0 / JWT Authentication
+  - Rate Limiting: 1000 req/min
+  - Circuit Breaker Pattern
+  - Request/Response Logging
+  - API Versioning Support
+end note
+
+note bottom of mq
+  Message Queue (Apache Kafka)
+  - Event-Driven Architecture
+  - Guaranteed Delivery
+  - Horizontal Scaling
+  - Dead Letter Queue
+  - Message Replay Capability
+end note
+
+@enduml

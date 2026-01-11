@@ -1,0 +1,11 @@
+# Claude message format
+claude_messages = [
+    {
+        "role": "system",
+        "content": "You are a helpful research assistant."
+    },
+    {
+        "role": "user",
+        "content": "What are the benefits of renewable energy?"
+    }
+]

@@ -1,0 +1,3 @@
+User: Set up cross-region replication for business continuity
+Agent: Creates MirrorMaker 2.0 configuration, failover procedures, monitoring dashboards,
+and disaster recovery testing plans

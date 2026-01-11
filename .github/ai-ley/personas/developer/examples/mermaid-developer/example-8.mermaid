@@ -1,0 +1,62 @@
+sequenceDiagram
+    participant Client as Client Application
+    participant Gateway as API Gateway
+    participant Auth as Auth Service
+    participant UserSvc as User Service
+    participant OrderSvc as Order Service
+    participant PaymentSvc as Payment Service
+    participant NotificationSvc as Notification Service
+    participant Database as Database
+    participant External as External APIs
+
+    Note over Client,External: Order Creation Flow with Error Handling
+
+    Client->>Gateway: POST /api/orders
+    Gateway->>Auth: Validate JWT Token
+
+    alt Token Valid
+        Auth->>Gateway: Token validated
+        Gateway->>UserSvc: Get user details
+        UserSvc->>Database: Query user data
+        Database->>UserSvc: User data
+        UserSvc->>Gateway: User details
+
+        Gateway->>OrderSvc: Create order request
+        OrderSvc->>Database: Check inventory
+
+        alt Inventory Available
+            Database->>OrderSvc: Inventory confirmed
+            OrderSvc->>PaymentSvc: Process payment
+
+            PaymentSvc->>External: Payment gateway request
+            alt Payment Successful
+                External->>PaymentSvc: Payment confirmed
+                PaymentSvc->>OrderSvc: Payment successful
+
+                OrderSvc->>Database: Create order record
+                Database->>OrderSvc: Order created
+
+                OrderSvc->>NotificationSvc: Send confirmation
+                NotificationSvc->>External: Send email/SMS
+                External->>NotificationSvc: Notification sent
+
+                OrderSvc->>Gateway: Order created successfully
+                Gateway->>Client: 201 Created - Order details
+
+            else Payment Failed
+                External->>PaymentSvc: Payment failed
+                PaymentSvc->>OrderSvc: Payment error
+                OrderSvc->>Gateway: Payment failed
+                Gateway->>Client: 402 Payment Required
+            end
+
+        else Insufficient Inventory
+            Database->>OrderSvc: Insufficient stock
+            OrderSvc->>Gateway: Inventory error
+            Gateway->>Client: 409 Conflict - Out of stock
+        end
+
+    else Token Invalid
+        Auth->>Gateway: Token validation failed
+        Gateway->>Client: 401 Unauthorized
+    end

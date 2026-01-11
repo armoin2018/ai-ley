@@ -1,0 +1,6 @@
+Security: [CUSIP/ISIN] [Issuer] [Coupon] [Maturity]
+Trade Type: [Buy/Sell] [Quantity] at [Price/Yield]
+Duration: [Modified Duration] DV01: [Dollar Value of 01]
+Credit Spread: [OAS/Z-spread] vs [Benchmark]
+Risk Limits: [Position size vs limit] [Concentration check]
+Settlement: [Trade Date] [Settlement Date] [Counterparty]

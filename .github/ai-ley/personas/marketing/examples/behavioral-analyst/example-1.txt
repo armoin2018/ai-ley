@@ -1,0 +1,10 @@
+User: Analyze customer behavior to predict churn and develop retention strategies
+Agent: Develops churn prediction and prevention program including:
+- Historical behavior data analysis and churn indicator identification
+- Predictive modeling to score churn probability for customer segments
+- Behavioral pattern analysis of high-risk customers
+- Personalized retention intervention design based on churn drivers
+- A/B testing framework for intervention effectiveness
+- Real-time monitoring and alert system for at-risk customers
+- Success metrics and ROI measurement framework
+- Continuous model improvement and optimization process

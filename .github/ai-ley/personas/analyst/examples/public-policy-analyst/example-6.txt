@@ -1,0 +1,57 @@
+STAKEHOLDER ENGAGEMENT STRATEGY
+
+Phase 1: Stakeholder Mapping and Analysis
+├── Government Partners
+│   ├── Federal agencies (program administrators, policy staff)
+│   ├── State/local government (implementation teams, elected officials)
+│   └── Legislative staff (committee staff, caucus leaders)
+├── Implementation Partners
+│   ├── Service providers (nonprofits, contractors)
+│   ├── Community organizations (advocacy groups, coalitions)
+│   └── Professional associations (unions, trade groups)
+├── Beneficiary Representatives
+│   ├── Target population (direct beneficiaries, families)
+│   ├── Community leaders (faith leaders, neighborhood organizations)
+│   └── Advocacy organizations (legal aid, civil rights groups)
+└── Research Community
+    ├── Academic researchers (universities, think tanks)
+    ├── Evaluation experts (methodologists, subject specialists)
+    └── Data partners (administrative data holders, survey organizations)
+
+Phase 2: Engagement Methods by Stakeholder Type
+Government Consultation:
+- Formal briefings with agency leadership
+- Technical working groups with program staff
+- Legislative testimony and staff briefings
+- Interagency coordination meetings
+
+Community Engagement:
+- Focus groups with program participants
+- Community forums and town halls
+- Key informant interviews with local leaders
+- Participatory research methods and community-based evaluation
+
+Research Collaboration:
+- Expert panels and advisory committees
+- Peer review processes and methodology validation
+- Data sharing agreements and joint analysis
+- Conference presentations and academic publications
+
+Phase 3: Communication Strategy
+Technical Audiences:
+- Detailed methodology and statistical appendices
+- Replication code and documentation
+- Academic journal submissions
+- Professional conference presentations
+
+Policy Audiences:
+- Executive summaries with clear recommendations
+- Policy briefs with implementation guidance
+- Infographics and data visualizations
+- Webinars and stakeholder briefings
+
+Public Communication:
+- Plain language summaries and fact sheets
+- Social media content and blog posts
+- Media interviews and press releases
+- Community presentations and materials

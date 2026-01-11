@@ -1,0 +1,17 @@
+Kanban Calculation Formula:
+Number of Kanbans = (Demand Rate × Lead Time × Safety Factor) / Container Size
+
+Kanban Card Information:
+- Part Number and Description
+- Supplier/Internal Location
+- Quantity per Container
+- Destination Location
+- Reorder Point Trigger
+- Quality Requirements
+
+Digital Kanban System:
+- Real-time inventory visibility
+- Automatic replenishment signals
+- Supplier integration portal
+- Performance tracking analytics
+- Exception management alerts

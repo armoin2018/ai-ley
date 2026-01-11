@@ -1,0 +1,5 @@
+# Project Settings optimizations
+# Rendering -> Textures -> Canvas Textures -> Use Pixel Snap: On
+# Rendering -> 2D -> Use Pixel Snap: On
+# Physics -> 2D -> Physics Fps: 60
+# Memory -> Limits -> Message Queue Max Size: 4096

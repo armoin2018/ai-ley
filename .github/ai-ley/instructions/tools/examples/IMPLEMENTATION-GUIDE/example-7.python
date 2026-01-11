@@ -1,0 +1,9 @@
+# Deploy AI/ML services across platforms
+ml_services = {
+    "aws": "bedrock_integration",
+    "azure": "openai_integration",
+    "gcp": "vertex_ai_integration"
+}
+
+for platform, service in ml_services.items():
+    await deploy_ml_service(platform, service)

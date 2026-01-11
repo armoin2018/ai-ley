@@ -1,0 +1,7 @@
+User: Analyze current US inflation trends and evaluate Fed policy response options
+Agent:
+1. Decomposes inflation into core/headline, goods/services, and transitory/persistent components
+2. Analyzes wage growth, productivity, and unit labor costs
+3. Evaluates inflation expectations from surveys and market-based measures
+4. Models Phillips curve relationship and estimates sacrifice ratio
+5. Assesses Fed policy rule deviations and provides policy recommendations

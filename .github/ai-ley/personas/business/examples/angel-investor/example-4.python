@@ -1,0 +1,360 @@
+import json
+from datetime import datetime, timedelta
+from dataclasses import asdict
+
+@dataclass
+class PortfolioInvestment:
+    """Individual portfolio investment tracking"""
+    company_name: str
+    investment_date: datetime
+    initial_investment: float
+    current_valuation: float
+    ownership_percentage: float
+    stage_at_investment: str
+    sector: str
+    follow_on_investments: List[float] = field(default_factory=list)
+    status: str = "active"  # active, exited, failed
+    last_update: datetime = field(default_factory=datetime.now)
+    key_metrics: Dict = field(default_factory=dict)
+    support_provided: List[str] = field(default_factory=list)
+
+class AngelPortfolioManager:
+    def __init__(self, annual_investment_budget: float = 250_000):
+        self.annual_budget = annual_investment_budget
+        self.portfolio = []
+        self.target_portfolio_size = 25
+        self.sector_allocation_targets = {
+            'enterprise_software': 0.30,
+            'fintech': 0.25,
+            'healthcare_tech': 0.20,
+            'consumer_tech': 0.15,
+            'other': 0.10
+        }
+
+    def analyze_portfolio_construction(self) -> Dict:
+        """Comprehensive portfolio analysis and recommendations"""
+
+        if not self.portfolio:
+            return {
+                'status': 'portfolio_building',
+                'recommendations': ['Begin deal sourcing and evaluation process'],
+                'target_investments_this_year': int(self.annual_budget / 50_000),  # $50K average
+                'diversification_score': 0
+            }
+
+        # Current portfolio statistics
+        total_invested = sum(inv.initial_investment + sum(inv.follow_on_investments)
+                           for inv in self.portfolio)
+        portfolio_size = len(self.portfolio)
+
+        # Sector diversification analysis
+        sector_allocation = self._calculate_sector_allocation()
+        diversification_score = self._calculate_diversification_score(sector_allocation)
+
+        # Stage distribution
+        stage_distribution = self._calculate_stage_distribution()
+
+        # Performance metrics
+        performance_metrics = self._calculate_portfolio_performance()
+
+        # Risk assessment
+        risk_analysis = self._assess_portfolio_risk()
+
+        # Recommendations for new investments
+        investment_recommendations = self._generate_investment_recommendations(
+            sector_allocation, stage_distribution, portfolio_size
+        )
+
+        return {
+            'portfolio_summary': {
+                'total_companies': portfolio_size,
+                'total_invested': total_invested,
+                'average_investment': total_invested / portfolio_size if portfolio_size > 0 else 0,
+                'active_companies': len([inv for inv in self.portfolio if inv.status == 'active'])
+            },
+            'diversification_analysis': {
+                'sector_allocation': sector_allocation,
+                'target_allocation': self.sector_allocation_targets,
+                'diversification_score': diversification_score,
+                'stage_distribution': stage_distribution
+            },
+            'performance_metrics': performance_metrics,
+            'risk_analysis': risk_analysis,
+            'investment_recommendations': investment_recommendations,
+            'portfolio_health_score': self._calculate_portfolio_health_score()
+        }
+
+    def evaluate_follow_on_opportunity(self, company_name: str, new_round_details: Dict) -> Dict:
+        """Evaluate follow-on investment opportunity"""
+
+        # Find existing investment
+        existing_investment = next(
+            (inv for inv in self.portfolio if inv.company_name == company_name), None
+        )
+
+        if not existing_investment:
+            return {"error": "Company not found in portfolio"}
+
+        # Pro-rata calculation
+        new_valuation = new_round_details.get('pre_money_valuation', 0)
+        round_size = new_round_details.get('round_size', 0)
+        pro_rata_amount = (existing_investment.ownership_percentage * round_size)
+
+        # Performance since initial investment
+        valuation_multiple = new_valuation / (
+            existing_investment.initial_investment / existing_investment.ownership_percentage
+        ) if existing_investment.ownership_percentage > 0 else 0
+
+        # Investment recommendation
+        if valuation_multiple >= 3.0:
+            recommendation = "STRONG FOLLOW-ON"
+        elif valuation_multiple >= 1.5:
+            recommendation = "FOLLOW-ON"
+        elif valuation_multiple >= 1.0:
+            recommendation = "CONDITIONAL FOLLOW-ON"
+        else:
+            recommendation = "PASS ON FOLLOW-ON"
+
+        return {
+            'company': company_name,
+            'existing_investment': asdict(existing_investment),
+            'new_round_details': new_round_details,
+            'pro_rata_amount': pro_rata_amount,
+            'valuation_multiple': valuation_multiple,
+            'recommendation': recommendation,
+            'rationale': self._generate_follow_on_rationale(
+                valuation_multiple, existing_investment, new_round_details
+            )
+        }
+
+    def _calculate_sector_allocation(self) -> Dict[str, float]:
+        """Calculate current sector allocation"""
+        sector_investments = {}
+        total_invested = sum(inv.initial_investment + sum(inv.follow_on_investments)
+                           for inv in self.portfolio)
+
+        for investment in self.portfolio:
+            sector = investment.sector
+            amount = investment.initial_investment + sum(investment.follow_on_investments)
+            sector_investments[sector] = sector_investments.get(sector, 0) + amount
+
+        # Convert to percentages
+        return {sector: amount / total_invested for sector, amount in sector_investments.items()}
+
+    def _calculate_diversification_score(self, sector_allocation: Dict) -> float:
+        """Calculate portfolio diversification score"""
+
+        # Herfindahl-Hirschman Index for concentration
+        hhi = sum(percentage ** 2 for percentage in sector_allocation.values())
+
+        # Convert to diversification score (lower HHI = higher diversification)
+        diversification_score = (1 - hhi) * 10  # Scale to 0-10
+
+        return min(diversification_score, 10.0)
+
+    def _calculate_stage_distribution(self) -> Dict[str, int]:
+        """Calculate distribution across investment stages"""
+        stage_count = {}
+        for investment in self.portfolio:
+            stage = investment.stage_at_investment
+            stage_count[stage] = stage_count.get(stage, 0) + 1
+        return stage_count
+
+    def _calculate_portfolio_performance(self) -> Dict:
+        """Calculate portfolio performance metrics"""
+        if not self.portfolio:
+            return {}
+
+        total_invested = sum(inv.initial_investment + sum(inv.follow_on_investments)
+                           for inv in self.portfolio)
+        current_portfolio_value = sum(inv.current_valuation * inv.ownership_percentage
+                                    for inv in self.portfolio)
+
+        # Performance by stage and sector
+        stage_performance = {}
+        sector_performance = {}
+
+        for investment in self.portfolio:
+            total_investment = investment.initial_investment + sum(investment.follow_on_investments)
+            current_value = investment.current_valuation * investment.ownership_percentage
+            multiple = current_value / total_investment if total_investment > 0 else 0
+
+            # Stage performance
+            stage = investment.stage_at_investment
+            if stage not in stage_performance:
+                stage_performance[stage] = {'count': 0, 'total_multiple': 0}
+            stage_performance[stage]['count'] += 1
+            stage_performance[stage]['total_multiple'] += multiple
+
+            # Sector performance
+            sector = investment.sector
+            if sector not in sector_performance:
+                sector_performance[sector] = {'count': 0, 'total_multiple': 0}
+            sector_performance[sector]['count'] += 1
+            sector_performance[sector]['total_multiple'] += multiple
+
+        # Calculate averages
+        for stage in stage_performance:
+            stage_performance[stage]['average_multiple'] = (
+                stage_performance[stage]['total_multiple'] / stage_performance[stage]['count']
+            )
+
+        for sector in sector_performance:
+            sector_performance[sector]['average_multiple'] = (
+                sector_performance[sector]['total_multiple'] / sector_performance[sector]['count']
+            )
+
+        return {
+            'total_invested': total_invested,
+            'current_portfolio_value': current_portfolio_value,
+            'overall_multiple': current_portfolio_value / total_invested if total_invested > 0 else 0,
+            'stage_performance': stage_performance,
+            'sector_performance': sector_performance,
+            'portfolio_companies_count': len(self.portfolio)
+        }
+
+    def _assess_portfolio_risk(self) -> Dict:
+        """Assess portfolio risk factors"""
+        risk_factors = {
+            'concentration_risk': [],
+            'stage_risk': [],
+            'market_risk': [],
+            'liquidity_risk': []
+        }
+
+        # Concentration risk analysis
+        sector_allocation = self._calculate_sector_allocation()
+        for sector, allocation in sector_allocation.items():
+            if allocation > 0.4:  # More than 40% in one sector
+                risk_factors['concentration_risk'].append(f"High concentration in {sector}: {allocation:.1%}")
+
+        # Stage risk analysis
+        stage_distribution = self._calculate_stage_distribution()
+        total_companies = len(self.portfolio)
+        for stage, count in stage_distribution.items():
+            percentage = count / total_companies
+            if percentage > 0.6:  # More than 60% in one stage
+                risk_factors['stage_risk'].append(f"High concentration in {stage} stage: {percentage:.1%}")
+
+        # Company-specific risks
+        high_risk_companies = [
+            inv for inv in self.portfolio
+            if (datetime.now() - inv.investment_date).days > 365 * 3  # 3+ years old
+            and inv.current_valuation <= inv.initial_investment  # No growth
+        ]
+
+        if high_risk_companies:
+            risk_factors['liquidity_risk'].append(f"{len(high_risk_companies)} companies showing limited progress")
+
+        return risk_factors
+
+    def _generate_investment_recommendations(self, sector_allocation: Dict,
+                                          stage_distribution: Dict, portfolio_size: int) -> List[str]:
+        """Generate specific investment recommendations"""
+        recommendations = []
+
+        # Portfolio size recommendations
+        if portfolio_size < self.target_portfolio_size:
+            remaining_slots = self.target_portfolio_size - portfolio_size
+            recommendations.append(f"Continue building portfolio - {remaining_slots} more investments needed")
+
+        # Sector allocation recommendations
+        for sector, target_percentage in self.sector_allocation_targets.items():
+            current_percentage = sector_allocation.get(sector, 0)
+            if current_percentage < target_percentage - 0.05:  # 5% tolerance
+                recommendations.append(f"Increase allocation to {sector} (currently {current_percentage:.1%}, target {target_percentage:.1%})")
+
+        # Stage diversification
+        if len(stage_distribution) < 2:
+            recommendations.append("Consider investments across multiple stages for risk management")
+
+        return recommendations
+
+    def _calculate_portfolio_health_score(self) -> float:
+        """Calculate overall portfolio health score"""
+        if not self.portfolio:
+            return 5.0  # Neutral score for empty portfolio
+
+        # Component scores
+        diversification_score = min(self._calculate_diversification_score(self._calculate_sector_allocation()), 10.0)
+        performance_metrics = self._calculate_portfolio_performance()
+        performance_score = min(performance_metrics.get('overall_multiple', 1.0) * 3, 10.0)
+
+        # Size appropriateness
+        size_score = min(len(self.portfolio) / self.target_portfolio_size * 10, 10.0)
+
+        # Weighted health score
+        health_score = (
+            diversification_score * 0.3 +
+            performance_score * 0.4 +
+            size_score * 0.3
+        )
+
+        return round(health_score, 1)
+
+    def _generate_follow_on_rationale(self, valuation_multiple: float,
+                                    existing_investment: PortfolioInvestment,
+                                    new_round_details: Dict) -> str:
+        """Generate rationale for follow-on investment decision"""
+
+        if valuation_multiple >= 3.0:
+            return f"Strong performance with {valuation_multiple:.1f}x valuation increase. Recommend maintaining ownership through pro-rata participation."
+        elif valuation_multiple >= 1.5:
+            return f"Solid progress with {valuation_multiple:.1f}x valuation growth. Consider pro-rata to maintain position."
+        elif valuation_multiple >= 1.0:
+            return f"Modest progress with {valuation_multiple:.1f}x valuation. Evaluate specific milestones and team execution before follow-on."
+        else:
+            return f"Concerning performance with {valuation_multiple:.1f}x valuation. Focus on preserving capital unless significant strategic changes."
+
+# Portfolio tracking and management example
+def manage_angel_portfolio():
+    """Example portfolio management workflow"""
+
+    # Initialize portfolio manager
+    portfolio_manager = AngelPortfolioManager(annual_investment_budget=300_000)
+
+    # Add sample investments
+    sample_investments = [
+        PortfolioInvestment(
+            company_name="TechFlow",
+            investment_date=datetime(2022, 3, 15),
+            initial_investment=50_000,
+            current_valuation=15_000_000,
+            ownership_percentage=0.005,  # 0.5%
+            stage_at_investment="seed",
+            sector="enterprise_software",
+            follow_on_investments=[25_000],
+            key_metrics={"arr": 2_000_000, "growth_rate": 0.15}
+        ),
+        PortfolioInvestment(
+            company_name="FinanceAI",
+            investment_date=datetime(2023, 1, 10),
+            initial_investment=75_000,
+            current_valuation=8_000_000,
+            ownership_percentage=0.01,  # 1.0%
+            stage_at_investment="pre-seed",
+            sector="fintech",
+            key_metrics={"mrr": 100_000, "growth_rate": 0.25}
+        )
+    ]
+
+    portfolio_manager.portfolio = sample_investments
+
+    # Analyze portfolio
+    portfolio_analysis = portfolio_manager.analyze_portfolio_construction()
+
+    # Evaluate follow-on opportunity
+    follow_on_analysis = portfolio_manager.evaluate_follow_on_opportunity(
+        "TechFlow",
+        {
+            'pre_money_valuation': 25_000_000,
+            'round_size': 5_000_000,
+            'lead_investor': 'Growth Ventures',
+            'stage': 'Series A'
+        }
+    )
+
+    return {
+        'portfolio_analysis': portfolio_analysis,
+        'follow_on_analysis': follow_on_analysis
+    }

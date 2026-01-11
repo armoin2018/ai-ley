@@ -1,0 +1,141 @@
+// src-tauri/src/commands/file_ops.rs
+use tauri::{command, State, Window};
+use serde::{Deserialize, Serialize};
+use std::fs;
+use std::path::PathBuf;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FileInfo {
+    pub name: String,
+    pub path: String,
+    pub size: u64,
+    pub modified: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SaveRequest {
+    pub path: String,
+    pub content: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct CommandResult<T> {
+    pub success: bool,
+    pub data: Option<T>,
+    pub error: Option<String>,
+}
+
+impl<T> CommandResult<T> {
+    pub fn success(data: T) -> Self {
+        Self {
+            success: true,
+            data: Some(data),
+            error: None,
+        }
+    }
+
+    pub fn error(message: String) -> Self {
+        Self {
+            success: false,
+            data: None,
+            error: Some(message),
+        }
+    }
+}
+
+#[command]
+pub async fn read_file(path: String) -> Result<CommandResult<String>, String> {
+    match fs::read_to_string(&path) {
+        Ok(content) => Ok(CommandResult::success(content)),
+        Err(e) => Ok(CommandResult::error(format!("Failed to read file: {}", e))),
+    }
+}
+
+#[command]
+pub async fn write_file(request: SaveRequest) -> Result<CommandResult<()>, String> {
+    match fs::write(&request.path, &request.content) {
+        Ok(_) => Ok(CommandResult::success(())),
+        Err(e) => Ok(CommandResult::error(format!("Failed to write file: {}", e))),
+    }
+}
+
+#[command]
+pub async fn get_file_info(path: String) -> Result<CommandResult<FileInfo>, String> {
+    let path_buf = PathBuf::from(&path);
+
+    match fs::metadata(&path_buf) {
+        Ok(metadata) => {
+            let file_info = FileInfo {
+                name: path_buf
+                    .file_name()
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .to_string(),
+                path: path.clone(),
+                size: metadata.len(),
+                modified: format!("{:?}", metadata.modified().unwrap_or(std::time::UNIX_EPOCH)),
+            };
+            Ok(CommandResult::success(file_info))
+        }
+        Err(e) => Ok(CommandResult::error(format!("Failed to get file info: {}", e))),
+    }
+}
+
+#[command]
+pub async fn list_directory(path: String) -> Result<CommandResult<Vec<FileInfo>>, String> {
+    match fs::read_dir(&path) {
+        Ok(entries) => {
+            let mut files = Vec::new();
+
+            for entry in entries {
+                if let Ok(entry) = entry {
+                    let path = entry.path();
+                    if let Ok(metadata) = entry.metadata() {
+                        let file_info = FileInfo {
+                            name: entry.file_name().to_string_lossy().to_string(),
+                            path: path.to_string_lossy().to_string(),
+                            size: metadata.len(),
+                            modified: format!("{:?}",
+                                metadata.modified().unwrap_or(std::time::UNIX_EPOCH)
+                            ),
+                        };
+                        files.push(file_info);
+                    }
+                }
+            }
+
+            files.sort_by(|a, b| a.name.cmp(&b.name));
+            Ok(CommandResult::success(files))
+        }
+        Err(e) => Ok(CommandResult::error(format!("Failed to list directory: {}", e))),
+    }
+}
+
+#[command]
+pub async fn open_file_dialog(window: Window) -> Result<CommandResult<String>, String> {
+    use tauri::api::dialog::FileDialogBuilder;
+
+    let file_path = FileDialogBuilder::new()
+        .add_filter("Text files", &["txt", "md", "json"])
+        .add_filter("All files", &["*"])
+        .pick_file();
+
+    match file_path {
+        Some(path) => Ok(CommandResult::success(path.to_string_lossy().to_string())),
+        None => Ok(CommandResult::error("No file selected".to_string())),
+    }
+}
+
+#[command]
+pub async fn save_file_dialog(window: Window) -> Result<CommandResult<String>, String> {
+    use tauri::api::dialog::FileDialogBuilder;
+
+    let file_path = FileDialogBuilder::new()
+        .add_filter("Text files", &["txt", "md"])
+        .save_file();
+
+    match file_path {
+        Some(path) => Ok(CommandResult::success(path.to_string_lossy().to_string())),
+        None => Ok(CommandResult::error("No file selected".to_string())),
+    }
+}

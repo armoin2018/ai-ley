@@ -1,0 +1,25 @@
+# Create dataset from tensors
+dataset = tf.data.Dataset.from_tensor_slices((features, labels))
+
+# Data pipeline
+def preprocess_data(features, labels):
+    features = tf.cast(features, tf.float32) / 255.0
+    return features, labels
+
+dataset = (dataset
+    .map(preprocess_data, num_parallel_calls=tf.data.AUTOTUNE)
+    .batch(32)
+    .prefetch(tf.data.AUTOTUNE)
+    .cache()
+)
+
+# From files
+def parse_image(filename, label):
+    image = tf.io.read_file(filename)
+    image = tf.image.decode_image(image, channels=3)
+    image = tf.image.resize(image, [224, 224])
+    image = tf.cast(image, tf.float32) / 255.0
+    return image, label
+
+file_dataset = tf.data.Dataset.from_tensor_slices((filenames, labels))
+image_dataset = file_dataset.map(parse_image, num_parallel_calls=tf.data.AUTOTUNE)

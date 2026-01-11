@@ -1,0 +1,49 @@
+// server/api/posts/index.get.ts
+export default defineEventHandler(async (event) => {
+  const query = getQuery(event)
+  const page = parseInt(query.page as string) || 1
+  const limit = parseInt(query.limit as string) || 10
+
+  try {
+    // Simulate database query
+    const posts = await getPostsFromDatabase({ page, limit })
+    
+    return {
+      success: true,
+      data: posts,
+      pagination: {
+        page,
+        limit,
+        total: await getTotalPostsCount()
+      }
+    }
+  } catch (error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to fetch posts'
+    })
+  }
+})
+
+// server/api/posts/[id].get.ts
+export default defineEventHandler(async (event) => {
+  const id = getRouterParam(event, 'id')
+  
+  if (!id) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Post ID is required'
+    })
+  }
+
+  const post = await getPostById(id)
+  
+  if (!post) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Post not found'
+    })
+  }
+
+  return post
+})

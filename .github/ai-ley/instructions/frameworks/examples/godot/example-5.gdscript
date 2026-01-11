@@ -1,0 +1,151 @@
+# GameManager.gd - Singleton autoload script
+extends Node
+
+# Game state
+enum GameState {
+	MENU,
+	PLAYING,
+	PAUSED,
+	GAME_OVER
+}
+
+var current_state: GameState = GameState.MENU
+var score: int = 0
+var level: int = 1
+var lives: int = 3
+
+# Player data
+var player_data = {
+	"name": "",
+	"high_score": 0,
+	"unlocked_levels": 1,
+	"settings": {
+		"master_volume": 1.0,
+		"music_volume": 1.0,
+		"sfx_volume": 1.0
+	}
+}
+
+# Signals
+signal state_changed(new_state: GameState)
+signal score_changed(new_score: int)
+signal level_changed(new_level: int)
+signal lives_changed(new_lives: int)
+signal game_over
+
+# File paths
+const SAVE_FILE = "user://savegame.save"
+const SETTINGS_FILE = "user://settings.cfg"
+
+func _ready():
+	# Load saved data
+	load_game_data()
+	load_settings()
+	
+	# Set initial state
+	change_state(GameState.MENU)
+
+func change_state(new_state: GameState):
+	if current_state == new_state:
+		return
+	
+	var old_state = current_state
+	current_state = new_state
+	
+	print("Game state changed from ", GameState.keys()[old_state], " to ", GameState.keys()[new_state])
+	
+	# Handle state transitions
+	match new_state:
+		GameState.MENU:
+			get_tree().paused = false
+			
+		GameState.PLAYING:
+			get_tree().paused = false
+			
+		GameState.PAUSED:
+			get_tree().paused = true
+			
+		GameState.GAME_OVER:
+			get_tree().paused = true
+			_handle_game_over()
+	
+	state_changed.emit(new_state)
+
+func add_score(points: int):
+	score += points
+	score_changed.emit(score)
+	
+	# Check for high score
+	if score > player_data.high_score:
+		player_data.high_score = score
+
+func next_level():
+	level += 1
+	level_changed.emit(level)
+	
+	# Unlock level if it's a new record
+	if level > player_data.unlocked_levels:
+		player_data.unlocked_levels = level
+
+func lose_life():
+	lives -= 1
+	lives_changed.emit(lives)
+	
+	if lives <= 0:
+		change_state(GameState.GAME_OVER)
+
+func reset_game():
+	score = 0
+	level = 1
+	lives = 3
+	score_changed.emit(score)
+	level_changed.emit(level)
+	lives_changed.emit(lives)
+
+func save_game_data():
+	var save_file = FileAccess.open(SAVE_FILE, FileAccess.WRITE)
+	if save_file:
+		save_file.store_string(JSON.stringify(player_data))
+		save_file.close()
+		print("Game data saved")
+
+func load_game_data():
+	if FileAccess.file_exists(SAVE_FILE):
+		var save_file = FileAccess.open(SAVE_FILE, FileAccess.READ)
+		if save_file:
+			var json_string = save_file.get_as_text()
+			save_file.close()
+			
+			var json = JSON.new()
+			var parse_result = json.parse(json_string)
+			
+			if parse_result == OK:
+				player_data = json.data
+				print("Game data loaded")
+			else:
+				print("Error parsing save file")
+
+func save_settings():
+	var config = ConfigFile.new()
+	
+	for key in player_data.settings:
+		config.set_value("settings", key, player_data.settings[key])
+	
+	config.save(SETTINGS_FILE)
+
+func load_settings():
+	var config = ConfigFile.new()
+	
+	if config.load(SETTINGS_FILE) == OK:
+		for key in player_data.settings:
+			if config.has_section_key("settings", key):
+				player_data.settings[key] = config.get_value("settings", key)
+
+func _handle_game_over():
+	game_over.emit()
+	save_game_data()
+
+func quit_game():
+	save_game_data()
+	save_settings()
+	get_tree().quit()

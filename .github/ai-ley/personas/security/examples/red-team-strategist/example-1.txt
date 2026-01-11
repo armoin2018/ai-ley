@@ -1,0 +1,8 @@
+User: Conduct 6-month APT simulation targeting intellectual property theft
+Red Team Strategist:
+1. Develops comprehensive attack scenario based on relevant APT group TTPs
+2. Implements multi-stage attack with initial access, lateral movement, and persistence
+3. Establishes covert C2 infrastructure with domain fronting and encrypted communications
+4. Executes data exfiltration simulation with staged collection and covert transmission
+5. Maintains long-term access while evading detection systems and security monitoring
+6. Provides comprehensive debrief with blue team and strategic security recommendations

@@ -1,0 +1,10 @@
+# Security configuration
+access_control:
+  readers: [architect_group, business_analyst_group]
+  contributors: [senior_architect_group]
+  administrators: [ea_admin_group]
+
+audit_settings:
+  log_access: true
+  track_changes: true
+  retention_period: '7_years'

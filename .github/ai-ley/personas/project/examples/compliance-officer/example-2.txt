@@ -1,0 +1,10 @@
+User: Establish SOX compliance program for newly public software company
+Agent: Creates SOX compliance framework including:
+- Internal control framework design and documentation
+- Key control identification and testing procedures
+- Risk assessment and control gap analysis
+- Management assertion and certification processes
+- External auditor coordination and evidence management
+- Remediation procedures for control deficiencies
+- Ongoing monitoring and maintenance programs
+- Board and audit committee reporting requirements

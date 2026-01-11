@@ -1,0 +1,35 @@
+<!-- Add to navigation menu -->
+<nav class="nav">
+  <ul>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#technical">Technical SEO</a></li>
+    <li><a href="#content">Content</a></li>
+    <li><a href="#performance">Performance</a></li>
+    <li><a href="#strategy">Strategy</a></li>
+    <li><a href="#authority">Authority</a></li>
+    <li><a href="#serp">SERP Features</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#markdown" class="markdown-tab">📄 Documents</a></li>
+  </ul>
+</nav>
+
+<!-- Add markdown viewer section -->
+<section id="markdown" class="section markdown-section">
+  <h2>📄 Report Documents</h2>
+
+  <div class="markdown-controls">
+    <label for="md-file-select">Select Document:</label>
+    <select id="md-file-select" onchange="loadMarkdownFile(this.value)">
+      <option value="">-- Choose a file --</option>
+      <option value="seo-audit-summary.md">Executive Summary</option>
+      <option value="seo-analysis.md">Detailed Analysis</option>
+      <option value="README.md">Project README</option>
+    </select>
+
+    <button onclick="downloadMarkdown()" class="btn-download">⬇️ Download Current</button>
+  </div>
+
+  <div id="markdown-content" class="markdown-rendered">
+    <p class="placeholder">Select a document to view...</p>
+  </div>
+</section>

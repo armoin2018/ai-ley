@@ -1,0 +1,39 @@
+// test/invariant/ProtocolInvariants.t.sol
+pragma solidity ^0.8.19;
+
+import {Test} from "forge-std/Test.sol";
+import {MyProtocol} from "../src/MyProtocol.sol";
+
+contract ProtocolInvariants is Test {
+    MyProtocol public protocol;
+
+    function setUp() public {
+        protocol = new MyProtocol();
+        protocol.initialize(address(this));
+    }
+
+    // Invariant: Total supply never exceeds maximum
+    function invariant_totalSupplyNeverExceedsMax() public {
+        assertLe(protocol.totalSupply(), protocol.MAX_SUPPLY());
+    }
+
+    // Invariant: Sum of balances equals total supply
+    function invariant_balancesSumEqualsTotalSupply() public {
+        // Implementation depends on tracking all holders
+        // This would require a more sophisticated setup
+    }
+
+    // Property-based test
+    function testFuzz_mintWithinLimits(address to, uint256 amount) public {
+        vm.assume(to != address(0));
+        amount = bound(amount, 1, protocol.MAX_SUPPLY());
+
+        uint256 initialSupply = protocol.totalSupply();
+
+        if (initialSupply + amount <= protocol.MAX_SUPPLY()) {
+            protocol.mint(to, amount);
+            assertEq(protocol.totalSupply(), initialSupply + amount);
+            assertEq(protocol.balanceOf(to), amount);
+        }
+    }
+}

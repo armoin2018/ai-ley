@@ -1,0 +1,187 @@
+#Requires -Version 7.0
+
+function Get-SystemInfo {
+    <#
+    .SYNOPSIS
+        Retrieves comprehensive system information from local or remote computers.
+    
+    .DESCRIPTION
+        This function gathers detailed system information including hardware,
+        operating system, and performance metrics. Supports both local and
+        remote computer queries with proper error handling.
+    
+    .PARAMETER ComputerName
+        Specifies the computer names to query. Defaults to localhost.
+        Accepts pipeline input and supports wildcards.
+    
+    .PARAMETER Credential
+        Specifies credentials for remote computer access.
+    
+    .PARAMETER IncludePerformance
+        Include performance counter data in the output.
+    
+    .EXAMPLE
+        Get-SystemInfo
+        
+        Gets system information for the local computer.
+    
+    .EXAMPLE
+        Get-SystemInfo -ComputerName 'Server01', 'Server02' -IncludePerformance
+        
+        Gets system information including performance data for multiple servers.
+    
+    .EXAMPLE
+        'Server01', 'Server02' | Get-SystemInfo -Credential $cred
+        
+        Uses pipeline input to query multiple servers with alternate credentials.
+    
+    .OUTPUTS
+        System.Management.Automation.PSCustomObject
+        Returns custom objects with system information properties.
+    
+    .NOTES
+        Requires PowerShell 7.0 or later for cross-platform compatibility.
+        Remote computers must have PowerShell remoting enabled.
+    #>
+    
+    [CmdletBinding()]
+    param(
+        [Parameter(
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            Position = 0
+        )]
+        [ValidateNotNullOrEmpty()]
+        [string[]]$ComputerName = $env:COMPUTERNAME,
+        
+        [Parameter()]
+        [System.Management.Automation.PSCredential]$Credential,
+        
+        [Parameter()]
+        [switch]$IncludePerformance
+    )
+    
+    begin {
+        Write-Verbose "Starting system information collection"
+        
+        # Define common parameters for remote commands
+        $commonParams = @{}
+        if ($Credential) {
+            $commonParams['Credential'] = $Credential
+        }
+        
+        # Performance counters to collect
+        $performanceCounters = @(
+            '\Processor(_Total)\% Processor Time',
+            '\Memory\Available MBytes',
+            '\PhysicalDisk(_Total)\% Disk Time'
+        )
+    }
+    
+    process {
+        foreach ($computer in $ComputerName) {
+            Write-Verbose "Processing computer: $computer"
+            
+            try {
+                # Test connectivity first
+                if ($computer -ne $env:COMPUTERNAME) {
+                    $testResult = Test-Connection -ComputerName $computer -Count 1 -Quiet -ErrorAction Stop
+                    if (-not $testResult) {
+                        throw "Computer $computer is not reachable"
+                    }
+                }
+                
+                # Collect basic system information
+                $systemInfo = if ($computer -eq $env:COMPUTERNAME) {
+                    # Local computer - use direct CIM access
+                    @{
+                        OperatingSystem = Get-CimInstance -ClassName Win32_OperatingSystem
+                        ComputerSystem = Get-CimInstance -ClassName Win32_ComputerSystem
+                        Processor = Get-CimInstance -ClassName Win32_Processor | Select-Object -First 1
+                        Memory = Get-CimInstance -ClassName Win32_PhysicalMemory | 
+                                 Measure-Object -Property Capacity -Sum
+                    }
+                } else {
+                    # Remote computer - use CIM sessions for better performance
+                    $cimSession = New-CimSession -ComputerName $computer @commonParams -ErrorAction Stop
+                    try {
+                        @{
+                            OperatingSystem = Get-CimInstance -CimSession $cimSession -ClassName Win32_OperatingSystem
+                            ComputerSystem = Get-CimInstance -CimSession $cimSession -ClassName Win32_ComputerSystem
+                            Processor = Get-CimInstance -CimSession $cimSession -ClassName Win32_Processor | 
+                                       Select-Object -First 1
+                            Memory = Get-CimInstance -CimSession $cimSession -ClassName Win32_PhysicalMemory | 
+                                    Measure-Object -Property Capacity -Sum
+                        }
+                    }
+                    finally {
+                        Remove-CimSession -CimSession $cimSession -ErrorAction SilentlyContinue
+                    }
+                }
+                
+                # Collect performance data if requested
+                $performanceData = if ($IncludePerformance) {
+                    try {
+                        if ($computer -eq $env:COMPUTERNAME) {
+                            Get-Counter -Counter $performanceCounters -SampleInterval 1 -MaxSamples 1
+                        } else {
+                            Get-Counter -Counter $performanceCounters -ComputerName $computer -SampleInterval 1 -MaxSamples 1
+                        }
+                    }
+                    catch {
+                        Write-Warning "Could not collect performance data from $computer : $($_.Exception.Message)"
+                        $null
+                    }
+                } else {
+                    $null
+                }
+                
+                # Create output object
+                $output = [PSCustomObject]@{
+                    ComputerName = $computer
+                    OperatingSystem = $systemInfo.OperatingSystem.Caption
+                    OSVersion = $systemInfo.OperatingSystem.Version
+                    ServicePack = $systemInfo.OperatingSystem.ServicePackMajorVersion
+                    Architecture = $systemInfo.OperatingSystem.OSArchitecture
+                    Manufacturer = $systemInfo.ComputerSystem.Manufacturer
+                    Model = $systemInfo.ComputerSystem.Model
+                    ProcessorName = $systemInfo.Processor.Name
+                    ProcessorCores = $systemInfo.Processor.NumberOfCores
+                    ProcessorLogicalCores = $systemInfo.Processor.NumberOfLogicalProcessors
+                    TotalMemoryGB = [math]::Round($systemInfo.Memory.Sum / 1GB, 2)
+                    Domain = $systemInfo.ComputerSystem.Domain
+                    LastBootTime = $systemInfo.OperatingSystem.LastBootUpTime
+                    Uptime = (Get-Date) - $systemInfo.OperatingSystem.LastBootUpTime
+                    CollectionTime = Get-Date
+                }
+                
+                # Add performance data if available
+                if ($performanceData) {
+                    $cpuUsage = ($performanceData.CounterSamples | Where-Object {$_.Path -like "*Processor*"}).CookedValue
+                    $availableMemoryMB = ($performanceData.CounterSamples | Where-Object {$_.Path -like "*Available MBytes*"}).CookedValue
+                    $diskUsage = ($performanceData.CounterSamples | Where-Object {$_.Path -like "*Disk Time*"}).CookedValue
+                    
+                    $output | Add-Member -NotePropertyName 'CPUUsagePercent' -NotePropertyValue ([math]::Round($cpuUsage, 2))
+                    $output | Add-Member -NotePropertyName 'AvailableMemoryMB' -NotePropertyValue $availableMemoryMB
+                    $output | Add-Member -NotePropertyName 'DiskUsagePercent' -NotePropertyValue ([math]::Round($diskUsage, 2))
+                }
+                
+                # Output the result
+                Write-Output $output
+            }
+            catch {
+                $errorRecord = [System.Management.Automation.ErrorRecord]::new(
+                    $_.Exception,
+                    "SystemInfoCollectionError",
+                    [System.Management.Automation.ErrorCategory]::OperationStopped,
+                    $computer
+                )
+                $PSCmdlet.WriteError($errorRecord)
+            }
+        }
+    }
+    
+    end {
+        Write-Verbose "System information collection completed"
+    }
+}

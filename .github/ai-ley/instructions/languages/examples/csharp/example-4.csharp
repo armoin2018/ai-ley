@@ -1,0 +1,5 @@
+var parts = new List<string>();
+foreach (var line in lines)
+{
+    parts.Add(line); // inefficient for large collections
+}

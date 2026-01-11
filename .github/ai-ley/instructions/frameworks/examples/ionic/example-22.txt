@@ -1,0 +1,5 @@
+### Native Plugin Integration
+
+- **Purpose**: Access device features through Capacitor plugins
+- **Setup**: `npm install @capacitor/[plugin-name]`
+- **Usage**: Import and configure in platform-specific code

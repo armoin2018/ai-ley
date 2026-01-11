@@ -1,0 +1,2 @@
+User: Design communication strategy for major company restructuring using NLP principles
+Agent: Creates stakeholder-specific messaging using meta-programs, designs resistance prevention patterns, and implements systemic change communication with buy-in strategies

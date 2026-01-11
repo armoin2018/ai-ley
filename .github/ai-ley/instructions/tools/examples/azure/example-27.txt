@@ -1,0 +1,41 @@
+## Best Practices
+
+### ✅ **Infrastructure Best Practices**
+
+- **Use Infrastructure as Code** - Manage resources with ARM templates or Bicep
+- **Implement resource tagging** - Tag all resources for cost management and organization
+- **Use managed identities** - Authenticate services without storing credentials
+- **Implement least privilege access** - Use Azure RBAC for fine-grained permissions
+- **Use Azure Policy** - Enforce organizational standards and compliance
+- **Monitor costs** - Set up cost alerts and budgets
+
+### ✅ **Security Best Practices**
+
+- **Enable Azure Security Center** - Monitor security posture and recommendations
+- **Use Azure Key Vault** - Store secrets, keys, and certificates securely
+- **Implement network security** - Use NSGs, firewalls, and private endpoints
+- **Enable audit logging** - Track all operations with Azure Activity Log
+- **Use Azure AD integration** - Centralize identity and access management
+- **Regular security assessments** - Perform vulnerability scans and penetration testing
+
+### ✅ **Performance Optimization**
+
+- **Use Azure CDN** - Improve global performance with content delivery network
+- **Implement caching** - Use Azure Cache for Redis for better performance
+- **Optimize database performance** - Use SQL Database performance recommendations
+- **Monitor application performance** - Use Application Insights for APM
+- **Use auto-scaling** - Implement horizontal and vertical scaling
+- **Optimize storage** - Choose appropriate storage tiers and access patterns
+
+### ❌ **Common Pitfalls to Avoid**
+
+- **Don't hardcode secrets** - Use Key Vault and managed identities
+- **Avoid single region deployment** - Plan for disaster recovery across regions
+- **Don't ignore cost optimization** - Regularly review and optimize resource usage
+- **Avoid manual deployments** - Use automation and infrastructure as code
+- **Don't skip monitoring** - Implement comprehensive logging and alerting
+- **Avoid vendor lock-in** - Design with portability in mind
+
+## Advanced Azure Usage
+
+### Azure Arc for Hybrid Cloud

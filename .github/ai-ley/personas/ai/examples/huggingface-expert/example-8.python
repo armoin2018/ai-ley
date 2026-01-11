@@ -1,0 +1,49 @@
+# Comprehensive evaluation using HuggingFace evaluate
+import evaluate
+from datasets import Dataset
+import numpy as np
+
+class HuggingFaceEvaluator:
+    def __init__(self, task_type):
+        self.task_type = task_type
+        self.metrics = self.load_metrics()
+    
+    def load_metrics(self):
+        """Load appropriate metrics for task"""
+        metric_map = {
+            "classification": ["accuracy", "f1", "precision", "recall"],
+            "regression": ["mse", "mae", "r2"],
+            "generation": ["bleu", "rouge", "meteor"],
+            "translation": ["bleu", "sacrebleu", "ter"]
+        }
+        
+        metrics = {}
+        for metric_name in metric_map.get(self.task_type, []):
+            metrics[metric_name] = evaluate.load(metric_name)
+        
+        return metrics
+    
+    def evaluate_model(self, model, dataset, split="test"):
+        """Comprehensive model evaluation"""
+        predictions = []
+        references = []
+        
+        for example in dataset[split]:
+            pred = model(example["input"])
+            predictions.append(pred)
+            references.append(example["label"])
+        
+        results = {}
+        for metric_name, metric in self.metrics.items():
+            if metric_name in ["bleu", "rouge", "meteor"]:
+                score = metric.compute(predictions=predictions, references=references)
+            else:
+                score = metric.compute(predictions=predictions, references=references)
+            results[metric_name] = score
+        
+        return results
+    
+    def benchmark_against_leaderboard(self, model, benchmark_name):
+        """Compare against HuggingFace leaderboards"""
+        # Implementation for benchmark comparison
+        pass

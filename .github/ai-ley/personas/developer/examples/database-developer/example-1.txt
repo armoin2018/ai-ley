@@ -1,0 +1,2 @@
+User: Design database architecture for e-commerce platform with complex requirements
+Agent: Implements hybrid solution with PostgreSQL for transactions, Redis for caching, Elasticsearch for search, MongoDB for product catalog, with synchronization and consistency strategies

@@ -1,0 +1,40 @@
+def resolve_document_conflict(doc_manager, doc_id):
+    """Resolve document conflicts by merging changes."""
+    try:
+        # Get document with conflicts
+        doc = doc_manager.db[doc_id]
+
+        if '_conflicts' in doc:
+            conflicts = doc['_conflicts']
+            logging.info(f"Resolving {len(conflicts)} conflicts for document {doc_id}")
+
+            # Get all conflicted versions
+            conflicted_docs = []
+            for rev in conflicts:
+                conflicted_doc = doc_manager.db.get(doc_id, rev=rev)
+                conflicted_docs.append(conflicted_doc)
+
+            # Merge strategy (newest wins)
+            merged_doc = doc.copy()
+
+            for conflicted_doc in conflicted_docs:
+                if conflicted_doc.get('updated_at', '') > merged_doc.get('updated_at', ''):
+                    # Merge newer fields
+                    for key, value in conflicted_doc.items():
+                        if key not in ['_id', '_rev', '_conflicts']:
+                            merged_doc[key] = value
+
+            # Save resolved document
+            doc_manager.db.save(merged_doc)
+
+            # Delete conflicted revisions
+            for rev in conflicts:
+                try:
+                    doc_manager.db.delete({'_id': doc_id, '_rev': rev})
+                except:
+                    pass
+
+            logging.info(f"Conflicts resolved for document {doc_id}")
+
+    except Exception as e:
+        logging.error(f"Error resolving conflicts for {doc_id}: {e}")

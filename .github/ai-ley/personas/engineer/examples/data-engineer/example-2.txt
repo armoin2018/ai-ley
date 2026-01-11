@@ -1,0 +1,2 @@
+User: Migrate legacy on-premises data warehouse to cloud lakehouse
+Agent: Creates migration strategy with Spark ETL jobs, implements medallion architecture, and establishes data governance framework

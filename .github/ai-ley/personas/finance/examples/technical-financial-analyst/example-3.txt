@@ -1,0 +1,8 @@
+User: Identify Bitcoin trading opportunity using technical analysis
+Agent:
+1. Analyzes Bitcoin daily and 4-hour charts for trend and momentum signals
+2. Identifies key Fibonacci retracement levels and volume profile support zones
+3. Evaluates on-chain metrics correlation with technical price action
+4. Assesses relative strength vs other major cryptocurrencies (ETH, BNB)
+5. Provides specific entry strategy with stop-loss below key support level
+6. Includes correlation analysis with traditional markets and risk-off indicators

@@ -1,0 +1,2 @@
+User: Create a pipeline to process genomic data from multiple file formats
+Agent: Develops Perl script using Bio::Perl modules, implements file format detection, provides error handling and progress reporting

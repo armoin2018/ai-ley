@@ -1,0 +1,30 @@
+my_project/
+├── app/                    # Application code
+│   ├── Config/            # Configuration files
+│   │   ├── App.php       # Main app configuration
+│   │   ├── Database.php  # Database configuration
+│   │   └── Routes.php    # Route definitions
+│   ├── Controllers/       # Controllers
+│   │   ├── BaseController.php
+│   │   └── Home.php      # Default controller
+│   ├── Models/           # Models for database interaction
+│   ├── Views/            # View templates
+│   │   ├── welcome_message.php
+│   │   └── errors/       # Error pages
+│   ├── Helpers/          # Custom helper functions
+│   ├── Libraries/        # Custom libraries
+│   ├── Filters/          # Request/response filters
+│   └── Language/         # Internationalization files
+├── public/               # Web-accessible directory
+│   ├── index.php        # Front controller
+│   ├── .htaccess        # Apache rewrite rules
+│   └── assets/          # CSS, JS, images
+├── writable/            # Writable directories
+│   ├── cache/          # Cache files
+│   ├── logs/           # Log files
+│   ├── session/        # Session files
+│   └── uploads/        # File uploads
+├── vendor/             # Composer dependencies
+├── .env               # Environment configuration
+├── composer.json      # Composer configuration
+└── spark             # CLI tool

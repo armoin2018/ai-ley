@@ -1,0 +1,73 @@
+from scipy import stats
+import pandas as pd
+
+class StatisticalAnalyzer:
+    """Advanced statistical analysis toolkit."""
+    
+    def __init__(self):
+        self.results = {}
+    
+    def distribution_fitting(self, data, distributions=None):
+        """Fit multiple distributions and select best."""
+        if distributions is None:
+            distributions = [stats.norm, stats.lognorm, stats.gamma, 
+                           stats.beta, stats.weibull_min]
+        
+        best_dist = None
+        best_aic = np.inf
+        
+        for dist in distributions:
+            try:
+                # Fit distribution
+                params = dist.fit(data)
+                
+                # Calculate log-likelihood
+                log_likelihood = np.sum(dist.logpdf(data, *params))
+                
+                # Calculate AIC
+                k = len(params)
+                aic = 2*k - 2*log_likelihood
+                
+                if aic < best_aic:
+                    best_aic = aic
+                    best_dist = {'distribution': dist, 'params': params, 'aic': aic}
+                    
+            except Exception:
+                continue
+        
+        return best_dist
+    
+    def hypothesis_testing_suite(self, group1, group2=None, test_type='auto'):
+        """Comprehensive hypothesis testing."""
+        results = {}
+        
+        if group2 is None:
+            # One-sample tests
+            results['shapiro'] = stats.shapiro(group1)
+            results['kstest_norm'] = stats.kstest(group1, 'norm')
+            results['ttest_1samp'] = stats.ttest_1samp(group1, 0)
+        else:
+            # Two-sample tests
+            results['levene'] = stats.levene(group1, group2)
+            results['ttest_ind'] = stats.ttest_ind(group1, group2)
+            results['mannwhitneyu'] = stats.mannwhitneyu(group1, group2)
+            results['ks_2samp'] = stats.ks_2samp(group1, group2)
+        
+        return results
+    
+    def correlation_analysis(self, data):
+        """Multi-method correlation analysis."""
+        methods = ['pearson', 'spearman', 'kendall']
+        results = {}
+        
+        for method in methods:
+            if method == 'pearson':
+                corr, p_value = stats.pearsonr(data[:, 0], data[:, 1])
+            elif method == 'spearman':
+                corr, p_value = stats.spearmanr(data[:, 0], data[:, 1])
+            elif method == 'kendall':
+                corr, p_value = stats.kendalltau(data[:, 0], data[:, 1])
+            
+            results[method] = {'correlation': corr, 'p_value': p_value}
+        
+        return results

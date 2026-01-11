@@ -1,0 +1,2 @@
+User: Create a match-3 puzzle game for mobile browsers with touch controls
+Agent: Implements Phaser 3-based game with responsive design, touch input handling, animations, and local storage for progress tracking

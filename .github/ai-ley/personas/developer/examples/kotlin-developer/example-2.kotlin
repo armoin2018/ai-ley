@@ -1,0 +1,17 @@
+// Modern Android UI with Compose and ViewModel
+@Composable
+fun UserScreen(
+    viewModel: UserViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    
+    LaunchedEffect(Unit) {
+        viewModel.loadUsers()
+    }
+    
+    when (uiState) {
+        is UserUiState.Loading -> LoadingIndicator()
+        is UserUiState.Success -> UserList(uiState.users)
+        is UserUiState.Error -> ErrorMessage(uiState.message)
+    }
+}

@@ -1,0 +1,53 @@
+// user-card.component.ts
+import { Component, input, output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  avatar: string;
+}
+
+@Component({
+  selector: 'app-user-card',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="user-card">
+      <img [src]="user().avatar" [alt]="user().name" />
+      <h3>{{ user().name }}</h3>
+      <p>{{ user().email }}</p>
+      <button (click)="onEdit()" [disabled]="loading()">
+        {{ loading() ? 'Loading...' : 'Edit' }}
+      </button>
+    </div>
+  `,
+  styles: [
+    `
+      .user-card {
+        padding: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+      }
+
+      .user-card img {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+      }
+    `,
+  ],
+})
+export class UserCardComponent {
+  // Input signals (Angular 18+)
+  user = input.required<User>();
+  loading = input(false);
+
+  // Output events
+  edit = output<User>();
+
+  onEdit() {
+    this.edit.emit(this.user());
+  }
+}

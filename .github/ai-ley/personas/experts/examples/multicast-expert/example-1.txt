@@ -1,0 +1,2 @@
+User: Design multicast network for company-wide video streaming to 5000+ employees
+Agent: Creates PIM-SM network design with optimized multicast trees, IGMP configuration, bandwidth provisioning, and redundancy planning for high-availability video distribution

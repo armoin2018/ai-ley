@@ -1,0 +1,40 @@
+# docker-compose.yml with security configuration
+version: '3.8'
+
+services:
+  app:
+    build: .
+    security_opt:
+      - no-new-privileges:true
+      - seccomp:unconfined
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
+      - /var/run:noexec,nosuid,size=50m
+    volumes:
+      - type: tmpfs
+        target: /app/tmp
+        tmpfs:
+          size: 100m
+    networks:
+      - isolated_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+          pids: 100
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+networks:
+  isolated_network:
+    driver: bridge
+    internal: true

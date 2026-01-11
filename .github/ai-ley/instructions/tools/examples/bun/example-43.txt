@@ -1,0 +1,20 @@
+## AI Assistant Guidelines
+
+When helping with [Tool Name]:
+
+1. **Always suggest the most current stable version**
+2. **Provide working configuration examples**
+3. **Include error handling in scripts**
+4. **Mention security implications when relevant**
+5. **Suggest integration with development workflow**
+6. **Provide troubleshooting steps for common issues**
+7. **Include performance considerations**
+8. **Reference official documentation**
+
+### Code Generation Rules
+
+- Generate configurations that follow tool best practices
+- Include comments explaining important settings
+- Provide multiple options when appropriate
+- Include validation and error checking
+- Follow the project's existing patterns and conventions

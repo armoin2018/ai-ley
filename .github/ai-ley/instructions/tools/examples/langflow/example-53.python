@@ -1,0 +1,37 @@
+# Token refresh mechanism
+auth_manager = {
+    "type": "PythonFunction",
+    "code": """
+import requests
+import time
+from datetime import datetime, timedelta
+
+class TokenManager:
+    def __init__(self):
+        self.tokens = {}
+
+    def get_valid_token(self, service):
+        if service not in self.tokens:
+            return self.refresh_token(service)
+
+        token_data = self.tokens[service]
+        if datetime.now() >= token_data['expires_at']:
+            return self.refresh_token(service)
+
+        return token_data['token']
+
+    def refresh_token(self, service):
+        if service == "openai":
+            # OpenAI uses static API keys
+            return os.getenv("OPENAI_API_KEY")
+        elif service == "anthropic":
+            return os.getenv("ANTHROPIC_API_KEY")
+        # Add other services as needed
+
+    def handle_auth_error(self, service, error):
+        if "unauthorized" in str(error).lower():
+            print(f"Auth failed for {service}. Refreshing token...")
+            return self.refresh_token(service)
+        raise error
+    """
+}

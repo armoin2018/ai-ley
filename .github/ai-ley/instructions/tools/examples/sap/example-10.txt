@@ -1,0 +1,8 @@
+VA01          # Create Sales Order
+VA02          # Change Sales Order
+VA03          # Display Sales Order
+VL01N         # Create Delivery
+VL02N         # Change Delivery
+VF01          # Create Invoice
+VF03          # Display Invoice
+V/30          # Output Control

@@ -1,0 +1,48 @@
+import whisper
+import torch
+import librosa
+from transformers import pipeline
+
+class WhisperASR:
+    def __init__(self, model_size="base", device="cuda"):
+        self.model = whisper.load_model(model_size, device=device)
+        self.device = device
+        
+    def transcribe(self, audio_path, language=None):
+        # Load and preprocess audio
+        audio = whisper.load_audio(audio_path)
+        audio = whisper.pad_or_trim(audio)
+        
+        # Generate mel spectrogram
+        mel = whisper.log_mel_spectrogram(audio).to(self.device)
+        
+        # Detect language if not specified
+        if language is None:
+            _, probs = self.model.detect_language(mel)
+            language = max(probs, key=probs.get)
+            
+        # Decode with timestamps
+        options = whisper.DecodingOptions(
+            language=language,
+            with_timestamps=True,
+            fp16=False
+        )
+        
+        result = whisper.decode(self.model, mel, options)
+        return result
+        
+    def transcribe_with_confidence(self, audio_path):
+        result = self.model.transcribe(
+            audio_path,
+            word_timestamps=True,
+            condition_on_previous_text=False
+        )
+        
+        # Calculate confidence scores
+        for segment in result['segments']:
+            if 'words' in segment:
+                confidences = [word.get('probability', 0.0) 
+                             for word in segment['words']]
+                segment['confidence'] = sum(confidences) / len(confidences)
+                
+        return result

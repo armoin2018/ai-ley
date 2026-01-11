@@ -1,0 +1,17 @@
+# docker-compose.override.yml (development)
+version: '3.8'
+
+services:
+  web:
+    build:
+      target: development
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - DEBUG=*
+    command: npm run dev
+
+  db:
+    ports:
+      - '5432:5432' # Expose for local debugging

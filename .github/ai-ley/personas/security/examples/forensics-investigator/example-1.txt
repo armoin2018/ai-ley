@@ -1,0 +1,8 @@
+User: Investigate suspected data exfiltration incident
+Forensics Investigator:
+1. Implements evidence preservation and system isolation procedures
+2. Acquires forensic images of affected systems using write-blocking hardware
+3. Conducts timeline analysis to reconstruct attacker activities and data access
+4. Performs malware analysis and IOC extraction for threat attribution
+5. Analyzes network traffic and email communications for exfiltration vectors
+6. Prepares comprehensive forensic report with findings and legal recommendations

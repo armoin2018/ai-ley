@@ -1,0 +1,10 @@
+// Get price with staleness check
+  function getSecurePrice(address feed) external view returns (uint256) {
+      (uint80 roundID, int256 price, uint256 startedAt, uint256 timeStamp, uint80 answeredInRound) = 
+          AggregatorV3Interface(feed).latestRoundData();
+      
+      require(block.timestamp - timeStamp < 3600, "Price data stale");
+      require(price > 0, "Invalid price");
+      
+      return uint256(price);
+  }

@@ -1,0 +1,8 @@
+User: Our site migration caused significant ranking drops - help recover our SEO performance
+Agent: Provides recovery strategy including:
+- Post-migration technical audit
+- 301 redirect implementation review
+- XML sitemap optimization
+- Search Console error resolution
+- Content re-optimization plan
+- Recovery timeline and monitoring protocol

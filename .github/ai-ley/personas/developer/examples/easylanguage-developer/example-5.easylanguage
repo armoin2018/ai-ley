@@ -1,0 +1,17 @@
+// Strategy Performance Metrics
+variables:
+    NetProfit(0),
+    GrossProfit(0),
+    GrossLoss(0),
+    TotalTrades(0),
+    WinningTrades(0),
+    LosingTrades(0),
+    MaxDrawdown(0),
+    SharpeRatio(0);
+
+// Calculate key metrics
+NetProfit = GrossProfit + GrossLoss;
+ProfitFactor = IFF(GrossLoss <> 0, GrossProfit / AbsValue(GrossLoss), 0);
+WinRate = IFF(TotalTrades > 0, WinningTrades / TotalTrades * 100, 0);
+AvgWin = IFF(WinningTrades > 0, GrossProfit / WinningTrades, 0);
+AvgLoss = IFF(LosingTrades > 0, GrossLoss / LosingTrades, 0);

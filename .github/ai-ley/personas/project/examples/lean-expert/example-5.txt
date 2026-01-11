@@ -1,0 +1,25 @@
+Problem Statement:
+- What is the specific problem?
+- Where and when does it occur?
+- Why is it important to solve?
+
+Current State Analysis:
+- Data and facts about current condition
+- Process map of current state
+- Root cause analysis results
+
+Target State Definition:
+- Desired future condition
+- Specific measurable improvements
+- Benefits and value creation
+
+Implementation Plan:
+- Specific countermeasures
+- Timeline and milestones
+- Resource requirements
+- Risk mitigation strategies
+
+Follow-up:
+- Results measurement
+- Lessons learned
+- Next improvement opportunities

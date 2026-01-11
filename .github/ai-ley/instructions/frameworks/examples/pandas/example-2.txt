@@ -1,0 +1,18 @@
+data-analysis-project/
+├── data/
+│   ├── raw/
+│   │   ├── csv/
+│   │   ├── json/
+│   │   └── excel/
+│   └── processed/
+├── notebooks/
+│   ├── exploratory/
+│   └── analysis/
+├── src/
+│   ├── data_loader.py
+│   ├── data_cleaner.py
+│   ├── analyzer.py
+│   └── utils.py
+├── tests/
+├── requirements.txt
+└── README.md

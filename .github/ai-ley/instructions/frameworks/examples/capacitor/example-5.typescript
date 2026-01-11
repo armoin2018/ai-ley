@@ -1,0 +1,77 @@
+// services/device.service.ts
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Geolocation, Position } from '@capacitor/geolocation';
+import { Device, DeviceInfo } from '@capacitor/device';
+import { Network, ConnectionStatus } from '@capacitor/network';
+import { Toast } from '@capacitor/toast';
+
+export class DeviceService {
+  // Camera functionality
+  async takePicture(): Promise<string | undefined> {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Camera,
+      });
+
+      return image.dataUrl;
+    } catch (error) {
+      console.error('Camera error:', error);
+      await this.showToast('Failed to take picture');
+      return undefined;
+    }
+  }
+
+  async selectFromGallery(): Promise<string | undefined> {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: true,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Photos,
+      });
+
+      return image.dataUrl;
+    } catch (error) {
+      console.error('Gallery error:', error);
+      await this.showToast('Failed to select image');
+      return undefined;
+    }
+  }
+
+  // Geolocation
+  async getCurrentPosition(): Promise<Position | null> {
+    try {
+      const coordinates = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000,
+      });
+
+      return coordinates;
+    } catch (error) {
+      console.error('Geolocation error:', error);
+      await this.showToast('Failed to get location');
+      return null;
+    }
+  }
+
+  // Network status
+  async getNetworkStatus(): Promise<ConnectionStatus> {
+    return await Network.getStatus();
+  }
+
+  startNetworkListener(callback: (status: ConnectionStatus) => void) {
+    Network.addListener('networkStatusChange', callback);
+  }
+
+  // Helper methods
+  private async showToast(message: string) {
+    await Toast.show({
+      text: message,
+      duration: 'short',
+      position: 'bottom',
+    });
+  }
+}

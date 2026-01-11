@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  tomato-fleet-manager:
+    build:
+      context: ./tomato-fleet-manager
+      dockerfile: Dockerfile
+    container_name: tomato-fleet-manager
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://tomato:password@postgres:5432/tomato_mgmt
+      - REDIS_URL=redis://redis:6379/0
+      - FLEET_DISCOVERY_ENABLED=true
+      - AUTO_BACKUP_ENABLED=true
+    volumes:
+      - ./config:/app/config
+      - ./router-configs:/app/router-configs
+      - ./backups:/app/backups
+      - ./ssh-keys:/app/ssh-keys:ro
+    ports:
+      - '8448:8443' # Management interface
+      - '9100:9090' # Metrics
+    networks:
+      - tomato_management
+
+  policy-engine:
+    build:
+      context: ./policy-engine
+      dockerfile: Dockerfile
+    container_name: tomato-policy-engine
+    restart: unless-stopped
+    environment:
+      - POLICY_VALIDATION_STRICT=true
+      - ROLLBACK_ON_FAILURE=true
+    volumes:
+      - ./policies:/app/policies
+      - ./policy-templates:/app/policy-templates
+    networks:
+      - tomato_management
+
+  monitoring-collector:
+    build:
+      context: ./monitoring-collector
+      dockerfile: Dockerfile
+    container_name: tomato-monitoring-collector
+    restart: unless-stopped
+    environment:
+      - SNMP_COMMUNITY=tomato-enterprise
+      - COLLECTION_INTERVAL=60 # seconds
+      - ALERT_THRESHOLD_CPU=80
+      - ALERT_THRESHOLD_MEMORY=90
+    volumes:
+      - ./monitoring-data:/app/monitoring-data
+      - ./snmp-mibs:/app/snmp-mibs:ro
+    networks:
+      - tomato_management
+
+networks:
+  tomato_management:
+    driver: bridge

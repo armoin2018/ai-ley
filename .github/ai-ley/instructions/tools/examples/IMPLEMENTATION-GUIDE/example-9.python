@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+"""AWS Enterprise Platform Deployment Script"""
+
+import asyncio
+from cloud_platforms.aws import AWSEnterpriseOrchestrator, EnterpriseAWSConfig
+
+async def deploy_aws_enterprise():
+    config = EnterpriseAWSConfig(
+        organization_id="enterprise-aws-org",
+        tier=AWSTier.ENTERPRISE,
+        primary_region=AWSRegion.US_EAST_1,
+        secondary_regions=[AWSRegion.US_WEST_2, AWSRegion.EU_WEST_1],
+        enable_ml_insights=True,
+        enable_cost_optimization=True
+    )
+
+    orchestrator = AWSEnterpriseOrchestrator(config)
+
+    print("Deploying AWS Enterprise Infrastructure...")
+    result = await orchestrator.deploy_enterprise_infrastructure()
+
+    if result["status"] == "success":
+        print(f"✅ AWS Platform Deployed: {result['deployment_summary']}")
+        return True
+    else:
+        print(f"❌ AWS Deployment Failed: {result.get('error')}")
+        return False
+
+if __name__ == "__main__":
+    asyncio.run(deploy_aws_enterprise())

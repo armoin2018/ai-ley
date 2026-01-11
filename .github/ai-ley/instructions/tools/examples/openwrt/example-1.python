@@ -1,0 +1,821 @@
+#!/usr/bin/env python3
+# openwrt-enterprise-manager.py - Advanced OpenWrt enterprise management framework
+
+import asyncio
+import json
+import yaml
+import logging
+import paramiko
+import requests
+import subprocess
+from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional
+import hashlib
+import os
+import time
+
+class OpenWrtEnterpriseManager:
+    """Advanced OpenWrt enterprise management and automation"""
+
+    def __init__(self, devices_config):
+        self.devices = {}
+        self.device_config = devices_config
+        self.firmware_manager = FirmwareManager()
+        self.security_manager = SecurityManager()
+        self.monitoring_manager = MonitoringManager()
+        self.compliance_engine = ComplianceEngine()
+
+        # Initialize logging
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            handlers=[
+                logging.FileHandler('openwrt_enterprise.log'),
+                logging.StreamHandler()
+            ]
+        )
+        self.logger = logging.getLogger(__name__)
+
+    async def initialize_device_fleet(self):
+        """Initialize and configure OpenWrt device fleet"""
+        self.logger.info("Initializing OpenWrt device fleet")
+
+        # Register devices
+        for device_config in self.device_config['devices']:
+            device = OpenWrtDevice(device_config)
+            await device.initialize()
+            self.devices[device.device_id] = device
+
+        # Setup central configuration management
+        await self.setup_central_config_management()
+
+        # Deploy security policies
+        await self.deploy_security_policies()
+
+        # Initialize monitoring
+        await self.setup_monitoring()
+
+        return {"status": "success", "devices": len(self.devices)}
+
+    async def setup_central_config_management(self):
+        """Setup centralized configuration management"""
+        config_templates = {
+            'base_system': self.generate_base_system_config(),
+            'network_security': self.generate_network_security_config(),
+            'wifi_security': self.generate_wifi_security_config(),
+            'firewall_policies': self.generate_firewall_policies(),
+            'monitoring_config': self.generate_monitoring_config()
+        }
+
+        # Deploy configurations to all devices
+        for device_id, device in self.devices.items():
+            self.logger.info(f"Deploying configuration to device {device_id}")
+
+            for config_type, config_data in config_templates.items():
+                try:
+                    await device.apply_configuration(config_type, config_data)
+                    self.logger.info(f"Configuration {config_type} applied to {device_id}")
+                except Exception as e:
+                    self.logger.error(f"Failed to apply {config_type} to {device_id}: {e}")
+
+    def generate_base_system_config(self):
+        """Generate base system configuration"""
+        return {
+            'system': {
+                'hostname': '${HOSTNAME}',
+                'timezone': 'UTC',
+                'log_size': 1024,
+                'log_ip': '${SYSLOG_SERVER}',
+                'log_proto': 'udp',
+                'log_port': 514
+            },
+            'dropbear': {
+                'enable': True,
+                'PasswordAuth': False,
+                'RootPasswordAuth': False,
+                'Port': 22,
+                'Interface': 'lan'
+            },
+            'uhttpd': {
+                'listen_http': [],
+                'listen_https': ['0.0.0.0:443', '[::]:443'],
+                'cert': '/etc/ssl/certs/openwrt.crt',
+                'key': '/etc/ssl/private/openwrt.key',
+                'redirect_https': True
+            },
+            'ntp': {
+                'enable_server': False,
+                'server': [
+                    '0.openwrt.pool.ntp.org',
+                    '1.openwrt.pool.ntp.org',
+                    '2.openwrt.pool.ntp.org',
+                    '3.openwrt.pool.ntp.org'
+                ]
+            }
+        }
+
+    def generate_network_security_config(self):
+        """Generate network security configuration"""
+        return {
+            'network': {
+                'lan': {
+                    'ifname': 'eth0.1',
+                    'proto': 'static',
+                    'ipaddr': '${LAN_IP}',
+                    'netmask': '255.255.255.0',
+                    'ip6assign': 60
+                },
+                'wan': {
+                    'ifname': 'eth0.2',
+                    'proto': 'dhcp'
+                },
+                'guest': {
+                    'ifname': 'wlan0-1',
+                    'proto': 'static',
+                    'ipaddr': '192.168.100.1',
+                    'netmask': '255.255.255.0',
+                    'ip6assign': 60
+                },
+                'iot': {
+                    'ifname': 'eth0.10',
+                    'proto': 'static',
+                    'ipaddr': '192.168.10.1',
+                    'netmask': '255.255.255.0',
+                    'ip6assign': 60
+                }
+            },
+            'switch': {
+                'switch0': {
+                    'ports': '0 1 2 3 6',
+                    'blinkrate': 2
+                }
+            }
+        }
+
+    def generate_wifi_security_config(self):
+        """Generate WiFi security configuration"""
+        return {
+            'wireless': {
+                'radio0': {
+                    'type': 'mac80211',
+                    'channel': 'auto',
+                    'hwmode': '11g',
+                    'path': 'platform/soc/soc:internal-regs/f1040000.ethernet/f1088000.mdio/f1088000.mdio:00/f1072000.wifi',
+                    'htmode': 'HT40',
+                    'txpower': 20,
+                    'country': 'US',
+                    'legacy_rates': False,
+                    'mu_beamformer': True,
+                    'mu_beamformee': True
+                },
+                'radio1': {
+                    'type': 'mac80211',
+                    'channel': 'auto',
+                    'hwmode': '11a',
+                    'path': 'platform/soc/soc:internal-regs/f1040000.ethernet/f1088000.mdio/f1088000.mdio:00/f1073000.wifi',
+                    'htmode': 'VHT160',
+                    'txpower': 23,
+                    'country': 'US'
+                },
+                'default_radio0': {
+                    'device': 'radio0',
+                    'network': 'lan',
+                    'mode': 'ap',
+                    'ssid': '${ENTERPRISE_SSID}',
+                    'encryption': 'sae-mixed',
+                    'key': '${WIFI_PASSWORD}',
+                    'ieee80211w': 2,
+                    'wpa_disable_eapol_key_retries': True,
+                    'wps_pushbutton': False,
+                    'wmm': True
+                },
+                'guest_radio0': {
+                    'device': 'radio0',
+                    'network': 'guest',
+                    'mode': 'ap',
+                    'ssid': '${GUEST_SSID}',
+                    'encryption': 'psk2',
+                    'key': '${GUEST_PASSWORD}',
+                    'isolate': True,
+                    'maxassoc': 10
+                }
+            }
+        }
+
+    def generate_firewall_policies(self):
+        """Generate comprehensive firewall policies"""
+        return {
+            'firewall': {
+                'defaults': {
+                    'syn_flood': True,
+                    'input': 'REJECT',
+                    'output': 'ACCEPT',
+                    'forward': 'REJECT',
+                    'disable_ipv6': False,
+                    'flow_offloading': True,
+                    'flow_offloading_hw': False
+                },
+                'zones': [
+                    {
+                        'name': 'lan',
+                        'network': ['lan'],
+                        'input': 'ACCEPT',
+                        'output': 'ACCEPT',
+                        'forward': 'ACCEPT'
+                    },
+                    {
+                        'name': 'wan',
+                        'network': ['wan', 'wan6'],
+                        'input': 'REJECT',
+                        'output': 'ACCEPT',
+                        'forward': 'REJECT',
+                        'masq': True,
+                        'mtu_fix': True
+                    },
+                    {
+                        'name': 'guest',
+                        'network': ['guest'],
+                        'input': 'REJECT',
+                        'output': 'ACCEPT',
+                        'forward': 'REJECT'
+                    },
+                    {
+                        'name': 'iot',
+                        'network': ['iot'],
+                        'input': 'REJECT',
+                        'output': 'ACCEPT',
+                        'forward': 'REJECT'
+                    }
+                ],
+                'forwarding': [
+                    {'src': 'lan', 'dest': 'wan'},
+                    {'src': 'guest', 'dest': 'wan'},
+                    {'src': 'iot', 'dest': 'wan'}
+                ],
+                'rules': [
+                    {
+                        'name': 'Allow-DHCP-Renew',
+                        'src': 'wan',
+                        'proto': 'udp',
+                        'dest_port': 68,
+                        'target': 'ACCEPT',
+                        'family': 'ipv4'
+                    },
+                    {
+                        'name': 'Allow-Ping',
+                        'src': 'wan',
+                        'proto': 'icmp',
+                        'icmp_type': 'echo-request',
+                        'family': 'ipv4',
+                        'target': 'ACCEPT'
+                    },
+                    {
+                        'name': 'Block-Inter-VLAN',
+                        'src': 'guest',
+                        'dest': 'lan',
+                        'target': 'REJECT'
+                    },
+                    {
+                        'name': 'Block-IoT-to-LAN',
+                        'src': 'iot',
+                        'dest': 'lan',
+                        'target': 'REJECT'
+                    }
+                ]
+            }
+        }
+
+class OpenWrtDevice:
+    """Individual OpenWrt device management"""
+
+    def __init__(self, device_config):
+        self.device_id = device_config['device_id']
+        self.hostname = device_config['hostname']
+        self.ip_address = device_config['ip_address']
+        self.username = device_config.get('username', 'root')
+        self.ssh_key = device_config.get('ssh_key', None)
+        self.ssh_client = None
+        self.device_info = {}
+
+    async def initialize(self):
+        """Initialize device connection and gather information"""
+        await self.connect()
+        await self.gather_device_info()
+
+    async def connect(self):
+        """Establish SSH connection to device"""
+        self.ssh_client = paramiko.SSHClient()
+        self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        try:
+            if self.ssh_key:
+                self.ssh_client.connect(
+                    self.ip_address,
+                    username=self.username,
+                    key_filename=self.ssh_key,
+                    timeout=30
+                )
+            else:
+                # Use password authentication if no key
+                password = input(f"Enter password for {self.hostname}: ")
+                self.ssh_client.connect(
+                    self.ip_address,
+                    username=self.username,
+                    password=password,
+                    timeout=30
+                )
+
+            logging.info(f"Connected to {self.hostname} ({self.ip_address})")
+
+        except Exception as e:
+            logging.error(f"Failed to connect to {self.hostname}: {e}")
+            raise
+
+    async def gather_device_info(self):
+        """Gather device information and capabilities"""
+        commands = {
+            'system_info': 'uname -a',
+            'openwrt_release': 'cat /etc/openwrt_release',
+            'kernel_version': 'cat /proc/version',
+            'memory_info': 'cat /proc/meminfo',
+            'cpu_info': 'cat /proc/cpuinfo',
+            'network_interfaces': 'ip addr show',
+            'wireless_info': 'iwinfo',
+            'package_list': 'opkg list-installed'
+        }
+
+        for info_type, command in commands.items():
+            try:
+                stdin, stdout, stderr = self.ssh_client.exec_command(command)
+                output = stdout.read().decode().strip()
+                self.device_info[info_type] = output
+            except Exception as e:
+                logging.warning(f"Failed to gather {info_type} from {self.hostname}: {e}")
+
+    async def apply_configuration(self, config_type, config_data):
+        """Apply configuration to device"""
+        try:
+            # Convert configuration to UCI commands
+            uci_commands = self.convert_config_to_uci(config_type, config_data)
+
+            # Apply UCI commands
+            for command in uci_commands:
+                stdin, stdout, stderr = self.ssh_client.exec_command(command)
+                result = stderr.read().decode().strip()
+
+                if result:
+                    logging.warning(f"UCI command warning on {self.hostname}: {result}")
+
+            # Commit configuration
+            self.ssh_client.exec_command('uci commit')
+
+            # Restart relevant services
+            restart_commands = self.get_restart_commands(config_type)
+            for command in restart_commands:
+                self.ssh_client.exec_command(command)
+
+            logging.info(f"Applied {config_type} configuration to {self.hostname}")
+
+        except Exception as e:
+            logging.error(f"Failed to apply {config_type} to {self.hostname}: {e}")
+            raise
+
+    def convert_config_to_uci(self, config_type, config_data):
+        """Convert configuration data to UCI commands"""
+        uci_commands = []
+
+        def process_section(section_name, section_data, parent_path=""):
+            path = f"{parent_path}.{section_name}" if parent_path else section_name
+
+            if isinstance(section_data, dict):
+                for key, value in section_data.items():
+                    if isinstance(value, dict):
+                        # Create section if it doesn't exist
+                        uci_commands.append(f"uci set {path}={key}")
+                        process_section(key, value, path)
+                    elif isinstance(value, list):
+                        # Handle list values
+                        for i, item in enumerate(value):
+                            if isinstance(item, dict):
+                                section_path = f"{path}.@{key}[{i}]"
+                                uci_commands.append(f"uci add {path} {key}")
+                                for sub_key, sub_value in item.items():
+                                    uci_commands.append(f"uci set {section_path}.{sub_key}='{sub_value}'")
+                            else:
+                                uci_commands.append(f"uci add_list {path}.{key}='{item}'")
+                    else:
+                        # Simple key-value pair
+                        uci_commands.append(f"uci set {path}.{key}='{value}'")
+
+        for section_name, section_data in config_data.items():
+            process_section(section_name, section_data)
+
+        return uci_commands
+
+    def get_restart_commands(self, config_type):
+        """Get service restart commands for configuration type"""
+        service_map = {
+            'base_system': ['/etc/init.d/system restart', '/etc/init.d/dropbear restart'],
+            'network_security': ['/etc/init.d/network restart'],
+            'wifi_security': ['wifi reload'],
+            'firewall_policies': ['/etc/init.d/firewall restart'],
+            'monitoring_config': ['/etc/init.d/collectd restart']
+        }
+
+        return service_map.get(config_type, [])
+
+class FirmwareManager:
+    """Firmware management and updates"""
+
+    def __init__(self):
+        self.update_servers = [
+            'https://downloads.openwrt.org',
+            'https://archive.openwrt.org'
+        ]
+        self.signature_verification = True
+
+    async def check_firmware_updates(self, devices):
+        """Check for firmware updates across device fleet"""
+        update_results = {}
+
+        for device_id, device in devices.items():
+            try:
+                current_version = self.parse_openwrt_version(device.device_info['openwrt_release'])
+                latest_version = await self.get_latest_version(device.device_info['system_info'])
+
+                needs_update = self.compare_versions(current_version, latest_version)
+
+                update_results[device_id] = {
+                    'current_version': current_version,
+                    'latest_version': latest_version,
+                    'needs_update': needs_update,
+                    'update_available': needs_update
+                }
+
+            except Exception as e:
+                logging.error(f"Failed to check updates for {device_id}: {e}")
+                update_results[device_id] = {'error': str(e)}
+
+        return update_results
+
+    def parse_openwrt_version(self, openwrt_release):
+        """Parse OpenWrt version from release info"""
+        for line in openwrt_release.split('\n'):
+            if line.startswith('DISTRIB_RELEASE='):
+                return line.split('=')[1].strip('"\'')
+        return "unknown"
+
+    async def get_latest_version(self, system_info):
+        """Get latest available version for device architecture"""
+        # This would typically query OpenWrt update servers
+        # For demonstration, return a placeholder
+        return "23.05.2"
+
+    def compare_versions(self, current, latest):
+        """Compare version strings to determine if update needed"""
+        try:
+            current_parts = [int(x) for x in current.split('.')]
+            latest_parts = [int(x) for x in latest.split('.')]
+
+            return current_parts < latest_parts
+        except:
+            return False
+
+class SecurityManager:
+    """Security policy management"""
+
+    def __init__(self):
+        self.security_templates = {
+            'enterprise': self.get_enterprise_security_template(),
+            'iot_gateway': self.get_iot_gateway_template(),
+            'guest_network': self.get_guest_network_template()
+        }
+
+    def get_enterprise_security_template(self):
+        """Enterprise security configuration template"""
+        return {
+            'ssh_hardening': {
+                'disable_password_auth': True,
+                'disable_root_login': True,
+                'max_auth_tries': 3,
+                'client_alive_interval': 300,
+                'client_alive_count_max': 2
+            },
+            'firewall_hardening': {
+                'drop_invalid': True,
+                'syn_flood_protection': True,
+                'disable_ipv6': False,
+                'log_martians': True,
+                'tcp_syncookies': True
+            },
+            'access_control': {
+                'management_vlan': True,
+                'admin_whitelist': True,
+                'geo_blocking': True,
+                'rate_limiting': True
+            },
+            'monitoring': {
+                'syslog_remote': True,
+                'snmp_v3': True,
+                'collectd_enabled': True,
+                'intrusion_detection': True
+            }
+        }
+
+    def get_iot_gateway_template(self):
+        """IoT gateway security template"""
+        return {
+            'network_segmentation': {
+                'iot_vlan': True,
+                'iot_isolation': True,
+                'inter_device_blocking': True
+            },
+            'traffic_analysis': {
+                'deep_packet_inspection': True,
+                'anomaly_detection': True,
+                'behavior_analysis': True
+            },
+            'device_management': {
+                'device_fingerprinting': True,
+                'automatic_quarantine': True,
+                'firmware_monitoring': True
+            }
+        }
+
+class MonitoringManager:
+    """Monitoring and alerting management"""
+
+    def __init__(self):
+        self.metrics_collectors = ['collectd', 'telegraf', 'prometheus-node-exporter']
+        self.alert_channels = ['email', 'slack', 'webhook', 'syslog']
+
+    async def setup_monitoring(self, devices):
+        """Setup comprehensive monitoring for device fleet"""
+        monitoring_config = {
+            'collectd': self.generate_collectd_config(),
+            'telegraf': self.generate_telegraf_config(),
+            'prometheus': self.generate_prometheus_config(),
+            'alerting': self.generate_alerting_config()
+        }
+
+        for device_id, device in devices.items():
+            try:
+                await device.apply_configuration('monitoring', monitoring_config)
+                logging.info(f"Monitoring setup completed for {device_id}")
+            except Exception as e:
+                logging.error(f"Failed to setup monitoring for {device_id}: {e}")
+
+    def generate_collectd_config(self):
+        """Generate collectd configuration"""
+        return {
+            'global': {
+                'Hostname': '${HOSTNAME}',
+                'FQDNLookup': False,
+                'BaseDir': '/var/lib/collectd',
+                'PluginDir': '/usr/lib/collectd',
+                'Interval': 60,
+                'Timeout': 2,
+                'ReadThreads': 5,
+                'WriteThreads': 1
+            },
+            'plugins': {
+                'cpu': {'ReportByCpu': True},
+                'memory': {},
+                'load': {},
+                'interface': {'Interface': ['br-lan', 'eth0', 'wlan0']},
+                'wireless': {},
+                'processes': {},
+                'df': {'Device': ['/dev/root'], 'MountPoint': ['/']},
+                'network': {
+                    'Server': '${COLLECTD_SERVER}',
+                    'Port': 25826
+                }
+            }
+        }
+
+class ComplianceEngine:
+    """Compliance and governance engine"""
+
+    def __init__(self):
+        self.compliance_frameworks = {
+            'ISO27001': self.get_iso27001_requirements(),
+            'NIST': self.get_nist_requirements(),
+            'PCI-DSS': self.get_pci_requirements()
+        }
+
+    def get_iso27001_requirements(self):
+        """ISO 27001 compliance requirements"""
+        return {
+            'access_control': {
+                'user_access_management': True,
+                'privileged_access_management': True,
+                'access_rights_review': True
+            },
+            'cryptography': {
+                'encryption_policy': True,
+                'key_management': True,
+                'digital_signatures': True
+            },
+            'operations_security': {
+                'operational_procedures': True,
+                'change_management': True,
+                'capacity_management': True,
+                'malware_protection': True
+            },
+            'communications_security': {
+                'network_security_management': True,
+                'network_controls': True,
+                'segregation_in_networks': True
+            }
+        }
+
+# Docker Compose for OpenWrt Management Infrastructure
+def generate_openwrt_management_stack():
+    """Generate Docker Compose stack for OpenWrt management"""
+
+    docker_compose = '''
+version: '3.8'
+
+services:
+  openwrt-manager:
+    build:
+      context: ./openwrt-manager
+      dockerfile: Dockerfile
+    container_name: openwrt-enterprise-manager
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://openwrt:password@postgres:5432/openwrt_mgmt
+      - REDIS_URL=redis://redis:6379/0
+      - MQTT_BROKER=mosquitto:1883
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./config:/app/config
+      - ./firmware:/app/firmware
+      - ./backups:/app/backups
+      - ./ssh-keys:/app/ssh-keys:ro
+    ports:
+      - "8444:8443"  # Management UI
+      - "9091:9090"  # Metrics
+    networks:
+      - openwrt_mgmt
+    depends_on:
+      - postgres
+      - redis
+      - mosquitto
+
+  firmware-server:
+    image: nginx:alpine
+    container_name: openwrt-firmware-server
+    restart: unless-stopped
+    volumes:
+      - ./firmware:/usr/share/nginx/html/firmware:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:80"
+    networks:
+      - openwrt_mgmt
+
+  config-server:
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
+    container_name: openwrt-config-server
+    restart: unless-stopped
+    environment:
+      - GIT_REPO_URL=${CONFIG_GIT_REPO}
+      - GIT_USERNAME=${GIT_USERNAME}
+      - GIT_TOKEN=${GIT_TOKEN}
+    volumes:
+      - ./config-repo:/app/config-repo
+      - ./ssh-keys:/app/ssh-keys:ro
+    networks:
+      - openwrt_mgmt
+
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: openwrt-mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - openwrt_mgmt
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: openwrt-prometheus
+    restart: unless-stopped
+    ports:
+      - "9092:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+    networks:
+      - openwrt_mgmt
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: openwrt-grafana
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_SERVER_ROOT_URL=https://openwrt-monitoring.company.com/grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - openwrt_mgmt
+    depends_on:
+      - prometheus
+
+  postgres:
+    image: postgres:14
+    container_name: openwrt-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=openwrt_mgmt
+      - POSTGRES_USER=openwrt
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - openwrt_mgmt
+
+  redis:
+    image: redis:7-alpine
+    container_name: openwrt-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - openwrt_mgmt
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  openwrt_mgmt:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.26.0.0/16
+'''
+
+    return docker_compose
+
+def main():
+    """Main function demonstrating OpenWrt enterprise management"""
+
+    # Device configuration
+    devices_config = {
+        'devices': [
+            {
+                'device_id': 'router-001',
+                'hostname': 'openwrt-gateway-01',
+                'ip_address': '192.168.1.1',
+                'username': 'root',
+                'ssh_key': '/path/to/ssh/key'
+            },
+            {
+                'device_id': 'router-002',
+                'hostname': 'openwrt-gateway-02',
+                'ip_address': '192.168.2.1',
+                'username': 'root',
+                'ssh_key': '/path/to/ssh/key'
+            }
+        ]
+    }
+
+    # Initialize enterprise manager
+    manager = OpenWrtEnterpriseManager(devices_config)
+
+    # Run async initialization
+    async def run_manager():
+        result = await manager.initialize_device_fleet()
+        print(f"OpenWrt fleet initialization: {result}")
+
+    # Generate Docker stack
+    docker_stack = generate_openwrt_management_stack()
+    print("Docker management stack generated")
+
+    # Run the manager
+    asyncio.run(run_manager())
+
+if __name__ == '__main__':
+    main()

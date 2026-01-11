@@ -1,0 +1,7 @@
+# GitHub Actions example
+- name: Run Enterprise Tests
+  run: |
+    npm test -- --coverage --enterprise-mode
+    npm run test:security
+    npm run test:accessibility
+    npm run test:performance

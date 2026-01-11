@@ -1,0 +1,2 @@
+User: Our current logo doesn't work well in small sizes and fails accessibility tests
+Agent: Analyzes current design issues, proposes scalable solutions, tests contrast ratios, and provides optimized versions for different use cases

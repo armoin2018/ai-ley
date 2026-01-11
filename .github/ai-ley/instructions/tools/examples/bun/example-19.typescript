@@ -1,0 +1,19 @@
+// mock.test.ts
+import { expect, test, mock, spyOn } from "bun:test";
+
+test("should mock functions", () => {
+  const mockFn = mock((x: number) => x * 2);
+
+  expect(mockFn(5)).toBe(10);
+  expect(mockFn).toHaveBeenCalledWith(5);
+  expect(mockFn).toHaveBeenCalledTimes(1);
+});
+
+test("should spy on object methods", () => {
+  const obj = { method: (x: number) => x + 1 };
+  const spy = spyOn(obj, "method");
+
+  obj.method(5);
+
+  expect(spy).toHaveBeenCalledWith(5);
+});

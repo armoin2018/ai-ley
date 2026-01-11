@@ -1,0 +1,2 @@
+User: Assess internal network security posture
+Agent: Conducts network enumeration, vulnerability scanning, privilege escalation attempts, and lateral movement testing with comprehensive documentation

@@ -1,0 +1,190 @@
+class CouchDBDocumentManager:
+    """Document operations manager for CouchDB."""
+
+    def __init__(self, couchdb_manager, db_name):
+        self.couchdb_manager = couchdb_manager
+        self.db_name = db_name
+        self.db = couchdb_manager.get_database(db_name)
+
+    def create_document(self, doc_data: Dict[str, Any], doc_id: str = None) -> Dict[str, Any]:
+        """Create a new document."""
+        try:
+            # Add metadata
+            doc_data['created_at'] = self._get_timestamp()
+            doc_data['updated_at'] = self._get_timestamp()
+            doc_data['type'] = doc_data.get('type', 'document')
+
+            if doc_id:
+                doc_data['_id'] = doc_id
+                doc_id, doc_rev = self.db.save(doc_data)
+            else:
+                doc_id, doc_rev = self.db.save(doc_data)
+
+            result = {
+                'id': doc_id,
+                'rev': doc_rev,
+                'success': True
+            }
+
+            logging.info(f"Document created with ID: {doc_id}")
+            return result
+
+        except Exception as e:
+            logging.error(f"Error creating document: {e}")
+            raise
+
+    def get_document(self, doc_id: str) -> Optional[Dict[str, Any]]:
+        """Retrieve a document by ID."""
+        try:
+            doc = self.db[doc_id]
+            logging.info(f"Document retrieved: {doc_id}")
+            return dict(doc)
+        except couchdb.ResourceNotFound:
+            logging.warning(f"Document not found: {doc_id}")
+            return None
+        except Exception as e:
+            logging.error(f"Error retrieving document {doc_id}: {e}")
+            raise
+
+    def update_document(self, doc_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
+        """Update an existing document."""
+        try:
+            # Get current document
+            doc = self.db[doc_id]
+
+            # Apply updates
+            for key, value in updates.items():
+                if key not in ['_id', '_rev']:  # Preserve system fields
+                    doc[key] = value
+
+            # Update metadata
+            doc['updated_at'] = self._get_timestamp()
+
+            # Save updated document
+            doc_id, doc_rev = self.db.save(doc)
+
+            result = {
+                'id': doc_id,
+                'rev': doc_rev,
+                'success': True
+            }
+
+            logging.info(f"Document updated: {doc_id}")
+            return result
+
+        except couchdb.ResourceNotFound:
+            logging.error(f"Document not found for update: {doc_id}")
+            raise ValueError(f"Document {doc_id} not found")
+        except Exception as e:
+            logging.error(f"Error updating document {doc_id}: {e}")
+            raise
+
+    def delete_document(self, doc_id: str) -> bool:
+        """Delete a document."""
+        try:
+            doc = self.db[doc_id]
+            self.db.delete(doc)
+            logging.info(f"Document deleted: {doc_id}")
+            return True
+        except couchdb.ResourceNotFound:
+            logging.warning(f"Document not found for deletion: {doc_id}")
+            return False
+        except Exception as e:
+            logging.error(f"Error deleting document {doc_id}: {e}")
+            raise
+
+    def bulk_insert(self, documents: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Insert multiple documents in bulk."""
+        try:
+            # Add metadata to all documents
+            for doc in documents:
+                doc['created_at'] = self._get_timestamp()
+                doc['updated_at'] = self._get_timestamp()
+                doc['type'] = doc.get('type', 'document')
+
+            # Bulk insert
+            results = self.db.update(documents)
+
+            # Process results
+            processed_results = []
+            for i, (success, doc_id, rev_or_error) in enumerate(results):
+                if success:
+                    processed_results.append({
+                        'id': doc_id,
+                        'rev': rev_or_error,
+                        'success': True
+                    })
+                else:
+                    processed_results.append({
+                        'index': i,
+                        'error': rev_or_error,
+                        'success': False
+                    })
+
+            logging.info(f"Bulk insert completed: {len(documents)} documents")
+            return processed_results
+
+        except Exception as e:
+            logging.error(f"Error in bulk insert: {e}")
+            raise
+
+    def get_all_documents(self, include_docs=True, limit=None, skip=None) -> List[Dict[str, Any]]:
+        """Get all documents from database."""
+        try:
+            view_params = {'include_docs': include_docs}
+
+            if limit:
+                view_params['limit'] = limit
+            if skip:
+                view_params['skip'] = skip
+
+            rows = self.db.view('_all_docs', **view_params)
+
+            if include_docs:
+                documents = [row.doc for row in rows if row.doc]
+            else:
+                documents = [{'id': row.id, 'key': row.key} for row in rows]
+
+            logging.info(f"Retrieved {len(documents)} documents")
+            return documents
+
+        except Exception as e:
+            logging.error(f"Error retrieving all documents: {e}")
+            raise
+
+    def _get_timestamp(self) -> str:
+        """Get current timestamp in ISO format."""
+        from datetime import datetime
+        return datetime.utcnow().isoformat() + 'Z'
+
+# Usage example
+doc_manager = CouchDBDocumentManager(couchdb_manager, 'myapp')
+
+# Create document
+user_doc = {
+    'type': 'user',
+    'name': 'John Doe',
+    'email': 'john@example.com',
+    'age': 30,
+    'preferences': {
+        'theme': 'dark',
+        'language': 'en'
+    }
+}
+
+result = doc_manager.create_document(user_doc)
+user_id = result['id']
+
+# Update document
+updates = {
+    'age': 31,
+    'preferences': {
+        'theme': 'light',
+        'language': 'en'
+    }
+}
+doc_manager.update_document(user_id, updates)
+
+# Retrieve document
+user = doc_manager.get_document(user_id)
+print(f"User: {user['name']}, Age: {user['age']}")

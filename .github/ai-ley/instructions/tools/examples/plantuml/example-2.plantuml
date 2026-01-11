@@ -1,0 +1,98 @@
+@startuml MicroservicesFlow
+!theme blueprint
+!include enterprise-sequence.puml
+
+title Enterprise Microservices - Order Processing Flow
+
+actor Customer
+participant "Web App" as webapp
+participant "API Gateway" as gateway
+participant "Auth Service" as auth
+participant "Order Service" as orderservice
+participant "Inventory Service" as inventory
+participant "Payment Service" as payment
+participant "Notification Service" as notification
+database "Order DB" as orderdb
+database "Inventory DB" as inventorydb
+queue "Event Bus" as events
+
+== Authentication ==
+Customer -> webapp: Login Request
+webapp -> gateway: POST /auth/login
+gateway -> auth: Validate Credentials
+auth -> auth: Generate JWT Token
+auth -> gateway: Token + User Info
+gateway -> webapp: Authentication Response
+webapp -> Customer: Login Success
+
+== Order Creation ==
+Customer -> webapp: Create Order
+webapp -> gateway: POST /orders
+gateway -> auth: Validate JWT
+auth -> gateway: Token Valid
+gateway -> orderservice: Create Order Request
+
+orderservice -> inventory: Check Stock Availability
+inventory -> inventorydb: Query Stock Levels
+inventorydb -> inventory: Stock Data
+inventory -> orderservice: Stock Available
+
+alt Stock Available
+    orderservice -> orderdb: Create Order Record
+    orderdb -> orderservice: Order Created
+    orderservice -> events: Publish Order.Created Event
+    orderservice -> gateway: Order Success Response
+    gateway -> webapp: Order Created
+    webapp -> Customer: Order Confirmation
+
+    == Async Processing ==
+    events -> inventory: Order.Created Event
+    inventory -> inventorydb: Reserve Stock
+    inventorydb -> inventory: Stock Reserved
+    inventory -> events: Publish Stock.Reserved Event
+
+    events -> payment: Order.Created Event
+    payment -> payment: Process Payment
+    payment -> payment: Payment Gateway API
+
+    alt Payment Success
+        payment -> events: Publish Payment.Completed Event
+        events -> orderservice: Payment.Completed Event
+        orderservice -> orderdb: Update Order Status
+        orderservice -> events: Publish Order.Confirmed Event
+
+        events -> notification: Order.Confirmed Event
+        notification -> Customer: Send Confirmation Email
+        notification -> Customer: Send SMS Notification
+    else Payment Failed
+        payment -> events: Publish Payment.Failed Event
+        events -> orderservice: Payment.Failed Event
+        orderservice -> orderdb: Update Order Status
+        orderservice -> events: Publish Order.Cancelled Event
+
+        events -> inventory: Order.Cancelled Event
+        inventory -> inventorydb: Release Reserved Stock
+
+        events -> notification: Order.Cancelled Event
+        notification -> Customer: Send Failure Notification
+    end
+
+else Stock Unavailable
+    inventory -> orderservice: Stock Unavailable
+    orderservice -> gateway: Stock Error Response
+    gateway -> webapp: Stock Error
+    webapp -> Customer: Out of Stock Message
+end
+
+note over Customer, notification
+  Enterprise Microservices Architecture Benefits:
+
+  • Fault Isolation: Service failures don't cascade
+  • Independent Scaling: Scale services based on load
+  • Technology Diversity: Different tech stacks per service
+  • Team Autonomy: Independent development and deployment
+  • Event-Driven Communication: Loose coupling via events
+  • Observability: Distributed tracing and monitoring
+end note
+
+@enduml

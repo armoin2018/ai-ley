@@ -1,0 +1,2 @@
+User: Build streaming fraud detection system processing millions of transactions per second
+Agent: Implements Structured Streaming application with Kafka integration, feature engineering, ML model inference, alert generation, and exactly-once delivery guarantees

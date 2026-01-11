@@ -1,0 +1,15 @@
+Strategy: [Long/Short Vol] [Underlying] [Strategy Type]
+Setup: [Strike Configuration] [Expiration] [Net Premium]
+Market View: [IV vs RV] [Volatility Forecast] [Time Horizon]
+
+Greeks Exposure:
+- Delta: [Net Delta] [Delta-Adjusted Exposure]
+- Gamma: [Gamma Risk] [% of Portfolio Gamma]  
+- Theta: [Daily Theta Decay] [Theta/Vega Ratio]
+- Vega: [Net Vega] [1% Vol Move P&L Impact]
+
+Risk Management:
+- Stop Loss: [Volatility Level] [P&L Amount]
+- Profit Target: [Volatility Level] [P&L Amount]  
+- Delta Hedging: [Frequency] [Rebalance Triggers]
+- Position Sizing: [% of Portfolio] [Kelly Fraction]

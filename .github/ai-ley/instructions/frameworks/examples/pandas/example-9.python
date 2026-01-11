@@ -1,0 +1,24 @@
+# Data loading
+pd.read_csv(file)                      # Read CSV file
+pd.read_excel(file, sheet_name)        # Read Excel file
+pd.read_json(file)                     # Read JSON file
+pd.read_parquet(file)                  # Read Parquet file
+
+# Data inspection
+df.head(n=5)                           # First n rows
+df.tail(n=5)                           # Last n rows
+df.info()                              # DataFrame info
+df.describe()                          # Statistical summary
+df.shape                               # Dimensions
+
+# Data selection
+df['column']                           # Select column
+df[['col1', 'col2']]                  # Select multiple columns
+df.loc[rows, columns]                  # Label-based selection
+df.iloc[rows, columns]                 # Position-based selection
+
+# Data manipulation
+df.drop(columns=['col'])               # Drop columns
+df.drop_duplicates()                   # Remove duplicates
+df.fillna(value)                       # Fill missing values
+df.groupby('column').agg({'col': 'mean'})  # Group and aggregate

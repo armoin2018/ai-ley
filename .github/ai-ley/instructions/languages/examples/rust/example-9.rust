@@ -1,0 +1,62 @@
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use proptest::prelude::*;
+    
+    #[test]
+    fn test_process_valid_data() {
+        let input = ProcessData {
+            value: 42,
+            metadata: "test".to_string(),
+        };
+        
+        let result = process_data(input).unwrap();
+        assert_eq!(result.value, 84); // 42 * 2
+        assert_eq!(result.metadata, "test_processed");
+    }
+    
+    #[test]
+    fn test_process_invalid_data_returns_error() {
+        let input = ProcessData {
+            value: -1, // Invalid value
+            metadata: "test".to_string(),
+        };
+        
+        let result = process_data(input);
+        assert!(result.is_err());
+        
+        match result.unwrap_err() {
+            ProcessError::InvalidValue { value } => assert_eq!(value, -1),
+            _ => panic!("Expected InvalidValue error"),
+        }
+    }
+    
+    // Property-based test
+    proptest! {
+        #[test]
+        fn test_process_data_never_panics(
+            value in any::<i32>(),
+            metadata in ".*"
+        ) {
+            let input = ProcessData { value, metadata };
+            let _ = process_data(input); // Should never panic
+        }
+        
+        #[test]
+        fn test_positive_values_always_succeed(
+            value in 1i32..1000,
+            metadata in ".*"
+        ) {
+            let input = ProcessData { value, metadata };
+            let result = process_data(input);
+            prop_assert!(result.is_ok());
+        }
+    }
+}
+
+// Documentation test example
+/// Processes data by doubling the value and appending "_processed" to metadata.
+///
+/// # Examples
+///
+///

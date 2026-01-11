@@ -1,0 +1,20 @@
+interface APIEndpoint<TRequest, TResponse> {
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  path: string;
+  validate: (data: unknown) => TRequest;
+  transform: (response: unknown) => TResponse;
+}
+
+class TypeSafeClient {
+  async call<TRequest, TResponse>(
+    endpoint: APIEndpoint<TRequest, TResponse>,
+    data?: TRequest
+  ): Promise<TResponse> {
+    // Implementation with full type safety
+    const response = await fetch(endpoint.path, {
+      method: endpoint.method,
+      body: data ? JSON.stringify(endpoint.validate(data)) : undefined
+    });
+    return endpoint.transform(await response.json());
+  }
+}

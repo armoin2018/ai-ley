@@ -1,0 +1,26 @@
+Feature Category: [Technical/Fundamental/Alternative/Macro]
+Universe: [Asset class and coverage]
+
+Feature Construction:
+- Raw Data Sources: [Data vendors and feeds]
+- Calculation Method: [Mathematical formulas]
+- Lookback Windows: [Time horizons used]
+- Update Frequency: [Real-time/daily/weekly]
+
+Feature Quality Metrics:
+- Information Content: [Mutual information, correlation]
+- Stability: [Feature drift over time]
+- Completeness: [Data availability across universe]
+- Turnover: [Feature change frequency]
+
+Predictive Power:
+- Univariate Analysis: [Individual feature performance]
+- Feature Importance: [Model-based importance scores]
+- Correlation Structure: [Feature redundancy analysis]
+- Regime Stability: [Performance across market conditions]
+
+Production Implementation:
+- Calculation Engine: [Real-time computation framework]
+- Data Pipeline: [ETL and storage systems]
+- Quality Checks: [Validation and monitoring]
+- Backup Procedures: [Fallback data sources]

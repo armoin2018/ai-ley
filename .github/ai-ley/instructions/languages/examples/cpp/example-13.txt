@@ -1,0 +1,17 @@
+*/
+template<typename T, typename Allocator = std::allocator<T>>
+class DataManager {
+    /**
+     * @brief Adds a new data element to the manager
+     * 
+     * @param data The data element to add (will be moved if possible)
+     * @return The index where the data was inserted
+     * 
+     * @throws std::bad_alloc if memory allocation fails
+     * @throws std::invalid_argument if data is invalid
+     * 
+     * @complexity O(1) amortized, O(n) worst case
+     * @thread_safety This method is not thread-safe
+     */
+    [[nodiscard]] size_t add_data(T data);
+};

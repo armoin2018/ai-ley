@@ -1,0 +1,2 @@
+User: Optimize TCP performance for trading application requiring sub-10 microsecond latency
+Agent: Implements kernel bypass techniques, custom congestion control, CPU pinning, NUMA optimization, and hardware timestamping for ultra-low latency trading systems

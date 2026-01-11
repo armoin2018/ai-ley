@@ -1,0 +1,2 @@
+User: Optimize a Java application experiencing high memory usage and slow response times
+Agent: Provides JVM tuning recommendations, memory leak detection, profiling setup, caching strategies, and monitoring implementation

@@ -1,0 +1,142 @@
+import numpy as np
+from dataclasses import dataclass
+from typing import Dict, List
+
+@dataclass
+class Position:
+    symbol: str
+    quantity: int
+    avg_cost: float
+    current_price: float
+    market_value: float
+    unrealized_pnl: float
+    unrealized_pnl_percent: float
+
+class PortfolioManager:
+    """Comprehensive portfolio and risk management."""
+    
+    def __init__(self, alpaca_client, max_position_size=0.1, max_portfolio_risk=0.02):
+        self.api = alpaca_client.api
+        self.max_position_size = max_position_size  # Max 10% per position
+        self.max_portfolio_risk = max_portfolio_risk  # Max 2% portfolio risk
+        self.positions = {}
+        self.portfolio_value = 0
+        
+    def update_positions(self):
+        """Update current position information."""
+        try:
+            positions = self.api.list_positions()
+            account = self.api.get_account()
+            self.portfolio_value = float(account.portfolio_value)
+            
+            self.positions = {}
+            for pos in positions:
+                position = Position(
+                    symbol=pos.symbol,
+                    quantity=int(pos.qty),
+                    avg_cost=float(pos.avg_cost),
+                    current_price=float(pos.current_price),
+                    market_value=float(pos.market_value),
+                    unrealized_pnl=float(pos.unrealized_pl),
+                    unrealized_pnl_percent=float(pos.unrealized_plpc)
+                )
+                self.positions[pos.symbol] = position
+            
+            return self.positions
+            
+        except Exception as e:
+            logging.error(f"Error updating positions: {e}")
+            return None
+    
+    def calculate_position_size(self, symbol, entry_price, stop_loss_price, risk_amount=None):
+        """Calculate appropriate position size based on risk management."""
+        try:
+            if risk_amount is None:
+                risk_amount = self.portfolio_value * self.max_portfolio_risk
+            
+            # Calculate risk per share
+            risk_per_share = abs(entry_price - stop_loss_price)
+            
+            if risk_per_share <= 0:
+                logging.error("Invalid risk per share calculation")
+                return 0
+            
+            # Calculate position size based on risk
+            position_size = int(risk_amount / risk_per_share)
+            
+            # Apply maximum position size constraint
+            max_shares_by_position_limit = int(
+                (self.portfolio_value * self.max_position_size) / entry_price
+            )
+            
+            position_size = min(position_size, max_shares_by_position_limit)
+            
+            return max(position_size, 0)
+            
+        except Exception as e:
+            logging.error(f"Error calculating position size: {e}")
+            return 0
+    
+    def check_risk_limits(self, symbol, quantity, price):
+        """Check if trade violates risk limits."""
+        try:
+            position_value = quantity * price
+            position_percentage = position_value / self.portfolio_value
+            
+            # Check position size limit
+            if position_percentage > self.max_position_size:
+                logging.warning(f"Position size {position_percentage:.2%} exceeds limit {self.max_position_size:.2%}")
+                return False
+            
+            # Check existing position
+            if symbol in self.positions:
+                existing_pos = self.positions[symbol]
+                new_total_quantity = existing_pos.quantity + quantity
+                new_position_value = new_total_quantity * price
+                new_position_percentage = new_position_value / self.portfolio_value
+                
+                if new_position_percentage > self.max_position_size:
+                    logging.warning(f"Combined position size {new_position_percentage:.2%} exceeds limit")
+                    return False
+            
+            return True
+            
+        except Exception as e:
+            logging.error(f"Error checking risk limits: {e}")
+            return False
+    
+    def get_portfolio_metrics(self):
+        """Calculate comprehensive portfolio metrics."""
+        try:
+            self.update_positions()
+            
+            total_value = sum(pos.market_value for pos in self.positions.values())
+            total_pnl = sum(pos.unrealized_pnl for pos in self.positions.values())
+            
+            # Calculate concentration risk
+            position_weights = {
+                symbol: pos.market_value / total_value 
+                for symbol, pos in self.positions.items()
+            }
+            
+            # Calculate portfolio volatility (simplified)
+            daily_returns = []
+            for symbol in self.positions.keys():
+                # Get recent price data for volatility calculation
+                # This is a simplified example
+                pass
+            
+            metrics = {
+                'total_value': total_value,
+                'total_pnl': total_pnl,
+                'total_pnl_percent': (total_pnl / total_value) * 100 if total_value > 0 else 0,
+                'position_count': len(self.positions),
+                'largest_position_weight': max(position_weights.values()) if position_weights else 0,
+                'position_weights': position_weights
+            }
+            
+            return metrics
+            
+        except Exception as e:
+            logging.error(f"Error calculating portfolio metrics: {e}")
+            return None

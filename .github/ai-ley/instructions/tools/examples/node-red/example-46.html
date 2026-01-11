@@ -1,0 +1,48 @@
+<!-- custom-sensor-node.html -->
+<script type="text/javascript">
+  RED.nodes.registerType('custom-sensor', {
+    category: 'input',
+    color: '#a6bbcf',
+    defaults: {
+      name: { value: '' },
+      sensorType: { value: 'temperature', required: true },
+      interval: { value: 5000, required: true, validate: RED.validators.number() },
+    },
+    inputs: 0,
+    outputs: 1,
+    icon: 'file.png',
+    label: function () {
+      return this.name || 'Custom Sensor';
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="custom-sensor">
+  <div class="form-row">
+    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-sensorType"><i class="fa fa-thermometer"></i> Sensor Type</label>
+    <select id="node-input-sensorType">
+      <option value="temperature">Temperature</option>
+      <option value="humidity">Humidity</option>
+      <option value="pressure">Pressure</option>
+    </select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-interval"><i class="fa fa-clock-o"></i> Interval (ms)</label>
+    <input type="number" id="node-input-interval" placeholder="5000" />
+  </div>
+</script>
+
+<script type="text/html" data-help-name="custom-sensor">
+  <p>A custom sensor node that generates simulated sensor data.</p>
+  <h3>Outputs</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">object</span></dt>
+    <dd>Sensor data including value, unit, and timestamp</dd>
+    <dt>topic <span class="property-type">string</span></dt>
+    <dd>Sensor topic in format "sensor/{type}"</dd>
+  </dl>
+</script>

@@ -1,0 +1,6 @@
+/n[TCODE]     # Navigate to transaction directly
+/o[TCODE]     # Open transaction in new window
+/nend         # Log off
+/nex          # Exit without confirmation
+/i            # Delete current session
+/*[TCODE]     # Skip initial screen

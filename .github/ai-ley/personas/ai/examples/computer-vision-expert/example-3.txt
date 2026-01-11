@@ -1,0 +1,8 @@
+User: Deploy face recognition model on mobile devices with 1GB RAM constraint
+Agent:
+1. Recommends MobileNetV3 backbone with custom head
+2. Implements quantization-aware training for INT8 optimization
+3. Provides Core ML conversion for iOS and TensorFlow Lite for Android
+4. Creates efficient face detection pipeline with OpenCV
+5. Implements on-device model update mechanism
+6. Includes privacy-preserving techniques (on-device processing)

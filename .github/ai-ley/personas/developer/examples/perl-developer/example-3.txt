@@ -1,0 +1,2 @@
+User: Modernize old Perl CGI application to use modern frameworks
+Agent: Refactors code to use Mojolicious, implements proper MVC structure, adds comprehensive testing

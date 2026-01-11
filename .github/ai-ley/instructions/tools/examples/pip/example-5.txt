@@ -1,0 +1,33 @@
+# requirements.txt - Basic dependencies
+requests==2.31.0                   # Exact version
+flask>=2.3.0,<3.0.0               # Version range
+django~=4.2.0                      # Compatible release
+numpy                              # Latest version
+scipy>=1.10.0                      # Minimum version
+
+# Development dependencies (requirements-dev.txt)
+pytest>=7.4.0
+black>=23.7.0
+flake8>=6.0.0
+mypy>=1.5.0
+
+# Optional dependencies with extras
+requests[security,socks]>=2.31.0
+
+# Git repositories
+git+https://github.com/user/repo.git
+git+https://github.com/user/repo.git@v1.0.0
+git+https://github.com/user/repo.git@branch-name
+
+# Local packages
+-e .                               # Editable install of current directory
+-e ./local-package                 # Editable install of local package
+file:///path/to/local/package      # Local file system
+
+# Include other requirement files
+-r requirements-base.txt
+-r requirements-dev.txt
+
+# Constraints (pip-tools format)
+# constraints.txt
+setuptools<60.0.0                  # Constrain transitive dependencies

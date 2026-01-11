@@ -1,0 +1,186 @@
+async def deploy_fullstack_web_application():
+    """Example: Deploy enterprise full-stack web application on Digital Ocean"""
+
+    # Initialize enterprise configuration
+    config = EnterpriseDigitalOceanConfig(
+        team_id="webapp-team",
+        organization_name="WebCorp",
+        tier=DOTier.PROFESSIONAL,
+        environment=DOEnvironment.PRODUCTION,
+        primary_region=DORegion.NYC3,
+        backup_regions=[DORegion.SFO3, DORegion.AMS3],
+        infrastructure_config={
+            "droplets": {
+                "default_size": "s-4vcpu-8gb",
+                "allowed_sizes": ["s-2vcpu-4gb", "s-4vcpu-8gb", "s-8vcpu-16gb"],
+                "default_image": "ubuntu-22-04-x64",
+                "backup_enabled": True,
+                "monitoring_enabled": True,
+                "private_networking": True,
+                "ipv6": True
+            },
+            "kubernetes": {
+                "default_node_pool": {
+                    "size": "s-4vcpu-8gb",
+                    "count": 3,
+                    "auto_scale": True,
+                    "min_nodes": 2,
+                    "max_nodes": 10
+                },
+                "version": "latest",
+                "auto_upgrade": True,
+                "surge_upgrade": True
+            },
+            "databases": {
+                "default_size": "db-s-4vcpu-8gb",
+                "engine_versions": {
+                    "postgresql": "15",
+                    "redis": "7"
+                },
+                "backup_retention": 14,
+                "maintenance_window": {
+                    "day": "sunday",
+                    "hour": "03:00"
+                }
+            }
+        },
+        security_settings={
+            "firewalls": {
+                "default_rules": [
+                    {"type": "inbound", "protocol": "tcp", "ports": "22", "sources": {"addresses": ["10.0.0.0/8"]}},
+                    {"type": "inbound", "protocol": "tcp", "ports": "80,443", "sources": {"addresses": ["0.0.0.0/0"]}},
+                    {"type": "outbound", "protocol": "tcp", "ports": "all", "destinations": {"addresses": ["0.0.0.0/0"]}}
+                ]
+            },
+            "vpc_settings": {
+                "private_networking": True,
+                "ip_range": "10.0.0.0/16"
+            },
+            "security_monitoring": {
+                "intrusion_detection": True,
+                "vulnerability_scanning": True,
+                "compliance_reporting": True
+            }
+        },
+        performance_config={
+            "load_balancing": {
+                "algorithm": "round_robin",
+                "health_checks": {
+                    "enabled": True,
+                    "protocol": "http",
+                    "port": 80,
+                    "path": "/health",
+                    "interval": 10,
+                    "timeout": 5
+                },
+                "ssl_termination": True
+            },
+            "cdn": {
+                "enabled": True,
+                "cache_policies": {
+                    "static_assets": {"ttl": "1y"},
+                    "dynamic_content": {"ttl": "5m"}
+                }
+            }
+        }
+    )
+
+    # Initialize enterprise platform
+    platform = EnterpriseDigitalOceanPlatform(config)
+
+    # Setup the platform
+    setup_result = await platform.setup_enterprise_platform()
+    print(f"Platform setup: {setup_result['status']}")
+
+    # Configure deployment manager
+    deployment_manager = EnterpriseDigitalOceanDeployment(config)
+    deployment_setup = await deployment_manager.setup_deployment_strategies()
+
+    # Define web application configuration
+    webapp_config = {
+        "name": "webcorp-app",
+        "version": "2.1.0",
+        "deployment_strategy": "blue_green",
+        "domain": "webcorp.com",
+        "infrastructure": {
+            "droplets": {
+                "web": {"size": "s-4vcpu-8gb", "count": 3, "image": "ubuntu-22-04-x64"},
+                "api": {"size": "s-8vcpu-16gb", "count": 3, "image": "ubuntu-22-04-x64"},
+                "worker": {"size": "s-2vcpu-4gb", "count": 2, "image": "ubuntu-22-04-x64"}
+            },
+            "databases": [
+                {
+                    "name": "primary-postgres",
+                    "engine": "postgresql",
+                    "version": "15",
+                    "size": "db-s-4vcpu-8gb"
+                },
+                {
+                    "name": "cache-redis",
+                    "engine": "redis",
+                    "version": "7",
+                    "size": "db-s-2vcpu-4gb"
+                }
+            ]
+        },
+        "containers": [
+            {
+                "name": "frontend",
+                "image": "webcorp/frontend",
+                "tag": "v2.1.0",
+                "ports": [3000],
+                "environment": {
+                    "NODE_ENV": "production",
+                    "API_URL": "https://api.webcorp.com"
+                }
+            },
+            {
+                "name": "backend",
+                "image": "webcorp/backend",
+                "tag": "v2.1.0",
+                "ports": [8000],
+                "environment": {
+                    "DATABASE_URL": "${DATABASE_URL}",
+                    "REDIS_URL": "${REDIS_URL}",
+                    "JWT_SECRET": "${JWT_SECRET}"
+                }
+            },
+            {
+                "name": "worker",
+                "image": "webcorp/worker",
+                "tag": "v2.1.0",
+                "environment": {
+                    "DATABASE_URL": "${DATABASE_URL}",
+                    "REDIS_URL": "${REDIS_URL}",
+                    "QUEUE_NAME": "background_jobs"
+                }
+            }
+        ]
+    }
+
+    # Execute deployment
+    deployment_result = await deployment_manager.execute_application_deployment(webapp_config)
+    print(f"Application deployment: {deployment_result['status']}")
+
+    # Setup monitoring and cost management
+    monitoring_manager = EnterpriseDigitalOceanMonitoring(config)
+    monitoring_setup = await monitoring_manager.setup_monitoring_configuration()
+
+    cost_manager = EnterpriseDigitalOceanCostManager(config)
+    cost_monitoring = await cost_manager.setup_cost_monitoring()
+    cost_analysis = await cost_manager.analyze_usage_and_costs()
+
+    return {
+        "platform_setup": setup_result,
+        "deployment": deployment_result,
+        "monitoring": monitoring_setup,
+        "cost_analysis": cost_analysis,
+        "access_urls": {
+            "application": "https://webcorp.com",
+            "admin": "https://admin.webcorp.com",
+            "api": "https://api.webcorp.com",
+            "monitoring": f"https://monitoring-{config.team_id}.digitalocean.com"
+        }
+    }
+
+### Example 2: Microservices Architecture with Kubernetes

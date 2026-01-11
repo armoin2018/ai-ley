@@ -1,0 +1,46 @@
+/*  Good: High contrast colors */
+.primary-button {
+  background-color: #0066cc; /* 4.5:1 contrast ratio */
+  color: #ffffff;
+  border: 2px solid transparent;
+}
+
+.primary-button:focus {
+  outline: 2px solid #0066cc;
+  outline-offset: 2px;
+}
+
+.primary-button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.primary-button:focus-visible {
+  outline: 2px solid #0066cc;
+  outline-offset: 2px;
+}
+
+/*  Good: Don't rely on color alone */
+.status-indicator {
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.status-success {
+  background-color: #28a745;
+  color: #ffffff;
+}
+
+.status-success::before {
+  content: " ";
+  font-weight: bold;
+}
+
+.status-error {
+  background-color: #dc3545;
+  color: #ffffff;
+}
+
+.status-error::before {
+  content: "  ";
+  font-weight: bold;
+}

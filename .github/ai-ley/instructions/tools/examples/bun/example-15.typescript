@@ -1,0 +1,18 @@
+// Efficient file operations
+const file = Bun.file("large-file.txt");
+const contents = await file.text();  // Faster than fs.readFile
+
+// Streaming for large files
+const stream = file.stream();
+const reader = stream.getReader();
+
+// Optimized HTTP responses
+const server = Bun.serve({
+  fetch(req) {
+    // Return static files efficiently
+    return new Response(Bun.file("./public/index.html"));
+  }
+});
+
+// Memory-efficient JSON handling
+const data = await Bun.file("large.json").json();

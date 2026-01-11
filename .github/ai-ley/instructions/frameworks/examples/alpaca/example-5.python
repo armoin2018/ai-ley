@@ -1,0 +1,228 @@
+from enum import Enum
+import uuid
+from datetime import datetime, timedelta
+
+class OrderType(Enum):
+    MARKET = "market"
+    LIMIT = "limit"
+    STOP = "stop"
+    STOP_LIMIT = "stop_limit"
+
+class OrderSide(Enum):
+    BUY = "buy"
+    SELL = "sell"
+
+class TimeInForce(Enum):
+    DAY = "day"
+    GTC = "gtc"  # Good Till Canceled
+    IOC = "ioc"  # Immediate or Cancel
+    FOK = "fok"  # Fill or Kill
+
+class OrderManager:
+    """Advanced order management and execution."""
+    
+    def __init__(self, alpaca_client):
+        self.api = alpaca_client.api
+        self.active_orders = {}
+        self.order_history = []
+        self.position_tracker = {}
+    
+    def place_order(self, symbol, quantity, side, order_type=OrderType.MARKET, 
+                   limit_price=None, stop_price=None, time_in_force=TimeInForce.DAY,
+                   extended_hours=False, client_order_id=None):
+        """Place a new order with comprehensive parameters."""
+        try:
+            # Generate client order ID if not provided
+            if client_order_id is None:
+                client_order_id = f"order_{uuid.uuid4().hex[:8]}"
+            
+            # Validate order parameters
+            if not self._validate_order(symbol, quantity, side, order_type, limit_price, stop_price):
+                return None
+            
+            # Prepare order request
+            order_request = {
+                'symbol': symbol,
+                'qty': abs(quantity),
+                'side': side.value,
+                'type': order_type.value,
+                'time_in_force': time_in_force.value,
+                'extended_hours': extended_hours,
+                'client_order_id': client_order_id
+            }
+            
+            # Add price parameters based on order type
+            if order_type in [OrderType.LIMIT, OrderType.STOP_LIMIT] and limit_price:
+                order_request['limit_price'] = str(limit_price)
+            
+            if order_type in [OrderType.STOP, OrderType.STOP_LIMIT] and stop_price:
+                order_request['stop_price'] = str(stop_price)
+            
+            # Submit order
+            order = self.api.submit_order(**order_request)
+            
+            # Track order
+            self.active_orders[order.id] = {
+                'order': order,
+                'submitted_at': datetime.now(),
+                'client_order_id': client_order_id
+            }
+            
+            logging.info(f"Order submitted: {order.id} - {side.value} {quantity} {symbol}")
+            return order
+            
+        except Exception as e:
+            logging.error(f"Error placing order: {e}")
+            return None
+    
+    def place_bracket_order(self, symbol, quantity, side, entry_price, 
+                           take_profit_price, stop_loss_price):
+        """Place bracket order with profit taking and stop loss."""
+        try:
+            # Main order
+            main_order = self.place_order(
+                symbol=symbol,
+                quantity=quantity,
+                side=side,
+                order_type=OrderType.LIMIT,
+                limit_price=entry_price,
+                time_in_force=TimeInForce.GTC
+            )
+            
+            if not main_order:
+                return None
+            
+            # Take profit order
+            tp_side = OrderSide.SELL if side == OrderSide.BUY else OrderSide.BUY
+            take_profit_order = self.api.submit_order(
+                symbol=symbol,
+                qty=abs(quantity),
+                side=tp_side.value,
+                type=OrderType.LIMIT.value,
+                time_in_force=TimeInForce.GTC.value,
+                limit_price=str(take_profit_price),
+                order_class='oco',  # One-Cancels-Other
+                parent_order_id=main_order.id
+            )
+            
+            # Stop loss order
+            stop_loss_order = self.api.submit_order(
+                symbol=symbol,
+                qty=abs(quantity),
+                side=tp_side.value,
+                type=OrderType.STOP.value,
+                time_in_force=TimeInForce.GTC.value,
+                stop_price=str(stop_loss_price),
+                order_class='oco',
+                parent_order_id=main_order.id
+            )
+            
+            bracket_orders = {
+                'main_order': main_order,
+                'take_profit_order': take_profit_order,
+                'stop_loss_order': stop_loss_order
+            }
+            
+            return bracket_orders
+            
+        except Exception as e:
+            logging.error(f"Error placing bracket order: {e}")
+            return None
+    
+    def modify_order(self, order_id, quantity=None, limit_price=None, stop_price=None, time_in_force=None):
+        """Modify existing order parameters."""
+        try:
+            # Get current order
+            order = self.api.get_order(order_id)
+            
+            if order.status not in ['new', 'accepted', 'pending_new']:
+                logging.warning(f"Cannot modify order {order_id} - Status: {order.status}")
+                return None
+            
+            # Prepare replacement parameters
+            replace_params = {}
+            
+            if quantity is not None:
+                replace_params['qty'] = str(abs(quantity))
+            if limit_price is not None:
+                replace_params['limit_price'] = str(limit_price)
+            if stop_price is not None:
+                replace_params['stop_price'] = str(stop_price)
+            if time_in_force is not None:
+                replace_params['time_in_force'] = time_in_force.value
+            
+            # Replace order
+            new_order = self.api.replace_order(order_id, **replace_params)
+            
+            # Update tracking
+            if order_id in self.active_orders:
+                self.active_orders[new_order.id] = self.active_orders.pop(order_id)
+                self.active_orders[new_order.id]['order'] = new_order
+            
+            logging.info(f"Order modified: {order_id} -> {new_order.id}")
+            return new_order
+            
+        except Exception as e:
+            logging.error(f"Error modifying order {order_id}: {e}")
+            return None
+    
+    def cancel_order(self, order_id):
+        """Cancel existing order."""
+        try:
+            self.api.cancel_order(order_id)
+            
+            # Remove from active orders
+            if order_id in self.active_orders:
+                cancelled_order = self.active_orders.pop(order_id)
+                self.order_history.append({
+                    'order': cancelled_order['order'],
+                    'cancelled_at': datetime.now(),
+                    'status': 'cancelled'
+                })
+            
+            logging.info(f"Order cancelled: {order_id}")
+            return True
+            
+        except Exception as e:
+            logging.error(f"Error cancelling order {order_id}: {e}")
+            return False
+    
+    def cancel_all_orders(self):
+        """Cancel all open orders."""
+        try:
+            self.api.cancel_all_orders()
+            
+            # Clear active orders tracking
+            for order_id, order_data in self.active_orders.items():
+                self.order_history.append({
+                    'order': order_data['order'],
+                    'cancelled_at': datetime.now(),
+                    'status': 'cancelled_all'
+                })
+            
+            self.active_orders.clear()
+            logging.info("All orders cancelled")
+            return True
+            
+        except Exception as e:
+            logging.error(f"Error cancelling all orders: {e}")
+            return False
+    
+    def _validate_order(self, symbol, quantity, side, order_type, limit_price, stop_price):
+        """Validate order parameters."""
+        # Check quantity
+        if quantity <= 0:
+            logging.error("Quantity must be positive")
+            return False
+        
+        # Check prices for limit orders
+        if order_type in [OrderType.LIMIT, OrderType.STOP_LIMIT] and limit_price is None:
+            logging.error("Limit price required for limit orders")
+            return False
+        
+        # Check prices for stop orders
+        if order_type in [OrderType.STOP, OrderType.STOP_LIMIT] and stop_price is None:
+            logging.error("Stop price required for stop orders")
+            return False
+        
+        return True

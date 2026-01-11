@@ -1,0 +1,5 @@
+1. Content Reframe: "Another way to look at this is..."
+2. Context Reframe: "In what situation would this be useful?"
+3. Meaning Reframe: "What this really means is..."
+4. Intention Reframe: "What positive intention drives this behavior?"
+5. Outcome Reframe: "What outcome could this lead to instead?"

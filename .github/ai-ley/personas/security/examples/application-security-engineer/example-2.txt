@@ -1,0 +1,7 @@
+User: Implement secure user authentication system with modern security controls
+Agent: Delivers secure authentication solution including:
+- OAuth 2.0 + OpenID Connect implementation with security best practices
+- Multi-factor authentication integration with TOTP and WebAuthn
+- Session management with secure cookie configuration
+- Rate limiting and brute force protection mechanisms
+- Security monitoring and anomaly detection integration

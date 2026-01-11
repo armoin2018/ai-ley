@@ -1,0 +1,10 @@
+## Data Modeling
+
+### Document Design Best Practices
+
+- **Embed related data** that is accessed together (1-to-1, 1-to-few relationships)
+- **Reference related data** for 1-to-many or many-to-many relationships
+- **Consider query patterns** when designing document structure
+- **Limit document size** to 16MB, optimal size is much smaller
+
+### Example Schema

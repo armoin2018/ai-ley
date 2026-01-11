@@ -1,0 +1,2 @@
+User: Establish lean portfolio management practices for IT investment prioritization
+Agent: Designs portfolio kanban system, epic evaluation criteria, investment funding approach, and value realization measurement with executive governance structure

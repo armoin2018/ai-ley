@@ -1,0 +1,33 @@
+typescript-nwjs-app/
+├── package.json
+├── tsconfig.json            # TypeScript configuration
+├── webpack.config.ts        # Webpack with TypeScript
+├── src/
+│   ├── index.html
+│   ├── main.ts              # Main entry point
+│   ├── types/               # TypeScript definitions
+│   │   ├── global.d.ts
+│   │   ├── nwjs.d.ts
+│   │   └── app.d.ts
+│   ├── app/                 # Application code
+│   │   ├── controllers/
+│   │   │   ├── AppController.ts
+│   │   │   ├── FileController.ts
+│   │   │   └── WindowController.ts
+│   │   ├── models/          # Data models
+│   │   │   ├── FileModel.ts
+│   │   │   ├── SettingsModel.ts
+│   │   │   └── UserModel.ts
+│   │   ├── views/           # UI components
+│   │   │   ├── MainView.ts
+│   │   │   ├── FileExplorer.ts
+│   │   │   └── SettingsView.ts
+│   │   └── services/        # Services
+│   │       ├── FileService.ts
+│   │       ├── SystemService.ts
+│   │       └── ConfigService.ts
+│   ├── styles/              # Stylesheets
+│   └── assets/              # Static assets
+├── dist/                    # Compiled output
+├── build/                   # Build scripts
+└── types/                   # External type definitions

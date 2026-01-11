@@ -1,0 +1,13 @@
+# Resource optimization
+resources:
+  requests:
+    memory: '256Mi' # Guaranteed allocation
+    cpu: '250m' # Guaranteed CPU
+  limits:
+    memory: '512Mi' # Maximum allocation
+    cpu: '500m' # Maximum CPU
+
+# Quality of Service classes
+# Guaranteed: requests = limits
+# Burstable: requests < limits
+# BestEffort: no requests/limits

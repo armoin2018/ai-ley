@@ -1,0 +1,44 @@
+# values.yaml - Helm values
+replicaCount: 3
+
+image:
+  repository: myregistry/web-app
+  pullPolicy: IfNotPresent
+  tag: 'v1.0.0'
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: 'nginx'
+  annotations:
+    cert-manager.io/cluster-issuer: 'letsencrypt-prod'
+  hosts:
+    - host: app.mydomain.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: web-app-tls
+      hosts:
+        - app.mydomain.com
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+postgresql:
+  enabled: true
+  auth:
+    username: myapp
+    database: myapp
+
+redis:
+  enabled: true
+  auth:
+    enabled: false

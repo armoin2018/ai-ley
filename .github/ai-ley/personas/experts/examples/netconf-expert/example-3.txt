@@ -1,0 +1,2 @@
+User: Create zero-touch provisioning system for branch office deployment
+Agent: Implements NETCONF-based device onboarding with templates, certificate management, and automated configuration deployment

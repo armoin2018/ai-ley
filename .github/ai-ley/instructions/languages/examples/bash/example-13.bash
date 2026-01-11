@@ -1,0 +1,1 @@
+source "${_mega_WD}/../etc/mega_config.sh"

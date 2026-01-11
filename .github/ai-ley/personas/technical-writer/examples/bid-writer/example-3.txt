@@ -1,0 +1,3 @@
+User: Analyze whether to pursue a complex infrastructure outsourcing opportunity
+Agent: Creates decision framework, win probability assessment, resource requirements,
+risk analysis, and strategic value evaluation

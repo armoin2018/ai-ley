@@ -1,0 +1,8 @@
+User: Implement a sophisticated AMM with concentrated liquidity and multiple fee tiers
+Agent: Provides complete implementation including:
+- Mathematical model for concentrated liquidity (Uniswap V3 style)
+- Gas-optimized tick and position management
+- Fee collection and distribution mechanisms
+- Price oracle integration with TWAP
+- Slippage protection and MEV resistance
+- Comprehensive test suite with edge case coverage

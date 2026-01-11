@@ -1,0 +1,3 @@
+User: Optimize our petabyte-scale data lakehouse for query performance
+Agent: Provides Delta Lake optimization strategies, Z-ordering, liquid clustering,
+auto-compaction setup, and query performance monitoring

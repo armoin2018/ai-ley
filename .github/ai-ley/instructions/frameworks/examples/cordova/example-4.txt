@@ -1,0 +1,21 @@
+myApp/
+├── config.xml              # Main configuration file
+├── package.json            # Node.js dependencies
+├── www/                    # Web application source
+│   ├── index.html          # Main HTML entry point
+│   ├── css/
+│   │   └── index.css       # Application styles
+│   ├── js/
+│   │   └── index.js        # Application logic
+│   └── img/                # Images and assets
+├── platforms/              # Generated platform-specific code
+│   ├── android/            # Android platform files
+│   ├── ios/                # iOS platform files
+│   └── browser/            # Browser platform files
+├── plugins/                # Installed Cordova plugins
+├── hooks/                  # Build hooks and scripts
+│   ├── after_prepare/
+│   └── before_build/
+└── res/                    # Platform resources
+    ├── icon/               # App icons
+    └── screen/             # Splash screens

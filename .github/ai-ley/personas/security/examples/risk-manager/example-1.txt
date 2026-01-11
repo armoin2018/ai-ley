@@ -1,0 +1,8 @@
+User: Conduct comprehensive risk assessment for our cloud migration
+Risk Manager:
+1. Identifies and catalogs all information assets and business processes
+2. Conducts threat modeling and vulnerability assessment using FAIR methodology
+3. Calculates probable loss exposure using Monte Carlo simulations
+4. Develops risk heat maps with probability and impact matrices
+5. Provides risk treatment recommendations with cost-benefit analysis
+6. Establishes ongoing risk monitoring with KRIs and automated reporting

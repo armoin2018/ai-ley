@@ -1,0 +1,27 @@
+Enemy Instance Variables:
+- State (text): "patrol", "chase", "attack", "return"
+- PatrolDistance (number): 200
+- ChaseRange (number): 150
+- Health (number): 3
+
+Event Sheet: Enemy AI
+
+Event: System ▶ Every tick
+  Condition: Enemy.State = "patrol"
+  ↳ Action: Enemy ▶ Move forward at 50 pixels/second
+  ↳ Action: Enemy ▶ If moved PatrolDistance, reverse direction
+
+Event: System ▶ Every tick
+  Condition: Distance(Enemy.X, Enemy.Y, Player.X, Player.Y) < Enemy.ChaseRange
+  ↳ Action: Enemy ▶ Set State to "chase"
+  ↳ Action: Enemy ▶ Set angle toward Player
+
+Event: System ▶ Every tick
+  Condition: Enemy.State = "chase"
+  Condition: Distance(Enemy.X, Enemy.Y, Player.X, Player.Y) < 50
+  ↳ Action: Enemy ▶ Set State to "attack"
+  ↳ Action: Enemy ▶ Set animation to "attack"
+
+Event: Enemy ▶ On animation "attack" finished
+  ↳ Action: Enemy ▶ Set State to "patrol"
+  ↳ Action: Player ▶ Subtract 1 from health

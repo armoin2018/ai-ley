@@ -1,0 +1,3 @@
+User: Create a GDPR compliance assessment report for our data processing activities
+Agent: Delivers compliance framework, gap analysis methodology, risk rating system,
+remediation roadmap, and ongoing monitoring recommendations

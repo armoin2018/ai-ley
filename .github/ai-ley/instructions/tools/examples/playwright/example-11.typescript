@@ -1,0 +1,56 @@
+import { test, expect } from '@playwright/test'
+
+test.describe('Network testing', () => {
+  test('API mocking', async ({ page }) => {
+    // Mock API responses
+    await page.route('**/api/users', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          { id: 1, name: 'John Doe', email: 'john@example.com' }
+        ])
+      })
+    })
+
+    await page.goto('/users')
+    await expect(page.locator('.user-item')).toHaveCount(1)
+  })
+
+  test('network monitoring', async ({ page }) => {
+    const responses: any[] = []
+
+    // Monitor network requests
+    page.on('response', response => {
+      responses.push({
+        url: response.url(),
+        status: response.status(),
+        headers: response.headers()
+      })
+    })
+
+    await page.goto('/')
+
+    // Wait for all network requests to complete
+    await page.waitForLoadState('networkidle')
+
+    // Verify API calls were made
+    const apiCalls = responses.filter(r => r.url.includes('/api/'))
+    expect(apiCalls).toHaveLength(3)
+  })
+
+  test('request modification', async ({ page }) => {
+    // Modify requests
+    await page.route('**/api/**', route => {
+      const headers = {
+        ...route.request().headers(),
+        'Authorization': 'Bearer fake-token',
+        'X-Test-Mode': 'true'
+      }
+
+      route.continue({ headers })
+    })
+
+    await page.goto('/dashboard')
+  })
+})

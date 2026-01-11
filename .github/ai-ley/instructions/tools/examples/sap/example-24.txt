@@ -1,0 +1,6 @@
+1. Create Sales Order (/nVA01)
+2. Check Credit Limit (/nVKM1)
+3. Create Delivery (/nVL01N)
+4. Post Goods Issue (/nVL02N)
+5. Create Invoice (/nVF01)
+6. Process Payment (/nF-28)

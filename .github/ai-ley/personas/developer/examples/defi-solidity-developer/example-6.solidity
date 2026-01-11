@@ -1,0 +1,109 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+contract YieldVault is ERC20, ReentrancyGuard {
+    IERC20 public immutable asset;
+    address public strategy;
+    
+    uint256 public totalAssets;
+    uint256 public lastHarvest;
+    uint256 public performanceFee = 1000; // 10%
+    uint256 public constant FEE_PRECISION = 10000;
+    
+    event Deposit(address indexed caller, address indexed owner, uint256 assets, uint256 shares);
+    event Withdraw(address indexed caller, address indexed receiver, uint256 assets, uint256 shares);
+    event Harvest(uint256 profit, uint256 performanceFeeAmount);
+    
+    constructor(
+        address _asset,
+        string memory _name,
+        string memory _symbol
+    ) ERC20(_name, _symbol) {
+        asset = IERC20(_asset);
+    }
+    
+    function deposit(uint256 assets, address receiver) 
+        external 
+        nonReentrant 
+        returns (uint256 shares) 
+    {
+        require(assets > 0, "Zero assets");
+        
+        shares = convertToShares(assets);
+        
+        _mint(receiver, shares);
+        asset.transferFrom(msg.sender, address(this), assets);
+        
+        totalAssets += assets;
+        
+        // Deploy to strategy
+        if (strategy != address(0)) {
+            asset.transfer(strategy, assets);
+            IStrategy(strategy).deposit(assets);
+        }
+        
+        emit Deposit(msg.sender, receiver, assets, shares);
+    }
+    
+    function withdraw(
+        uint256 shares,
+        address receiver,
+        address owner
+    ) external nonReentrant returns (uint256 assets) {
+        require(shares > 0, "Zero shares");
+        require(msg.sender == owner || allowance(owner, msg.sender) >= shares, "Insufficient allowance");
+        
+        assets = convertToAssets(shares);
+        
+        // Withdraw from strategy if needed
+        uint256 available = asset.balanceOf(address(this));
+        if (available < assets && strategy != address(0)) {
+            IStrategy(strategy).withdraw(assets - available);
+        }
+        
+        _burn(owner, shares);
+        asset.transfer(receiver, assets);
+        
+        totalAssets -= assets;
+        
+        emit Withdraw(msg.sender, receiver, assets, shares);
+    }
+    
+    function harvest() external {
+        require(strategy != address(0), "No strategy");
+        
+        uint256 balanceBefore = asset.balanceOf(address(this));
+        IStrategy(strategy).harvest();
+        uint256 balanceAfter = asset.balanceOf(address(this));
+        
+        uint256 profit = balanceAfter - balanceBefore;
+        if (profit > 0) {
+            uint256 fee = (profit * performanceFee) / FEE_PRECISION;
+            totalAssets += profit - fee;
+            
+            emit Harvest(profit, fee);
+        }
+        
+        lastHarvest = block.timestamp;
+    }
+    
+    function convertToShares(uint256 assets) public view returns (uint256) {
+        uint256 supply = totalSupply();
+        return supply == 0 ? assets : (assets * supply) / totalAssets;
+    }
+    
+    function convertToAssets(uint256 shares) public view returns (uint256) {
+        uint256 supply = totalSupply();
+        return supply == 0 ? shares : (shares * totalAssets) / supply;
+    }
+}
+
+interface IStrategy {
+    function deposit(uint256 amount) external;
+    function withdraw(uint256 amount) external;
+    function harvest() external;
+}

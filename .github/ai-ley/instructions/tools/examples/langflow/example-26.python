@@ -1,0 +1,54 @@
+# Complex processing with validation and formatting
+multi_step_chain = {
+    "components": [
+        {
+            "type": "TextInput",
+            "name": "raw_input"
+        },
+        {
+            "type": "PythonFunction",
+            "name": "input_validator",
+            "config": {
+                "code": """
+def validate_input(text: str) -> dict:
+    import re
+
+    # Basic validation
+    if len(text.strip()) < 3:
+        return {"valid": False, "error": "Input too short"}
+
+    # Check for harmful content
+    harmful_patterns = ["hack", "exploit", "malicious"]
+    if any(pattern in text.lower() for pattern in harmful_patterns):
+        return {"valid": False, "error": "Potentially harmful content"}
+
+    return {"valid": True, "cleaned_text": text.strip()}
+                """
+            }
+        },
+        {
+            "type": "ConditionalRouter",
+            "name": "validation_router",
+            "config": {
+                "condition": "input.valid == True",
+                "true_path": "text_processor",
+                "false_path": "error_handler"
+            }
+        },
+        {
+            "type": "OpenAI",
+            "name": "text_processor",
+            "config": {
+                "model": "gpt-4",
+                "prompt": "Process this text: {cleaned_text}"
+            }
+        },
+        {
+            "type": "TextTemplate",
+            "name": "error_handler",
+            "config": {
+                "template": "Error: {error}. Please provide valid input."
+            }
+        }
+    ]
+}

@@ -1,0 +1,370 @@
+async def setup_financial_trading_system():
+    """Example: Setup high-performance financial trading system with Oracle RAC"""
+
+    # Initialize enterprise configuration for trading system
+    config = EnterpriseOracleConfig(
+        system_id="trading-system",
+        organization_name="GlobalTradingFirm",
+        tier=OracleTier.EXADATA,
+        environment=OracleEnvironment.PRODUCTION,
+        deployment_type=OracleDeployment.RAC_CLUSTER,
+        workload_type=OracleWorkloadType.OLTP,
+        infrastructure_config={
+            "rac_configuration": {
+                "cluster_nodes": [
+                    {
+                        "node_name": "trade-node1",
+                        "hostname": "trade-node1.globaltrading.com",
+                        "instance_name": "TRADE1",
+                        "instance_number": 1,
+                        "cpu_cores": 64,
+                        "memory_gb": 512,
+                        "storage_gb": 50000
+                    },
+                    {
+                        "node_name": "trade-node2",
+                        "hostname": "trade-node2.globaltrading.com",
+                        "instance_name": "TRADE2",
+                        "instance_number": 2,
+                        "cpu_cores": 64,
+                        "memory_gb": 512,
+                        "storage_gb": 50000
+                    },
+                    {
+                        "node_name": "trade-node3",
+                        "hostname": "trade-node3.globaltrading.com",
+                        "instance_name": "TRADE3",
+                        "instance_number": 3,
+                        "cpu_cores": 64,
+                        "memory_gb": 512,
+                        "storage_gb": 50000
+                    }
+                ],
+                "shared_storage": {
+                    "asm_enabled": True,
+                    "disk_groups": [
+                        {
+                            "name": "TRADE_DATA",
+                            "redundancy": "HIGH",
+                            "size_tb": 100,
+                            "disk_type": "NVME"
+                        },
+                        {
+                            "name": "TRADE_REDO",
+                            "redundancy": "HIGH",
+                            "size_tb": 10,
+                            "disk_type": "NVME"
+                        }
+                    ]
+                }
+            },
+            "memory_configuration": {
+                "sga_target_gb": 256,
+                "pga_aggregate_target_gb": 128,
+                "buffer_cache_gb": 180,
+                "shared_pool_gb": 48,
+                "large_pool_gb": 16
+            }
+        },
+        team_management={
+            "roles": [
+                {
+                    "name": "trading_developer",
+                    "permissions": [
+                        "real_time_trading", "market_data_access", "order_management",
+                        "position_tracking", "risk_monitoring"
+                    ],
+                    "oracle_roles": ["RESOURCE", "CREATE PROCEDURE", "CREATE VIEW"],
+                    "resource_limits": {
+                        "sessions_per_user": "20",
+                        "cpu_per_session": "UNLIMITED",
+                        "logical_reads_per_session": "UNLIMITED"
+                    }
+                },
+                {
+                    "name": "risk_analyst",
+                    "permissions": [
+                        "risk_calculation", "var_analysis", "stress_testing",
+                        "compliance_reporting"
+                    ],
+                    "oracle_roles": ["SELECT_CATALOG_ROLE", "CONNECT"],
+                    "resource_limits": {
+                        "sessions_per_user": "10",
+                        "cpu_per_session": "UNLIMITED",
+                        "logical_reads_per_session": "50000000"
+                    }
+                },
+                {
+                    "name": "trader",
+                    "permissions": [
+                        "order_entry", "position_view", "market_data_view",
+                        "trade_reporting"
+                    ],
+                    "oracle_roles": ["CONNECT"],
+                    "resource_limits": {
+                        "sessions_per_user": "5",
+                        "cpu_per_session": "600000",
+                        "logical_reads_per_session": "10000000"
+                    }
+                }
+            ]
+        },
+        performance_config={
+            "resource_manager": {
+                "enabled": True,
+                "consumer_groups": [
+                    {
+                        "name": "REAL_TIME_TRADING",
+                        "cpu_percentage": 70,
+                        "parallel_degree_limit": 2,
+                        "max_utilization_limit": 100
+                    },
+                    {
+                        "name": "RISK_ANALYTICS",
+                        "cpu_percentage": 20,
+                        "parallel_degree_limit": 32,
+                        "max_utilization_limit": 90
+                    },
+                    {
+                        "name": "REPORTING",
+                        "cpu_percentage": 10,
+                        "parallel_degree_limit": 16,
+                        "max_utilization_limit": 75
+                    }
+                ]
+            },
+            "connection_management": {
+                "connection_pooling": True,
+                "pool_min_size": 50,
+                "pool_max_size": 500,
+                "pool_increment": 25,
+                "connection_timeout": 10,  # Fast timeout for trading
+                "idle_timeout": 300
+            }
+        }
+    )
+
+    # Initialize Oracle platform
+    platform = EnterpriseOracleDatabase(config)
+
+    # Setup the platform
+    setup_result = await platform.setup_enterprise_platform()
+
+    # Create financial trading data model
+    trading_schema = await create_trading_data_model(platform)
+
+    # Setup real-time market data processing
+    market_data_setup = await setup_market_data_processing(platform)
+
+    # Configure risk management system
+    risk_management = await setup_risk_management_system(platform)
+
+    return {
+        "platform_setup": setup_result,
+        "trading_schema": trading_schema,
+        "market_data_processing": market_data_setup,
+        "risk_management": risk_management,
+        "access_endpoints": {
+            "primary_scan": "trade-scan.globaltrading.com:1521/TRADE",
+            "trading_api": "https://api.globaltrading.com/trading/v1",
+            "market_data": "https://market.globaltrading.com/feed",
+            "risk_dashboard": "https://risk.globaltrading.com/dashboard"
+        }
+    }
+
+async def create_trading_data_model(platform):
+    """Create comprehensive financial trading data model"""
+
+    trading_ddl = """
+    -- Create Trading Database Schema
+    CREATE TABLESPACE TRADING_DATA
+    DATAFILE '+TRADE_DATA/trading_data01.dbf' SIZE 10G
+    AUTOEXTEND ON NEXT 1G
+    SEGMENT SPACE MANAGEMENT AUTO
+    COMPRESS FOR OLTP;
+
+    CREATE USER TRADING_USER IDENTIFIED BY secure_password
+    DEFAULT TABLESPACE TRADING_DATA
+    TEMPORARY TABLESPACE TEMP
+    QUOTA UNLIMITED ON TRADING_DATA;
+
+    GRANT CONNECT, RESOURCE TO TRADING_USER;
+
+    -- Instruments Master Table
+    CREATE TABLE TRADING_USER.INSTRUMENTS (
+        instrument_id NUMBER(12) NOT NULL,
+        symbol VARCHAR2(20) NOT NULL,
+        instrument_type VARCHAR2(20) NOT NULL,
+        exchange VARCHAR2(10) NOT NULL,
+        currency VARCHAR2(3) NOT NULL,
+        sector VARCHAR2(50),
+        industry VARCHAR2(50),
+        market_cap NUMBER(15,2),
+        shares_outstanding NUMBER(15),
+        tick_size NUMBER(8,6),
+        lot_size NUMBER(8),
+        trading_hours VARCHAR2(50),
+        settlement_days NUMBER(2),
+        created_date DATE DEFAULT SYSDATE,
+        last_updated TIMESTAMP DEFAULT SYSTIMESTAMP,
+        status VARCHAR2(10) DEFAULT 'ACTIVE',
+        CONSTRAINT pk_instruments PRIMARY KEY (instrument_id),
+        CONSTRAINT uk_instruments_symbol UNIQUE (symbol, exchange)
+    )
+    TABLESPACE TRADING_DATA
+    COMPRESS FOR OLTP;
+
+    -- Real-time Market Data Table (Partitioned by Date)
+    CREATE TABLE TRADING_USER.MARKET_DATA (
+        market_data_id NUMBER(15) NOT NULL,
+        instrument_id NUMBER(12) NOT NULL,
+        trade_date DATE NOT NULL,
+        trade_timestamp TIMESTAMP(6) NOT NULL,
+        bid_price NUMBER(12,6),
+        ask_price NUMBER(12,6),
+        last_price NUMBER(12,6),
+        volume NUMBER(12),
+        high_price NUMBER(12,6),
+        low_price NUMBER(12,6),
+        open_price NUMBER(12,6),
+        vwap NUMBER(12,6),
+        market_status VARCHAR2(10),
+        data_source VARCHAR2(20),
+        created_timestamp TIMESTAMP(6) DEFAULT SYSTIMESTAMP(6)
+    )
+    PARTITION BY RANGE (trade_date) INTERVAL (NUMTODSINTERVAL(1, 'DAY'))
+    (PARTITION p_market_data_initial VALUES LESS THAN (DATE '2024-01-01'))
+    TABLESPACE TRADING_DATA
+    COMPRESS FOR OLTP;
+
+    -- Orders Table (Hot data, frequently accessed)
+    CREATE TABLE TRADING_USER.ORDERS (
+        order_id NUMBER(15) NOT NULL,
+        parent_order_id NUMBER(15),
+        client_order_id VARCHAR2(50),
+        account_id NUMBER(12) NOT NULL,
+        instrument_id NUMBER(12) NOT NULL,
+        order_type VARCHAR2(20) NOT NULL,
+        side VARCHAR2(4) NOT NULL CHECK (side IN ('BUY', 'SELL')),
+        quantity NUMBER(12) NOT NULL,
+        price NUMBER(12,6),
+        stop_price NUMBER(12,6),
+        time_in_force VARCHAR2(10) DEFAULT 'DAY',
+        order_status VARCHAR2(20) DEFAULT 'NEW',
+        filled_quantity NUMBER(12) DEFAULT 0,
+        remaining_quantity NUMBER(12),
+        avg_fill_price NUMBER(12,6),
+        created_timestamp TIMESTAMP(6) DEFAULT SYSTIMESTAMP(6),
+        updated_timestamp TIMESTAMP(6),
+        executed_timestamp TIMESTAMP(6),
+        cancelled_timestamp TIMESTAMP(6),
+        trader_id VARCHAR2(20),
+        strategy_id VARCHAR2(50),
+        order_source VARCHAR2(20),
+        commission NUMBER(10,4),
+        fees NUMBER(10,4),
+        CONSTRAINT pk_orders PRIMARY KEY (order_id),
+        CONSTRAINT fk_orders_instrument FOREIGN KEY (instrument_id) REFERENCES INSTRUMENTS(instrument_id),
+        CONSTRAINT ck_orders_quantity CHECK (quantity > 0)
+    )
+    TABLESPACE TRADING_DATA
+    COMPRESS FOR OLTP;
+
+    -- Executions/Fills Table (Partitioned by execution date)
+    CREATE TABLE TRADING_USER.EXECUTIONS (
+        execution_id NUMBER(15) NOT NULL,
+        order_id NUMBER(15) NOT NULL,
+        instrument_id NUMBER(12) NOT NULL,
+        execution_timestamp TIMESTAMP(6) NOT NULL,
+        execution_date DATE GENERATED ALWAYS AS (TRUNC(execution_timestamp)) VIRTUAL,
+        side VARCHAR2(4) NOT NULL,
+        quantity NUMBER(12) NOT NULL,
+        price NUMBER(12,6) NOT NULL,
+        value NUMBER(15,2) GENERATED ALWAYS AS (quantity * price) VIRTUAL,
+        contra_party VARCHAR2(50),
+        exchange_ref VARCHAR2(50),
+        commission NUMBER(10,4),
+        fees NUMBER(10,4),
+        settlement_date DATE,
+        trade_id VARCHAR2(50),
+        clearing_firm VARCHAR2(20),
+        created_timestamp TIMESTAMP(6) DEFAULT SYSTIMESTAMP(6)
+    )
+    PARTITION BY RANGE (execution_date) INTERVAL (NUMTODSINTERVAL(1, 'DAY'))
+    (PARTITION p_executions_initial VALUES LESS THAN (DATE '2024-01-01'))
+    TABLESPACE TRADING_DATA
+    COMPRESS FOR OLTP;
+
+    -- Positions Table (Real-time position tracking)
+    CREATE TABLE TRADING_USER.POSITIONS (
+        position_id NUMBER(15) NOT NULL,
+        account_id NUMBER(12) NOT NULL,
+        instrument_id NUMBER(12) NOT NULL,
+        position_date DATE NOT NULL,
+        long_quantity NUMBER(15) DEFAULT 0,
+        short_quantity NUMBER(15) DEFAULT 0,
+        net_quantity NUMBER(15) GENERATED ALWAYS AS (long_quantity - short_quantity) VIRTUAL,
+        avg_cost_long NUMBER(12,6),
+        avg_cost_short NUMBER(12,6),
+        market_value NUMBER(15,2),
+        unrealized_pnl NUMBER(15,2),
+        realized_pnl NUMBER(15,2),
+        total_pnl NUMBER(15,2) GENERATED ALWAYS AS (unrealized_pnl + realized_pnl) VIRTUAL,
+        last_updated TIMESTAMP(6) DEFAULT SYSTIMESTAMP(6),
+        CONSTRAINT pk_positions PRIMARY KEY (position_id),
+        CONSTRAINT uk_positions UNIQUE (account_id, instrument_id, position_date),
+        CONSTRAINT fk_positions_instrument FOREIGN KEY (instrument_id) REFERENCES INSTRUMENTS(instrument_id)
+    )
+    TABLESPACE TRADING_DATA
+    COMPRESS FOR OLTP;
+
+    -- Risk Metrics Table
+    CREATE TABLE TRADING_USER.RISK_METRICS (
+        risk_id NUMBER(15) NOT NULL,
+        account_id NUMBER(12),
+        portfolio_id NUMBER(12),
+        calculation_date DATE NOT NULL,
+        calculation_timestamp TIMESTAMP(6) NOT NULL,
+        var_1_day NUMBER(15,2),
+        var_10_day NUMBER(15,2),
+        expected_shortfall NUMBER(15,2),
+        beta NUMBER(8,4),
+        alpha NUMBER(8,4),
+        sharpe_ratio NUMBER(8,4),
+        sortino_ratio NUMBER(8,4),
+        max_drawdown NUMBER(8,4),
+        correlation_spy NUMBER(6,4),
+        volatility_30_day NUMBER(8,4),
+        total_exposure NUMBER(15,2),
+        net_exposure NUMBER(15,2),
+        leverage_ratio NUMBER(8,4),
+        created_timestamp TIMESTAMP(6) DEFAULT SYSTIMESTAMP(6),
+        CONSTRAINT pk_risk_metrics PRIMARY KEY (risk_id)
+    )
+    PARTITION BY RANGE (calculation_date) INTERVAL (NUMTODSINTERVAL(1, 'DAY'))
+    (PARTITION p_risk_initial VALUES LESS THAN (DATE '2024-01-01'))
+    TABLESPACE TRADING_DATA;
+
+    -- Create sequences for primary keys
+    CREATE SEQUENCE SEQ_INSTRUMENT_ID START WITH 1 INCREMENT BY 1 CACHE 100;
+    CREATE SEQUENCE SEQ_MARKET_DATA_ID START WITH 1 INCREMENT BY 1 CACHE 1000;
+    CREATE SEQUENCE SEQ_ORDER_ID START WITH 1 INCREMENT BY 1 CACHE 100;
+    CREATE SEQUENCE SEQ_EXECUTION_ID START WITH 1 INCREMENT BY 1 CACHE 100;
+    CREATE SEQUENCE SEQ_POSITION_ID START WITH 1 INCREMENT BY 1 CACHE 100;
+    CREATE SEQUENCE SEQ_RISK_ID START WITH 1 INCREMENT BY 1 CACHE 100;
+
+    -- High-performance indexes for trading queries
+    CREATE INDEX IDX_MARKET_DATA_TIMESTAMP ON MARKET_DATA (trade_timestamp) LOCAL COMPRESS;
+    CREATE INDEX IDX_MARKET_DATA_INSTRUMENT ON MARKET_DATA (instrument_id, trade_timestamp) LOCAL COMPRESS;
+    CREATE INDEX IDX_ORDERS_STATUS ON ORDERS (order_status, created_timestamp) COMPRESS;
+    CREATE INDEX IDX_ORDERS_TRADER ON ORDERS (trader_id, created_timestamp) COMPRESS;
+    CREATE INDEX IDX_EXECUTIONS_TIMESTAMP ON EXECUTIONS (execution_timestamp) LOCAL COMPRESS;
+    CREATE INDEX IDX_POSITIONS_ACCOUNT_DATE ON POSITIONS (account_id, position_date) COMPRESS;
+
+    -- Collect statistics for optimal performance
+    EXEC DBMS_STATS.GATHER_SCHEMA_STATS('TRADING_USER', CASCADE=>TRUE, ESTIMATE_PERCENT=>DBMS_STATS.AUTO_SAMPLE_SIZE);
+    """
+
+    return {"status": "created", "schema": "trading_user", "tables_created": 6}
+
+### Example 2: Healthcare Management System

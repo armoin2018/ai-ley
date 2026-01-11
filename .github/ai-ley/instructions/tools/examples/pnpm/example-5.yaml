@@ -1,0 +1,22 @@
+# pnpm-workspace.yaml
+packages:
+  # Include all packages in packages directory
+  - 'packages/*'
+  - 'apps/*'
+
+  # Include packages with specific patterns
+  - 'tools/*'
+  - 'libs/**'
+
+  # Exclude certain directories
+  - '!**/test/**'
+  - '!**/node_modules/**'
+  - '!**/dist/**'
+
+# Example complex workspace structure
+packages:
+  - 'frontend/packages/*'
+  - 'backend/services/*'
+  - 'shared/libs/*'
+  - 'tools/*'
+  - '!**/templates/**'

@@ -1,0 +1,18 @@
+Income Statement Drivers:
+- Revenue build-up (units × price, cohort analysis)
+- Cost of goods sold (variable costs)
+- Operating expenses (personnel, marketing, R&D, G&A)
+- Depreciation and amortization
+- Interest expense and taxes
+
+Cash Flow Statement:
+- Operating cash flow calculation
+- Capital expenditure requirements
+- Working capital changes
+- Financing activities (debt, equity)
+
+Balance Sheet:
+- Working capital items
+- Fixed assets and depreciation
+- Debt balances and equity
+- Balance check and circular references

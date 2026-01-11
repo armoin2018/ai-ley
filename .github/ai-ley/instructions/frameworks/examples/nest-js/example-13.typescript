@@ -1,0 +1,9 @@
+// test/setup.ts
+import { Test } from '@nestjs/testing';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+global.beforeEach = async () => {
+  // Global test setup
+  process.env.NODE_ENV = 'test';
+  process.env.JWT_SECRET = 'test-secret';
+};

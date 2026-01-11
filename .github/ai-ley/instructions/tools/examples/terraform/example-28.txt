@@ -1,0 +1,1 @@
+chmod +x terraform-cost-analyzer.sh

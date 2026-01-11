@@ -1,0 +1,17 @@
+from peft import LoraConfig, get_peft_model, TaskType
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+def setup_lora_training(model_name, target_modules=None):
+    model = AutoModelForCausalLM.from_pretrained(model_name)
+    
+    lora_config = LoraConfig(
+        task_type=TaskType.CAUSAL_LM,
+        inference_mode=False,
+        r=16,
+        lora_alpha=32,
+        lora_dropout=0.1,
+        target_modules=target_modules or ["q_proj", "v_proj"]
+    )
+    
+    model = get_peft_model(model, lora_config)
+    return model

@@ -1,0 +1,31 @@
+// Additional security middleware
+import mongoSanitize from 'express-mongo-sanitize';
+import xss from 'xss-clean';
+import hpp from 'hpp';
+
+// Prevent NoSQL injection attacks
+app.use(mongoSanitize());
+
+// Prevent XSS attacks
+app.use(xss());
+
+// Prevent HTTP Parameter Pollution
+app.use(
+  hpp({
+    whitelist: ['sort', 'fields', 'page', 'limit'],
+  }),
+);
+
+// Security headers
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
+    },
+  }),
+);

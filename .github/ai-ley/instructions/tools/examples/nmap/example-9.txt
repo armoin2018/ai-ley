@@ -1,0 +1,6 @@
+## Common Patterns and Examples
+
+### Pattern 1: Web Application Security Assessment
+
+**Scenario**: Comprehensive security assessment of web applications and services
+**Implementation**:

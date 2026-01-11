@@ -1,0 +1,117 @@
+// ✅ Proper async/await with error handling
+export class ApiClient {
+  constructor(
+    private readonly baseURL: string,
+    private readonly timeout: number = 5000
+  ) {}
+
+  async get<T>(endpoint: string, options?: RequestOptions): Promise<ApiResponse<T>> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+    try {
+      const response = await fetch(`${this.baseURL}${endpoint}`, {
+        method: 'GET',
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          ...options?.headers,
+        },
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new HttpError(response.status, response.statusText);
+      }
+
+      const data = await response.json();
+      return { data, success: true, timestamp: new Date().toISOString() };
+    } catch (error) {
+      clearTimeout(timeoutId);
+      
+      if (error instanceof AbortError) {
+        throw new TimeoutError('Request timed out');
+      }
+      
+      throw error;
+    }
+  }
+
+  async post<T, R>(
+    endpoint: string, 
+    body: T, 
+    options?: RequestOptions
+  ): Promise<ApiResponse<R>> {
+    // Implementation similar to get()
+  }
+}
+
+// ✅ Result type for better error handling
+type Result<T, E = Error> = Success<T> | Failure<E>;
+
+interface Success<T> {
+  success: true;
+  data: T;
+}
+
+interface Failure<E> {
+  success: false;
+  error: E;
+}
+
+function createSuccess<T>(data: T): Success<T> {
+  return { success: true, data };
+}
+
+function createFailure<E>(error: E): Failure<E> {
+  return { success: false, error };
+}
+
+// Usage
+async function safeApiCall<T>(fn: () => Promise<T>): Promise<Result<T>> {
+  try {
+    const data = await fn();
+    return createSuccess(data);
+  } catch (error) {
+    return createFailure(error instanceof Error ? error : new Error(String(error)));
+  }
+}
+
+// ✅ Promise utilities
+class PromiseUtils {
+  static async allSettledTyped<T extends readonly unknown[]>(
+    promises: readonly [...T]
+  ): Promise<{
+    [K in keyof T]: T[K] extends Promise<infer U> 
+      ? Result<U> 
+      : Result<T[K]>
+  }> {
+    const results = await Promise.allSettled(promises);
+    return results.map(result => 
+      result.status === 'fulfilled' 
+        ? createSuccess(result.value)
+        : createFailure(result.reason)
+    ) as any;
+  }
+
+  static async retry<T>(
+    fn: () => Promise<T>,
+    maxAttempts: number = 3,
+    delay: number = 1000
+  ): Promise<T> {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        return await fn();
+      } catch (error) {
+        if (attempt === maxAttempts) {
+          throw error;
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, delay * attempt));
+      }
+    }
+    
+    throw new Error('Retry failed');
+  }
+}

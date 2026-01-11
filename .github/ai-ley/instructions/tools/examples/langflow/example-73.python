@@ -1,0 +1,39 @@
+# Comprehensive monitoring setup
+monitoring_config = {
+    "metrics": {
+        "business_metrics": [
+            "flow_execution_count",
+            "success_rate",
+            "average_response_time",
+            "user_satisfaction_score"
+        ],
+        "technical_metrics": [
+            "api_response_time",
+            "error_rate",
+            "memory_usage",
+            "cpu_utilization"
+        ],
+        "cost_metrics": [
+            "api_token_usage",
+            "infrastructure_cost",
+            "cost_per_execution"
+        ]
+    },
+    "alerting": {
+        "critical_alerts": [
+            "system_down",
+            "high_error_rate",
+            "api_quota_exceeded"
+        ],
+        "warning_alerts": [
+            "high_response_time",
+            "memory_usage_high",
+            "unusual_traffic_pattern"
+        ]
+    },
+    "dashboards": {
+        "operational": "Real-time system health and performance",
+        "business": "Business metrics and KPIs",
+        "cost": "Cost analysis and optimization opportunities"
+    }
+}

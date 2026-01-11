@@ -1,0 +1,27 @@
+// .vscode/settings.json
+{
+  "vitest.enable": true,
+  "vitest.commandLine": "npm run test",
+  "testing.automaticallyOpenPeekView": "never",
+  "testing.followRunningTest": false,
+  "vitest.include": ["**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+  "vitest.exclude": ["**/node_modules/**", "**/dist/**"]
+}
+
+// .vscode/launch.json for debugging
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Vitest Tests",
+      "type": "node",
+      "request": "launch",
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
+      "args": ["--inspect-brk", "--no-coverage", "${relativeFile}"],
+      "smartStep": true,
+      "console": "integratedTerminal"
+    }
+  ]
+}

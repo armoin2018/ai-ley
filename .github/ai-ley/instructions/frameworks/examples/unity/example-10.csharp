@@ -1,0 +1,38 @@
+// Build automation script
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEngine;
+
+public class BuildScript
+{
+    [MenuItem("Build/Build All Platforms")]
+    public static void BuildAllPlatforms()
+    {
+        // Build for Windows
+        BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
+        buildPlayerOptions.scenes = GetScenes();
+        buildPlayerOptions.locationPathName = "Builds/Windows/Game.exe";
+        buildPlayerOptions.target = BuildTarget.StandaloneWindows64;
+        buildPlayerOptions.options = BuildOptions.None;
+        
+        BuildPipeline.BuildPlayer(buildPlayerOptions);
+        
+        // Build for WebGL
+        buildPlayerOptions.locationPathName = "Builds/WebGL";
+        buildPlayerOptions.target = BuildTarget.WebGL;
+        BuildPipeline.BuildPlayer(buildPlayerOptions);
+        
+        Debug.Log("Build completed for all platforms");
+    }
+    
+    private static string[] GetScenes()
+    {
+        string[] scenes = new string[EditorBuildSettings.scenes.Length];
+        for (int i = 0; i < scenes.Length; i++)
+        {
+            scenes[i] = EditorBuildSettings.scenes[i].path;
+        }
+        return scenes;
+    }
+}
+#endif

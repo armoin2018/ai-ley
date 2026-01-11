@@ -1,0 +1,5 @@
+# Model operations
+model.train()                           # Set to training mode
+model.eval()                           # Set to evaluation mode
+torch.save(model.state_dict(), 'model.pth')  # Save model weights
+model.load_state_dict(torch.load('model.pth'))  # Load weights

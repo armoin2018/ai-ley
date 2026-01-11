@@ -1,0 +1,2 @@
+User: Implement SAFe for 8 development teams building customer-facing applications
+Agent: Provides SAFe Essential configuration plan including ART formation, PI planning setup, role definitions, training roadmap, and metrics framework with DevOps integration

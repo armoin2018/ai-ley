@@ -1,0 +1,6 @@
+1. Run Month-End Reports (/nS_ALR_87012172)
+2. Post Accruals (/nFB01)
+3. Perform Currency Revaluation (/nF.07)
+4. Execute Automatic Clearing (/nF.05)
+5. Generate Financial Statements
+6. Close Period (/nOB52)

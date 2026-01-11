@@ -1,0 +1,33 @@
+// Built-in SQLite database
+import { Database } from "bun:sqlite";
+
+const db = new Database("mydb.sqlite");
+
+// Create table
+db.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT UNIQUE
+  )
+`);
+
+// Prepared statements
+const insertUser = db.prepare("INSERT INTO users (name, email) VALUES (?, ?)");
+const getUser = db.prepare("SELECT * FROM users WHERE id = ?");
+
+// Insert data
+insertUser.run("John Doe", "john@example.com");
+
+// Query data
+const user = getUser.get(1);
+console.log(user);
+
+// Transactions
+db.transaction(() => {
+  insertUser.run("Jane Smith", "jane@example.com");
+  insertUser.run("Bob Johnson", "bob@example.com");
+})();
+
+// Close database
+db.close();

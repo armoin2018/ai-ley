@@ -1,0 +1,10 @@
+bootstrap-project/
+├── index.html              # Main HTML file
+├── css/
+│   ├── bootstrap.min.css   # Bootstrap CSS
+│   └── custom.css          # Custom overrides
+├── js/
+│   ├── bootstrap.bundle.js # Bootstrap JavaScript
+│   └── main.js             # Custom JavaScript
+├── images/                 # Image assets
+└── docs/                   # Documentation

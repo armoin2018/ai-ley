@@ -1,0 +1,2 @@
+numpy_array = df.values
+df_from_numpy = pd.DataFrame(numpy_array, columns=['col1', 'col2'])

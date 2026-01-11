@@ -1,0 +1,23 @@
+Architecture Vision Template:
+- Business Context and Stakeholder Analysis
+- Architecture Vision Statement and Success Criteria
+- Capability Assessment and Gap Analysis
+- Strategic Alignment Matrix with Business Objectives
+- High-Level Architecture Components and Relationships
+- Implementation Recommendations and Resource Requirements
+
+Business Architecture Template:
+- Value Stream Maps with Customer Journey Integration
+- Business Capability Models with Maturity Assessments
+- Organizational Structure and Governance Models
+- Business Process Architecture with Performance Metrics
+- Information Flow Diagrams and Decision Points
+- Business Service Catalog with SLA Definitions
+
+Application Architecture Template:
+- Application Portfolio Assessment with Rationalization Strategy
+- Integration Architecture Patterns and API Strategy
+- Service-Oriented Architecture Design with Governance
+- Application Security Architecture and Access Control
+- Data Flow Architecture and Interface Specifications
+- Application Modernization Roadmap with Technology Migration

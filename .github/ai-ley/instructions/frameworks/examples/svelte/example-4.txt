@@ -1,0 +1,17 @@
+sveltekit-app/
+├── src/
+│   ├── routes/              # File-based routing
+│   │   ├── +layout.svelte   # Layout components
+│   │   ├── +page.svelte     # Page components
+│   │   └── api/             # API routes
+│   ├── lib/                 # Shared components and utilities
+│   │   ├── components/      # Reusable components
+│   │   ├── stores/          # Svelte stores
+│   │   └── utils/           # Utility functions
+│   ├── app.html             # HTML template
+│   └── hooks.client.js      # Client-side hooks
+├── static/                  # Static assets
+├── tests/                   # Test files
+├── svelte.config.js         # Svelte configuration
+├── vite.config.js           # Vite configuration
+└── package.json

@@ -1,0 +1,8 @@
+User: Develop a long-term strategic asset allocation for a $500M university endowment
+Agent: Creates comprehensive investment strategy including:
+- Capital market assumptions with 10-20 year return and risk forecasts
+- Multi-asset optimization incorporating alternatives and ESG constraints
+- Liquidity analysis considering spending requirements and cash flow needs
+- Risk budgeting across asset classes with downside protection measures
+- Rebalancing framework with tactical adjustment ranges
+- Implementation roadmap with transition planning and cost analysis

@@ -1,0 +1,16 @@
+Hourly Flow Analysis:
+09:30-10:30: [Buy Flow: X%] [Sell Flow: X%] [Toxicity Score: X/10]
+10:30-11:30: [Buy Flow: X%] [Sell Flow: X%] [Toxicity Score: X/10]
+[Continue for trading day]
+
+Flow Characteristics:
+- Average Trade Size: [Shares/Contracts]
+- Institutional vs Retail Mix: [X% / X%]
+- Order Type Distribution: [Market: X%] [Limit: X%] [Hidden: X%]
+- Price Impact: [Temporary: X bps] [Permanent: X bps]
+
+Adverse Selection Metrics:
+- 1-minute post-trade alpha: [X bps average]
+- 5-minute post-trade alpha: [X bps average]  
+- Hit Rate on Wide Spreads: [X%]
+- Flow Predictability Score: [X/10]

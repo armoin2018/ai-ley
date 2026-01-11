@@ -1,0 +1,13 @@
+# Core module imports
+from scipy import optimize     # Optimization algorithms
+from scipy import linalg      # Linear algebra
+from scipy import signal     # Signal processing
+from scipy import stats      # Statistical functions
+from scipy import integrate  # Numerical integration
+from scipy import interpolate # Interpolation
+from scipy import sparse     # Sparse matrices
+
+# Check SciPy configuration
+import scipy
+scipy.show_config()          # Show build configuration
+scipy.__version__            # Check version

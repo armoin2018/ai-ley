@@ -1,0 +1,11 @@
+# Scale the problem
+def scaled_objective(x_scaled):
+    x = x_scaled * scale_factors
+    return original_objective(x)
+
+# Try multiple optimization methods
+methods = ['L-BFGS-B', 'SLSQP', 'trust-constr']
+for method in methods:
+    result = optimize.minimize(scaled_objective, x0_scaled, method=method)
+    if result.success:
+        break

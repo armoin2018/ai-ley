@@ -1,0 +1,40 @@
+import pandas as pd
+import numpy as np
+from web3 import Web3
+from defillama import DefiLlama
+
+class DeFiStrategyAnalyzer:
+    def __init__(self):
+        self.protocols = {
+            'aave': {'risk_score': 2, 'tvl_threshold': 5e9},
+            'compound': {'risk_score': 2, 'tvl_threshold': 3e9},
+            'yearn': {'risk_score': 3, 'tvl_threshold': 1e9},
+            'convex': {'risk_score': 4, 'tvl_threshold': 5e8}
+        }
+    
+    def analyze_yield_opportunity(self, token, amount, chains=['ethereum', 'arbitrum']):
+        opportunities = []
+        
+        for chain in chains:
+            # Get lending rates
+            aave_rate = self.get_aave_rate(token, chain)
+            compound_rate = self.get_compound_rate(token, chain)
+            
+            # Calculate risk-adjusted returns
+            for protocol, rate in [('aave', aave_rate), ('compound', compound_rate)]:
+                risk_adjusted_rate = rate * (10 - self.protocols[protocol]['risk_score']) / 10
+                
+                opportunities.append({
+                    'protocol': protocol,
+                    'chain': chain,
+                    'base_rate': rate,
+                    'risk_adjusted_rate': risk_adjusted_rate,
+                    'gas_cost_weekly': self.estimate_gas_cost(chain, amount),
+                    'net_apy': risk_adjusted_rate - (self.estimate_gas_cost(chain, amount) * 52 / amount)
+                })
+        
+        return sorted(opportunities, key=lambda x: x['net_apy'], reverse=True)
+    
+    def calculate_impermanent_loss(self, price_change_ratio):
+        """Calculate IL for constant product AMM"""
+        return 2 * (price_change_ratio**0.5) / (1 + price_change_ratio) - 1

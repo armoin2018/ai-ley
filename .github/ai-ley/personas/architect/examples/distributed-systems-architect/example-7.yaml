@@ -1,0 +1,49 @@
+monitoring_framework:
+  distributed_tracing:
+    trace_sampling:
+      production: 0.01  # 1% sampling
+      staging: 0.1      # 10% sampling
+      development: 1.0  # 100% sampling
+      
+    span_attributes:
+      - service_name
+      - operation_name
+      - user_id
+      - request_id
+      - error_flag
+      
+  service_level_objectives:
+    availability:
+      target: "99.9%"
+      measurement_window: "30 days"
+      
+    latency:
+      p50: "100ms"
+      p99: "500ms"
+      p99.9: "1s"
+      
+    error_rate:
+      target: "<0.1%"
+      measurement_window: "5 minutes"
+      
+  health_checks:
+    liveness_probe:
+      endpoint: "/health/live"
+      timeout: "3s"
+      interval: "10s"
+      
+    readiness_probe:
+      endpoint: "/health/ready"
+      timeout: "5s"
+      interval: "15s"
+      
+  alerting_rules:
+    critical:
+      - service_down: "availability < 99%"
+      - high_error_rate: "error_rate > 5%"
+      - extreme_latency: "p99 > 5s"
+      
+    warning:
+      - elevated_latency: "p99 > 1s"
+      - elevated_error_rate: "error_rate > 1%"
+      - resource_exhaustion: "cpu_usage > 80%"

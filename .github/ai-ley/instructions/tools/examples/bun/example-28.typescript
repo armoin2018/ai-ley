@@ -1,0 +1,6 @@
+// Use Bun test APIs
+import { expect, test } from "bun:test";
+
+// Mock modules properly
+import { mock } from "bun:test";
+const mockFunction = mock(() => "mocked");

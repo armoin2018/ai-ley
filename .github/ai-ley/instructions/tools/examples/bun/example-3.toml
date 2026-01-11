@@ -1,0 +1,54 @@
+# ~/.bunfig.toml or bunfig.toml in project root
+
+[install]
+# Registry configuration
+registry = "https://registry.npmjs.org/"
+# Alternative registries
+# registry = "https://npm.pkg.github.com/"
+
+# Package manager behavior
+cache = true
+exact = false
+dev = true
+peer = true
+production = false
+optional = true
+lockfile = true
+
+# Performance settings
+concurrent_scripts = 10
+prefer = "bun"  # or "node"
+
+[install.scopes]
+# Scoped registry configuration
+"@company" = "https://npm.company.com/"
+"@internal" = { url = "https://internal-registry.com/", token = "secret" }
+
+[run]
+# Script execution preferences
+bun = true
+silent = false
+shell = "bash"
+
+# Environment variables for scripts
+[run.env]
+NODE_ENV = "development"
+LOG_LEVEL = "info"
+
+[test]
+# Test configuration
+preload = ["./test-setup.ts"]
+timeout = 30000
+coverage = true
+
+[bundler]
+# Bundling configuration
+target = "browser"  # or "node"
+format = "esm"      # or "cjs", "iife"
+minify = false
+sourcemap = "external"  # or "inline", "none"
+
+[build]
+# Build settings
+outdir = "./dist"
+splitting = true

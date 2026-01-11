@@ -1,0 +1,88 @@
+# Configuration management with DSC-like approach
+function Set-ServerConfiguration {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory, ValueFromPipeline)]
+        [string[]]$ComputerName,
+        
+        [Parameter(Mandatory)]
+        [hashtable]$Configuration
+    )
+    
+    process {
+        foreach ($computer in $ComputerName) {
+            Invoke-Command -ComputerName $computer -ScriptBlock {
+                param($Config)
+                
+                # Apply IIS configuration
+                if ($Config.IIS) {
+                    if ($Config.IIS.Enabled) {
+                        Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebServerRole -All
+                        
+                        # Configure application pools
+                        foreach ($pool in $Config.IIS.ApplicationPools) {
+                            Import-Module WebAdministration -Force
+                            if (-not (Get-IISAppPool -Name $pool.Name -ErrorAction SilentlyContinue)) {
+                                New-WebAppPool -Name $pool.Name
+                            }
+                            Set-ItemProperty -Path "IIS:\AppPools\$($pool.Name)" -Name processModel.identityType -Value $pool.Identity
+                        }
+                    }
+                }
+                
+                # Apply Windows services configuration
+                if ($Config.Services) {
+                    foreach ($service in $Config.Services) {
+                        $svc = Get-Service -Name $service.Name -ErrorAction SilentlyContinue
+                        if ($svc) {
+                            if ($service.State -eq 'Running' -and $svc.Status -ne 'Running') {
+                                Start-Service -Name $service.Name
+                            }
+                            elseif ($service.State -eq 'Stopped' -and $svc.Status -ne 'Stopped') {
+                                Stop-Service -Name $service.Name
+                            }
+                            
+                            if ($service.StartupType -and $svc.StartType -ne $service.StartupType) {
+                                Set-Service -Name $service.Name -StartupType $service.StartupType
+                            }
+                        }
+                    }
+                }
+                
+                # Apply registry settings
+                if ($Config.Registry) {
+                    foreach ($regSetting in $Config.Registry) {
+                        if (-not (Test-Path $regSetting.Path)) {
+                            New-Item -Path $regSetting.Path -Force | Out-Null
+                        }
+                        Set-ItemProperty -Path $regSetting.Path -Name $regSetting.Name -Value $regSetting.Value
+                    }
+                }
+                
+            } -ArgumentList $Configuration
+        }
+    }
+}
+
+# Usage example
+$serverConfig = @{
+    IIS = @{
+        Enabled = $true
+        ApplicationPools = @(
+            @{ Name = 'MyApp'; Identity = 'ApplicationPoolIdentity' }
+        )
+    }
+    Services = @(
+        @{ Name = 'W3SVC'; State = 'Running'; StartupType = 'Automatic' }
+        @{ Name = 'WAS'; State = 'Running'; StartupType = 'Automatic' }
+    )
+    Registry = @(
+        @{ 
+            Path = 'HKLM:\SOFTWARE\MyCompany'
+            Name = 'Environment'
+            Value = 'Production'
+        }
+    )
+}
+
+'Server01', 'Server02' | Set-ServerConfiguration -Configuration $serverConfig

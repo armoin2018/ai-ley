@@ -1,0 +1,31 @@
+neutralino-react-app/
+├── neutralino.config.json
+├── package.json
+├── webpack.config.js       # or vite.config.js
+├── public/
+│   ├── index.html
+│   └── icons/
+├── src/                    # React application
+│   ├── components/
+│   │   ├── App.jsx
+│   │   ├── FileManager.jsx
+│   │   ├── SystemInfo.jsx
+│   │   └── Settings.jsx
+│   ├── services/
+│   │   ├── neutralino-api.js
+│   │   ├── file-service.js
+│   │   └── system-service.js
+│   ├── hooks/
+│   │   ├── useSystemInfo.js
+│   │   └── useFileSystem.js
+│   ├── utils/
+│   │   ├── helpers.js
+│   │   └── constants.js
+│   ├── styles/
+│   │   ├── global.css
+│   │   └── components.css
+│   ├── index.js
+│   └── main.jsx
+├── resources/              # Built application files
+├── extensions/             # Native extensions
+└── dist/                   # Final distribution

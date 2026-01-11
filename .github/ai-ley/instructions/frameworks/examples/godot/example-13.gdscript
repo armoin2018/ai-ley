@@ -1,0 +1,13 @@
+# Proper cleanup in _exit_tree
+func _exit_tree():
+	# Disconnect all signals
+	if signal_connection.is_connected():
+		signal_connection.disconnect()
+	
+	# Clean up timers
+	if timer:
+		timer.queue_free()
+	
+	# Clear arrays and dictionaries
+	array_data.clear()
+	dict_data.clear()

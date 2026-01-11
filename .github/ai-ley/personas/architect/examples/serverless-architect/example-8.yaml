@@ -1,0 +1,38 @@
+observability_pattern:
+  distributed_tracing:
+    tool: "AWS X-Ray"
+    configuration:
+      - trace_all_requests: true
+      - sample_rate: 10%
+      - annotation_keys: ["user_id", "order_id"]
+      
+  structured_logging:
+    format: "JSON"
+    fields:
+      - timestamp
+      - level
+      - message
+      - correlation_id
+      - function_name
+      - request_id
+      
+  metrics_collection:
+    custom_metrics:
+      - business_metrics: ["orders_processed", "revenue_generated"]
+      - technical_metrics: ["cache_hit_rate", "api_response_time"]
+      
+    dashboards:
+      - operational_dashboard
+      - business_dashboard
+      - cost_dashboard
+      
+  alerting:
+    notification_channels:
+      - slack_integration
+      - pagerduty_integration
+      - email_notifications
+      
+    alert_rules:
+      - error_rate_spike: ">5% in 5 minutes"
+      - latency_increase: ">2s p99 for 10 minutes"
+      - cost_anomaly: ">20% increase day over day"

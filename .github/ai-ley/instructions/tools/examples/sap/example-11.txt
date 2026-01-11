@@ -1,0 +1,4 @@
+XD01          # Create Customer
+XD02          # Change Customer
+XD03          # Display Customer
+FD32          # Customer Credit Management

@@ -1,0 +1,3 @@
+Access to fetch at 'file:///path/to/technical-analysis.json' from origin 'null'
+has been blocked by CORS policy: Cross origin requests are only supported
+for protocol schemes: http, https, chrome-extension, etc.

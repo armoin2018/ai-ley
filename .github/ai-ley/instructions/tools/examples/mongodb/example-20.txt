@@ -1,0 +1,3 @@
+## Integration Patterns
+
+### Application Integration with Mongoose (Node.js)

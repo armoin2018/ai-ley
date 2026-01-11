@@ -1,0 +1,42 @@
+import { test, expect } from '@playwright/test'
+
+test.describe('Visual testing', () => {
+  test('screenshot comparison', async ({ page }) => {
+    await page.goto('/landing-page')
+
+    // Full page screenshot
+    await expect(page).toHaveScreenshot('landing-page.png')
+
+    // Element screenshot
+    await expect(page.locator('.hero-section')).toHaveScreenshot('hero.png')
+
+    // Mobile screenshot
+    await page.setViewportSize({ width: 375, height: 812 })
+    await expect(page).toHaveScreenshot('landing-page-mobile.png')
+  })
+
+  test('visual regression with custom threshold', async ({ page }) => {
+    await page.goto('/chart-dashboard')
+
+    // Wait for charts to load
+    await page.waitForSelector('.chart-container[data-loaded="true"]')
+
+    // Screenshot with custom threshold
+    await expect(page.locator('.chart-container')).toHaveScreenshot('chart.png', {
+      threshold: 0.3, // Allow 30% difference
+      maxDiffPixels: 1000
+    })
+  })
+
+  test('mask dynamic content', async ({ page }) => {
+    await page.goto('/profile')
+
+    // Mask elements that change between runs
+    await expect(page).toHaveScreenshot('profile.png', {
+      mask: [
+        page.locator('.timestamp'),
+        page.locator('.random-id')
+      ]
+    })
+  })
+})

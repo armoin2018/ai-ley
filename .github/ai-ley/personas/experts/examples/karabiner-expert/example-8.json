@@ -1,0 +1,57 @@
+{
+  "title": "JK pressed simultaneously → Escape (Vim-style)",
+  "rules": [
+    {
+      "description": "JK simultaneous press → Escape",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "simultaneous": [
+              {
+                "key_code": "j"
+              },
+              {
+                "key_code": "k"
+              }
+            ],
+            "simultaneous_options": {
+              "detect_key_down_uninterruptedly": true,
+              "key_down_order": "insensitive",
+              "key_up_order": "insensitive",
+              "key_up_when": "any",
+              "to_after_key_up": [
+                {
+                  "set_variable": {
+                    "name": "jk_pressed",
+                    "value": 0
+                  }
+                }
+              ]
+            }
+          },
+          "to": [
+            {
+              "set_variable": {
+                "name": "jk_pressed",
+                "value": 1
+              }
+            },
+            {
+              "key_code": "escape"
+            }
+          ],
+          "parameters": {
+            "basic.simultaneous_threshold_milliseconds": 200
+          },
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": ["^com\\.apple\\.Terminal$"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

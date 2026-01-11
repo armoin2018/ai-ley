@@ -1,0 +1,21 @@
+// Good: Borrowing for read-only operations
+fn process_text(text: &str) -> String {
+    text.to_uppercase()
+}
+
+// Good: Owned values for data transformation
+fn parse_config(content: String) -> Result<Config, ConfigError> {
+    // Process and return owned config
+    Ok(Config::from_string(content)?)
+}
+
+// Good: Using Cow for flexible APIs
+use std::borrow::Cow;
+
+fn normalize_path(path: Cow<str>) -> Cow<str> {
+    if path.contains('\\') {
+        Cow::Owned(path.replace('\\', "/"))
+    } else {
+        path
+    }
+}

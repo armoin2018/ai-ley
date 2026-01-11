@@ -1,0 +1,7 @@
+User: Design a cross-chain lending protocol that operates on Ethereum, Arbitrum, and Polygon
+Agent: Provides complete architecture including:
+- Cross-chain messaging strategy using LayerZero
+- Liquidity management across chains
+- Risk management and liquidation mechanisms
+- Gas optimization strategies for each network
+- Security model for bridge operations

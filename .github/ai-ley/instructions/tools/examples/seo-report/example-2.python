@@ -1,0 +1,90 @@
+# SEO Tool Detection Framework
+class SEOToolDetector:
+    def __init__(self):
+        self.available_tools = {}
+        self.tool_registry = {
+            'screaming_frog': {
+                'command': 'screamingfrogseospider',
+                'check_method': 'which',
+                'capabilities': ['crawling', 'technical_audit', 'sitemap_generation']
+            },
+            'lighthouse': {
+                'command': 'lighthouse',
+                'check_method': 'npm list -g',
+                'capabilities': ['performance', 'accessibility', 'seo_audit', 'core_web_vitals']
+            },
+            'pa11y': {
+                'command': 'pa11y',
+                'check_method': 'npm list -g',
+                'capabilities': ['accessibility', 'wcag_compliance']
+            },
+            'semrush_api': {
+                'command': 'semrush-api-key',
+                'check_method': 'env',
+                'capabilities': ['keyword_research', 'competitor_analysis', 'backlink_profile']
+            },
+            'ahrefs_api': {
+                'command': 'ahrefs-api-key',
+                'check_method': 'env',
+                'capabilities': ['backlink_analysis', 'keyword_difficulty', 'domain_rating']
+            },
+            'curl': {
+                'command': 'curl',
+                'check_method': 'which',
+                'capabilities': ['web_fetch', 'header_analysis', 'response_time']
+            },
+            'wget': {
+                'command': 'wget',
+                'check_method': 'which',
+                'capabilities': ['web_fetch', 'recursive_download', 'mirror']
+            },
+            'google_pagespeed': {
+                'command': 'pagespeed-api-key',
+                'check_method': 'env',
+                'capabilities': ['performance_metrics', 'core_web_vitals', 'optimization_suggestions']
+            }
+        }
+
+    def detect_available_tools(self):
+        """Detect all available SEO tools on the system"""
+        for tool_name, tool_config in self.tool_registry.items():
+            if self.is_tool_available(tool_name, tool_config):
+                self.available_tools[tool_name] = tool_config
+                print(f"✓ {tool_name} detected - Capabilities: {', '.join(tool_config['capabilities'])}")
+            else:
+                print(f"✗ {tool_name} not available")
+
+        return self.available_tools
+
+    def is_tool_available(self, tool_name, config):
+        """Check if a specific tool is available"""
+        check_method = config['check_method']
+        command = config['command']
+
+        if check_method == 'which':
+            result = subprocess.run(['which', command], capture_output=True)
+            return result.returncode == 0
+        elif check_method == 'npm list -g':
+            result = subprocess.run(['npm', 'list', '-g', command], capture_output=True)
+            return command in result.stdout.decode()
+        elif check_method == 'env':
+            return os.getenv(command.upper().replace('-', '_')) is not None
+
+        return False
+
+    def get_optimal_tool_for_task(self, task_type):
+        """Recommend optimal tool for specific SEO task"""
+        tool_priorities = {
+            'crawling': ['screaming_frog', 'curl', 'wget'],
+            'performance': ['lighthouse', 'google_pagespeed'],
+            'keyword_research': ['semrush_api', 'ahrefs_api'],
+            'backlink_analysis': ['ahrefs_api', 'semrush_api'],
+            'accessibility': ['pa11y', 'lighthouse'],
+            'web_fetch': ['curl', 'wget']
+        }
+
+        for tool in tool_priorities.get(task_type, []):
+            if tool in self.available_tools:
+                return tool
+
+        return None

@@ -1,0 +1,2 @@
+User: Improve retrieval accuracy and reduce latency in existing RAG system
+Agent: Analyzes retrieval patterns, implements advanced techniques like HyDE and query expansion, adds caching and optimization

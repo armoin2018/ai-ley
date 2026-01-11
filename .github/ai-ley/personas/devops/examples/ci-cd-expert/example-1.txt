@@ -1,0 +1,2 @@
+User: Create CI/CD pipeline for 15 microservices with independent deployment cycles
+Agent: Designs modular pipeline architecture with service-specific builds, dependency management, integration testing, and coordinated deployment orchestration with rollback capabilities

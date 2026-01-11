@@ -1,0 +1,14 @@
+# Vector-based memory for semantic search
+vector_memory_config = {
+    "type": "VectorStoreRetrieverMemory",
+    "vector_store": {
+        "type": "Chroma",  # or "Pinecone", "Weaviate", "FAISS"
+        "embedding_model": "text-embedding-ada-002",
+        "collection_name": "conversation_memory",
+        "persist_directory": "./chroma_db"
+    },
+    "retriever_kwargs": {
+        "search_type": "similarity",
+        "k": 4
+    }
+}

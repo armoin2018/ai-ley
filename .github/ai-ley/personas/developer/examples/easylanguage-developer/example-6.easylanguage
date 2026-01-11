@@ -1,0 +1,21 @@
+// Portfolio Heat Calculation
+inputs:
+    MaxPortfolioRisk(10), // Maximum 10% portfolio risk
+    MaxPositionRisk(2);   // Maximum 2% per position
+
+variables:
+    CurrentRisk(0),
+    PositionRisk(0),
+    AllowedSize(0);
+
+// Calculate current portfolio risk
+CurrentRisk = (OpenPositionProfit / NetProfit) * 100;
+
+// Calculate position risk
+PositionRisk = (Close - EntryPrice) / EntryPrice * 100;
+
+// Position sizing with risk controls
+if CurrentRisk <= MaxPortfolioRisk and 
+   PositionRisk <= MaxPositionRisk then
+    AllowedSize = (NetProfit * MaxPositionRisk / 100) / 
+                  (Close * 0.02);

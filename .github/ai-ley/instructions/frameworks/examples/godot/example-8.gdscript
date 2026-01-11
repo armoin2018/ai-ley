@@ -1,0 +1,207 @@
+# Enemy.gd - AI enemy with behavior states
+extends CharacterBody2D
+class_name Enemy
+
+enum State {
+	IDLE,
+	PATROL,
+	CHASE,
+	ATTACK,
+	HURT,
+	DEAD
+}
+
+# Enemy properties
+@export var health: int = 50
+@export var speed: float = 100.0
+@export var patrol_distance: float = 200.0
+@export var detection_range: float = 150.0
+@export var attack_range: float = 50.0
+@export var attack_damage: int = 10
+
+# Node references
+@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var collision_shape: CollisionShape2D = $CollisionShape2D
+@onready var detection_area: Area2D = $DetectionArea
+@onready var attack_area: Area2D = $AttackArea
+@onready var health_bar: ProgressBar = $HealthBar
+
+# State machine
+var current_state: State = State.IDLE
+var state_timer: float = 0.0
+
+# Patrol variables
+var patrol_start: Vector2
+var patrol_target: Vector2
+var patrol_direction: int = 1
+
+# Target tracking
+var player: Player = null
+var last_known_player_position: Vector2
+
+# Physics
+var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
+var facing_direction: int = 1
+
+func _ready():
+	# Initialize patrol
+	patrol_start = global_position
+	patrol_target = patrol_start + Vector2(patrol_distance, 0)
+	
+	# Connect area signals
+	detection_area.body_entered.connect(_on_detection_area_entered)
+	detection_area.body_exited.connect(_on_detection_area_exited)
+	attack_area.body_entered.connect(_on_attack_area_entered)
+	
+	# Initialize health bar
+	health_bar.max_value = health
+	health_bar.value = health
+	
+	# Start in patrol state
+	change_state(State.PATROL)
+
+func _physics_process(delta):
+	# Apply gravity
+	if not is_on_floor():
+		velocity.y += gravity * delta
+	
+	# Update state machine
+	_update_state_machine(delta)
+	
+	# Move character
+	move_and_slide()
+	
+	# Update sprite direction
+	if velocity.x != 0:
+		facing_direction = sign(velocity.x)
+		sprite.flip_h = facing_direction < 0
+
+func _update_state_machine(delta):
+	state_timer += delta
+	
+	match current_state:
+		State.IDLE:
+			_state_idle(delta)
+		State.PATROL:
+			_state_patrol(delta)
+		State.CHASE:
+			_state_chase(delta)
+		State.ATTACK:
+			_state_attack(delta)
+		State.HURT:
+			_state_hurt(delta)
+		State.DEAD:
+			_state_dead(delta)
+
+func _state_idle(delta):
+	velocity.x = 0
+	sprite.play("idle")
+	
+	# Transition to patrol after delay
+	if state_timer > 2.0:
+		change_state(State.PATROL)
+
+func _state_patrol(delta):
+	sprite.play("walk")
+	
+	# Move towards patrol target
+	var direction = sign(patrol_target.x - global_position.x)
+	velocity.x = direction * speed * 0.5  # Slower patrol speed
+	
+	# Check if reached patrol target
+	if abs(global_position.x - patrol_target.x) < 10:
+		# Switch patrol direction
+		patrol_direction *= -1
+		if patrol_direction > 0:
+			patrol_target = patrol_start + Vector2(patrol_distance, 0)
+		else:
+			patrol_target = patrol_start - Vector2(patrol_distance, 0)
+
+func _state_chase(delta):
+	sprite.play("run")
+	
+	if player:
+		# Chase the player
+		var direction = sign(player.global_position.x - global_position.x)
+		velocity.x = direction * speed
+		
+		# Update last known position
+		last_known_player_position = player.global_position
+		
+		# Check if close enough to attack
+		var distance = global_position.distance_to(player.global_position)
+		if distance <= attack_range:
+			change_state(State.ATTACK)
+		
+		# Stop chasing if player is too far
+		elif distance > detection_range * 1.5:
+			player = null
+			change_state(State.PATROL)
+	else:
+		# Lost player, return to patrol
+		change_state(State.PATROL)
+
+func _state_attack(delta):
+	velocity.x = 0
+	sprite.play("attack")
+	
+	# Attack every 1.5 seconds
+	if state_timer > 1.5:
+		_perform_attack()
+		change_state(State.CHASE)
+
+func _state_hurt(delta):
+	velocity.x *= 0.5  # Slow down when hurt
+	sprite.play("hurt")
+	
+	# Return to previous state after hurt animation
+	if state_timer > 0.5:
+		if player:
+			change_state(State.CHASE)
+		else:
+			change_state(State.PATROL)
+
+func _state_dead(delta):
+	velocity.x = 0
+	sprite.play("death")
+	
+	# Remove enemy after death animation
+	if sprite.frame >= sprite.sprite_frames.get_frame_count("death") - 1:
+		queue_free()
+
+func change_state(new_state: State):
+	current_state = new_state
+	state_timer = 0.0
+
+func take_damage(amount: int):
+	health -= amount
+	health_bar.value = health
+	
+	# Flash effect
+	var tween = create_tween()
+	tween.tween_property(sprite, "modulate", Color.RED, 0.1)
+	tween.tween_property(sprite, "modulate", Color.WHITE, 0.1)
+	
+	if health <= 0:
+		change_state(State.DEAD)
+	else:
+		change_state(State.HURT)
+
+func _perform_attack():
+	if player and global_position.distance_to(player.global_position) <= attack_range:
+		player.take_damage(attack_damage)
+		AudioManager.play_sfx("enemy_attack")
+
+func _on_detection_area_entered(body):
+	if body is Player:
+		player = body
+		change_state(State.CHASE)
+
+func _on_detection_area_exited(body):
+	if body is Player and body == player:
+		# Don't immediately lose player, keep chasing for a moment
+		pass
+
+func _on_attack_area_entered(body):
+	if body is Player and current_state == State.CHASE:
+		change_state(State.ATTACK)

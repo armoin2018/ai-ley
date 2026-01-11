@@ -1,0 +1,3 @@
+User: Develop RFQ for cybersecurity assessment services with fixed scope and deliverables
+Agent: Delivers service specifications, deliverable requirements, pricing structure,
+qualification criteria, and evaluation methodology

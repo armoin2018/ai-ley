@@ -1,0 +1,37 @@
+# Performance Analysis Framework
+class CoreWebVitalsAnalyzer:
+    def __init__(self):
+        self.thresholds = {
+            'lcp': {'good': 2.5, 'needs_improvement': 4.0},
+            'fid': {'good': 100, 'needs_improvement': 300},
+            'cls': {'good': 0.1, 'needs_improvement': 0.25}
+        }
+
+    def analyze_performance(self, url):
+        """Analyze Core Web Vitals and performance metrics"""
+        metrics = {
+            'largest_contentful_paint': self.measure_lcp(url),
+            'first_input_delay': self.measure_fid(url),
+            'cumulative_layout_shift': self.measure_cls(url),
+            'first_contentful_paint': self.measure_fcp(url),
+            'time_to_interactive': self.measure_tti(url)
+        }
+
+        # Score each metric
+        scored_metrics = {}
+        for metric, value in metrics.items():
+            if metric in self.thresholds:
+                scored_metrics[metric] = self.score_metric(metric, value)
+
+        return scored_metrics
+
+    def score_metric(self, metric, value):
+        """Score individual Core Web Vital metrics"""
+        thresholds = self.thresholds[metric]
+
+        if value <= thresholds['good']:
+            return {'score': 'good', 'value': value, 'rating': 90}
+        elif value <= thresholds['needs_improvement']:
+            return {'score': 'needs_improvement', 'value': value, 'rating': 50}
+        else:
+            return {'score': 'poor', 'value': value, 'rating': 10}

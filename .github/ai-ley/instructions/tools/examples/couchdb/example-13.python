@@ -1,0 +1,117 @@
+class CouchDBPerformanceOptimizer:
+    """Performance optimization techniques for CouchDB."""
+
+    def __init__(self, couchdb_manager, db_name):
+        self.couchdb_manager = couchdb_manager
+        self.db = couchdb_manager.get_database(db_name)
+
+    def create_indexes(self):
+        """Create indexes for common query patterns."""
+        indexes = [
+            {
+                'index': {
+                    'fields': ['type', 'created_at']
+                },
+                'name': 'type-created-index',
+                'type': 'json'
+            },
+            {
+                'index': {
+                    'fields': ['type', 'email']
+                },
+                'name': 'type-email-index',
+                'type': 'json'
+            },
+            {
+                'index': {
+                    'fields': ['type', 'updated_at']
+                },
+                'name': 'type-updated-index',
+                'type': 'json'
+            }
+        ]
+
+        for index_def in indexes:
+            try:
+                response = requests.post(
+                    f"{self.couchdb_manager.server_url}/{self.db.name}/_index",
+                    json=index_def,
+                    headers={'Content-Type': 'application/json'}
+                )
+
+                if response.status_code in [200, 201]:
+                    logging.info(f"Index created: {index_def['name']}")
+                else:
+                    logging.warning(f"Index creation failed: {response.text}")
+
+            except Exception as e:
+                logging.error(f"Error creating index {index_def['name']}: {e}")
+
+    def optimize_bulk_operations(self, documents: List[Dict[str, Any]], batch_size: int = 100):
+        """Optimize bulk operations with batching."""
+        results = []
+
+        for i in range(0, len(documents), batch_size):
+            batch = documents[i:i + batch_size]
+
+            try:
+                batch_results = self.db.update(batch)
+                results.extend(batch_results)
+                logging.info(f"Processed batch {i//batch_size + 1}: {len(batch)} documents")
+
+            except Exception as e:
+                logging.error(f"Error in batch {i//batch_size + 1}: {e}")
+                # Continue with next batch
+
+        return results
+
+    def use_mango_queries(self, selector: Dict[str, Any],
+                         fields: List[str] = None,
+                         sort: List[Dict[str, Any]] = None,
+                         limit: int = None) -> List[Dict[str, Any]]:
+        """Use Mango queries for efficient data retrieval."""
+        query = {
+            'selector': selector
+        }
+
+        if fields:
+            query['fields'] = fields
+        if sort:
+            query['sort'] = sort
+        if limit:
+            query['limit'] = limit
+
+        try:
+            response = requests.post(
+                f"{self.couchdb_manager.server_url}/{self.db.name}/_find",
+                json=query,
+                headers={'Content-Type': 'application/json'}
+            )
+            response.raise_for_status()
+
+            result = response.json()
+            documents = result.get('docs', [])
+
+            logging.info(f"Mango query returned {len(documents)} documents")
+            return documents
+
+        except Exception as e:
+            logging.error(f"Error in Mango query: {e}")
+            raise
+
+# Usage example
+optimizer = CouchDBPerformanceOptimizer(couchdb_manager, 'myapp')
+
+# Create performance indexes
+optimizer.create_indexes()
+
+# Use Mango query
+active_users = optimizer.use_mango_queries(
+    selector={
+        'type': 'user',
+        'metadata.last_login': {'$gte': '2023-01-01T00:00:00Z'}
+    },
+    fields=['_id', 'profile.name', 'profile.email'],
+    sort=[{'metadata.last_login': 'desc'}],
+    limit=50
+)

@@ -1,0 +1,180 @@
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using DG.Tweening;
+
+public class UIManager : MonoBehaviour
+{
+    public static UIManager Instance { get; private set; }
+    
+    [Header("UI Panels")]
+    [SerializeField] private GameObject mainMenuPanel;
+    [SerializeField] private GameObject gameplayPanel;
+    [SerializeField] private GameObject pausePanel;
+    [SerializeField] private GameObject settingsPanel;
+    
+    [Header("HUD Elements")]
+    [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI livesText;
+    [SerializeField] private Slider healthBar;
+    [SerializeField] private Image[] lifeIcons;
+    
+    [Header("Animation Settings")]
+    [SerializeField] private float panelTransitionDuration = 0.3f;
+    [SerializeField] private Ease panelTransitionEase = Ease.OutQuart;
+    
+    // Current active panel
+    private GameObject currentPanel;
+    
+    void Awake()
+    {
+        Instance = this;
+    }
+    
+    void Start()
+    {
+        ShowPanel(mainMenuPanel);
+        
+        // Subscribe to game events
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnGameStateChanged += OnGameStateChanged;
+            GameManager.Instance.OnLivesChanged += UpdateLivesDisplay;
+        }
+    }
+    
+    void OnDestroy()
+    {
+        // Unsubscribe from events
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnGameStateChanged -= OnGameStateChanged;
+            GameManager.Instance.OnLivesChanged -= UpdateLivesDisplay;
+        }
+    }
+    
+    private void OnGameStateChanged(GameManager.GameState newState)
+    {
+        switch (newState)
+        {
+            case GameManager.GameState.Menu:
+                ShowPanel(mainMenuPanel);
+                break;
+            case GameManager.GameState.Playing:
+                ShowPanel(gameplayPanel);
+                break;
+            case GameManager.GameState.Paused:
+                ShowPanel(pausePanel);
+                break;
+        }
+    }
+    
+    public void ShowPanel(GameObject panelToShow)
+    {
+        if (currentPanel == panelToShow) return;
+        
+        // Hide current panel with animation
+        if (currentPanel != null)
+        {
+            AnimatePanel(currentPanel, false, () =>
+            {
+                currentPanel.SetActive(false);
+                
+                // Show new panel with animation
+                currentPanel = panelToShow;
+                currentPanel.SetActive(true);
+                AnimatePanel(currentPanel, true);
+            });
+        }
+        else
+        {
+            // No current panel, just show new one
+            currentPanel = panelToShow;
+            currentPanel.SetActive(true);
+            AnimatePanel(currentPanel, true);
+        }
+    }
+    
+    private void AnimatePanel(GameObject panel, bool fadeIn, System.Action onComplete = null)
+    {
+        CanvasGroup canvasGroup = panel.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            canvasGroup = panel.AddComponent<CanvasGroup>();
+        }
+        
+        float targetAlpha = fadeIn ? 1f : 0f;
+        canvasGroup.alpha = fadeIn ? 0f : 1f;
+        
+        canvasGroup.DOFade(targetAlpha, panelTransitionDuration)
+            .SetEase(panelTransitionEase)
+            .OnComplete(() => onComplete?.Invoke());
+    }
+    
+    public void UpdateScore(int score)
+    {
+        if (scoreText != null)
+        {
+            scoreText.text = $"Score: {score:N0}";
+            
+            // Animate score update
+            scoreText.transform.DOPunchScale(Vector3.one * 0.1f, 0.2f);
+        }
+    }
+    
+    public void UpdateHealth(float currentHealth, float maxHealth)
+    {
+        if (healthBar != null)
+        {
+            float targetValue = currentHealth / maxHealth;
+            healthBar.DOValue(targetValue, 0.3f);
+            
+            // Change color based on health percentage
+            Color healthColor = Color.Lerp(Color.red, Color.green, targetValue);
+            healthBar.fillRect.GetComponent<Image>().color = healthColor;
+        }
+    }
+    
+    private void UpdateLivesDisplay(int lives)
+    {
+        if (livesText != null)
+        {
+            livesText.text = $"Lives: {lives}";
+        }
+        
+        // Update life icons
+        for (int i = 0; i < lifeIcons.Length; i++)
+        {
+            if (lifeIcons[i] != null)
+            {
+                lifeIcons[i].gameObject.SetActive(i < lives);
+            }
+        }
+    }
+    
+    // Button event handlers
+    public void OnStartGameClicked()
+    {
+        GameManager.Instance?.StartGame();
+    }
+    
+    public void OnPauseClicked()
+    {
+        GameManager.Instance?.PauseGame();
+    }
+    
+    public void OnResumeClicked()
+    {
+        GameManager.Instance?.ResumeGame();
+    }
+    
+    public void OnRestartClicked()
+    {
+        GameManager.Instance?.RestartGame();
+    }
+    
+    public void OnQuitClicked()
+    {
+        GameManager.Instance?.QuitGame();
+    }
+}

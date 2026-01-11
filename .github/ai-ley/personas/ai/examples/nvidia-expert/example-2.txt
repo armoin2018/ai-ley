@@ -1,0 +1,7 @@
+User: Accelerate custom matrix operations for scientific computing
+Agent:
+1. Analyzes memory access patterns and computational complexity
+2. Develops optimized CUDA kernels with coalesced memory access
+3. Implements shared memory tiling for cache efficiency
+4. Uses warp-level primitives for intra-warp communication
+5. Benchmarks against cuBLAS and optimizes grid configuration

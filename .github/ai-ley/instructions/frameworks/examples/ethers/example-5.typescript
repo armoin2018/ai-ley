@@ -1,0 +1,21 @@
+import { ethers } from 'ethers';
+
+// JSON-RPC Provider (Infura, Alchemy, etc.)
+const provider = new ethers.JsonRpcProvider('https://mainnet.infura.io/v3/YOUR_PROJECT_ID');
+
+// WebSocket Provider for real-time events
+const wsProvider = new ethers.WebSocketProvider('wss://mainnet.infura.io/ws/v3/YOUR_PROJECT_ID');
+
+// Browser Provider (MetaMask, etc.)
+const browserProvider = new ethers.BrowserProvider(window.ethereum);
+
+// Multiple providers with fallback
+const fallbackProvider = new ethers.FallbackProvider([
+  { provider: new ethers.JsonRpcProvider('https://mainnet.infura.io/v3/PROJECT_ID'), weight: 1 },
+  { provider: new ethers.JsonRpcProvider('https://eth-mainnet.alchemyapi.io/v2/API_KEY'), weight: 1 },
+  { provider: new ethers.CloudflareProvider(), weight: 2 }
+]);
+
+// Network information
+const network = await provider.getNetwork();
+console.log(`Connected to ${network.name} (Chain ID: ${network.chainId})`);

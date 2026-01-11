@@ -1,0 +1,19 @@
+// Wallet from private key
+const wallet = new ethers.Wallet('0x' + privateKey, provider);
+
+// Browser signer (MetaMask)
+const browserProvider = new ethers.BrowserProvider(window.ethereum);
+const signer = await browserProvider.getSigner();
+
+// HD Wallet from mnemonic
+const hdWallet = ethers.Wallet.fromPhrase(
+  'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'
+);
+
+// Connect wallet to provider
+const connectedWallet = wallet.connect(provider);
+
+// Get wallet information
+const address = await signer.getAddress();
+const balance = await signer.getBalance();
+const balanceEth = ethers.formatEther(balance);

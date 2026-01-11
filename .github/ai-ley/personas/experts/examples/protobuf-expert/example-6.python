@@ -1,0 +1,84 @@
+# Python high-performance serialization
+import trading_pb2
+import time
+from concurrent.futures import ThreadPoolExecutor
+
+class ProtobufSerializer:
+    def __init__(self):
+        self.pool = ThreadPoolExecutor(max_workers=4)
+    
+    def serialize_order_batch(self, orders_data):
+        """Serialize batch of orders with performance optimization"""
+        batch = trading_pb2.OrderBatch()
+        batch.batch_id = f"batch_{int(time.time() * 1000)}"
+        batch.batch_timestamp.GetCurrentTime()
+        
+        # Bulk create orders for better performance
+        for order_data in orders_data:
+            order = batch.orders.add()
+            order.symbol = order_data['symbol']
+            order.quantity = order_data['quantity']
+            order.price_cents = int(order_data['price'] * 100)  # Convert to cents
+            order.type = getattr(trading_pb2, f"ORDER_TYPE_{order_data['type'].upper()}")
+            order.order_id = order_data['id']
+            order.created_at.GetCurrentTime()
+        
+        return batch.SerializeToString()
+    
+    def deserialize_order_batch(self, serialized_data):
+        """Deserialize with error handling"""
+        try:
+            batch = trading_pb2.OrderBatch()
+            batch.ParseFromString(serialized_data)
+            return self._convert_to_dict(batch)
+        except Exception as e:
+            raise ValueError(f"Failed to deserialize order batch: {e}")
+    
+    def _convert_to_dict(self, batch):
+        """Convert protobuf to Python dict for application use"""
+        return {
+            'batch_id': batch.batch_id,
+            'timestamp': batch.batch_timestamp.ToDatetime(),
+            'orders': [
+                {
+                    'symbol': order.symbol,
+                    'quantity': order.quantity,
+                    'price': order.price_cents / 100.0,  # Convert back to dollars
+                    'type': trading_pb2.OrderType.Name(order.type),
+                    'order_id': order.order_id,
+                    'created_at': order.created_at.ToDatetime()
+                }
+                for order in batch.orders
+            ]
+        }
+
+# Performance benchmarking
+def benchmark_serialization():
+    serializer = ProtobufSerializer()
+    
+    # Generate test data
+    orders = [
+        {
+            'symbol': 'AAPL',
+            'quantity': 100,
+            'price': 150.25,
+            'type': 'LIMIT',
+            'id': f'order_{i}'
+        }
+        for i in range(10000)
+    ]
+    
+    # Benchmark serialization
+    start_time = time.time()
+    serialized = serializer.serialize_order_batch(orders)
+    serialize_time = time.time() - start_time
+    
+    # Benchmark deserialization
+    start_time = time.time()
+    deserialized = serializer.deserialize_order_batch(serialized)
+    deserialize_time = time.time() - start_time
+    
+    print(f"Serialization: {serialize_time:.4f}s for {len(orders)} orders")
+    print(f"Deserialization: {deserialize_time:.4f}s")
+    print(f"Serialized size: {len(serialized)} bytes")
+    print(f"Bytes per order: {len(serialized) / len(orders):.2f}")

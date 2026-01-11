@@ -1,0 +1,8 @@
+User: Analyze Tesla's Q3 earnings and update investment thesis
+Agent:
+1. Dissects earnings results vs consensus estimates and prior guidance
+2. Analyzes key metrics: vehicle deliveries, margins, cash flow generation
+3. Updates financial model with revised assumptions and new guidance
+4. Assesses management commentary on production, demand, and competitive positioning
+5. Revises price target and recommendation based on updated fundamentals
+6. Identifies key questions for follow-up research and monitoring

@@ -1,0 +1,145 @@
+"metadata": {
+        "description": "Environment name"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Admin username for virtual machine"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "minLength": 12,
+      "metadata": {
+        "description": "Admin password for virtual machine"
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_B2s",
+      "allowedValues": ["Standard_B1s", "Standard_B2s", "Standard_D2s_v3", "Standard_D4s_v3"],
+      "metadata": {
+        "description": "Virtual machine size"
+      }
+    }
+
+},
+"variables": {
+"namingPrefix": "[concat(parameters('environment'), '-webapp')]",
+"vnetName": "[concat(variables('namingPrefix'), '-vnet')]",
+"subnetName": "[concat(variables('namingPrefix'), '-subnet')]",
+"nsgName": "[concat(variables('namingPrefix'), '-nsg')]",
+"vmName": "[concat(variables('namingPrefix'), '-vm')]",
+"nicName": "[concat(variables('namingPrefix'), '-nic')]",
+"publicIpName": "[concat(variables('namingPrefix'), '-pip')]",
+"storageAccountName": "[concat(replace(variables('namingPrefix'), '-', ''), uniqueString(resourceGroup().id))]",
+"sqlServerName": "[concat(variables('namingPrefix'), '-sql-', uniqueString(resourceGroup().id))]",
+"databaseName": "[concat(variables('namingPrefix'), '-db')]"
+},
+"resources": [
+{
+"type": "Microsoft.Network/networkSecurityGroups",
+"apiVersion": "2021-02-01",
+"name": "[variables('nsgName')]",
+"location": "[parameters('location')]",
+"properties": {
+"securityRules": [
+{
+"name": "AllowHTTP",
+"properties": {
+"priority": 100,
+"protocol": "Tcp",
+"access": "Allow",
+"direction": "Inbound",
+"sourceAddressPrefix": "*",
+"sourcePortRange": "*",
+"destinationAddressPrefix": "*",
+"destinationPortRange": "80"
+}
+},
+{
+"name": "AllowHTTPS",
+"properties": {
+"priority": 110,
+"protocol": "Tcp",
+"access": "Allow",
+"direction": "Inbound",
+"sourceAddressPrefix": "*",
+"sourcePortRange": "*",
+"destinationAddressPrefix": "*",
+"destinationPortRange": "443"
+}
+},
+{
+"name": "AllowSSH",
+"properties": {
+"priority": 120,
+"protocol": "Tcp",
+"access": "Allow",
+"direction": "Inbound",
+"sourceAddressPrefix": "*",
+"sourcePortRange": "*",
+"destinationAddressPrefix": "*",
+"destinationPortRange": "22"
+}
+}
+]
+},
+"tags": {
+"Environment": "[parameters('environment')]",
+"Purpose": "Network Security"
+}
+},
+{
+"type": "Microsoft.Network/virtualNetworks",
+"apiVersion": "2021-02-01",
+"name": "[variables('vnetName')]",
+"location": "[parameters('location')]",
+"dependsOn": [
+"[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+],
+"properties": {
+"addressSpace": {
+"addressPrefixes": ["10.0.0.0/16"]
+},
+"subnets": [
+{
+"name": "[variables('subnetName')]",
+"properties": {
+"addressPrefix": "10.0.1.0/24",
+"networkSecurityGroup": {
+"id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+}
+}
+}
+]
+},
+"tags": {
+"Environment": "[parameters('environment')]",
+"Purpose": "Network Infrastructure"
+}
+}
+],
+"outputs": {
+"vnetId": {
+"type": "string",
+"value": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+},
+"subnetId": {
+"type": "string",
+"value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('subnetName'))]"
+},
+"resourceGroupName": {
+"type": "string",
+"value": "[resourceGroup().name]"
+}
+}
+}

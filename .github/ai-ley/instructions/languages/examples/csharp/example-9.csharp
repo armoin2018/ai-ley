@@ -1,0 +1,10 @@
+// Good: Efficient data loading with projection
+public async Task<IEnumerable<UserDto>> GetUsersAsync(int pageSize, int pageNumber)
+{
+    return await _context.Users
+        .Where(u => u.IsActive)
+        .Select(u => new UserDto { Id = u.Id, Name = u.Name, Email = u.Email })
+        .Skip(pageNumber * pageSize)
+        .Take(pageSize)
+        .ToListAsync();
+}

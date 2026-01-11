@@ -1,0 +1,35 @@
+# rbac.yaml - Role-based access control
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: web-app-sa
+  namespace: production
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: production
+  name: web-app-role
+rules:
+  - apiGroups: ['']
+    resources: ['configmaps', 'secrets']
+    verbs: ['get', 'list']
+  - apiGroups: ['']
+    resources: ['pods']
+    verbs: ['get', 'list', 'create']
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: web-app-binding
+  namespace: production
+subjects:
+  - kind: ServiceAccount
+    name: web-app-sa
+    namespace: production
+roleRef:
+  kind: Role
+  name: web-app-role
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,46 @@
+┌─────────────────────────────────────────────────────────────┐
+│                      User Workflow                           │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Step 1: Start Python Server                                 │
+│  Command: python3 serve_report.py                            │
+│  Action: Serves files on http://localhost:8080               │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Step 2: Open HTML Report in Browser                         │
+│  URL: http://localhost:8080/seo-audit-report.html            │
+│  Result: HTML loads with proper CORS headers                 │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Step 3: AJAX Loads JSON Data                                │
+│  Request: fetch('technical-analysis.json')                   │
+│  Response: 200 OK with application/json MIME type            │
+│  Success: Dashboard populates with SEO data                  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Step 4: User Clicks "📄 Documents" Tab                     │
+│  Action: Navigate to markdown viewer section                 │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Step 5: Select Markdown File from Dropdown                  │
+│  Request: fetch('seo-audit-summary.md')                      │
+│  Response: 200 OK with text/markdown MIME type               │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Step 6: marked.js Renders Markdown                          │
+│  Input: Raw markdown text                                    │
+│  Output: Rendered HTML with syntax highlighting              │
+│  Enhancement: Anchor links, copy buttons, tables             │
+└─────────────────────────────────────────────────────────────┘

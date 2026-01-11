@@ -1,0 +1,39 @@
+import toml
+from pathlib import Path
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, ValidationError
+
+class ServerConfig(BaseModel):
+    host: str = "localhost"
+    port: int = 8080
+    workers: int = 1
+    timeout: int = 30
+
+class DatabaseConfig(BaseModel):
+    url: str
+    pool_size: int = 5
+    connection_timeout: int = 10
+
+class AppConfig(BaseModel):
+    name: str
+    version: str
+    server: ServerConfig
+    database: DatabaseConfig
+    
+    @classmethod
+    def from_toml(cls, config_path: Path, environment: Optional[str] = None):
+        """Load and validate configuration from TOML file"""
+        try:
+            config_data = toml.load(config_path)
+            
+            # Apply environment-specific overrides
+            if environment and "environments" in config_data:
+                env_overrides = config_data["environments"].get(environment, {})
+                config_data["application"].update(env_overrides)
+            
+            return cls(**config_data["application"])
+        except (toml.TomlDecodeError, ValidationError) as e:
+            raise ConfigurationError(f"Invalid configuration: {e}")
+
+# Usage
+config = AppConfig.from_toml(Path("config.toml"), environment="production")

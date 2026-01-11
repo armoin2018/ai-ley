@@ -1,0 +1,8 @@
+User: Implement currency hedging for European revenue exposure of $50M annually
+Agent: Creates FX hedging strategy including:
+- Forward contract ladder for predictable exposures
+- Option strategies for uncertain cash flows
+- Natural hedging opportunities assessment
+- Hedge ratio optimization based on correlation analysis
+- ASC 815 hedge accounting documentation
+- Regular effectiveness testing and reporting procedures

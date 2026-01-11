@@ -1,0 +1,115 @@
+// src/templates/blog-post.tsx
+import React from 'react';
+import { graphql, PageProps } from 'gatsby';
+import Layout from '../components/layout';
+import SEO from '../components/seo';
+
+interface BlogPostData {
+  markdownRemark: {
+    id: string;
+    html: string;
+    frontmatter: {
+      title: string;
+      date: string;
+      description: string;
+      featuredImage?: {
+        childImageSharp: {
+          gatsbyImageData: any;
+        };
+      };
+    };
+  };
+  previous?: {
+    fields: {
+      slug: string;
+    };
+    frontmatter: {
+      title: string;
+    };
+  };
+  next?: {
+    fields: {
+      slug: string;
+    };
+    frontmatter: {
+      title: string;
+    };
+  };
+}
+
+const BlogPostTemplate: React.FC<PageProps<BlogPostData>> = ({ data, location }) => {
+  const post = data.markdownRemark;
+  const { previous, next } = data;
+
+  return (
+    <Layout location={location}>
+      <SEO
+        title={post.frontmatter.title}
+        description={post.frontmatter.description || post.excerpt}
+      />
+      <article className="blog-post">
+        <header>
+          <h1>{post.frontmatter.title}</h1>
+          <p>{post.frontmatter.date}</p>
+        </header>
+        <section dangerouslySetInnerHTML={{ __html: post.html }} itemProp="articleBody" />
+      </article>
+      <nav className="blog-post-nav">
+        <ul>
+          <li>
+            {previous && (
+              <a href={previous.fields.slug} rel="prev">
+                ← {previous.frontmatter.title}
+              </a>
+            )}
+          </li>
+          <li>
+            {next && (
+              <a href={next.fields.slug} rel="next">
+                {next.frontmatter.title} →
+              </a>
+            )}
+          </li>
+        </ul>
+      </nav>
+    </Layout>
+  );
+};
+
+export default BlogPostTemplate;
+
+export const query = graphql`
+  query BlogPostBySlug($id: String!, $previousPostId: String, $nextPostId: String) {
+    markdownRemark(id: { eq: $id }) {
+      id
+      excerpt(pruneLength: 160)
+      html
+      frontmatter {
+        title
+        date(formatString: "MMMM DD, YYYY")
+        description
+        featuredImage {
+          childImageSharp {
+            gatsbyImageData(width: 1200, placeholder: BLURRED, formats: [AUTO, WEBP, AVIF])
+          }
+        }
+      }
+    }
+    previous: markdownRemark(id: { eq: $previousPostId }) {
+      fields {
+        slug
+      }
+      frontmatter {
+        title
+      }
+    }
+    next: markdownRemark(id: { eq: $nextPostId }) {
+      fields {
+        slug
+      }
+      frontmatter {
+        title
+      }
+    }
+  }
+`;

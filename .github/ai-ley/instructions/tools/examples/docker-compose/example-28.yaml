@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # Service discovery
+  consul:
+    image: consul:latest
+    ports:
+      - '8500:8500'
+    command: consul agent -server -ui -client=0.0.0.0 -bootstrap-expect=1
+
+  # API Gateway
+  traefik:
+    image: traefik:v2.9
+    command:
+      - '--api.insecure=true'
+      - '--providers.docker=true'
+      - '--entrypoints.web.address=:80'
+    ports:
+      - '80:80'
+      - '8080:8080' # Traefik dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  # User service
+  user-service:
+    build: ./services/user
+    labels:
+      - 'traefik.http.routers.users.rule=PathPrefix(`/api/users`)'
+    environment:
+      - SERVICE_NAME=user-service
+      - CONSUL_URL=consul:8500
+
+  # Order service
+  order-service:
+    build: ./services/order
+    labels:
+      - 'traefik.http.routers.orders.rule=PathPrefix(`/api/orders`)'
+    environment:
+      - SERVICE_NAME=order-service
+      - CONSUL_URL=consul:8500
+
+  # Monitoring
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - '3000:3000'
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin

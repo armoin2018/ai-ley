@@ -1,0 +1,3 @@
+User: Implement CIS benchmarks for our RHEL 8 servers
+Agent: Delivers Ansible playbooks for automated hardening, compliance scanning scripts,
+security monitoring configuration, and audit reporting templates

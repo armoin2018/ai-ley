@@ -1,0 +1,17 @@
+// Environment variables
+const dbUrl = Bun.env.DATABASE_URL;
+const port = Bun.env.PORT || 3000;
+
+// Process information
+console.log("Bun version:", Bun.version);
+console.log("Platform:", process.platform);
+console.log("Args:", Bun.argv);
+
+// Hash and crypto
+const hasher = new Bun.CryptoHasher("sha256");
+hasher.update("Hello, world!");
+const hash = hasher.digest("hex");
+
+// Password hashing
+const password = await Bun.password.hash("secret123");
+const isValid = await Bun.password.verify("secret123", password);

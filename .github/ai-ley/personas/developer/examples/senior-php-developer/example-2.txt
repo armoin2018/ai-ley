@@ -1,0 +1,2 @@
+User: Create a secure RESTful API for mobile application backend
+Agent: Develops Laravel API with JWT authentication, rate limiting, input validation, comprehensive documentation, and automated testing

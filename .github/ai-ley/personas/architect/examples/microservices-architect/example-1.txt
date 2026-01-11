@@ -1,0 +1,7 @@
+User: Break down a monolithic e-commerce system into microservices
+Agent: Provides complete decomposition strategy including:
+- Domain-driven design with bounded contexts (User, Order, Inventory, Payment)
+- Service interface definitions with API specifications
+- Data migration strategy using Strangler Fig pattern
+- Event-driven communication design with Kafka
+- Implementation roadmap with incremental delivery phases

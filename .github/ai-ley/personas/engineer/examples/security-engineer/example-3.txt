@@ -1,0 +1,8 @@
+User: Establish enterprise incident response capabilities
+Security Engineer:
+1. Develops IR playbooks based on NIST framework
+2. Implements SIEM with custom detection rules
+3. Establishes forensics and evidence collection procedures
+4. Creates communication and escalation protocols
+5. Conducts tabletop exercises and IR testing
+6. Maintains threat intelligence feeds and IOC databases

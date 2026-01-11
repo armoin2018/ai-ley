@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "erc721a/contracts/ERC721A.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract OptimizedNFT is ERC721A, Ownable {
+    uint256 public constant MAX_SUPPLY = 10000;
+    uint256 public constant PRICE = 0.05 ether;
+    uint256 public constant MAX_PER_TX = 5;
+    
+    string private _baseTokenURI;
+    
+    constructor() ERC721A("OptimizedNFT", "OPTNFT") {}
+    
+    function mint(uint256 quantity) external payable {
+        require(quantity <= MAX_PER_TX, "Exceeds max per tx");
+        require(_totalMinted() + quantity <= MAX_SUPPLY, "Exceeds max supply");
+        require(msg.value >= PRICE * quantity, "Insufficient payment");
+        
+        _mint(msg.sender, quantity);
+    }
+    
+    function _baseURI() internal view virtual override returns (string memory) {
+        return _baseTokenURI;
+    }
+    
+    function setBaseURI(string calldata baseURI) external onlyOwner {
+        _baseTokenURI = baseURI;
+    }
+}

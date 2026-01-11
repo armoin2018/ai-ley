@@ -1,0 +1,73 @@
+# playbooks/provisioning/aws_infrastructure.yml - Cloud infrastructure automation
+---
+- name: Provision AWS Infrastructure
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - vars/aws_{{ environment }}.yml
+    - vault/aws_secrets.yml
+
+  tasks:
+    - name: Create VPC
+      amazon.aws.ec2_vpc_net:
+        name: '{{ project_name }}-{{ environment }}-vpc'
+        cidr_block: '{{ vpc_cidr }}'
+        region: '{{ aws_region }}'
+        state: present
+        tags:
+          Environment: '{{ environment }}'
+          Project: '{{ project_name }}'
+          ManagedBy: 'Ansible'
+      register: vpc_result
+
+    - name: Create public subnets
+      amazon.aws.ec2_vpc_subnet:
+        vpc_id: '{{ vpc_result.vpc.id }}'
+        cidr: '{{ item.cidr }}'
+        az: '{{ item.az }}'
+        state: present
+        map_public: true
+        tags:
+          Name: '{{ project_name }}-{{ environment }}-public-{{ item.name }}'
+          Type: 'public'
+      loop: '{{ public_subnets }}'
+      register: public_subnet_results
+
+    - name: Launch EC2 instances
+      amazon.aws.ec2_instance:
+        name: '{{ item.name }}-{{ environment }}'
+        key_name: '{{ aws_key_name }}'
+        instance_type: '{{ item.instance_type }}'
+        security_group: '{{ security_group_id }}'
+        vpc_subnet_id: '{{ item.subnet_id }}'
+        image_id: '{{ item.ami_id }}'
+        user_data: |
+          #!/bin/bash
+          curl -fsSL https://get.docker.com | sh
+          systemctl enable --now docker
+          usermod -aG docker ubuntu
+        tags:
+          Environment: '{{ environment }}'
+          Role: '{{ item.role }}'
+          Project: '{{ project_name }}'
+        wait: true
+        wait_timeout: 600
+      loop: '{{ ec2_instances }}'
+      register: ec2_results
+
+    - name: Add instances to inventory
+      add_host:
+        name: '{{ item.instances[0].public_ip_address }}'
+        groups: '{{ item.item.role }}'
+        ansible_ssh_private_key_file: '{{ aws_private_key_path }}'
+        ansible_user: ubuntu
+      loop: '{{ ec2_results.results }}'
+
+    - name: Wait for SSH connectivity
+      wait_for:
+        host: '{{ item.instances[0].public_ip_address }}'
+        port: 22
+        delay: 60
+        timeout: 300
+      loop: '{{ ec2_results.results }}'

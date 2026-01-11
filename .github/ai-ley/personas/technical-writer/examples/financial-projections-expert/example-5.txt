@@ -1,0 +1,14 @@
+Base Case (50% probability):
+- Reasonable growth assumptions
+- Market-based pricing
+- Conservative cost structure
+
+Upside Case (25% probability):
+- Accelerated market adoption
+- Premium pricing realization
+- Operating leverage benefits
+
+Downside Case (25% probability):
+- Market headwinds impact
+- Competitive pressure on margins
+- Higher cost inflation

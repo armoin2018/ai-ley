@@ -1,0 +1,52 @@
+// src/plugins/error-handler.ts
+import { FastifyPluginAsync } from 'fastify'
+import fp from 'fastify-plugin'
+
+const errorHandlerPlugin: FastifyPluginAsync = async (fastify) => {
+  fastify.setErrorHandler(async (error, request, reply) => {
+    fastify.log.error(error)
+
+    // Validation errors
+    if (error.validation) {
+      return reply.code(400).send({
+        error: 'Validation Error',
+        message: 'Invalid request data',
+        details: error.validation
+      })
+    }
+
+    // JWT errors
+    if (error.code === 'FST_JWT_NO_AUTHORIZATION_IN_HEADER') {
+      return reply.code(401).send({
+        error: 'Unauthorized',
+        message: 'Missing authorization header'
+      })
+    }
+
+    // Rate limit errors
+    if (error.statusCode === 429) {
+      return reply.code(429).send({
+        error: 'Too Many Requests',
+        message: 'Rate limit exceeded'
+      })
+    }
+
+    // Generic server errors
+    const statusCode = error.statusCode || 500
+    reply.code(statusCode).send({
+      error: statusCode >= 500 ? 'Internal Server Error' : error.name,
+      message: statusCode >= 500 ? 'Something went wrong' : error.message
+    })
+  })
+
+  fastify.setNotFoundHandler(async (request, reply) => {
+    reply.code(404).send({
+      error: 'Not Found',
+      message: `Route ${request.method} ${request.url} not found`
+    })
+  })
+}
+
+export default fp(errorHandlerPlugin, {
+  name: 'error-handler'
+})

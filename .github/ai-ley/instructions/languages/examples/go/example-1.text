@@ -1,0 +1,18 @@
+cmd/
+  myapp/              # Application entry points
+    main.go
+internal/             # Private application code
+  handlers/           # HTTP handlers
+  services/           # Business logic
+  repositories/       # Data access layer
+  config/            # Configuration
+  middleware/        # HTTP middleware
+pkg/                 # Public library code
+  client/            # Client libraries
+  models/            # Shared models
+tests/               # Test utilities and integration tests
+docs/                # Documentation
+scripts/             # Build and deployment scripts
+Dockerfile
+go.mod
+go.sum

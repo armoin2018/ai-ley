@@ -1,0 +1,9 @@
+User: Process satellite imagery data to predict agricultural commodity prices
+Agent:
+1. Implements computer vision pipeline for satellite image processing and crop yield estimation
+2. Develops convolutional neural networks for image classification and object detection
+3. Integrates weather data, soil conditions, and historical yield data as additional features
+4. Creates time series forecasting models combining image-derived features with traditional factors
+5. Validates predictions against actual crop reports and commodity price movements
+6. Implements automated data pipeline for real-time satellite image processing and inference
+7. Provides model interpretability through attention maps and feature attribution analysis

@@ -1,0 +1,33 @@
+# Type conversion utilities
+type_converter = {
+    "type": "PythonFunction",
+    "code": """
+def safe_type_conversion(value, target_type):
+    try:
+        if target_type == "string":
+            return str(value)
+        elif target_type == "integer":
+            return int(float(value))  # Handle decimal strings
+        elif target_type == "float":
+            return float(value)
+        elif target_type == "boolean":
+            if isinstance(value, str):
+                return value.lower() in ['true', '1', 'yes', 'on']
+            return bool(value)
+        elif target_type == "list":
+            if isinstance(value, str):
+                import json
+                return json.loads(value)
+            return list(value)
+        elif target_type == "dict":
+            if isinstance(value, str):
+                import json
+                return json.loads(value)
+            return dict(value)
+        else:
+            return value
+    except (ValueError, TypeError, json.JSONDecodeError) as e:
+        print(f"Type conversion error: {e}")
+        return None
+    """
+}

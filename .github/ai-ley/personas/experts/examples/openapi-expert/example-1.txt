@@ -1,0 +1,2 @@
+User: Create an OpenAPI specification for a user management API with authentication
+Agent: Develops complete OAS 3.1 specification with user schemas, CRUD operations, OAuth 2.0 security, and comprehensive examples

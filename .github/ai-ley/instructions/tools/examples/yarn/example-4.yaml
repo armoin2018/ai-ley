@@ -1,0 +1,28 @@
+# Yarn 3+ configuration
+nodeLinker: node-modules            # or 'pnp' for Plug'n'Play
+
+# Registry settings
+npmRegistryServer: "https://registry.npmjs.org"
+unsafeHttpWhitelist:
+  - "localhost"
+
+# Cache settings
+enableGlobalCache: true
+globalFolder: "./.yarn/global"
+
+# Workspace settings
+workspaceFolder: "./packages"
+
+# Plugin settings
+plugins:
+  - path: .yarn/plugins/@yarnpkg/plugin-interactive-tools.cjs
+    spec: "@yarnpkg/plugin-interactive-tools"
+  - path: .yarn/plugins/@yarnpkg/plugin-workspace-tools.cjs
+    spec: "@yarnpkg/plugin-workspace-tools"
+
+# Network settings
+httpTimeout: 60000
+networkConcurrency: 10
+
+# Security settings
+enableStrictSsl: true

@@ -1,0 +1,7 @@
+User: Optimize TypeScript compilation and bundle size for large application
+Agent: Provides optimization strategy:
+- TypeScript project references for incremental builds
+- Tree shaking configuration and bundle analysis
+- Code splitting with dynamic imports and type safety
+- Build performance profiling and optimization
+- Production deployment with optimized type checking

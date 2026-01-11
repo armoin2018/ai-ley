@@ -1,0 +1,9 @@
+<!-- Reporting configuration -->
+<plugin>
+  <name>reports</name>
+  <templates>
+    <template>architecture_summary</template>
+    <template>gap_analysis</template>
+    <template>stakeholder_report</template>
+  </templates>
+</plugin>

@@ -1,0 +1,113 @@
+# src/application.py - Main Application Class
+import gi
+gi.require_version('Gtk', '4.0')
+gi.require_version('Adw', '1')
+
+from gi.repository import Gtk, Adw, Gio, GLib
+import sys
+import os
+
+from .window import MainWindow
+from .preferences import PreferencesWindow
+
+class MyApplication(Adw.Application):
+    """Main application class implementing GTK Application pattern."""
+
+    def __init__(self):
+        super().__init__(
+            application_id='org.example.MyApp',
+            flags=Gio.ApplicationFlags.DEFAULT_FLAGS
+        )
+
+        self.create_action('quit', self.on_quit_action, ['<primary>q'])
+        self.create_action('about', self.on_about_action)
+        self.create_action('preferences', self.on_preferences_action, ['<primary>comma'])
+        self.create_action('new_window', self.on_new_window_action, ['<primary>n'])
+
+        self.windows = []
+        self.settings = Gio.Settings.new('org.example.MyApp')
+
+    def create_action(self, name, callback, shortcuts=None):
+        """Create application action with optional keyboard shortcuts."""
+        action = Gio.SimpleAction.new(name, None)
+        action.connect('activate', callback)
+        self.add_action(action)
+
+        if shortcuts:
+            self.set_accels_for_action(f'app.{name}', shortcuts)
+
+    def do_activate(self):
+        """Called when application is activated."""
+        window = self.props.active_window
+        if not window:
+            window = MainWindow(application=self)
+            self.windows.append(window)
+
+        window.present()
+
+    def do_startup(self):
+        """Called once when application starts."""
+        Adw.Application.do_startup(self)
+
+        # Load custom CSS
+        self.load_css()
+
+        # Initialize application resources
+        self.init_resources()
+
+    def load_css(self):
+        """Load custom CSS styling."""
+        css_provider = Gtk.CssProvider()
+        css_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'style.css')
+
+        if os.path.exists(css_path):
+            css_provider.load_from_path(css_path)
+            Gtk.StyleContext.add_provider_for_display(
+                self.get_display(),
+                css_provider,
+                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+            )
+
+    def init_resources(self):
+        """Initialize application resources."""
+        resource_path = '/org/example/MyApp'
+        resource = Gio.Resource.load(os.path.join(
+            os.path.dirname(__file__), '..', 'data', 'resources.gresource'
+        ))
+        Gio.resources_register(resource)
+
+    def on_quit_action(self, action, param):
+        """Handle quit action."""
+        self.quit()
+
+    def on_about_action(self, action, param):
+        """Show about dialog."""
+        about_dialog = Adw.AboutWindow(
+            transient_for=self.props.active_window,
+            application_name='My GTK App',
+            application_icon='org.example.MyApp',
+            developer_name='Your Name',
+            version='1.0.0',
+            copyright='© 2025 Your Name',
+            license_type=Gtk.License.GPL_3_0,
+            website='https://example.org',
+            issue_url='https://github.com/user/repo/issues',
+            developers=['Your Name <your.email@example.com>']
+        )
+        about_dialog.present()
+
+    def on_preferences_action(self, action, param):
+        """Show preferences window."""
+        prefs_window = PreferencesWindow(transient_for=self.props.active_window)
+        prefs_window.present()
+
+    def on_new_window_action(self, action, param):
+        """Create new application window."""
+        window = MainWindow(application=self)
+        self.windows.append(window)
+        window.present()
+
+def main():
+    """Application entry point."""
+    app = MyApplication()
+    return app.run(sys.argv)

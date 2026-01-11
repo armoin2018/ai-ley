@@ -1,0 +1,11 @@
+// Use explicit extensions for TypeScript files
+import { helper } from "./utils.ts";  // Include .ts
+import config from "./config.json";   // JSON imports work
+
+// Configure paths in tsconfig.json
+{
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true
+  }
+}

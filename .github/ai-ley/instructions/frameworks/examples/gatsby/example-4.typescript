@@ -1,0 +1,78 @@
+// src/pages/index.tsx
+import React from 'react';
+import { graphql, PageProps } from 'gatsby';
+import Layout from '../components/layout';
+import SEO from '../components/seo';
+
+interface IndexPageData {
+  site: {
+    siteMetadata: {
+      title: string;
+      description: string;
+    };
+  };
+  allMarkdownRemark: {
+    nodes: Array<{
+      id: string;
+      frontmatter: {
+        title: string;
+        date: string;
+        description: string;
+      };
+      fields: {
+        slug: string;
+      };
+      excerpt: string;
+    }>;
+  };
+}
+
+const IndexPage: React.FC<PageProps<IndexPageData>> = ({ data }) => {
+  const { site, allMarkdownRemark } = data;
+  const posts = allMarkdownRemark.nodes;
+
+  return (
+    <Layout>
+      <SEO title="Home" description={site.siteMetadata.description} />
+      <h1>{site.siteMetadata.title}</h1>
+      <div className="posts">
+        {posts.map((post) => (
+          <article key={post.id} className="post-preview">
+            <h2>
+              <a href={post.fields.slug}>{post.frontmatter.title}</a>
+            </h2>
+            <p>{post.frontmatter.date}</p>
+            <p>{post.excerpt}</p>
+          </article>
+        ))}
+      </div>
+    </Layout>
+  );
+};
+
+export default IndexPage;
+
+export const query = graphql`
+  query {
+    site {
+      siteMetadata {
+        title
+        description
+      }
+    }
+    allMarkdownRemark(sort: { frontmatter: { date: DESC } }) {
+      nodes {
+        id
+        frontmatter {
+          title
+          date(formatString: "MMMM DD, YYYY")
+          description
+        }
+        fields {
+          slug
+        }
+        excerpt
+      }
+    }
+  }
+`;

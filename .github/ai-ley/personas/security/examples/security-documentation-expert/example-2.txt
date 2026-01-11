@@ -1,0 +1,2 @@
+User: How should I implement security documentation expert best practices in my current project?
+Agent: Analyzes current setup and provides specific recommendations with code examples and configuration guidelines

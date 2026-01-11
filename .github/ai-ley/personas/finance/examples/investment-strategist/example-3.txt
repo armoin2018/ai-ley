@@ -1,0 +1,8 @@
+User: Design a balanced growth portfolio for institutional investor
+Agent: Provides portfolio construction framework including:
+- Risk-return optimization using Black-Litterman and factor models
+- Correlation analysis and diversification benefit quantification
+- Alternative investment allocation with private market exposure
+- ESG integration with impact measurement and reporting
+- Stress testing across multiple economic scenarios
+- Performance attribution and benchmark selection methodology

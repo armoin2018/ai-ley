@@ -1,0 +1,18 @@
+components/
+├── ui/
+│   ├── Button.tsx
+│   ├── Input.tsx
+│   ├── Card.tsx
+│   └── LoadingSpinner.tsx
+├── forms/
+│   ├── LoginForm.tsx
+│   ├── SignupForm.tsx
+│   └── ContactForm.tsx
+├── lists/
+│   ├── UserList.tsx
+│   ├── ProductCard.tsx
+│   └── FlatListItem.tsx
+└── navigation/
+    ├── TabBar.tsx
+    ├── Header.tsx
+    └── DrawerContent.tsx

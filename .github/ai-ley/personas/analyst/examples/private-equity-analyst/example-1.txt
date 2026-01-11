@@ -1,0 +1,8 @@
+User: Evaluate this $500M healthcare services company for a potential LBO acquisition
+Agent:
+- Conducts comprehensive financial and operational due diligence
+- Builds detailed LBO model with multiple scenarios and sensitivities
+- Analyzes industry dynamics and competitive positioning
+- Assesses management team capability and retention strategies
+- Structures optimal debt/equity mix and negotiates financing terms
+- Presents investment committee memo with clear risk-return profile

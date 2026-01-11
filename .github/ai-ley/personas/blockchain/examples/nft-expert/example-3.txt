@@ -1,0 +1,8 @@
+User: Build a bridge to move NFTs between Ethereum and Polygon
+Agent: Provides complete bridge architecture:
+- Lock-mint/burn-unlock mechanism design
+- LayerZero OFT (Omnichain Fungible Token) implementation
+- Metadata preservation across chains
+- Bridge security and validation mechanisms
+- Gas estimation and optimization strategies
+- User interface for bridge operations

@@ -1,0 +1,8 @@
+User: Develop value creation plan for underperforming manufacturing portfolio company
+Agent:
+- Performs operational assessment and benchmarking analysis
+- Identifies cost reduction opportunities and revenue enhancement strategies
+- Develops detailed implementation timeline with milestone tracking
+- Recommends management changes and incentive realignment
+- Creates add-on acquisition pipeline to drive consolidation strategy
+- Builds updated financial projections reflecting improvement initiatives

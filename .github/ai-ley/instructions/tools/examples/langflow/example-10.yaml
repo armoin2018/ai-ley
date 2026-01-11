@@ -1,0 +1,18 @@
+flow_pattern: 'retrieval_augmented'
+components:
+  - type: 'TextInput'
+    name: 'query'
+  - type: 'VectorStore'
+    name: 'knowledge_base'
+    config:
+      embedding_model: 'text-embedding-ada-002'
+  - type: 'DocumentRetriever'
+    name: 'retriever'
+    config:
+      top_k: 3
+  - type: 'OpenAI'
+    name: 'generator'
+    config:
+      prompt: "Context: {context}\nQuestion: {query}\nAnswer:"
+  - type: 'TextOutput'
+    name: 'response'

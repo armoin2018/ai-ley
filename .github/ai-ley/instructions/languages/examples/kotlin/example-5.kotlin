@@ -1,0 +1,67 @@
+// ✅ ViewModel with proper state management
+class UserProfileViewModel(
+    private val getUserUseCase: GetUserUseCase,
+    private val updateUserUseCase: UpdateUserUseCase
+) : ViewModel() {
+    
+    private val _uiState = MutableStateFlow(UserProfileUiState())
+    val uiState: StateFlow<UserProfileUiState> = _uiState.asStateFlow()
+    
+    fun loadUser(userId: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            
+            getUserUseCase(userId)
+                .onSuccess { user ->
+                    _uiState.update { 
+                        it.copy(
+                            isLoading = false,
+                            user = user,
+                            error = null
+                        )
+                    }
+                }
+                .onFailure { error ->
+                    _uiState.update { 
+                        it.copy(
+                            isLoading = false,
+                            error = error.message
+                        )
+                    }
+                }
+        }
+    }
+    
+    fun updateUserName(newName: String) {
+        val currentUser = _uiState.value.user ?: return
+        
+        viewModelScope.launch {
+            _uiState.update { it.copy(isUpdating = true) }
+            
+            updateUserUseCase(currentUser.copy(name = newName))
+                .onSuccess { updatedUser ->
+                    _uiState.update { 
+                        it.copy(
+                            isUpdating = false,
+                            user = updatedUser
+                        )
+                    }
+                }
+                .onFailure { error ->
+                    _uiState.update { 
+                        it.copy(
+                            isUpdating = false,
+                            error = error.message
+                        )
+                    }
+                }
+        }
+    }
+}
+
+data class UserProfileUiState(
+    val isLoading: Boolean = false,
+    val isUpdating: Boolean = false,
+    val user: User? = null,
+    val error: String? = null
+)

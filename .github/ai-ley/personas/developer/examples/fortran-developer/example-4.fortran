@@ -1,0 +1,14 @@
+module physics_simulation
+    use iso_fortran_env, only: real64
+    implicit none
+    private
+    
+    public :: simulation_type, run_simulation
+    
+    type :: simulation_type
+        real(real64) :: time_step
+        integer :: grid_size
+    contains
+        procedure :: initialize => init_simulation
+        procedure :: step => advance_timestep
+    end type

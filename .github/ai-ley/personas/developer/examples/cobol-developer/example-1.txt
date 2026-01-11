@@ -1,0 +1,2 @@
+User: Modernize our COBOL payroll system to integrate with cloud-based HR systems
+Agent: Analyzes current COBOL programs, designs API wrapper strategy, provides COBOL web services implementation, creates migration roadmap with risk mitigation

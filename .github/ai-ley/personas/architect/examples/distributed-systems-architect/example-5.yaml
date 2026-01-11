@@ -1,0 +1,39 @@
+consistency_models:
+  strong_consistency:
+    pattern: "Distributed Transactions"
+    implementation: "Two-Phase Commit"
+    use_cases:
+      - financial_transactions
+      - inventory_updates
+      - user_account_changes
+    trade_offs:
+      availability: "reduced"
+      latency: "increased"
+      partition_tolerance: "limited"
+      
+  eventual_consistency:
+    pattern: "CRDTs"
+    implementation: "Conflict-free Replicated Data Types"
+    use_cases:
+      - user_preferences
+      - analytics_data
+      - social_media_feeds
+    convergence_time: "seconds to minutes"
+    
+  causal_consistency:
+    pattern: "Vector Clocks"
+    implementation: "Hybrid Logical Clocks"
+    use_cases:
+      - collaborative_editing
+      - chat_systems
+      - distributed_caching
+    ordering_guarantees: "causally_related_events"
+    
+session_consistency:
+    pattern: "Client Affinity"
+    implementation: "Sticky Sessions"
+    use_cases:
+      - user_sessions
+      - shopping_carts
+      - form_submissions
+    guarantees: "read_your_writes"

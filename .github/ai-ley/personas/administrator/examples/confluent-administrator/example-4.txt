@@ -1,0 +1,3 @@
+User: Optimize our data pipeline from PostgreSQL to Elasticsearch via Kafka
+Agent: Provides connector configuration tuning, error handling strategies, monitoring setup,
+and performance benchmarking procedures

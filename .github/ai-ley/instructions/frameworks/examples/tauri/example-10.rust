@@ -1,0 +1,80 @@
+// src-tauri/src/utils/security.rs
+use tauri::{command, Window};
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SecurityConfig {
+    pub allowed_domains: Vec<String>,
+    pub max_file_size: usize,
+    pub allowed_extensions: Vec<String>,
+}
+
+impl Default for SecurityConfig {
+    fn default() -> Self {
+        Self {
+            allowed_domains: vec!["https://api.yourdomain.com".to_string()],
+            max_file_size: 10 * 1024 * 1024, // 10MB
+            allowed_extensions: vec![
+                "txt".to_string(),
+                "md".to_string(),
+                "json".to_string(),
+            ],
+        }
+    }
+}
+
+#[command]
+pub async fn validate_file_access(
+    file_path: String,
+    config: tauri::State<'_, SecurityConfig>,
+) -> Result<bool, String> {
+    use std::path::Path;
+
+    let path = Path::new(&file_path);
+
+    // Check file extension
+    if let Some(extension) = path.extension() {
+        let ext = extension.to_string_lossy().to_lowercase();
+        if !config.allowed_extensions.contains(&ext) {
+            return Ok(false);
+        }
+    }
+
+    // Check file size
+    if let Ok(metadata) = std::fs::metadata(&path) {
+        if metadata.len() > config.max_file_size as u64 {
+            return Ok(false);
+        }
+    }
+
+    // Additional security checks...
+    Ok(true)
+}
+
+#[command]
+pub async fn secure_http_request(
+    url: String,
+    config: tauri::State<'_, SecurityConfig>,
+) -> Result<String, String> {
+    // Validate URL against allowed domains
+    let parsed_url = url::Url::parse(&url)
+        .map_err(|e| format!("Invalid URL: {}", e))?;
+
+    let origin = format!("{}://{}", parsed_url.scheme(),
+                        parsed_url.host_str().unwrap_or(""));
+
+    if !config.allowed_domains.contains(&origin) {
+        return Err("Domain not allowed".to_string());
+    }
+
+    // Make secure HTTP request
+    let response = reqwest::get(&url)
+        .await
+        .map_err(|e| format!("Request failed: {}", e))?;
+
+    let body = response.text()
+        .await
+        .map_err(|e| format!("Failed to read response: {}", e))?;
+
+    Ok(body)
+}

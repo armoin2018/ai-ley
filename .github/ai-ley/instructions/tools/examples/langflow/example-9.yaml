@@ -1,0 +1,15 @@
+flow_pattern: 'linear'
+components:
+  - type: 'TextInput'
+    name: 'user_question'
+  - type: 'OpenAI'
+    name: 'llm_processor'
+    config:
+      prompt: 'Answer this question: {user_question}'
+  - type: 'TextOutput'
+    name: 'answer'
+connections:
+  - from: 'user_question.text'
+    to: 'llm_processor.input'
+  - from: 'llm_processor.output'
+    to: 'answer.text'

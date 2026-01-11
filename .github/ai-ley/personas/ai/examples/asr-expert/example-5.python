@@ -1,0 +1,51 @@
+import pyaudio
+import webrtcvad
+import collections
+import numpy as np
+from threading import Thread, Queue
+
+class StreamingASR:
+    def __init__(self, model, sample_rate=16000, frame_duration=30):
+        self.model = model
+        self.sample_rate = sample_rate
+        self.frame_duration = frame_duration
+        self.frame_bytes = int(sample_rate * frame_duration / 1000) * 2
+        
+        # Voice Activity Detection
+        self.vad = webrtcvad.Vad(mode=3)
+        self.audio_queue = Queue()
+        self.is_speaking = False
+        self.speech_buffer = collections.deque(maxlen=50)
+        
+    def audio_callback(self, in_data, frame_count, time_info, status):
+        self.audio_queue.put(in_data)
+        return (None, pyaudio.paContinue)
+        
+    def process_audio_stream(self):
+        while True:
+            if not self.audio_queue.empty():
+                audio_frame = self.audio_queue.get()
+                
+                # Voice activity detection
+                is_speech = self.vad.is_speech(audio_frame, self.sample_rate)
+                
+                if is_speech:
+                    self.speech_buffer.append(audio_frame)
+                    self.is_speaking = True
+                elif self.is_speaking and len(self.speech_buffer) > 0:
+                    # End of speech detected, process buffer
+                    audio_data = b''.join(self.speech_buffer)
+                    transcript = self.transcribe_audio(audio_data)
+                    if transcript:
+                        print(f"Transcript: {transcript}")
+                    
+                    self.speech_buffer.clear()
+                    self.is_speaking = False
+                    
+    def transcribe_audio(self, audio_bytes):
+        # Convert bytes to numpy array
+        audio = np.frombuffer(audio_bytes, dtype=np.int16).astype(np.float32) / 32768.0
+        
+        # Transcribe with model
+        result = self.model.transcribe(audio)
+        return result.get('text', '').strip()

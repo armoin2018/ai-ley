@@ -1,0 +1,104 @@
+// tab1/tab1.page.ts
+import { Component, OnInit } from '@angular/core';
+import { AlertController, ToastController, LoadingController } from '@ionic/angular';
+import { UserService } from '../services/user.service';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+}
+
+@Component({
+  selector: 'app-tab1',
+  templateUrl: 'tab1.page.html',
+  styleUrls: ['tab1.page.scss'],
+})
+export class Tab1Page implements OnInit {
+  users: User[] = [];
+  loading = false;
+  searchTerm = '';
+
+  constructor(
+    private userService: UserService,
+    private alertController: AlertController,
+    private toastController: ToastController,
+    private loadingController: LoadingController,
+  ) {}
+
+  ngOnInit() {
+    this.loadUsers();
+  }
+
+  async loadUsers() {
+    const loading = await this.loadingController.create({
+      message: 'Loading users...',
+    });
+    await loading.present();
+
+    try {
+      this.users = await this.userService.getUsers();
+    } catch (error) {
+      await this.showError('Failed to load users');
+    } finally {
+      await loading.dismiss();
+    }
+  }
+
+  async deleteUser(user: User) {
+    const alert = await this.alertController.create({
+      header: 'Confirm Delete',
+      message: `Are you sure you want to delete ${user.name}?`,
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+        {
+          text: 'Delete',
+          role: 'destructive',
+          handler: async () => {
+            try {
+              await this.userService.deleteUser(user.id);
+              this.users = this.users.filter((u) => u.id !== user.id);
+              await this.showToast('User deleted successfully');
+            } catch (error) {
+              await this.showError('Failed to delete user');
+            }
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  async showError(message: string) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 3000,
+      color: 'danger',
+      position: 'top',
+    });
+    await toast.present();
+  }
+
+  async showToast(message: string) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2000,
+      color: 'success',
+      position: 'bottom',
+    });
+    await toast.present();
+  }
+
+  get filteredUsers() {
+    if (!this.searchTerm) return this.users;
+    return this.users.filter(
+      (user) =>
+        user.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(this.searchTerm.toLowerCase()),
+    );
+  }
+}

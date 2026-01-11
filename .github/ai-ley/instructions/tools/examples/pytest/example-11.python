@@ -1,0 +1,35 @@
+import pytest
+from myapp.exceptions import ValidationError, NotFoundError
+from myapp.services import UserService
+
+class TestExceptionHandling:
+    """Test exception handling and error conditions."""
+
+    def test_user_not_found_raises_exception(self, db_session):
+        """Test that getting non-existent user raises NotFoundError."""
+        service = UserService(db_session)
+
+        with pytest.raises(NotFoundError) as exc_info:
+            service.get_user_by_id("nonexistent-id")
+
+        assert "User not found" in str(exc_info.value)
+        assert exc_info.value.user_id == "nonexistent-id"
+
+    def test_invalid_email_raises_validation_error(self, db_session):
+        """Test that invalid email raises ValidationError."""
+        service = UserService(db_session)
+        user_data = {"username": "test", "email": "invalid-email"}
+
+        with pytest.raises(ValidationError, match="Invalid email format"):
+            service.create_user(user_data)
+
+    def test_multiple_exceptions_in_context(self, db_session):
+        """Test handling multiple potential exceptions."""
+        service = UserService(db_session)
+
+        # Test that the correct exception is raised
+        with pytest.raises((ValidationError, NotFoundError)) as exc_info:
+            service.update_user("invalid-id", {"email": "bad-email"})
+
+        # Check which specific exception was raised
+        assert isinstance(exc_info.value, (ValidationError, NotFoundError))

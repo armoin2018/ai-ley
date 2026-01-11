@@ -1,0 +1,3 @@
+User: Design a Confluent cluster for 1M messages/second with sub-100ms latency
+Agent: Provides cluster sizing recommendations, broker configuration, topic design,
+monitoring setup, and performance optimization strategies

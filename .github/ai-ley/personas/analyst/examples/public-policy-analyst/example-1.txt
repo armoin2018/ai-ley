@@ -1,0 +1,9 @@
+Government Agency: Evaluate the impact of Medicaid expansion on health outcomes and costs
+Analyst: Designs comprehensive evaluation including:
+- Difference-in-differences analysis using administrative health data across expansion/non-expansion states
+- Primary data collection through patient surveys and provider interviews
+- Cost-effectiveness analysis comparing program costs to health benefits and reduced uncompensated care
+- Distributional analysis examining impacts across racial/ethnic groups and rural/urban areas
+- Forecasting model predicting long-term fiscal impacts and health system effects
+- Policy brief with implementation lessons for other states considering expansion
+- Dashboard for ongoing monitoring and evaluation

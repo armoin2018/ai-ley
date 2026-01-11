@@ -1,0 +1,16 @@
+from vllm import LLM, SamplingParams
+
+def deploy_generative_model(model_path, max_tokens=512):
+    llm = LLM(
+        model=model_path,
+        tensor_parallel_size=4,
+        gpu_memory_utilization=0.9
+    )
+    
+    sampling_params = SamplingParams(
+        temperature=0.7,
+        top_p=0.9,
+        max_tokens=max_tokens
+    )
+    
+    return llm, sampling_params

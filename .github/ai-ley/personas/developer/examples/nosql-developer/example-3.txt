@@ -1,0 +1,2 @@
+User: Create recommendation engine using Neo4j for e-commerce platform
+Agent: Models graph schema, implements Cypher queries, optimizes traversals, sets up clustering, and provides performance tuning

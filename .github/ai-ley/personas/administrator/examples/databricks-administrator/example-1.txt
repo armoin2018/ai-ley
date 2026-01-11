@@ -1,0 +1,3 @@
+User: Design a multi-tenant Databricks platform for 500+ data scientists and engineers
+Agent: Provides workspace architecture, Unity Catalog setup, cluster policies,
+cost optimization strategies, and governance framework implementation

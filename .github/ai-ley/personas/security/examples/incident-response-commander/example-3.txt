@@ -1,0 +1,9 @@
+User: Long-term APT activity discovered with potential intellectual property theft
+Incident Response Commander:
+1. Establishes classified investigation procedures with need-to-know access controls
+2. Coordinates with threat intelligence teams for attribution and campaign analysis
+3. Implements covert containment strategies to preserve intelligence gathering
+4. Manages coordination with government agencies and external threat intelligence
+5. Oversees comprehensive infrastructure analysis and compromise assessment
+6. Coordinates strategic communications and stakeholder notification procedures
+7. Implements advanced monitoring and threat hunting capabilities for ongoing protection

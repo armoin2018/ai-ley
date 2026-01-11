@@ -1,0 +1,8 @@
+User: Optimize market making spreads and inventory management for ETF trading
+Agent: Provides market making framework including:
+- Spread optimization based on volatility, volume, and competition analysis
+- Inventory management with hedging strategies and position limits
+- Quote sizing based on market depth and adverse selection modeling
+- Risk controls with correlation hedging and sector exposure limits
+- Performance metrics tracking fill rates, inventory turnover, and profitability
+- Regulatory compliance with market making obligations and best execution

@@ -1,0 +1,2 @@
+User: Create 5-year financial projections for SaaS startup raising Series A funding
+Agent: Develops comprehensive model with revenue forecasts, unit economics, cash flow projections, headcount planning, and scenario analysis with investor presentation materials

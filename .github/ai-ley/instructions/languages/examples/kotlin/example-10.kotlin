@@ -1,0 +1,68 @@
+class UserServiceTest {
+    
+    @MockK
+    private lateinit var userRepository: UserRepository
+    
+    @MockK
+    private lateinit var emailService: EmailService
+    
+    private lateinit var userService: UserService
+    
+    @BeforeEach
+    fun setup() {
+        MockKAnnotations.init(this)
+        userService = UserService(userRepository, emailService)
+    }
+    
+    @Test
+    fun `registerUser should create user and send welcome email`() = runTest {
+        // Given
+        val userData = UserRegistrationData("test@example.com", "Test User")
+        val expectedUser = User(
+            id = UserId("123"),
+            email = "test@example.com",
+            name = "Test User",
+            status = UserStatus.Active,
+            createdAt = Instant.now()
+        )
+        
+        coEvery { userRepository.findByEmail(userData.email) } returns null
+        coEvery { userRepository.save(any()) } returns expectedUser
+        coEvery { emailService.sendWelcomeEmail(any()) } just Runs
+        
+        // When
+        val result = userService.registerUser(userData)
+        
+        // Then
+        result.isSuccess shouldBe true
+        result.getOrNull() shouldBe expectedUser
+        
+        coVerify { userRepository.save(any()) }
+        coVerify { emailService.sendWelcomeEmail(expectedUser.email) }
+    }
+    
+    @Test
+    fun `registerUser should fail when user already exists`() = runTest {
+        // Given
+        val userData = UserRegistrationData("existing@example.com", "Existing User")
+        val existingUser = User(
+            id = UserId("456"),
+            email = "existing@example.com",
+            name = "Existing User",
+            status = UserStatus.Active,
+            createdAt = Instant.now()
+        )
+        
+        coEvery { userRepository.findByEmail(userData.email) } returns existingUser
+        
+        // When
+        val result = userService.registerUser(userData)
+        
+        // Then
+        result.isFailure shouldBe true
+        result.exceptionOrNull() shouldBe instanceOf<UserAlreadyExistsException>()
+        
+        coVerify(exactly = 0) { userRepository.save(any()) }
+        coVerify(exactly = 0) { emailService.sendWelcomeEmail(any()) }
+    }
+}

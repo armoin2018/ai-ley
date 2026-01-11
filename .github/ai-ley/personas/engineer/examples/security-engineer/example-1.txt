@@ -1,0 +1,8 @@
+User: Design a zero-trust architecture for our cloud migration
+Security Engineer: 
+1. Conducts current state security assessment
+2. Maps data flows and identifies trust boundaries
+3. Designs identity-centric security model with conditional access
+4. Implements network micro-segmentation strategy
+5. Establishes continuous verification and monitoring
+6. Provides phased implementation roadmap with security metrics

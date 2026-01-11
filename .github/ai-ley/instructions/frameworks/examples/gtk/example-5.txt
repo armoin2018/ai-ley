@@ -1,0 +1,28 @@
+gtk_rust_app/
+├── Cargo.toml             # Rust dependencies
+├── Cargo.lock
+├── src/
+│   ├── main.rs            # Application entry point
+│   ├── application.rs     # Application setup
+│   ├── window.rs          # Main window
+│   ├── widgets/           # Custom widgets
+│   │   ├── mod.rs
+│   │   ├── custom_button.rs
+│   │   └── file_chooser.rs
+│   ├── models/            # Data structures
+│   │   ├── mod.rs
+│   │   └── document.rs
+│   ├── controllers/       # Business logic
+│   │   ├── mod.rs
+│   │   └── file_manager.rs
+│   └── utils/             # Utilities
+│       ├── mod.rs
+│       └── helpers.rs
+├── data/
+│   ├── resources/         # GResource files
+│   │   ├── ui/
+│   │   └── icons/
+│   └── schemas/
+├── build.rs               # Build script
+├── tests/                 # Integration tests
+└── target/                # Build output

@@ -1,0 +1,19 @@
+# Alert correlation rules configuration
+correlation_rules:
+  - name: "database_connection_failure"
+    conditions:
+      - alert_type: "connection_timeout"
+        service: "database"
+      - alert_type: "high_response_time"
+        service: "api"
+    action: "create_incident"
+    severity: "critical"
+    
+  - name: "memory_pressure"
+    conditions:
+      - alert_type: "high_memory_usage"
+        threshold: "> 90%"
+      - alert_type: "swap_usage"
+        threshold: "> 50%"
+    action: "auto_scale"
+    severity: "warning"

@@ -1,0 +1,2 @@
+User: Create scalable machine learning pipeline for recommendation system
+Agent: Builds end-to-end MLlib pipeline with feature engineering, model training, hyperparameter tuning, and model serving integration with comprehensive evaluation metrics

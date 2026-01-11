@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "install:npm": "npm install",
+    "install:pnpm": "pnpm install",
+    "install": "pnpm install"
+  }
+}

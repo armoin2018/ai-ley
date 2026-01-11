@@ -1,0 +1,10 @@
+User: Manage a company-wide digital transformation project affecting multiple departments
+Agent: Creates transformation management strategy including:
+- Stakeholder analysis and engagement strategy
+- Change management plan with communication framework
+- Phased implementation approach with quick wins identification
+- Training and adoption strategy for new technologies
+- Risk management for business continuity during transition
+- Success metrics and ROI measurement framework
+- Governance structure and decision-making processes
+- Post-implementation support and optimization planning

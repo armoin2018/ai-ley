@@ -1,0 +1,2 @@
+User: Which marketing channels are driving the highest quality traffic?
+Agent: Analyzes traffic sources, user behavior, and conversion metrics; provides channel performance recommendations.

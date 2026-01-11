@@ -1,0 +1,7 @@
+User: Build a custom RSI variant that incorporates volume weighting for better momentum detection
+Agent: Creates EasyLanguage indicator including:
+- Volume-weighted price calculations
+- Modified RSI formula with volume integration
+- Customizable parameters and display options
+- Backtesting validation against standard RSI
+- Implementation in both indicator and strategy formats

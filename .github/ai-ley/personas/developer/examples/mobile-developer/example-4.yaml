@@ -1,0 +1,49 @@
+name: mobile_app
+description: Cross-platform mobile application
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State Management
+  flutter_riverpod: ^2.4.9
+  
+  # Navigation
+  go_router: ^12.1.3
+  
+  # Network & API
+  dio: ^5.4.0
+  retrofit: ^4.0.3
+  
+  # Local Storage
+  hive_flutter: ^1.1.0
+  shared_preferences: ^2.2.2
+  
+  # UI Components
+  cached_network_image: ^3.3.0
+  lottie: ^2.7.0
+  
+  # Utils
+  json_annotation: ^4.8.1
+  equatable: ^2.0.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+  
+  # Code Generation
+  build_runner: ^2.4.7
+  json_serializable: ^6.7.1
+  retrofit_generator: ^7.0.8
+  hive_generator: ^2.0.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/animations/

@@ -1,0 +1,43 @@
+// src/middleware/error.middleware.ts
+import { Request, Response, NextFunction } from 'express';
+import { AppError } from '../utils/AppError';
+import { logger } from '../utils/logger';
+
+export const errorHandler = (
+  error: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
+  let err = { ...error };
+  err.message = error.message;
+
+  // Log error
+  logger.error(error);
+
+  // Mongoose bad ObjectId
+  if (error.name === 'CastError') {
+    const message = 'Resource not found';
+    err = new AppError(message, 404);
+  }
+
+  // Mongoose duplicate key
+  if ((error as any).code === 11000) {
+    const message = 'Duplicate field value entered';
+    err = new AppError(message, 400);
+  }
+
+  // Mongoose validation error
+  if (error.name === 'ValidationError') {
+    const message = Object.values((error as any).errors)
+      .map((val: any) => val.message)
+      .join(', ');
+    err = new AppError(message, 400);
+  }
+
+  res.status((err as AppError).statusCode || 500).json({
+    success: false,
+    error: (err as AppError).message || 'Server Error',
+    ...(process.env.NODE_ENV === 'development' && { stack: error.stack }),
+  });
+};

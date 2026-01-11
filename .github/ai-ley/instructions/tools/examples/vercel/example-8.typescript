@@ -1,0 +1,35 @@
+// middleware.ts - Edge middleware
+import { NextRequest, NextResponse } from 'next/server';
+import { geolocation } from '@vercel/edge';
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Geolocation-based redirects
+  const { country } = geolocation(request);
+
+  if (pathname === '/' && country === 'CA') {
+    return NextResponse.redirect(new URL('/ca', request.url));
+  }
+
+  // Authentication check
+  if (pathname.startsWith('/dashboard')) {
+    const token = request.cookies.get('auth-token');
+
+    if (!token) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+  }
+
+  // Security headers
+  const response = NextResponse.next();
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+
+  return response;
+}
+
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+};

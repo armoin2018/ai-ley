@@ -1,0 +1,9 @@
+Ctrl+S        # Save
+Ctrl+F        # Find
+Ctrl+G        # Find Next
+Ctrl+P        # Print
+Ctrl+Y        # Delete Line
+F1            # Help
+F4            # Possible Entries
+F8            # Execute
+F12           # Cancel

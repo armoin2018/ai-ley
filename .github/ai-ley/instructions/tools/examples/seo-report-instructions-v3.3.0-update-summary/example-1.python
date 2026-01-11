@@ -1,0 +1,14 @@
+{
+    'page_url': str,
+    'seo_improvements': [],      # High-priority SEO fixes
+    'readability_improvements': [], # User engagement enhancements
+    'keyword_integration': [],    # Missing keyword opportunities
+    'semantic_enhancements': [],  # LSI and entity optimization
+    'overall_priority': str,      # critical/high/medium/low
+    'summary': {
+        'total_improvements': int,
+        'high_priority_items': int,
+        'estimated_seo_impact': str,
+        'implementation_effort': str
+    }
+}

@@ -1,0 +1,15 @@
+{
+  "flows": [
+    {
+      "id": "flow-1",
+      "label": "Main Flow",
+      "nodes": [],
+      "configs": [],
+      "subflows": []
+    }
+  ],
+  "settings": {
+    "flowFilePretty": true,
+    "credentialSecret": "node-red-secret"
+  }
+}

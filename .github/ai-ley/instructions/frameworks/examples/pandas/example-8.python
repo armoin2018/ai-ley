@@ -1,0 +1,12 @@
+# Display options
+pd.set_option('display.max_rows', 100)
+pd.set_option('display.max_columns', 20)
+pd.set_option('display.width', 1000)
+pd.set_option('display.precision', 3)
+
+# Performance options
+pd.set_option('mode.copy_on_write', True)  # Enable copy-on-write
+pd.set_option('compute.use_numba', True)   # Use numba for performance
+
+# Memory optimization
+pd.set_option('mode.string_storage', 'pyarrow')  # Use PyArrow for strings

@@ -1,0 +1,1772 @@
+class AWSRegion(Enum):
+    """AWS Regions for global deployment"""
+    US_EAST_1 = "us-east-1"
+    US_WEST_2 = "us-west-2"
+    EU_WEST_1 = "eu-west-1"
+    AP_SOUTHEAST_1 = "ap-southeast-1"
+
+class DeploymentEnvironment(Enum):
+    """Deployment environments"""
+    DEVELOPMENT = "development"
+    STAGING = "staging"
+    PRODUCTION = "production"
+    DISASTER_RECOVERY = "disaster-recovery"
+
+class ComplianceFramework(Enum):
+    """Compliance frameworks"""
+    SOC2 = "SOC2"
+    HIPAA = "HIPAA"
+    PCI_DSS = "PCI-DSS"
+    GDPR = "GDPR"
+    FedRAMP = "FedRAMP"
+
+@dataclass
+class EnterpriseAWSConfig:
+    """Enterprise AWS configuration with multi-account and compliance support"""
+
+    # Account Configuration
+    organization_id: str = ""
+    master_account_id: str = ""
+    accounts: Dict[str, str] = field(default_factory=dict)
+
+    # Regional Configuration
+    primary_region: AWSRegion = AWSRegion.US_EAST_1
+    secondary_regions: List[AWSRegion] = field(default_factory=lambda: [AWSRegion.US_WEST_2])
+    disaster_recovery_region: AWSRegion = AWSRegion.EU_WEST_1
+
+    # Environment Configuration
+    environment: DeploymentEnvironment = DeploymentEnvironment.PRODUCTION
+    application_name: str = "enterprise-application"
+    organization_name: str = "Enterprise Corp"
+
+    # Security Configuration
+    enable_guardduty: bool = True
+    enable_security_hub: bool = True
+    enable_config: bool = True
+    enable_cloudtrail: bool = True
+    enable_vpc_flow_logs: bool = True
+
+    # Compliance Configuration
+    compliance_frameworks: List[ComplianceFramework] = field(default_factory=lambda: [
+        ComplianceFramework.SOC2, ComplianceFramework.GDPR
+    ])
+
+    # Monitoring Configuration
+    enable_cloudwatch: bool = True
+    enable_x_ray: bool = True
+    enable_application_insights: bool = True
+
+    # Cost Management
+    enable_cost_anomaly_detection: bool = True
+    enable_budgets: bool = True
+    cost_optimization_level: str = "aggressive"
+
+    # Backup and DR
+    enable_backup: bool = True
+    backup_retention_days: int = 90
+    cross_region_backup: bool = True
+
+    # Infrastructure as Code
+    use_cloudformation: bool = True
+    use_cdk: bool = True
+    use_terraform: bool = True
+
+    # Custom Configuration
+    custom_tags: Dict[str, str] = field(default_factory=dict)
+    resource_naming_convention: str = "{org}-{app}-{env}-{service}-{region}"
+
+    def __post_init__(self):
+        """Initialize enterprise defaults"""
+        if not self.custom_tags:
+            self.custom_tags = {
+                "Organization": self.organization_name.lower().replace(" ", "-"),
+                "Environment": self.environment.value,
+                "Application": self.application_name,
+                "ManagedBy": "enterprise-platform-team",
+                "CostCenter": "engineering",
+                "Backup": "required" if self.enable_backup else "not-required"
+            }
+
+        if not self.accounts:
+            self.accounts = {
+                "production": "123456789012",
+                "staging": "123456789013",
+                "development": "123456789014",
+                "security": "123456789015",
+                "logging": "123456789016",
+                "shared-services": "123456789017"
+            }
+
+    def get_resource_name(self, service: str, resource_type: str = "") -> str:
+        """Generate standardized resource names"""
+        components = {
+            "org": self.organization_name.lower().replace(" ", "-")[:8],
+            "app": self.application_name[:12],
+            "env": self.environment.value[:4],
+            "service": service[:15],
+            "region": self.primary_region.value.replace("-", "")[:6]
+        }
+
+        name = self.resource_naming_convention.format(**components)
+        if resource_type:
+            name = f"{name}-{resource_type}"
+
+        return name[:63]  # AWS resource name limit
+
+    def validate_configuration(self) -> List[str]:
+        """Validate enterprise configuration"""
+        errors = []
+
+        if not self.organization_id:
+            errors.append("AWS Organization ID is required for enterprise deployment")
+
+        if not self.master_account_id:
+            errors.append("Master account ID is required")
+
+        if len(self.accounts) < 3:
+            errors.append("Minimum 3 accounts required for enterprise setup")
+
+        return errors
+
+
+class EnterpriseAWSInfrastructureManager:
+    """Advanced infrastructure management with CloudFormation, CDK, and Terraform"""
+
+    def __init__(self, aws_platform: EnterpriseAWSPlatform):
+        self.aws_platform = aws_platform
+        self.config = aws_platform.config
+        self.logger = structlog.get_logger("enterprise.aws.infrastructure")
+
+        # Infrastructure templates
+        self.cloudformation_templates = {}
+        self.cdk_apps = {}
+        self.terraform_modules = {}
+
+    async def deploy_enterprise_infrastructure(self) -> Dict[str, Any]:
+        """Deploy complete enterprise infrastructure"""
+        try:
+            self.logger.info("Starting enterprise infrastructure deployment")
+
+            deployment_results = {}
+
+            # Deploy networking infrastructure
+            vpc_result = await self._deploy_enterprise_vpc()
+            deployment_results["vpc"] = vpc_result
+
+            # Deploy security infrastructure
+            security_result = await self._deploy_security_infrastructure()
+            deployment_results["security"] = security_result
+
+            # Deploy compute infrastructure
+            compute_result = await self._deploy_compute_infrastructure()
+            deployment_results["compute"] = compute_result
+
+            # Deploy storage infrastructure
+            storage_result = await self._deploy_storage_infrastructure()
+            deployment_results["storage"] = storage_result
+
+            # Deploy database infrastructure
+            database_result = await self._deploy_database_infrastructure()
+            deployment_results["database"] = database_result
+
+            # Deploy monitoring infrastructure
+            monitoring_result = await self._deploy_monitoring_infrastructure()
+            deployment_results["monitoring"] = monitoring_result
+
+            self.logger.info(
+                "Enterprise infrastructure deployment completed",
+                deployed_components=len(deployment_results),
+                success_count=sum(1 for r in deployment_results.values() if r.get("status") == "success")
+            )
+
+            return deployment_results
+
+        except Exception as e:
+            self.logger.error(f"Failed to deploy enterprise infrastructure: {e}")
+            raise
+
+    async def _deploy_enterprise_vpc(self) -> Dict[str, Any]:
+        """Deploy enterprise VPC with multi-AZ setup"""
+        try:
+            vpc_template = {
+                "AWSTemplateFormatVersion": "2010-09-09",
+                "Description": "Enterprise VPC with multi-AZ configuration",
+                "Parameters": {
+                    "Environment": {
+                        "Type": "String",
+                        "Default": self.config.environment.value,
+                        "AllowedValues": ["development", "staging", "production"]
+                    },
+                    "VpcCidr": {
+                        "Type": "String",
+                        "Default": "10.0.0.0/16",
+                        "Description": "CIDR block for the VPC"
+                    }
+                },
+                "Resources": {
+                    "EnterpriseVPC": {
+                        "Type": "AWS::EC2::VPC",
+                        "Properties": {
+                            "CidrBlock": {"Ref": "VpcCidr"},
+                            "EnableDnsHostnames": True,
+                            "EnableDnsSupport": True,
+                            "Tags": [
+                                {"Key": "Name", "Value": f"{self.config.get_resource_name('vpc')}"},
+                                {"Key": "Environment", "Value": {"Ref": "Environment"}},
+                                {"Key": "ManagedBy", "Value": "enterprise-platform"}
+                            ]
+                        }
+                    },
+                    "InternetGateway": {
+                        "Type": "AWS::EC2::InternetGateway",
+                        "Properties": {
+                            "Tags": [
+                                {"Key": "Name", "Value": f"{self.config.get_resource_name('igw')}"}
+                            ]
+                        }
+                    },
+                    "VPCGatewayAttachment": {
+                        "Type": "AWS::EC2::VPCGatewayAttachment",
+                        "Properties": {
+                            "VpcId": {"Ref": "EnterpriseVPC"},
+                            "InternetGatewayId": {"Ref": "InternetGateway"}
+                        }
+                    }
+                }
+            }
+
+            # Add subnets for each AZ
+            availability_zones = ["a", "b", "c"]
+            for i, az in enumerate(availability_zones):
+                # Public subnet
+                vpc_template["Resources"][f"PublicSubnet{az.upper()}"] = {
+                    "Type": "AWS::EC2::Subnet",
+                    "Properties": {
+                        "VpcId": {"Ref": "EnterpriseVPC"},
+                        "CidrBlock": f"10.0.{i+1}.0/24",
+                        "AvailabilityZone": f"{self.config.primary_region.value}{az}",
+                        "MapPublicIpOnLaunch": True,
+                        "Tags": [
+                            {"Key": "Name", "Value": f"public-subnet-{az}"},
+                            {"Key": "Tier", "Value": "public"}
+                        ]
+                    }
+                }
+
+                # Private subnet
+                vpc_template["Resources"][f"PrivateSubnet{az.upper()}"] = {
+                    "Type": "AWS::EC2::Subnet",
+                    "Properties": {
+                        "VpcId": {"Ref": "EnterpriseVPC"},
+                        "CidrBlock": f"10.0.{i+10}.0/24",
+                        "AvailabilityZone": f"{self.config.primary_region.value}{az}",
+                        "Tags": [
+                            {"Key": "Name", "Value": f"private-subnet-{az}"},
+                            {"Key": "Tier", "Value": "private"}
+                        ]
+                    }
+                }
+
+                # Database subnet
+                vpc_template["Resources"][f"DatabaseSubnet{az.upper()}"] = {
+                    "Type": "AWS::EC2::Subnet",
+                    "Properties": {
+                        "VpcId": {"Ref": "EnterpriseVPC"},
+                        "CidrBlock": f"10.0.{i+20}.0/24",
+                        "AvailabilityZone": f"{self.config.primary_region.value}{az}",
+                        "Tags": [
+                            {"Key": "Name", "Value": f"database-subnet-{az}"},
+                            {"Key": "Tier", "Value": "database"}
+                        ]
+                    }
+                }
+
+                # NAT Gateway
+                vpc_template["Resources"][f"NatGateway{az.upper()}"] = {
+                    "Type": "AWS::EC2::NatGateway",
+                    "Properties": {
+                        "AllocationId": {"Fn::GetAtt": [f"NatGatewayEIP{az.upper()}", "AllocationId"]},
+                        "SubnetId": {"Ref": f"PublicSubnet{az.upper()}"},
+                        "Tags": [
+                            {"Key": "Name", "Value": f"nat-gateway-{az}"}
+                        ]
+                    }
+                }
+
+                # Elastic IP for NAT Gateway
+                vpc_template["Resources"][f"NatGatewayEIP{az.upper()}"] = {
+                    "Type": "AWS::EC2::EIP",
+                    "DependsOn": "VPCGatewayAttachment",
+                    "Properties": {
+                        "Domain": "vpc",
+                        "Tags": [
+                            {"Key": "Name", "Value": f"nat-eip-{az}"}
+                        ]
+                    }
+                }
+
+            # Route tables
+            vpc_template["Resources"]["PublicRouteTable"] = {
+                "Type": "AWS::EC2::RouteTable",
+                "Properties": {
+                    "VpcId": {"Ref": "EnterpriseVPC"},
+                    "Tags": [
+                        {"Key": "Name", "Value": "public-route-table"}
+                    ]
+                }
+            }
+
+            vpc_template["Resources"]["PublicRoute"] = {
+                "Type": "AWS::EC2::Route",
+                "DependsOn": "VPCGatewayAttachment",
+                "Properties": {
+                    "RouteTableId": {"Ref": "PublicRouteTable"},
+                    "DestinationCidrBlock": "0.0.0.0/0",
+                    "GatewayId": {"Ref": "InternetGateway"}
+                }
+            }
+
+            # Database subnet group
+            vpc_template["Resources"]["DatabaseSubnetGroup"] = {
+                "Type": "AWS::RDS::DBSubnetGroup",
+                "Properties": {
+                    "DBSubnetGroupDescription": "Database subnet group for RDS",
+                    "SubnetIds": [
+                        {"Ref": "DatabaseSubnetA"},
+                        {"Ref": "DatabaseSubnetB"},
+                        {"Ref": "DatabaseSubnetC"}
+                    ],
+                    "Tags": [
+                        {"Key": "Name", "Value": "database-subnet-group"}
+                    ]
+                }
+            }
+
+            # VPC Flow Logs
+            if self.config.enable_vpc_flow_logs:
+                vpc_template["Resources"]["VPCFlowLogsRole"] = {
+                    "Type": "AWS::IAM::Role",
+                    "Properties": {
+                        "AssumeRolePolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Principal": {"Service": "vpc-flow-logs.amazonaws.com"},
+                                    "Action": "sts:AssumeRole"
+                                }
+                            ]
+                        },
+                        "Policies": [
+                            {
+                                "PolicyName": "CloudWatchLogsDelivery",
+                                "PolicyDocument": {
+                                    "Version": "2012-10-17",
+                                    "Statement": [
+                                        {
+                                            "Effect": "Allow",
+                                            "Action": [
+                                                "logs:CreateLogGroup",
+                                                "logs:CreateLogStream",
+                                                "logs:PutLogEvents",
+                                                "logs:DescribeLogGroups",
+                                                "logs:DescribeLogStreams"
+                                            ],
+                                            "Resource": "*"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                }
+
+                vpc_template["Resources"]["VPCFlowLogsGroup"] = {
+                    "Type": "AWS::Logs::LogGroup",
+                    "Properties": {
+                        "LogGroupName": f"/aws/vpc/flowlogs/{self.config.get_resource_name('vpc')}",
+                        "RetentionInDays": 30
+                    }
+                }
+
+                vpc_template["Resources"]["VPCFlowLogs"] = {
+                    "Type": "AWS::EC2::FlowLog",
+                    "Properties": {
+                        "ResourceType": "VPC",
+                        "ResourceId": {"Ref": "EnterpriseVPC"},
+                        "TrafficType": "ALL",
+                        "LogDestinationType": "cloud-watch-logs",
+                        "LogGroupName": {"Ref": "VPCFlowLogsGroup"},
+                        "DeliverLogsPermissionArn": {"Fn::GetAtt": ["VPCFlowLogsRole", "Arn"]}
+                    }
+                }
+
+            # Store template
+            self.cloudformation_templates["enterprise_vpc"] = vpc_template
+
+            return {
+                "status": "success",
+                "template_name": "enterprise_vpc",
+                "resources": len(vpc_template["Resources"]),
+                "description": "Enterprise VPC with multi-AZ configuration"
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to create VPC template: {e}")
+            return {
+                "status": "failed",
+                "error": str(e)
+            }
+
+    async def _deploy_security_infrastructure(self) -> Dict[str, Any]:
+        """Deploy security infrastructure including security groups and NACLs"""
+        try:
+            security_template = {
+                "AWSTemplateFormatVersion": "2010-09-09",
+                "Description": "Enterprise security infrastructure",
+                "Parameters": {
+                    "VpcId": {
+                        "Type": "AWS::EC2::VPC::Id",
+                        "Description": "VPC ID for security groups"
+                    }
+                },
+                "Resources": {
+                    # Web tier security group
+                    "WebTierSecurityGroup": {
+                        "Type": "AWS::EC2::SecurityGroup",
+                        "Properties": {
+                            "GroupDescription": "Security group for web tier",
+                            "VpcId": {"Ref": "VpcId"},
+                            "SecurityGroupIngress": [
+                                {
+                                    "IpProtocol": "tcp",
+                                    "FromPort": 80,
+                                    "ToPort": 80,
+                                    "CidrIp": "0.0.0.0/0",
+                                    "Description": "HTTP from internet"
+                                },
+                                {
+                                    "IpProtocol": "tcp",
+                                    "FromPort": 443,
+                                    "ToPort": 443,
+                                    "CidrIp": "0.0.0.0/0",
+                                    "Description": "HTTPS from internet"
+                                }
+                            ],
+                            "SecurityGroupEgress": [
+                                {
+                                    "IpProtocol": "-1",
+                                    "CidrIp": "0.0.0.0/0",
+                                    "Description": "All outbound traffic"
+                                }
+                            ],
+                            "Tags": [
+                                {"Key": "Name", "Value": "web-tier-sg"},
+                                {"Key": "Tier", "Value": "web"}
+                            ]
+                        }
+                    },
+
+                    # Application tier security group
+                    "AppTierSecurityGroup": {
+                        "Type": "AWS::EC2::SecurityGroup",
+                        "Properties": {
+                            "GroupDescription": "Security group for application tier",
+                            "VpcId": {"Ref": "VpcId"},
+                            "SecurityGroupIngress": [
+                                {
+                                    "IpProtocol": "tcp",
+                                    "FromPort": 8080,
+                                    "ToPort": 8080,
+                                    "SourceSecurityGroupId": {"Ref": "WebTierSecurityGroup"},
+                                    "Description": "Application port from web tier"
+                                }
+                            ],
+                            "Tags": [
+                                {"Key": "Name", "Value": "app-tier-sg"},
+                                {"Key": "Tier", "Value": "application"}
+                            ]
+                        }
+                    },
+
+                    # Database tier security group
+                    "DatabaseSecurityGroup": {
+                        "Type": "AWS::EC2::SecurityGroup",
+                        "Properties": {
+                            "GroupDescription": "Security group for database tier",
+                            "VpcId": {"Ref": "VpcId"},
+                            "SecurityGroupIngress": [
+                                {
+                                    "IpProtocol": "tcp",
+                                    "FromPort": 5432,
+                                    "ToPort": 5432,
+                                    "SourceSecurityGroupId": {"Ref": "AppTierSecurityGroup"},
+                                    "Description": "PostgreSQL from app tier"
+                                },
+                                {
+                                    "IpProtocol": "tcp",
+                                    "FromPort": 3306,
+                                    "ToPort": 3306,
+                                    "SourceSecurityGroupId": {"Ref": "AppTierSecurityGroup"},
+                                    "Description": "MySQL from app tier"
+                                }
+                            ],
+                            "Tags": [
+                                {"Key": "Name", "Value": "database-sg"},
+                                {"Key": "Tier", "Value": "database"}
+                            ]
+                        }
+                    },
+
+                    # Load balancer security group
+                    "LoadBalancerSecurityGroup": {
+                        "Type": "AWS::EC2::SecurityGroup",
+                        "Properties": {
+                            "GroupDescription": "Security group for load balancer",
+                            "VpcId": {"Ref": "VpcId"},
+                            "SecurityGroupIngress": [
+                                {
+                                    "IpProtocol": "tcp",
+                                    "FromPort": 80,
+                                    "ToPort": 80,
+                                    "CidrIp": "0.0.0.0/0",
+                                    "Description": "HTTP from internet"
+                                },
+                                {
+                                    "IpProtocol": "tcp",
+                                    "FromPort": 443,
+                                    "ToPort": 443,
+                                    "CidrIp": "0.0.0.0/0",
+                                    "Description": "HTTPS from internet"
+                                }
+                            ],
+                            "Tags": [
+                                {"Key": "Name", "Value": "load-balancer-sg"}
+                            ]
+                        }
+                    },
+
+                    # Bastion host security group
+                    "BastionSecurityGroup": {
+                        "Type": "AWS::EC2::SecurityGroup",
+                        "Properties": {
+                            "GroupDescription": "Security group for bastion host",
+                            "VpcId": {"Ref": "VpcId"},
+                            "SecurityGroupIngress": [
+                                {
+                                    "IpProtocol": "tcp",
+                                    "FromPort": 22,
+                                    "ToPort": 22,
+                                    "CidrIp": "0.0.0.0/0",  # Should be restricted to admin IPs
+                                    "Description": "SSH from admin networks"
+                                }
+                            ],
+                            "Tags": [
+                                {"Key": "Name", "Value": "bastion-sg"}
+                            ]
+                        }
+                    }
+                },
+
+                "Outputs": {
+                    "WebTierSecurityGroupId": {
+                        "Description": "Web tier security group ID",
+                        "Value": {"Ref": "WebTierSecurityGroup"},
+                        "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-WebTierSG"}}
+                    },
+                    "AppTierSecurityGroupId": {
+                        "Description": "App tier security group ID",
+                        "Value": {"Ref": "AppTierSecurityGroup"},
+                        "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-AppTierSG"}}
+                    },
+                    "DatabaseSecurityGroupId": {
+                        "Description": "Database security group ID",
+                        "Value": {"Ref": "DatabaseSecurityGroup"},
+                        "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-DatabaseSG"}}
+                    }
+                }
+            }
+
+            self.cloudformation_templates["security_infrastructure"] = security_template
+
+            return {
+                "status": "success",
+                "template_name": "security_infrastructure",
+                "resources": len(security_template["Resources"]),
+                "description": "Enterprise security groups and NACLs"
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to create security template: {e}")
+            return {
+                "status": "failed",
+                "error": str(e)
+            }
+
+    async def _deploy_compute_infrastructure(self) -> Dict[str, Any]:
+        """Deploy compute infrastructure including EC2, ECS, and Lambda"""
+        try:
+            compute_template = {
+                "AWSTemplateFormatVersion": "2010-09-09",
+                "Description": "Enterprise compute infrastructure",
+                "Parameters": {
+                    "VpcId": {
+                        "Type": "AWS::EC2::VPC::Id",
+                        "Description": "VPC ID for compute resources"
+                    },
+                    "SubnetIds": {
+                        "Type": "CommaDelimitedList",
+                        "Description": "List of subnet IDs for compute resources"
+                    },
+                    "KeyName": {
+                        "Type": "AWS::EC2::KeyPair::KeyName",
+                        "Description": "EC2 Key Pair for SSH access"
+                    }
+                },
+                "Resources": {
+                    # Launch Template for Auto Scaling
+                    "WebServerLaunchTemplate": {
+                        "Type": "AWS::EC2::LaunchTemplate",
+                        "Properties": {
+                            "LaunchTemplateName": f"{self.config.get_resource_name('web-launch-template')}",
+                            "LaunchTemplateData": {
+                                "ImageId": "ami-0abcdef1234567890",  # Amazon Linux 2
+                                "InstanceType": "t3.medium",
+                                "KeyName": {"Ref": "KeyName"},
+                                "IamInstanceProfile": {"Arn": {"Fn::GetAtt": ["EC2InstanceProfile", "Arn"]}},
+                                "SecurityGroupIds": [{"Ref": "WebTierSecurityGroup"}],
+                                "UserData": {
+                                    "Fn::Base64": {
+                                        "Fn::Sub": """#!/bin/bash
+yum update -y
+yum install -y httpd aws-cli amazon-cloudwatch-agent
+
+# Install CloudWatch agent
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c ssm:${CloudWatchConfig}
+
+# Configure web server
+systemctl start httpd
+systemctl enable httpd
+
+# Create health check endpoint
+echo "OK" > /var/www/html/health
+
+# Configure log forwarding
+echo 'LogFormat "%h %l %u %t \\"%r\\" %>s %b \\"%{Referer}i\\" \\"%{User-Agent}i\\"" combined' >> /etc/httpd/conf/httpd.conf
+echo 'CustomLog "| /usr/bin/logger -t httpd -p local0.info" combined' >> /etc/httpd/conf/httpd.conf
+
+systemctl restart httpd
+"""
+                                    }
+                                },
+                                "TagSpecifications": [
+                                    {
+                                        "ResourceType": "instance",
+                                        "Tags": [
+                                            {"Key": "Name", "Value": "web-server"},
+                                            {"Key": "Environment", "Value": self.config.environment.value},
+                                            {"Key": "Tier", "Value": "web"}
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+
+            self.cloudformation_templates["compute_infrastructure"] = compute_template
+
+            return {
+                "status": "success",
+                "template_name": "compute_infrastructure",
+                "resources": len(compute_template["Resources"]),
+                "description": "Enterprise compute infrastructure with EC2, ECS, and Lambda"
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to create compute template: {e}")
+            return {
+                "status": "failed",
+                "error": str(e)
+            }
+
+    async def _deploy_storage_infrastructure(self) -> Dict[str, Any]:
+        """Deploy storage infrastructure including S3, EFS, and EBS"""
+        try:
+            storage_template = {
+                "AWSTemplateFormatVersion": "2010-09-09",
+                "Description": "Enterprise storage infrastructure",
+                "Resources": {
+                    # S3 Bucket for application data
+                    "ApplicationDataBucket": {
+                        "Type": "AWS::S3::Bucket",
+                        "Properties": {
+                            "BucketName": f"{self.config.get_resource_name('app-data', 'bucket')}",
+                            "BucketEncryption": {
+                                "ServerSideEncryptionConfiguration": [
+                                    {
+                                        "ServerSideEncryptionByDefault": {
+                                            "SSEAlgorithm": "AES256"
+                                        },
+                                        "BucketKeyEnabled": True
+                                    }
+                                ]
+                            },
+                            "PublicAccessBlockConfiguration": {
+                                "BlockPublicAcls": True,
+                                "BlockPublicPolicy": True,
+                                "IgnorePublicAcls": True,
+                                "RestrictPublicBuckets": True
+                            },
+                            "VersioningConfiguration": {
+                                "Status": "Enabled"
+                            },
+                            "LifecycleConfiguration": {
+                                "Rules": [
+                                    {
+                                        "Id": "ArchiveOldVersions",
+                                        "Status": "Enabled",
+                                        "NoncurrentVersionTransitions": [
+                                            {
+                                                "TransitionInDays": 30,
+                                                "StorageClass": "STANDARD_IA"
+                                            },
+                                            {
+                                                "TransitionInDays": 90,
+                                                "StorageClass": "GLACIER"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "NotificationConfiguration": {
+                                "CloudWatchConfigurations": [
+                                    {
+                                        "Event": "s3:ObjectCreated:*",
+                                        "CloudWatchConfiguration": {
+                                            "LogGroupName": {"Ref": "S3LogGroup"}
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    },
+
+                    # S3 Bucket for static assets
+                    "StaticAssetsBucket": {
+                        "Type": "AWS::S3::Bucket",
+                        "Properties": {
+                            "BucketName": f"{self.config.get_resource_name('static-assets', 'bucket')}",
+                            "BucketEncryption": {
+                                "ServerSideEncryptionConfiguration": [
+                                    {
+                                        "ServerSideEncryptionByDefault": {
+                                            "SSEAlgorithm": "AES256"
+                                        }
+                                    }
+                                ]
+                            },
+                            "PublicAccessBlockConfiguration": {
+                                "BlockPublicAcls": True,
+                                "BlockPublicPolicy": True,
+                                "IgnorePublicAcls": True,
+                                "RestrictPublicBuckets": True
+                            },
+                            "CorsConfiguration": {
+                                "CorsRules": [
+                                    {
+                                        "AllowedHeaders": ["*"],
+                                        "AllowedMethods": ["GET", "HEAD"],
+                                        "AllowedOrigins": ["*"],
+                                        "MaxAge": 3600
+                                    }
+                                ]
+                            }
+                        }
+                    },
+
+                    # S3 Bucket for backup
+                    "BackupBucket": {
+                        "Type": "AWS::S3::Bucket",
+                        "Properties": {
+                            "BucketName": f"{self.config.get_resource_name('backup', 'bucket')}",
+                            "BucketEncryption": {
+                                "ServerSideEncryptionConfiguration": [
+                                    {
+                                        "ServerSideEncryptionByDefault": {
+                                            "SSEAlgorithm": "AES256"
+                                        }
+                                    }
+                                ]
+                            },
+                            "LifecycleConfiguration": {
+                                "Rules": [
+                                    {
+                                        "Id": "BackupRetention",
+                                        "Status": "Enabled",
+                                        "Transitions": [
+                                            {
+                                                "TransitionInDays": 30,
+                                                "StorageClass": "STANDARD_IA"
+                                            },
+                                            {
+                                                "TransitionInDays": 90,
+                                                "StorageClass": "GLACIER"
+                                            },
+                                            {
+                                                "TransitionInDays": 365,
+                                                "StorageClass": "DEEP_ARCHIVE"
+                                            }
+                                        ],
+                                        "ExpirationInDays": self.config.backup_retention_days * 10
+                                    }
+                                ]
+                            }
+                        }
+                    },
+
+                    # EFS File System for shared storage
+                    "SharedFileSystem": {
+                        "Type": "AWS::EFS::FileSystem",
+                        "Properties": {
+                            "CreationToken": f"{self.config.get_resource_name('shared-efs')}",
+                            "PerformanceMode": "generalPurpose",
+                            "ThroughputMode": "provisioned",
+                            "ProvisionedThroughputInMibps": 100,
+                            "Encrypted": True,
+                            "FileSystemTags": [
+                                {"Key": "Name", "Value": "shared-file-system"},
+                                {"Key": "Environment", "Value": self.config.environment.value}
+                            ]
+                        }
+                    },
+
+                    # EFS Mount Targets
+                    "EFSMountTargetA": {
+                        "Type": "AWS::EFS::MountTarget",
+                        "Properties": {
+                            "FileSystemId": {"Ref": "SharedFileSystem"},
+                            "SubnetId": {"Ref": "PrivateSubnetA"},
+                            "SecurityGroups": [{"Ref": "EFSSecurityGroup"}]
+                        }
+                    },
+
+                    "EFSMountTargetB": {
+                        "Type": "AWS::EFS::MountTarget",
+                        "Properties": {
+                            "FileSystemId": {"Ref": "SharedFileSystem"},
+                            "SubnetId": {"Ref": "PrivateSubnetB"},
+                            "SecurityGroups": [{"Ref": "EFSSecurityGroup"}]
+                        }
+                    },
+
+                    # EFS Security Group
+                    "EFSSecurityGroup": {
+                        "Type": "AWS::EC2::SecurityGroup",
+                        "Properties": {
+                            "GroupDescription": "Security group for EFS",
+                            "VpcId": {"Ref": "VpcId"},
+                            "SecurityGroupIngress": [
+                                {
+                                    "IpProtocol": "tcp",
+                                    "FromPort": 2049,
+                                    "ToPort": 2049,
+                                    "SourceSecurityGroupId": {"Ref": "AppTierSecurityGroup"},
+                                    "Description": "NFS from app tier"
+                                }
+                            ]
+                        }
+                    },
+
+                    # CloudFront Distribution for static assets
+                    "CloudFrontDistribution": {
+                        "Type": "AWS::CloudFront::Distribution",
+                        "Properties": {
+                            "DistributionConfig": {
+                                "Origins": [
+                                    {
+                                        "Id": "S3Origin",
+                                        "DomainName": {"Fn::GetAtt": ["StaticAssetsBucket", "DomainName"]},
+                                        "S3OriginConfig": {
+                                            "OriginAccessIdentity": {"Fn::Sub": "origin-access-identity/cloudfront/${CloudFrontOAI}"}
+                                        }
+                                    }
+                                ],
+                                "Enabled": True,
+                                "DefaultRootObject": "index.html",
+                                "DefaultCacheBehavior": {
+                                    "TargetOriginId": "S3Origin",
+                                    "ViewerProtocolPolicy": "redirect-to-https",
+                                    "Compress": True,
+                                    "ForwardedValues": {
+                                        "QueryString": False,
+                                        "Cookies": {"Forward": "none"}
+                                    },
+                                    "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+                                },
+                                "PriceClass": "PriceClass_100",
+                                "ViewerCertificate": {
+                                    "CloudFrontDefaultCertificate": True
+                                }
+                            }
+                        }
+                    },
+
+                    # CloudFront Origin Access Identity
+                    "CloudFrontOAI": {
+                        "Type": "AWS::CloudFront::OriginAccessIdentity",
+                        "Properties": {
+                            "OriginAccessIdentityConfig": {
+                                "Comment": "OAI for static assets bucket"
+                            }
+                        }
+                    },
+
+                    # S3 Log Group
+                    "S3LogGroup": {
+                        "Type": "AWS::Logs::LogGroup",
+                        "Properties": {
+                            "LogGroupName": f"/aws/s3/{self.config.get_resource_name('bucket-logs')}",
+                            "RetentionInDays": 30
+                        }
+                    }
+                },
+
+                "Outputs": {
+                    "ApplicationDataBucketName": {
+                        "Description": "Name of the application data bucket",
+                        "Value": {"Ref": "ApplicationDataBucket"},
+                        "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-AppDataBucket"}}
+                    },
+                    "CloudFrontDistributionId": {
+                        "Description": "CloudFront Distribution ID",
+                        "Value": {"Ref": "CloudFrontDistribution"},
+                        "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-CloudFrontDistribution"}}
+                    },
+                    "SharedFileSystemId": {
+                        "Description": "EFS File System ID",
+                        "Value": {"Ref": "SharedFileSystem"},
+                        "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-SharedEFS"}}
+                    }
+                }
+            }
+
+            self.cloudformation_templates["storage_infrastructure"] = storage_template
+
+            return {
+                "status": "success",
+                "template_name": "storage_infrastructure",
+                "resources": len(storage_template["Resources"]),
+                "description": "Enterprise storage infrastructure with S3, EFS, and CloudFront"
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to create storage template: {e}")
+            return {
+                "status": "failed",
+                "error": str(e)
+            }
+
+    async def _deploy_database_infrastructure(self) -> Dict[str, Any]:
+        """Deploy database infrastructure including RDS, DynamoDB, and ElastiCache"""
+        try:
+            database_template = {
+                "AWSTemplateFormatVersion": "2010-09-09",
+                "Description": "Enterprise database infrastructure",
+                "Parameters": {
+                    "DBPassword": {
+                        "Type": "String",
+                        "NoEcho": True,
+                        "Description": "Database password",
+                        "MinLength": 12,
+                        "ConstraintDescription": "Must be at least 12 characters long"
+                    }
+                },
+                "Resources": {
+                    # RDS PostgreSQL Instance
+                    "PostgreSQLDatabase": {
+                        "Type": "AWS::RDS::DBInstance",
+                        "Properties": {
+                            "DBInstanceIdentifier": f"{self.config.get_resource_name('postgres-db')}",
+                            "DBInstanceClass": "db.r5.large",
+                            "Engine": "postgres",
+                            "EngineVersion": "14.9",
+                            "MasterUsername": "dbadmin",
+                            "MasterUserPassword": {"Ref": "DBPassword"},
+                            "AllocatedStorage": 100,
+                            "StorageType": "gp3",
+                            "StorageEncrypted": True,
+                            "VPCSecurityGroups": [{"Ref": "DatabaseSecurityGroup"}],
+                            "DBSubnetGroupName": {"Ref": "DatabaseSubnetGroup"},
+                            "BackupRetentionPeriod": 30,
+                            "PreferredBackupWindow": "03:00-04:00",
+                            "PreferredMaintenanceWindow": "sun:04:00-sun:05:00",
+                            "MultiAZ": True,
+                            "PubliclyAccessible": False,
+                            "DeletionProtection": True,
+                            "EnablePerformanceInsights": True,
+                            "PerformanceInsightsRetentionPeriod": 7,
+                            "MonitoringInterval": 60,
+                            "MonitoringRoleArn": {"Fn::GetAtt": ["RDSEnhancedMonitoringRole", "Arn"]},
+                            "Tags": [
+                                {"Key": "Name", "Value": "postgres-database"},
+                                {"Key": "Environment", "Value": self.config.environment.value}
+                            ]
+                        }
+                    },
+
+                    # Read Replica for scaling
+                    "PostgreSQLReadReplica": {
+                        "Type": "AWS::RDS::DBInstance",
+                        "Properties": {
+                            "SourceDBInstanceIdentifier": {"Ref": "PostgreSQLDatabase"},
+                            "DBInstanceIdentifier": f"{self.config.get_resource_name('postgres-replica')}",
+                            "DBInstanceClass": "db.r5.large",
+                            "PubliclyAccessible": False,
+                            "Tags": [
+                                {"Key": "Name", "Value": "postgres-read-replica"}
+                            ]
+                        }
+                    },
+
+                    # DynamoDB Table for session data
+                    "SessionDataTable": {
+                        "Type": "AWS::DynamoDB::Table",
+                        "Properties": {
+                            "TableName": f"{self.config.get_resource_name('session-data')}",
+                            "AttributeDefinitions": [
+                                {
+                                    "AttributeName": "sessionId",
+                                    "AttributeType": "S"
+                                }
+                            ],
+                            "KeySchema": [
+                                {
+                                    "AttributeName": "sessionId",
+                                    "KeyType": "HASH"
+                                }
+                            ],
+                            "BillingMode": "PAY_PER_REQUEST",
+                            "StreamSpecification": {
+                                "StreamViewType": "NEW_AND_OLD_IMAGES"
+                            },
+                            "SSESpecification": {
+                                "SSEEnabled": True
+                            },
+                            "TimeToLiveSpecification": {
+                                "AttributeName": "ttl",
+                                "Enabled": True
+                            },
+                            "Tags": [
+                                {"Key": "Name", "Value": "session-data-table"},
+                                {"Key": "Environment", "Value": self.config.environment.value}
+                            ]
+                        }
+                    },
+
+                    # DynamoDB Table for application data
+                    "ApplicationDataTable": {
+                        "Type": "AWS::DynamoDB::Table",
+                        "Properties": {
+                            "TableName": f"{self.config.get_resource_name('app-data')}",
+                            "AttributeDefinitions": [
+                                {
+                                    "AttributeName": "pk",
+                                    "AttributeType": "S"
+                                },
+                                {
+                                    "AttributeName": "sk",
+                                    "AttributeType": "S"
+                                },
+                                {
+                                    "AttributeName": "gsi1pk",
+                                    "AttributeType": "S"
+                                },
+                                {
+                                    "AttributeName": "gsi1sk",
+                                    "AttributeType": "S"
+                                }
+                            ],
+                            "KeySchema": [
+                                {
+                                    "AttributeName": "pk",
+                                    "KeyType": "HASH"
+                                },
+                                {
+                                    "AttributeName": "sk",
+                                    "KeyType": "RANGE"
+                                }
+                            ],
+                            "GlobalSecondaryIndexes": [
+                                {
+                                    "IndexName": "GSI1",
+                                    "KeySchema": [
+                                        {
+                                            "AttributeName": "gsi1pk",
+                                            "KeyType": "HASH"
+                                        },
+                                        {
+                                            "AttributeName": "gsi1sk",
+                                            "KeyType": "RANGE"
+                                        }
+                                    ],
+                                    "Projection": {"ProjectionType": "ALL"}
+                                }
+                            ],
+                            "BillingMode": "PAY_PER_REQUEST",
+                            "StreamSpecification": {
+                                "StreamViewType": "NEW_AND_OLD_IMAGES"
+                            },
+                            "SSESpecification": {
+                                "SSEEnabled": True
+                            },
+                            "PointInTimeRecoverySpecification": {
+                                "PointInTimeRecoveryEnabled": True
+                            }
+                        }
+                    },
+
+                    # ElastiCache Redis Cluster
+                    "RedisCluster": {
+                        "Type": "AWS::ElastiCache::ReplicationGroup",
+                        "Properties": {
+                            "ReplicationGroupId": f"{self.config.get_resource_name('redis-cluster')}",
+                            "ReplicationGroupDescription": "Redis cluster for caching",
+                            "NodeType": "cache.r5.large",
+                            "Engine": "redis",
+                            "EngineVersion": "7.0",
+                            "NumCacheClusters": 3,
+                            "Port": 6379,
+                            "ParameterGroupName": "default.redis7",
+                            "SubnetGroupName": {"Ref": "CacheSubnetGroup"},
+                            "SecurityGroupIds": [{"Ref": "CacheSecurityGroup"}],
+                            "AtRestEncryptionEnabled": True,
+                            "TransitEncryptionEnabled": True,
+                            "AutomaticFailoverEnabled": True,
+                            "MultiAZEnabled": True,
+                            "PreferredMaintenanceWindow": "sun:05:00-sun:06:00",
+                            "SnapshotRetentionLimit": 7,
+                            "SnapshotWindow": "04:00-05:00",
+                            "Tags": [
+                                {"Key": "Name", "Value": "redis-cluster"},
+                                {"Key": "Environment", "Value": self.config.environment.value}
+                            ]
+                        }
+                    },
+
+                    # Cache Subnet Group
+                    "CacheSubnetGroup": {
+                        "Type": "AWS::ElastiCache::SubnetGroup",
+                        "Properties": {
+                            "Description": "Subnet group for ElastiCache",
+                            "SubnetIds": [
+                                {"Ref": "PrivateSubnetA"},
+                                {"Ref": "PrivateSubnetB"},
+                                {"Ref": "PrivateSubnetC"}
+                            ]
+                        }
+                    },
+
+                    # Cache Security Group
+                    "CacheSecurityGroup": {
+                        "Type": "AWS::EC2::SecurityGroup",
+                        "Properties": {
+                            "GroupDescription": "Security group for ElastiCache",
+                            "VpcId": {"Ref": "VpcId"},
+                            "SecurityGroupIngress": [
+                                {
+                                    "IpProtocol": "tcp",
+                                    "FromPort": 6379,
+                                    "ToPort": 6379,
+                                    "SourceSecurityGroupId": {"Ref": "AppTierSecurityGroup"},
+                                    "Description": "Redis from app tier"
+                                }
+                            ]
+                        }
+                    },
+
+                    # RDS Enhanced Monitoring Role
+                    "RDSEnhancedMonitoringRole": {
+                        "Type": "AWS::IAM::Role",
+                        "Properties": {
+                            "AssumeRolePolicyDocument": {
+                                "Version": "2012-10-17",
+                                "Statement": [
+                                    {
+                                        "Effect": "Allow",
+                                        "Principal": {"Service": "monitoring.rds.amazonaws.com"},
+                                        "Action": "sts:AssumeRole"
+                                    }
+                                ]
+                            },
+                            "ManagedPolicyArns": [
+                                "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
+                            ]
+                        }
+                    }
+                },
+
+                "Outputs": {
+                    "PostgreSQLEndpoint": {
+                        "Description": "PostgreSQL database endpoint",
+                        "Value": {"Fn::GetAtt": ["PostgreSQLDatabase", "Endpoint.Address"]},
+                        "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-PostgreSQLEndpoint"}}
+                    },
+                    "RedisEndpoint": {
+                        "Description": "Redis cluster endpoint",
+                        "Value": {"Fn::GetAtt": ["RedisCluster", "RedisEndpoint.Address"]},
+                        "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-RedisEndpoint"}}
+                    },
+                    "SessionDataTableName": {
+                        "Description": "Session data DynamoDB table name",
+                        "Value": {"Ref": "SessionDataTable"},
+                        "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-SessionDataTable"}}
+                    }
+                }
+            }
+
+            self.cloudformation_templates["database_infrastructure"] = database_template
+
+            return {
+                "status": "success",
+                "template_name": "database_infrastructure",
+                "resources": len(database_template["Resources"]),
+                "description": "Enterprise database infrastructure with RDS, DynamoDB, and ElastiCache"
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to create database template: {e}")
+            return {
+                "status": "failed",
+                "error": str(e)
+            }
+
+    async def _deploy_monitoring_infrastructure(self) -> Dict[str, Any]:
+        """Deploy monitoring infrastructure including CloudWatch, X-Ray, and custom dashboards"""
+        try:
+            monitoring_template = {
+                "AWSTemplateFormatVersion": "2010-09-09",
+                "Description": "Enterprise monitoring infrastructure",
+                "Resources": {
+                    # CloudWatch Dashboard
+                    "EnterpriseCloudWatchDashboard": {
+                        "Type": "AWS::CloudWatch::Dashboard",
+                        "Properties": {
+                            "DashboardName": f"{self.config.get_resource_name('enterprise-dashboard')}",
+                            "DashboardBody": json.dumps({
+                                "widgets": [
+                                    {
+                                        "type": "metric",
+                                        "x": 0,
+                                        "y": 0,
+                                        "width": 12,
+                                        "height": 6,
+                                        "properties": {
+                                            "metrics": [
+                                                ["AWS/ApplicationELB", "RequestCount", "LoadBalancer", {"Ref": "ApplicationLoadBalancer"}],
+                                                [".", "LatencyHigh", ".", "."],
+                                                [".", "HTTPCode_ELB_5XX_Count", ".", "."],
+                                                [".", "HTTPCode_Target_5XX_Count", ".", "."]
+                                            ],
+                                            "view": "timeSeries",
+                                            "stacked": False,
+                                            "region": self.config.primary_region.value,
+                                            "title": "Application Load Balancer Metrics",
+                                            "period": 300
+                                        }
+                                    },
+                                    {
+                                        "type": "metric",
+                                        "x": 0,
+                                        "y": 6,
+                                        "width": 12,
+                                        "height": 6,
+                                        "properties": {
+                                            "metrics": [
+                                                ["AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", {"Ref": "PostgreSQLDatabase"}],
+                                                [".", "DatabaseConnections", ".", "."],
+                                                [".", "ReadLatency", ".", "."],
+                                                [".", "WriteLatency", ".", "."]
+                                            ],
+                                            "view": "timeSeries",
+                                            "stacked": False,
+                                            "region": self.config.primary_region.value,
+                                            "title": "RDS Performance Metrics",
+                                            "period": 300
+                                        }
+                                    },
+                                    {
+                                        "type": "log",
+                                        "x": 0,
+                                        "y": 12,
+                                        "width": 24,
+                                        "height": 6,
+                                        "properties": {
+                                            "query": f"SOURCE '/aws/lambda/{self.config.get_resource_name(\"processing-lambda\")}' | fields @timestamp, @message, @requestId\n| filter @message like /ERROR/\n| sort @timestamp desc\n| limit 20",
+                                            "region": self.config.primary_region.value,
+                                            "title": "Recent Lambda Errors",
+                                            "view": "table"
+                                        }
+                                    }
+                                ]
+                            })
+                        }
+                    },
+
+                    # CloudWatch Alarms
+                    "HighCPUAlarm": {
+                        "Type": "AWS::CloudWatch::Alarm",
+                        "Properties": {
+                            "AlarmName": f"{self.config.get_resource_name('high-cpu-alarm')}",
+                            "AlarmDescription": "Alert when CPU exceeds 80%",
+                            "MetricName": "CPUUtilization",
+                            "Namespace": "AWS/EC2",
+                            "Statistic": "Average",
+                            "Period": 300,
+                            "EvaluationPeriods": 2,
+                            "Threshold": 80,
+                            "ComparisonOperator": "GreaterThanThreshold",
+                            "AlarmActions": [{"Ref": "AlertTopic"}],
+                            "Dimensions": [
+                                {
+                                    "Name": "AutoScalingGroupName",
+                                    "Value": {"Ref": "WebServerAutoScalingGroup"}
+                                }
+                            ]
+                        }
+                    },
+
+                    "DatabaseConnectionAlarm": {
+                        "Type": "AWS::CloudWatch::Alarm",
+                        "Properties": {
+                            "AlarmName": f"{self.config.get_resource_name('db-connection-alarm')}",
+                            "AlarmDescription": "Alert when database connections exceed threshold",
+                            "MetricName": "DatabaseConnections",
+                            "Namespace": "AWS/RDS",
+                            "Statistic": "Average",
+                            "Period": 300,
+                            "EvaluationPeriods": 2,
+                            "Threshold": 80,
+                            "ComparisonOperator": "GreaterThanThreshold",
+                            "AlarmActions": [{"Ref": "AlertTopic"}],
+                            "Dimensions": [
+                                {
+                                    "Name": "DBInstanceIdentifier",
+                                    "Value": {"Ref": "PostgreSQLDatabase"}
+                                }
+                            ]
+                        }
+                    },
+
+                    # SNS Topic for alerts
+                    "AlertTopic": {
+                        "Type": "AWS::SNS::Topic",
+                        "Properties": {
+                            "TopicName": f"{self.config.get_resource_name('alerts')}",
+                            "DisplayName": "Enterprise Platform Alerts"
+                        }
+                    },
+
+                    # SNS Subscription
+                    "AlertSubscription": {
+                        "Type": "AWS::SNS::Subscription",
+                        "Properties": {
+                            "Protocol": "email",
+                            "TopicArn": {"Ref": "AlertTopic"},
+                            "Endpoint": "admin@example.com"
+                        }
+                    },
+
+                    # X-Ray Service Map
+                    "XRayServiceMap": {
+                        "Type": "AWS::XRay::SamplingRule",
+                        "Properties": {
+                            "SamplingRule": {
+                                "RuleName": f"{self.config.get_resource_name('sampling-rule')}",
+                                "Priority": 9000,
+                                "FixedRate": 0.1,
+                                "ReservoirSize": 1,
+                                "ServiceName": "*",
+                                "ServiceType": "*",
+                                "Host": "*",
+                                "HTTPMethod": "*",
+                                "URLPath": "*",
+                                "Version": 1
+                            }
+                        }
+                    },
+
+                    # Application Insights
+                    "ApplicationInsights": {
+                        "Type": "AWS::ApplicationInsights::Application",
+                        "Properties": {
+                            "ResourceGroupName": {"Ref": "ApplicationResourceGroup"},
+                            "AutoConfigurationEnabled": True,
+                            "AutoCreate": True,
+                            "LogPatterns": [
+                                {
+                                    "PatternName": "ErrorPattern",
+                                    "Pattern": "ERROR",
+                                    "Rank": 1
+                                }
+                            ]
+                        }
+                    },
+
+                    # Resource Group for Application Insights
+                    "ApplicationResourceGroup": {
+                        "Type": "AWS::ResourceGroups::Group",
+                        "Properties": {
+                            "Name": f"{self.config.get_resource_name('app-resources')}",
+                            "Description": "Resource group for application insights",
+                            "ResourceQuery": {
+                                "Type": "TAG_FILTERS_1_0",
+                                "Query": {
+                                    "ResourceTypeFilters": ["AWS::AllSupported"],
+                                    "TagFilters": [
+                                        {
+                                            "Key": "Environment",
+                                            "Values": [self.config.environment.value]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            self.cloudformation_templates["monitoring_infrastructure"] = monitoring_template
+
+            return {
+                "status": "success",
+                "template_name": "monitoring_infrastructure",
+                "resources": len(monitoring_template["Resources"]),
+                "description": "Enterprise monitoring infrastructure with CloudWatch, X-Ray, and Application Insights"
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to create monitoring template: {e}")
+            return {
+                "status": "failed",
+                "error": str(e)
+            }
+
+### **🎛️ Enterprise Cost Management**
+
+class EnterpriseAWSCostManager:
+    """Advanced cost management with optimization and budgets"""
+
+    def __init__(self, aws_platform: EnterpriseAWSPlatform):
+        self.aws_platform = aws_platform
+        self.config = aws_platform.config
+        self.logger = structlog.get_logger("enterprise.aws.cost")
+
+        # Cost optimization rules
+        self.optimization_rules = {}
+        self.budget_alerts = {}
+        self.cost_anomaly_detectors = {}
+
+    async def setup_cost_management(self) -> Dict[str, Any]:
+        """Setup comprehensive cost management"""
+        try:
+            self.logger.info("Setting up enterprise cost management")
+
+            setup_results = {}
+
+            # Create budgets
+            budgets_result = await self._setup_budgets()
+            setup_results["budgets"] = budgets_result
+
+            # Setup cost anomaly detection
+            anomaly_result = await self._setup_cost_anomaly_detection()
+            setup_results["anomaly_detection"] = anomaly_result
+
+            # Configure cost optimization
+            optimization_result = await self._setup_cost_optimization()
+            setup_results["optimization"] = optimization_result
+
+            # Setup cost reporting
+            reporting_result = await self._setup_cost_reporting()
+            setup_results["reporting"] = reporting_result
+
+            return {
+                "status": "success",
+                "components": setup_results,
+                "total_components": len(setup_results)
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to setup cost management: {e}")
+            raise
+
+    async def _setup_budgets(self) -> Dict[str, Any]:
+        """Setup AWS budgets with alerts"""
+        try:
+            budget_template = {
+                "AWSTemplateFormatVersion": "2010-09-09",
+                "Resources": {
+                    "MonthlyBudget": {
+                        "Type": "AWS::Budgets::Budget",
+                        "Properties": {
+                            "Budget": {
+                                "BudgetName": f"{self.config.get_resource_name('monthly-budget')}",
+                                "BudgetLimit": {
+                                    "Amount": 1000,
+                                    "Unit": "USD"
+                                },
+                                "TimeUnit": "MONTHLY",
+                                "BudgetType": "COST",
+                                "CostFilters": {
+                                    "TagKey": ["Environment"],
+                                    "TagValue": [self.config.environment.value]
+                                }
+                            },
+                            "NotificationsWithSubscribers": [
+                                {
+                                    "Notification": {
+                                        "NotificationType": "ACTUAL",
+                                        "ComparisonOperator": "GREATER_THAN",
+                                        "Threshold": 80
+                                    },
+                                    "Subscribers": [
+                                        {
+                                            "SubscriptionType": "EMAIL",
+                                            "Address": "finance@example.com"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "Notification": {
+                                        "NotificationType": "FORECASTED",
+                                        "ComparisonOperator": "GREATER_THAN",
+                                        "Threshold": 100
+                                    },
+                                    "Subscribers": [
+                                        {
+                                            "SubscriptionType": "EMAIL",
+                                            "Address": "admin@example.com"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+
+                    "ServiceBudgets": {
+                        "Type": "AWS::Budgets::Budget",
+                        "Properties": {
+                            "Budget": {
+                                "BudgetName": f"{self.config.get_resource_name('service-budget')}",
+                                "BudgetLimit": {
+                                    "Amount": 500,
+                                    "Unit": "USD"
+                                },
+                                "TimeUnit": "MONTHLY",
+                                "BudgetType": "COST",
+                                "CostFilters": {
+                                    "Service": [
+                                        "Amazon Elastic Compute Cloud - Compute",
+                                        "Amazon Relational Database Service",
+                                        "Amazon Simple Storage Service"
+                                    ]
+                                }
+                            },
+                            "NotificationsWithSubscribers": [
+                                {
+                                    "Notification": {
+                                        "NotificationType": "ACTUAL",
+                                        "ComparisonOperator": "GREATER_THAN",
+                                        "Threshold": 90
+                                    },
+                                    "Subscribers": [
+                                        {
+                                            "SubscriptionType": "EMAIL",
+                                            "Address": "engineering@example.com"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+
+            self.budget_alerts = budget_template
+
+            return {
+                "status": "success",
+                "budgets_created": len(budget_template["Resources"]),
+                "template": "budget_alerts"
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to setup budgets: {e}")
+            return {"status": "failed", "error": str(e)}
+
+    async def _setup_cost_anomaly_detection(self) -> Dict[str, Any]:
+        """Setup cost anomaly detection"""
+        try:
+            anomaly_detectors = {
+                "service_anomaly_detector": {
+                    "name": f"{self.config.get_resource_name('service-anomaly')}",
+                    "monitor_type": "DIMENSIONAL",
+                    "monitor_specification": {
+                        "dimension_key": "SERVICE",
+                        "dimension_value_list": [
+                            "Amazon Elastic Compute Cloud - Compute",
+                            "Amazon Relational Database Service",
+                            "Amazon Simple Storage Service"
+                        ],
+                        "match_options": ["EQUALS"]
+                    },
+                    "threshold": 100.0
+                },
+                "account_anomaly_detector": {
+                    "name": f"{self.config.get_resource_name('account-anomaly')}",
+                    "monitor_type": "DIMENSIONAL",
+                    "monitor_specification": {
+                        "dimension_key": "LINKED_ACCOUNT",
+                        "dimension_value_list": list(self.config.accounts.values()),
+                        "match_options": ["EQUALS"]
+                    },
+                    "threshold": 200.0
+                }
+            }
+
+            self.cost_anomaly_detectors = anomaly_detectors
+
+            return {
+                "status": "success",
+                "detectors_created": len(anomaly_detectors),
+                "types": ["service_anomaly", "account_anomaly"]
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to setup anomaly detection: {e}")
+            return {"status": "failed", "error": str(e)}
+
+    async def _setup_cost_optimization(self) -> Dict[str, Any]:
+        """Setup cost optimization rules"""
+        try:
+            optimization_rules = {
+                "ec2_rightsizing": {
+                    "rule_type": "rightsizing",
+                    "target_services": ["EC2"],
+                    "cpu_threshold": 10,
+                    "memory_threshold": 20,
+                    "evaluation_period": "14_days",
+                    "action": "recommend_downsize"
+                },
+                "unused_ebs_volumes": {
+                    "rule_type": "unused_resources",
+                    "target_services": ["EBS"],
+                    "attachment_status": "available",
+                    "age_threshold": "7_days",
+                    "action": "recommend_deletion"
+                },
+                "s3_lifecycle_optimization": {
+                    "rule_type": "storage_optimization",
+                    "target_services": ["S3"],
+                    "access_pattern": "infrequent",
+                    "age_threshold": "30_days",
+                    "action": "transition_to_ia"
+                },
+                "reserved_instance_recommendations": {
+                    "rule_type": "commitment_optimization",
+                    "target_services": ["EC2", "RDS"],
+                    "utilization_threshold": 80,
+                    "evaluation_period": "30_days",
+                    "action": "recommend_reserved_instances"
+                }
+            }
+
+            self.optimization_rules = optimization_rules
+
+            return {
+                "status": "success",
+                "rules_created": len(optimization_rules),
+                "optimization_types": list(optimization_rules.keys())
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to setup cost optimization: {e}")
+            return {"status": "failed", "error": str(e)}
+
+    async def _setup_cost_reporting(self) -> Dict[str, Any]:
+        """Setup automated cost reporting"""
+        try:
+            reporting_config = {
+                "cost_and_usage_report": {
+                    "report_name": f"{self.config.get_resource_name('cost-usage-report')}",
+                    "time_unit": "DAILY",
+                    "format": "textORcsv",
+                    "compression": "GZIP",
+                    "additional_schema_elements": ["RESOURCES"],
+                    "s3_bucket": f"{self.config.get_resource_name('cost-reports', 'bucket')}",
+                    "s3_prefix": "cost-reports/",
+                    "s3_region": self.config.primary_region.value,
+                    "additional_artifacts": ["REDSHIFT", "QUICKSIGHT"],
+                    "refresh_closed_reports": True,
+                    "report_versioning": "OVERWRITE_REPORT"
+                },
+                "automated_reports": [
+                    {
+                        "name": "weekly_cost_summary",
+                        "frequency": "weekly",
+                        "recipients": ["finance@example.com", "admin@example.com"],
+                        "format": "html",
+                        "includes": ["cost_trends", "service_breakdown", "anomalies"]
+                    },
+                    {
+                        "name": "monthly_optimization_report",
+                        "frequency": "monthly",
+                        "recipients": ["engineering@example.com"],
+                        "format": "pdf",
+                        "includes": ["rightsizing_recommendations", "unused_resources", "reserved_instance_opportunities"]
+                    }
+                ]
+            }
+
+            return {
+                "status": "success",
+                "reporting_configured": True,
+                "report_types": len(reporting_config["automated_reports"]) + 1
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to setup cost reporting: {e}")
+            return {"status": "failed", "error": str(e)}
+
+# Enterprise usage examples and integration
+async def deploy_complete_aws_enterprise():
+    """Example: Deploy complete AWS enterprise infrastructure"""
+
+    # Configuration
+    config = EnterpriseAWSConfig(
+        organization_id="o-example123456",
+        master_account_id="123456789012",
+        organization_name="Acme Corporation",
+        application_name="enterprise-platform",
+        environment=DeploymentEnvironment.PRODUCTION,
+        primary_region=AWSRegion.US_EAST_1,
+        secondary_regions=[AWSRegion.US_WEST_2, AWSRegion.EU_WEST_1],
+        compliance_frameworks=[ComplianceFramework.SOC2, ComplianceFramework.GDPR, ComplianceFramework.PCI_DSS]
+    )
+
+    async with EnterpriseAWSPlatform(config) as aws_platform:
+        # Deploy infrastructure
+        infrastructure_manager = EnterpriseAWSInfrastructureManager(aws_platform)
+        deployment_result = await infrastructure_manager.deploy_enterprise_infrastructure()
+
+        # Setup cost management
+        cost_manager = EnterpriseAWSCostManager(aws_platform)
+        cost_result = await cost_manager.setup_cost_management()
+
+        return {
+            "infrastructure": deployment_result,
+            "cost_management": cost_result,
+            "total_resources": sum(r.get("resources", 0) for r in deployment_result.values() if isinstance(r, dict)),
+            "deployment_status": "completed"
+        }

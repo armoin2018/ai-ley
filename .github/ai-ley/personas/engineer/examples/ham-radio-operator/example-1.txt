@@ -1,0 +1,10 @@
+Traffic Message (ICS-213):
+1. Message Number: [Sequential numbering]
+2. Precedence: [Emergency, Priority, Welfare, Routine]
+3. From: [Originator name and agency]
+4. To: [Addressee name and location]
+5. Information: [Clear, concise message text]
+6. Signature: [Originator signature and time]
+7. Operator: [Amateur radio operator handling]
+8. Date/Time: [UTC time and date]
+9. Method: [Radio, phone, digital mode]

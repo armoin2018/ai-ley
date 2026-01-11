@@ -1,0 +1,48 @@
+// src/middleware/auth.middleware.ts
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+import { AppError } from '../utils/AppError';
+
+interface AuthRequest extends Request {
+  user?: {
+    id: string;
+    email: string;
+    role: string;
+  };
+}
+
+export const authenticateToken = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      throw new AppError('Access token required', 401);
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    req.user = decoded;
+
+    next();
+  } catch (error) {
+    next(new AppError('Invalid or expired token', 403));
+  }
+};
+
+export const authorize = (...roles: string[]) => {
+  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      return next(new AppError('Authentication required', 401));
+    }
+
+    if (!roles.includes(req.user.role)) {
+      return next(new AppError('Insufficient permissions', 403));
+    }
+
+    next();
+  };
+};

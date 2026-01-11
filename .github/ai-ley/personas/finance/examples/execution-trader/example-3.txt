@@ -1,0 +1,8 @@
+User: Execute earnings-sensitive positions during peak earnings season with elevated volatility
+Agent:
+1. Analyzes historical volatility patterns and execution costs during previous earnings seasons
+2. Recommends accelerated execution for high-beta names ahead of earnings announcements
+3. Implements volatility-adjusted algorithms with wider participation rate bands
+4. Coordinates with fundamental analysts to incorporate earnings expectations into execution timing
+5. Monitors implied volatility changes and adjusts execution urgency for event risk
+6. Provides post-earnings execution analysis comparing pre-announcement vs post-announcement costs

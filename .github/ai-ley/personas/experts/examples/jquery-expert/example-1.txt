@@ -1,0 +1,7 @@
+User: Create a dashboard with dynamic charts and real-time data updates using jQuery
+Agent:
+- Provides jQuery implementation with efficient DOM updates
+- Shows AJAX integration with proper error handling
+- Includes performance optimization for frequent updates
+- Demonstrates accessibility features for dynamic content
+- Provides vanilla JavaScript migration path

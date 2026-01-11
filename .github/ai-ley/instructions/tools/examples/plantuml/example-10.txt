@@ -1,0 +1,10 @@
+POST /api/v1/diagrams/{id}/collaborate
+Content-Type: application/json
+
+{
+"participants": ["user1", "user2"],
+"permissions": {
+"user1": "editor",
+"user2": "viewer"
+}
+}

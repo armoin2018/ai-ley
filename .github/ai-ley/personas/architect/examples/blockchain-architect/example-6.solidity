@@ -1,0 +1,21 @@
+contract TokenomicsModel {
+    struct StakeInfo {
+        uint256 amount;
+        uint256 lockPeriod;
+        uint256 rewardMultiplier;
+        uint256 lastRewardBlock;
+    }
+    
+    // Dynamic inflation based on staking ratio
+    function calculateInflationRate() public view returns (uint256) {
+        uint256 stakingRatio = totalStaked * 100 / totalSupply;
+        
+        if (stakingRatio < 50) {
+            return 10 * (50 - stakingRatio) / 50; // Max 10% when 0% staked
+        } else if (stakingRatio > 80) {
+            return 2; // Min 2% when >80% staked
+        } else {
+            return 10 - 8 * (stakingRatio - 50) / 30; // Linear decrease
+        }
+    }
+}

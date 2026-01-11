@@ -1,0 +1,100 @@
+// contracts/MultiPriceFeed.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
+contract MultiPriceFeed {
+    struct PriceFeed {
+        AggregatorV3Interface feed;
+        uint8 decimals;
+        string name;
+        bool isActive;
+    }
+
+    mapping(string => PriceFeed) public priceFeeds;
+    string[] public feedNames;
+
+    event FeedAdded(string name, address feedAddress);
+    event FeedUpdated(string name, bool isActive);
+
+    constructor() {
+        // Initialize with common feeds (Ethereum mainnet)
+        _addFeed("ETH/USD", 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
+        _addFeed("BTC/USD", 0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c);
+        _addFeed("LINK/USD", 0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c);
+    }
+
+    function _addFeed(string memory _name, address _feedAddress) private {
+        AggregatorV3Interface feed = AggregatorV3Interface(_feedAddress);
+        uint8 decimals = feed.decimals();
+        
+        priceFeeds[_name] = PriceFeed({
+            feed: feed,
+            decimals: decimals,
+            name: _name,
+            isActive: true
+        });
+        
+        feedNames.push(_name);
+        emit FeedAdded(_name, _feedAddress);
+    }
+
+    function getPrice(string memory _feedName) public view returns (int256 price, uint256 timestamp) {
+        PriceFeed memory feed = priceFeeds[_feedName];
+        require(feed.isActive, "Feed not active");
+
+        (
+            uint80 roundID,
+            int256 _price,
+            uint256 startedAt,
+            uint256 _timestamp,
+            uint80 answeredInRound
+        ) = feed.feed.latestRoundData();
+
+        require(_price > 0, "Invalid price");
+        require(_timestamp > 0, "Invalid timestamp");
+
+        return (_price, _timestamp);
+    }
+
+    function getFormattedPrice(string memory _feedName) public view returns (uint256) {
+        PriceFeed memory feed = priceFeeds[_feedName];
+        (int256 price, ) = getPrice(_feedName);
+        
+        // Convert to 18 decimals
+        return uint256(price) * (10 ** (18 - feed.decimals));
+    }
+
+    function getPriceRatio(string memory _baseFeed, string memory _quoteFeed) public view returns (uint256) {
+        uint256 basePrice = getFormattedPrice(_baseFeed);
+        uint256 quotePrice = getFormattedPrice(_quoteFeed);
+        
+        require(quotePrice > 0, "Invalid quote price");
+        return (basePrice * 1e18) / quotePrice;
+    }
+
+    function getAllActivePrices() public view returns (string[] memory names, int256[] memory prices, uint256[] memory timestamps) {
+        uint256 activeCount = 0;
+        
+        // Count active feeds
+        for (uint256 i = 0; i < feedNames.length; i++) {
+            if (priceFeeds[feedNames[i]].isActive) {
+                activeCount++;
+            }
+        }
+        
+        names = new string[](activeCount);
+        prices = new int256[](activeCount);
+        timestamps = new uint256[](activeCount);
+        
+        uint256 index = 0;
+        for (uint256 i = 0; i < feedNames.length; i++) {
+            if (priceFeeds[feedNames[i]].isActive) {
+                names[index] = feedNames[i];
+                (prices[index], timestamps[index]) = getPrice(feedNames[i]);
+                index++;
+            }
+        }
+    }
+}

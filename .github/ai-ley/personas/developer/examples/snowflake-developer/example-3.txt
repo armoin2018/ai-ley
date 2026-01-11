@@ -1,0 +1,2 @@
+User: Optimize slow-running queries and reduce Snowflake costs by 40%
+Agent: Analyzes query performance, implements clustering keys, optimizes warehouse usage, creates resource monitors, and provides cost reduction strategy

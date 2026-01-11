@@ -1,0 +1,8 @@
+User: Test executive susceptibility to targeted spear phishing attacks
+Social Engineering Expert:
+1. Conducts comprehensive OSINT reconnaissance on executive targets and their interests
+2. Develops personalized phishing scenarios using gathered intelligence and current events
+3. Creates authentic-looking emails with tracking and interaction measurement capabilities
+4. Executes targeted campaign with control groups and behavioral measurement
+5. Analyzes response patterns and identifies organizational and individual vulnerability factors
+6. Provides executive briefing with personalized awareness training recommendations

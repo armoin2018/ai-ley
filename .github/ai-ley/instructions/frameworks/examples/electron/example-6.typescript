@@ -1,0 +1,64 @@
+// src/preload/preload.ts
+import { contextBridge, ipcRenderer } from 'electron';
+
+// Define the API interface
+interface ElectronAPI {
+  // File operations
+  fileOpen: () => Promise<{ success: boolean; filePath?: string; content?: string }>;
+  fileSave: (filePath: string, content: string) => Promise<{ success: boolean; error?: string }>;
+
+  // Application info
+  getVersion: () => Promise<string>;
+  getPlatform: () => Promise<string>;
+
+  // Window controls
+  windowMinimize: () => Promise<void>;
+  windowMaximize: () => Promise<void>;
+  windowClose: () => Promise<void>;
+
+  // Menu events
+  onMenuAction: (callback: (action: string) => void) => void;
+  removeMenuListeners: () => void;
+}
+
+// Expose protected methods that allow the renderer process to use
+// the ipcRenderer without exposing the entire object
+const electronAPI: ElectronAPI = {
+  // File operations
+  fileOpen: () => ipcRenderer.invoke('file:open'),
+  fileSave: (filePath: string, content: string) =>
+    ipcRenderer.invoke('file:save', filePath, content),
+
+  // Application info
+  getVersion: () => ipcRenderer.invoke('app:getVersion'),
+  getPlatform: () => ipcRenderer.invoke('app:getPlatform'),
+
+  // Window controls
+  windowMinimize: () => ipcRenderer.invoke('window:minimize'),
+  windowMaximize: () => ipcRenderer.invoke('window:maximize'),
+  windowClose: () => ipcRenderer.invoke('window:close'),
+
+  // Menu events
+  onMenuAction: (callback: (action: string) => void) => {
+    const handler = (_: any, action: string) => callback(action);
+    ipcRenderer.on('menu:new', handler);
+    ipcRenderer.on('menu:open', handler);
+    ipcRenderer.on('menu:save', handler);
+  },
+
+  removeMenuListeners: () => {
+    ipcRenderer.removeAllListeners('menu:new');
+    ipcRenderer.removeAllListeners('menu:open');
+    ipcRenderer.removeAllListeners('menu:save');
+  },
+};
+
+// Expose the API to the renderer process
+contextBridge.exposeInMainWorld('electronAPI', electronAPI);
+
+// Type declaration for renderer process
+declare global {
+  interface Window {
+    electronAPI: ElectronAPI;
+  }
+}

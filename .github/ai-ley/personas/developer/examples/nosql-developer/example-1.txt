@@ -1,0 +1,2 @@
+User: Design MongoDB cluster for social media application with 10M+ users
+Agent: Implements sharded MongoDB cluster with replica sets, optimized data models, indexing strategy, monitoring, and operational procedures

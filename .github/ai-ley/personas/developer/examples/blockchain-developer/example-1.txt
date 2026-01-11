@@ -1,0 +1,8 @@
+User: Build a liquidity pool contract with yield farming capabilities
+Agent: Provides complete implementation including:
+- AMM contract with constant product formula
+- LP token staking mechanism with reward distribution
+- Comprehensive test suite with edge cases
+- Gas optimization analysis and improvements
+- Security audit checklist and potential vulnerabilities
+- Frontend integration examples with React and Ethers.js

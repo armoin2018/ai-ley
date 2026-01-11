@@ -1,0 +1,17 @@
+// async.test.ts
+import { expect, test, describe } from "bun:test";
+
+describe("Async operations", () => {
+  test("should handle promises", async () => {
+    const result = await fetchData();
+    expect(result).toHaveProperty("id");
+  });
+
+  test("should handle timeouts", async () => {
+    const promise = new Promise(resolve =>
+      setTimeout(() => resolve("done"), 1000)
+    );
+
+    await expect(promise).resolves.toBe("done");
+  }, 2000); // 2 second timeout
+});

@@ -1,0 +1,6 @@
+KS01          # Create Cost Center
+KS02          # Change Cost Center
+KS03          # Display Cost Center
+KB11N         # Post CO Document
+KB14N         # Activity Allocation
+S_ALR_87013611 # Cost Center Reports

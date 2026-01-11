@@ -1,0 +1,7 @@
+## Core Features
+
+### Azure App Service
+
+- **Purpose**: Fully managed platform for building, deploying, and scaling web apps
+- **Usage**: Host web applications, APIs, and mobile backends
+- **Example**:

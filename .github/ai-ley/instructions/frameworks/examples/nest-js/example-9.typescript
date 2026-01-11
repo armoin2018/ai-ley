@@ -1,0 +1,101 @@
+describe('UsersService', () => {
+  let service: UsersService;
+  let repository: Repository<User>;
+
+  const mockRepository = {
+    findOne: jest.fn(),
+    find: jest.fn(),
+    create: jest.fn(),
+    save: jest.fn(),
+    delete: jest.fn(),
+    createQueryBuilder: jest.fn(() => ({
+      where: jest.fn().mockReturnThis(),
+      getMany: jest.fn(),
+      getOne: jest.fn(),
+    })),
+  };
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        UsersService,
+        {
+          provide: getRepositoryToken(User),
+          useValue: mockRepository,
+        },
+      ],
+    }).compile();
+
+    service = module.get<UsersService>(UsersService);
+    repository = module.get<Repository<User>>(getRepositoryToken(User));
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('findOne', () => {
+    it('should find a user by id', async () => {
+      const userId = 'test-uuid';
+      const expectedUser = {
+        id: userId,
+        email: 'test@example.com',
+        name: 'Test User',
+        createdAt: new Date(),
+      };
+
+      mockRepository.findOne.mockResolvedValue(expectedUser);
+
+      const result = await service.findOne(userId);
+
+      expect(repository.findOne).toHaveBeenCalledWith({
+        where: { id: userId },
+      });
+      expect(result).toEqual(expectedUser);
+    });
+
+    it('should throw NotFoundException when user not found', async () => {
+      const userId = 'non-existent-id';
+      mockRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.findOne(userId)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('create', () => {
+    it('should create and save a new user', async () => {
+      const createUserDto = {
+        email: 'newuser@example.com',
+        name: 'New User',
+        password: 'hashedpassword',
+      };
+
+      const createdUser = { id: 'new-uuid', ...createUserDto };
+      
+      mockRepository.create.mockReturnValue(createdUser);
+      mockRepository.save.mockResolvedValue(createdUser);
+
+      const result = await service.create(createUserDto);
+
+      expect(repository.create).toHaveBeenCalledWith(createUserDto);
+      expect(repository.save).toHaveBeenCalledWith(createdUser);
+      expect(result).toEqual(createdUser);
+    });
+
+    it('should handle duplicate email error', async () => {
+      const createUserDto = {
+        email: 'existing@example.com',
+        name: 'Test User',
+        password: 'hashedpassword',
+      };
+
+      const duplicateError = new Error('Duplicate entry');
+      duplicateError.code = '23505'; // PostgreSQL unique constraint violation
+
+      mockRepository.create.mockReturnValue(createUserDto);
+      mockRepository.save.mockRejectedValue(duplicateError);
+
+      await expect(service.create(createUserDto)).rejects.toThrow(ConflictException);
+    });
+  });
+});

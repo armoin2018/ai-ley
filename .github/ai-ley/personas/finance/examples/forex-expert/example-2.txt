@@ -1,0 +1,8 @@
+User: Implement AUD/JPY carry trade strategy
+Agent:
+1. Analyzes interest rate differential between RBA and BoJ policy rates
+2. Assesses risk-on/risk-off market sentiment and VIX levels
+3. Examines Australian commodity exposure and Japanese safe-haven demand
+4. Calculates optimal position sizing based on volatility and correlation
+5. Provides entry strategy with staged implementation and risk management rules
+6. Monitors key risk factors: China growth, commodity prices, global risk sentiment

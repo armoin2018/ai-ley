@@ -1,0 +1,55 @@
+# Route based on input classification
+dynamic_routing = {
+    "components": [
+        {
+            "type": "TextInput",
+            "name": "user_input"
+        },
+        {
+            "type": "OpenAI",
+            "name": "intent_classifier",
+            "config": {
+                "model": "gpt-3.5-turbo",
+                "prompt": """
+Classify the following input into one of these categories:
+- question: General questions
+- code: Code-related requests
+- creative: Creative writing requests
+- factual: Factual information requests
+
+Input: {input}
+Category:
+                """,
+                "temperature": 0.1
+            }
+        },
+        {
+            "type": "ConditionalRouter",
+            "name": "category_router",
+            "config": {
+                "routes": {
+                    "question": "general_qa_chain",
+                    "code": "code_assistant_chain",
+                    "creative": "creative_writing_chain",
+                    "factual": "fact_checker_chain"
+                }
+            }
+        },
+        {
+            "type": "OpenAI",
+            "name": "general_qa_chain",
+            "config": {
+                "model": "gpt-4",
+                "prompt": "Answer this question helpfully: {input}"
+            }
+        },
+        {
+            "type": "OpenAI",
+            "name": "code_assistant_chain",
+            "config": {
+                "model": "gpt-4",
+                "prompt": "Help with this code request: {input}\nProvide working code with explanations."
+            }
+        }
+    ]
+}

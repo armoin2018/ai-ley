@@ -1,0 +1,2 @@
+User: Build a real-time analytics dashboard for sales performance monitoring
+Agent: Creates modular Shiny application with reactive data processing, interactive visualizations, user authentication, and deployment configuration

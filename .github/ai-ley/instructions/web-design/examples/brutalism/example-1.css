@@ -1,0 +1,27 @@
+/* Brutalist Typography Base */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+  --font-primary: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-size-brutal: clamp(3rem, 8vw, 12rem);
+  --font-size-loud: clamp(2rem, 5vw, 6rem);
+  --font-size-shout: clamp(1.5rem, 3vw, 3rem);
+}
+
+.brutal-heading {
+  font-family: var(--font-primary);
+  font-size: var(--font-size-brutal);
+  font-weight: 700;
+  line-height: 0.8;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  mix-blend-mode: difference;
+}
+
+.brutal-text {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  line-height: 1.2;
+  word-spacing: 0.2em;
+}

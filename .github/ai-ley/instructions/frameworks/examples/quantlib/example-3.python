@@ -1,0 +1,34 @@
+import QuantLib as ql
+import numpy as np
+import pandas as pd
+from datetime import datetime, date
+
+# Date handling
+today = ql.Date(15, 12, 2023)
+ql.Settings.instance().evaluationDate = today
+
+# Calendar and business day conventions
+calendar = ql.UnitedStates(ql.UnitedStates.NYSE)
+business_convention = ql.ModifiedFollowing
+
+# Date arithmetic
+settlement_date = calendar.advance(today, 2, ql.Days)
+maturity_date = calendar.advance(today, 1, ql.Years)
+
+print(f"Today: {today}")
+print(f"Settlement: {settlement_date}")
+print(f"Maturity: {maturity_date}")
+
+# Day count conventions
+day_count = ql.ActualActual(ql.ActualActual.ISDA)
+year_fraction = day_count.yearFraction(today, maturity_date)
+print(f"Year fraction: {year_fraction:.4f}")
+
+# Holiday calendar
+holidays = []
+for i in range(365):
+    d = today + i
+    if not calendar.isBusinessDay(d):
+        holidays.append(d)
+
+print(f"Holidays in next year: {len(holidays)}")

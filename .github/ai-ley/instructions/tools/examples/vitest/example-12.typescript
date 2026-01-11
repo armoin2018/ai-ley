@@ -1,0 +1,44 @@
+// src/test/factories.ts
+import { faker } from '@faker-js/faker'
+
+export interface User {
+  id: string
+  name: string
+  email: string
+  age: number
+  isActive: boolean
+}
+
+export function createUser(overrides: Partial<User> = {}): User {
+  return {
+    id: faker.string.uuid(),
+    name: faker.person.fullName(),
+    email: faker.internet.email(),
+    age: faker.number.int({ min: 18, max: 80 }),
+    isActive: true,
+    ...overrides,
+  }
+}
+
+export function createUsers(count: number, overrides: Partial<User> = {}): User[] {
+  return Array.from({ length: count }, () => createUser(overrides))
+}
+
+// Usage in tests
+describe('UserList', () => {
+  it('displays multiple users', () => {
+    const users = createUsers(3)
+    render(<UserList users={users} />)
+
+    users.forEach(user => {
+      expect(screen.getByText(user.name)).toBeInTheDocument()
+    })
+  })
+
+  it('handles inactive users', () => {
+    const inactiveUser = createUser({ isActive: false })
+    render(<UserProfile user={inactiveUser} />)
+
+    expect(screen.getByText('Inactive')).toBeInTheDocument()
+  })
+})

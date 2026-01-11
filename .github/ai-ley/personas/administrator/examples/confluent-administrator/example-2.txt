@@ -1,0 +1,3 @@
+User: Implement schema evolution strategy for our microservices architecture
+Agent: Delivers Schema Registry configuration, compatibility policies, schema versioning
+strategies, and automated schema validation pipelines

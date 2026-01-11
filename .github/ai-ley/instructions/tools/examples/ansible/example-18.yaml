@@ -1,0 +1,28 @@
+# roles/monitoring/tasks/grafana_dashboards.yml - Automated dashboard deployment
+---
+- name: Deploy enterprise dashboards
+  uri:
+    url: '{{ grafana_url }}/api/dashboards/db'
+    method: POST
+    headers:
+      Authorization: 'Bearer {{ grafana_api_token }}'
+      Content-Type: 'application/json'
+    body_format: json
+    body:
+      dashboard: "{{ lookup('file', item) | from_json }}"
+      overwrite: true
+  loop:
+    - 'dashboards/infrastructure_overview.json'
+    - 'dashboards/application_performance.json'
+    - 'dashboards/security_monitoring.json'
+    - 'dashboards/compliance_metrics.json'
+
+- name: Configure alerting rules
+  template:
+    src: '{{ item }}.j2'
+    dest: '/etc/prometheus/rules/{{ item }}'
+  loop:
+    - infrastructure_alerts.yml
+    - application_alerts.yml
+    - security_alerts.yml
+  notify: reload prometheus

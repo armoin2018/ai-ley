@@ -1,0 +1,27 @@
+## Market Structure Analysis: [Industry/Product]
+
+### Market Definition
+- **Product Market**: [substitute goods, product differentiation]
+- **Geographic Market**: [relevant geographic scope]
+- **Temporal Factors**: [seasonal/cyclical patterns]
+
+### Market Characteristics
+- **Number of Firms**: [concentration measures]
+- **Entry Barriers**: [regulatory, technological, economic]
+- **Product Differentiation**: [horizontal vs. vertical]
+- **Buyer Power**: [concentration, switching costs]
+
+### Competitive Dynamics
+- **Pricing Strategy**: [competitive vs. strategic pricing]
+- **Non-Price Competition**: [quality, innovation, advertising]
+- **Strategic Interactions**: [game theoretic considerations]
+
+### Performance Metrics
+- **Efficiency**: [allocative, productive, dynamic]
+- **Innovation**: [R&D intensity, patent activity]
+- **Consumer Welfare**: [price levels, quality, variety]
+
+### Policy Implications
+- **Market Failures**: [externalities, information asymmetries]
+- **Regulatory Needs**: [antitrust, sector-specific regulation]
+- **Welfare Effects**: [consumer surplus, producer surplus]

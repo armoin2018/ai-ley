@@ -1,0 +1,20 @@
+import {
+    createConnection,
+    TextDocuments,
+    ProposedFeatures,
+    CompletionItem,
+    TextDocumentSyncKind
+} from 'vscode-languageserver/node';
+
+const connection = createConnection(ProposedFeatures.all);
+const documents = new TextDocuments(TextDocumentPositionParams);
+
+connection.onCompletion((): CompletionItem[] => {
+    return [
+        {
+            label: 'myKeyword',
+            kind: CompletionItemKind.Keyword,
+            detail: 'Custom keyword'
+        }
+    ];
+});

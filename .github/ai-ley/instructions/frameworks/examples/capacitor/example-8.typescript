@@ -1,0 +1,57 @@
+// Image optimization and caching
+import { CapacitorHttp } from '@capacitor/core';
+
+class ImageService {
+  private imageCache = new Map<string, string>();
+
+  async loadOptimizedImage(url: string, maxWidth = 800): Promise<string> {
+    if (this.imageCache.has(url)) {
+      return this.imageCache.get(url)!;
+    }
+
+    try {
+      const response = await CapacitorHttp.get({
+        url: url,
+        responseType: 'blob',
+      });
+
+      // Create optimized image
+      const optimizedBlob = await this.resizeImage(response.data, maxWidth);
+      const dataUrl = await this.blobToDataUrl(optimizedBlob);
+
+      this.imageCache.set(url, dataUrl);
+      return dataUrl;
+    } catch (error) {
+      console.error('Failed to load image:', error);
+      throw error;
+    }
+  }
+
+  private async resizeImage(blob: Blob, maxWidth: number): Promise<Blob> {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d')!;
+      const img = new Image();
+
+      img.onload = () => {
+        const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(resolve as BlobCallback, 'image/jpeg', 0.8);
+      };
+
+      img.src = URL.createObjectURL(blob);
+    });
+  }
+
+  private blobToDataUrl(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+}

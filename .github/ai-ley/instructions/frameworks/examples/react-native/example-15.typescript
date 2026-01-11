@@ -1,0 +1,23 @@
+// e2e/users.e2e.ts (with Detox)
+import { device, expect, element, by } from 'detox';
+
+describe('Users Screen', () => {
+  beforeAll(async () => {
+    await device.launchApp();
+  });
+
+  beforeEach(async () => {
+    await device.reloadReactNative();
+  });
+
+  it('should display users list', async () => {
+    await element(by.text('Users')).tap();
+    await expect(element(by.id('users-list'))).toBeVisible();
+  });
+
+  it('should navigate to user edit screen', async () => {
+    await element(by.text('Users')).tap();
+    await element(by.text('Edit')).atIndex(0).tap();
+    await expect(element(by.text('Edit User'))).toBeVisible();
+  });
+});

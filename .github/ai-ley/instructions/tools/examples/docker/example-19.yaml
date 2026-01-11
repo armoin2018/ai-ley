@@ -1,0 +1,82 @@
+# docker-stack.yml - Docker Swarm deployment
+version: '3.8'
+
+services:
+  web:
+    image: myapp:latest
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+      rollback_config:
+        parallelism: 1
+        delay: 5s
+        failure_action: pause
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      placement:
+        constraints:
+          - node.role == worker
+          - node.labels.zone == frontend
+    ports:
+      - '80:3000'
+    networks:
+      - frontend
+      - backend
+    secrets:
+      - jwt_secret
+      - db_password
+    configs:
+      - source: app_config
+        target: /app/config.yml
+
+  database:
+    image: postgres:15
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == worker
+          - node.labels.zone == database
+      restart_policy:
+        condition: on-failure
+    environment:
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - backend
+    secrets:
+      - db_password
+
+networks:
+  frontend:
+    external: true
+  backend:
+    driver: overlay
+    encrypted: true
+
+volumes:
+  db_data:
+    driver: local
+
+secrets:
+  jwt_secret:
+    external: true
+  db_password:
+    external: true
+
+configs:
+  app_config:
+    external: true

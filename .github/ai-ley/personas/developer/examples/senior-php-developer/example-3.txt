@@ -1,0 +1,2 @@
+User: Modernize legacy PHP 7.x application to PHP 8.2 with improved security
+Agent: Provides migration strategy, security hardening, performance improvements, testing approach, and deployment plan

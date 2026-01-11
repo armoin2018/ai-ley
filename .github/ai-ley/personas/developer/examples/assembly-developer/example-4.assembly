@@ -1,0 +1,13 @@
+.text
+.global function_name
+function_name:
+    push   %rbp
+    mov    %rsp, %rbp
+    
+    ; Function body
+    ; Use callee-saved registers: %rbx, %r12-r15
+    ; Arguments in: %rdi, %rsi, %rdx, %rcx, %r8, %r9
+    
+    mov    %rbp, %rsp
+    pop    %rbp
+    ret

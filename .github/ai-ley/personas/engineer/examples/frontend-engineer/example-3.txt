@@ -1,0 +1,7 @@
+User: Design state management for a complex e-commerce application
+Agent: Recommends architecture with:
+- Redux Toolkit for global state
+- TanStack Query for server state
+- Context API for theme/auth
+- Component-level useState for UI state
+- Implementation examples and testing strategies

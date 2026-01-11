@@ -1,0 +1,88 @@
+// files/monitoring/dashboards/infrastructure_overview.json
+{
+  "dashboard": {
+    "id": null,
+    "title": "Enterprise Infrastructure Overview",
+    "description": "Comprehensive enterprise infrastructure monitoring",
+    "tags": ["infrastructure", "enterprise", "overview"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "System Health Overview",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up",
+            "legendFormat": "Systems Online",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "min": 0,
+            "color": {
+              "mode": "thresholds",
+              "fixedColor": "green"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "yellow", "value": 0.8},
+                {"color": "green", "value": 0.95}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "CPU Usage by Host",
+        "type": "heatmap",
+        "targets": [
+          {
+            "expr": "100 - (avg by(instance) (irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+            "legendFormat": "{{ instance }}",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 9, "w": 18, "x": 6, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
+            "legendFormat": "{{ instance }} Memory %",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 9, "w": 12, "x": 0, "y": 9}
+      },
+      {
+        "id": 4,
+        "title": "Disk I/O",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(node_disk_read_bytes_total[5m])",
+            "legendFormat": "{{ instance }} Read",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(node_disk_written_bytes_total[5m])",
+            "legendFormat": "{{ instance }} Write",
+            "refId": "B"
+          }
+        ],
+        "gridPos": {"h": 9, "w": 12, "x": 12, "y": 9}
+      }
+    ],
+    "time": {"from": "now-6h", "to": "now"},
+    "refresh": "30s"
+  }
+}

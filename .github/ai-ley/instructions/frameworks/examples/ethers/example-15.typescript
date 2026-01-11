@@ -1,0 +1,1 @@
+const metadataHash = await ipfs.add(JSON.stringify(metadata));

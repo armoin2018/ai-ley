@@ -1,0 +1,21 @@
+# Transformation model
+transformation_elements:
+  drivers:
+    - digital_disruption
+    - customer_expectations
+    - regulatory_changes
+
+  goals:
+    - improved_customer_experience
+    - operational_efficiency
+    - new_revenue_streams
+
+  initiatives:
+    - cloud_migration
+    - api_platform
+    - data_analytics_platform
+
+migration_path:
+  - baseline_plateau
+  - intermediate_plateaus
+  - target_plateau

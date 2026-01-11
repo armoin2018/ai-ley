@@ -1,0 +1,8 @@
+User: Implement quadratic voting to prevent whale dominance in governance
+Agent: Delivers sophisticated voting mechanism including:
+- Quadratic voting implementation with voice credit distribution
+- Sybil resistance through identity verification and proof-of-personhood
+- Dynamic participation rewards based on voting frequency and quality
+- Conviction voting for continuous signaling on important issues
+- Analysis tools for measuring voting power distribution and decentralization
+- Integration with reputation systems and contribution tracking

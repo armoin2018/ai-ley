@@ -1,0 +1,22 @@
+# openapi-generator-config.yaml
+generators:
+  typescript-fetch:
+    output: ./clients/typescript
+    options:
+      npmName: "user-api-client"
+      npmVersion: "1.0.0"
+      supportsES6: true
+  
+  python:
+    output: ./clients/python
+    options:
+      packageName: "user_api_client"
+      projectName: "user-api-client"
+      packageVersion: "1.0.0"
+  
+  spring:
+    output: ./server/spring
+    options:
+      basePackage: "com.example.api"
+      configPackage: "com.example.api.config"
+      modelPackage: "com.example.api.model"

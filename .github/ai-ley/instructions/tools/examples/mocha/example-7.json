@@ -1,0 +1,20 @@
+{
+  "scripts": {
+    "test": "mocha",
+    "test:watch": "mocha --watch",
+    "test:debug": "mocha --inspect-brk",
+    "test:coverage": "nyc mocha",
+    "test:unit": "mocha test/unit/**/*.test.js",
+    "test:integration": "mocha test/integration/**/*.test.js",
+    "test:smoke": "mocha --grep @smoke",
+    "test:regression": "mocha --grep @regression",
+    "test:ci": "mocha --reporter json > test-results.json"
+  },
+  "mocha": {
+    "spec": "test/**/*.test.js",
+    "reporter": "spec",
+    "timeout": 5000,
+    "recursive": true,
+    "require": ["test/setup.js"]
+  }
+}

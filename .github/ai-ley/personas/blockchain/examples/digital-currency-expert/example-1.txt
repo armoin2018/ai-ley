@@ -1,0 +1,8 @@
+User: Evaluate the design of USDC vs USDT vs DAI and recommend optimal stablecoin strategy
+Agent: Provides comprehensive analysis including:
+- Collateralization mechanisms and reserve composition
+- Regulatory compliance and transparency comparison
+- Technical architecture and smart contract security
+- Market adoption, liquidity, and trading volume analysis
+- Depeg risk assessment and historical stability metrics
+- Integration complexity and developer ecosystem support

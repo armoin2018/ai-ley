@@ -1,0 +1,11 @@
+from cloud_platforms.aws import AWSEnterpriseOrchestrator
+
+aws_config = EnterpriseAWSConfig(
+    organization_id="enterprise-org",
+    tier=AWSTier.ENTERPRISE,
+    primary_region=AWSRegion.US_EAST_1,
+    environments=[AWSEnvironment.PRODUCTION, AWSEnvironment.STAGING]
+)
+
+aws_orchestrator = AWSEnterpriseOrchestrator(aws_config)
+deployment_result = await aws_orchestrator.deploy_enterprise_infrastructure()

@@ -1,0 +1,16 @@
+// Modern Kotlin HTTP client with proper error handling
+class ApiClient(private val client: HttpClient) {
+    suspend fun fetchUser(id: String): Result<User> = runCatching {
+        client.get("/users/$id") {
+            contentType(ContentType.Application.Json)
+        }.body<User>()
+    }
+    
+    suspend fun fetchUsersFlow(): Flow<User> = flow {
+        var page = 0
+        do {
+            val users = client.get("/users?page=${page++}").body<List<User>>()
+            users.forEach { emit(it) }
+        } while (users.isNotEmpty())
+    }.flowOn(Dispatchers.IO)
+}

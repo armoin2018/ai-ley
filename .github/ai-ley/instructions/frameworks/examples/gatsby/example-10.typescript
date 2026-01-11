@@ -1,0 +1,60 @@
+// src/components/seo.tsx
+import React from 'react';
+import { Helmet } from 'react-helmet';
+import { useSiteMetadata } from '../hooks/useSiteMetadata';
+
+interface SEOProps {
+  title: string;
+  description?: string;
+  lang?: string;
+  meta?: Array<{ name: string; content: string }>;
+}
+
+export const SEO: React.FC<SEOProps> = ({ title, description = '', lang = 'en', meta = [] }) => {
+  const siteMetadata = useSiteMetadata();
+  const metaDescription = description || siteMetadata.description;
+  const defaultTitle = siteMetadata.title;
+
+  return (
+    <Helmet
+      htmlAttributes={{ lang }}
+      title={title}
+      titleTemplate={defaultTitle ? `%s | ${defaultTitle}` : undefined}
+      meta={[
+        {
+          name: 'description',
+          content: metaDescription,
+        },
+        {
+          property: 'og:title',
+          content: title,
+        },
+        {
+          property: 'og:description',
+          content: metaDescription,
+        },
+        {
+          property: 'og:type',
+          content: 'website',
+        },
+        {
+          name: 'twitter:card',
+          content: 'summary',
+        },
+        {
+          name: 'twitter:creator',
+          content: siteMetadata.author || '',
+        },
+        {
+          name: 'twitter:title',
+          content: title,
+        },
+        {
+          name: 'twitter:description',
+          content: metaDescription,
+        },
+        ...meta,
+      ]}
+    />
+  );
+};

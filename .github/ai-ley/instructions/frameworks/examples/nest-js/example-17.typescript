@@ -1,0 +1,41 @@
+// DTO with comprehensive validation
+export class CreateUserDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(50)
+  @Matches(/^[a-zA-Z\s]+$/, { message: 'Name can only contain letters and spaces' })
+  name: string;
+
+  @IsString()
+  @MinLength(8)
+  @MaxLength(128)
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, {
+    message: 'Password must contain uppercase, lowercase, number and special character'
+  })
+  password: string;
+
+  @IsOptional()
+  @IsUrl()
+  avatar?: string;
+
+  @IsOptional()
+  @IsPhoneNumber()
+  phoneNumber?: string;
+}
+
+// Custom validation pipe for sanitization
+@Injectable()
+export class SanitizationPipe implements PipeTransform {
+  transform(value: any) {
+    if (typeof value === 'string') {
+      // Remove potential XSS payloads
+      return value.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    }
+    return value;
+  }
+}

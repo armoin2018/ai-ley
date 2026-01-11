@@ -1,0 +1,24 @@
+design-system-project/
+├── tailwind.config.js
+├── postcss.config.js
+├── src/
+│   ├── styles/
+│   │   ├── tailwind.css
+│   │   ├── base.css        # Base layer customizations
+│   │   ├── components.css  # Component layer
+│   │   └── utilities.css   # Utility layer
+│   ├── components/         # Component library
+│   │   ├── Button.js
+│   │   ├── Card.js
+│   │   ├── Modal.js
+│   │   └── Form/
+│   │       ├── Input.js
+│   │       ├── Select.js
+│   │       └── TextArea.js
+│   ├── tokens/             # Design tokens
+│   │   ├── colors.js
+│   │   ├── typography.js
+│   │   └── spacing.js
+│   └── utils/              # Utility functions
+├── stories/                # Storybook stories
+└── tests/                  # Component tests

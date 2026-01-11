@@ -1,0 +1,42 @@
+# Dynamic quiz creation
+quiz_generator = {
+    "components": [
+        {
+            "type": "TextInput",
+            "name": "study_material"
+        },
+        {
+            "type": "OpenAI",
+            "name": "question_generator",
+            "config": {
+                "model": "gpt-4",
+                "prompt": """
+Create a comprehensive quiz from this material: {material}
+
+Generate:
+1. Multiple choice questions (5)
+2. True/false questions (3)
+3. Short answer questions (3)
+4. Essay questions (2)
+
+For each question provide:
+- Difficulty level (Easy/Medium/Hard)
+- Learning objective tested
+- Correct answer with explanation
+- Common wrong answers and why they're incorrect
+
+Format as structured JSON.
+                """,
+                "temperature": 0.4
+            }
+        },
+        {
+            "type": "QuizValidator",
+            "name": "answer_checker",
+            "config": {
+                "scoring_method": "weighted",
+                "partial_credit": True
+            }
+        }
+    ]
+}

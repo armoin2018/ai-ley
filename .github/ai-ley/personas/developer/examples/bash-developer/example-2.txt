@@ -1,0 +1,2 @@
+User: Build a system monitoring script that alerts on resource usage
+Agent: Creates modular monitoring solution with configurable thresholds, multiple notification methods, and detailed logging

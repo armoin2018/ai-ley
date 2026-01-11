@@ -1,0 +1,87 @@
+class MarketDataManager:
+    """Centralized market data management."""
+    
+    def __init__(self, evaluation_date):
+        self.evaluation_date = evaluation_date
+        ql.Settings.instance().evaluationDate = evaluation_date
+        
+        self.curves = {}
+        self.vol_surfaces = {}
+        self.calendars = {}
+        
+        # Initialize common calendars
+        self.calendars['USD'] = ql.UnitedStates(ql.UnitedStates.NYSE)
+        self.calendars['EUR'] = ql.TARGET()
+        self.calendars['GBP'] = ql.UnitedKingdom(ql.UnitedKingdom.Exchange)
+    
+    def build_yield_curve(self, currency, rates_data):
+        """Build yield curve from market data."""
+        try:
+            calendar = self.calendars[currency]
+            helpers = []
+            
+            # Process different instrument types
+            for instrument_type, data in rates_data.items():
+                if instrument_type == 'deposits':
+                    for tenor, rate in data.items():
+                        helper = ql.DepositRateHelper(
+                            ql.QuoteHandle(ql.SimpleQuote(rate)),
+                            tenor, 2, calendar,
+                            ql.ModifiedFollowing, True,
+                            ql.ActualActual(ql.ActualActual.ISDA)
+                        )
+                        helpers.append(helper)
+                
+                elif instrument_type == 'swaps':
+                    for tenor, rate in data.items():
+                        helper = ql.SwapRateHelper(
+                            ql.QuoteHandle(ql.SimpleQuote(rate)),
+                            tenor, calendar, ql.Semiannual,
+                            ql.ModifiedFollowing,
+                            ql.ActualActual(ql.ActualActual.ISDA),
+                            ql.UsdLiborSwapIsdaFixAm(ql.Period(3, ql.Months))
+                        )
+                        helpers.append(helper)
+            
+            # Build curve
+            curve = ql.PiecewiseLinearZero(
+                self.evaluation_date, helpers,
+                ql.ActualActual(ql.ActualActual.ISDA)
+            )
+            curve.enableExtrapolation()
+            
+            self.curves[currency] = ql.YieldTermStructureHandle(curve)
+            return self.curves[currency]
+            
+        except Exception as e:
+            print(f"Error building yield curve for {currency}: {e}")
+            return None
+    
+    def build_vol_surface(self, underlying, vol_data):
+        """Build volatility surface from market data."""
+        try:
+            strikes = vol_data['strikes']
+            expiries = vol_data['expiries']
+            vol_matrix = vol_data['volatilities']
+            
+            # Convert expiries to QL dates
+            expiry_dates = [
+                self.evaluation_date + ql.Period(int(days), ql.Days)
+                for days in expiries
+            ]
+            
+            vol_surface = ql.BlackVarianceSurface(
+                self.evaluation_date,
+                self.calendars['USD'],  # Default to USD calendar
+                expiry_dates,
+                strikes,
+                vol_matrix,
+                ql.ActualActual(ql.ActualActual.ISDA)
+            )
+            
+            self.vol_surfaces[underlying] = ql.BlackVolTermStructureHandle(vol_surface)
+            return self.vol_surfaces[underlying]
+            
+        except Exception as e:
+            print(f"Error building vol surface for {underlying}: {e}")
+            return None

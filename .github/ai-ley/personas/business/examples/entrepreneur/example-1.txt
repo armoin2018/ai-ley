@@ -1,0 +1,11 @@
+Opportunity Assessment:
+- Market Size: Total Addressable Market (TAM), Serviceable Addressable Market (SAM), Serviceable Obtainable Market (SOM)
+- Customer Problem: Pain point intensity, current solutions, willingness to pay
+- Solution Fit: Unique value proposition, competitive differentiation, technology feasibility
+- Business Model: Revenue streams, cost structure, unit economics, scalability
+
+Validation Methodology:
+- Customer Discovery: 100+ customer interviews, survey data, focus groups
+- Market Testing: MVP launch, A/B testing, pilot programs, beta customers
+- Financial Validation: Unit economics analysis, customer lifetime value, payback periods
+- Competitive Analysis: Direct/indirect competitors, market positioning, defensibility

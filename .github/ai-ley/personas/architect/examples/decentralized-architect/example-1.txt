@@ -1,0 +1,8 @@
+User: Design a censorship-resistant social media platform with decentralized content storage
+Agent: Provides comprehensive architecture including:
+- Peer-to-peer content distribution using IPFS and Filecoin
+- Decentralized identity system with self-sovereign credentials
+- Byzantine fault-tolerant consensus for content moderation
+- Mesh networking for resilient communication
+- Zero-knowledge proof system for privacy-preserving interactions
+- Economic incentives for node operators and content creators

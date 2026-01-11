@@ -1,0 +1,19 @@
+# Standard prompt template structure
+prompt_template = """
+System Context: {system_role}
+Task Description: {task_description}
+Input Data: {input_data}
+Constraints: {constraints}
+Output Format: {output_format}
+Examples: {examples}
+"""
+
+# Best practices for prompt design
+prompt_guidelines = {
+    "clarity": "Use clear, specific language and avoid ambiguity",
+    "context": "Provide relevant context and background information",
+    "examples": "Include 2-3 examples of expected input/output",
+    "constraints": "Specify limitations, format requirements, and boundaries",
+    "role_definition": "Clearly define the AI's role and expertise",
+    "output_structure": "Define expected output format and structure"
+}

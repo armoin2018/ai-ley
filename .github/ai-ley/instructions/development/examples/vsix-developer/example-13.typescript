@@ -1,0 +1,6 @@
+vscode.window.registerWebviewViewProvider('myView', {
+  resolveWebviewView(webviewView) {
+    webviewView.webview.options = { enableScripts: true };
+    webviewView.webview.html = getHtmlContent(webviewView.webview);
+  }
+});

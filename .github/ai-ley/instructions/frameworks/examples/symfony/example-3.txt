@@ -1,0 +1,25 @@
+my_project/
+├── assets/                 # Frontend assets (CSS, JS)
+├── bin/                   # Executable files
+│   └── console           # Symfony console
+├── config/               # Configuration files
+│   ├── packages/         # Package configurations
+│   ├── routes/          # Routing configurations
+│   └── services.yaml    # Service definitions
+├── migrations/          # Database migrations
+├── public/              # Web-accessible directory
+│   └── index.php       # Front controller
+├── src/                 # Application source code
+│   ├── Controller/      # Controllers
+│   ├── Entity/          # Doctrine entities
+│   ├── Repository/      # Doctrine repositories
+│   ├── Service/         # Business logic services
+│   └── Kernel.php      # Application kernel
+├── templates/           # Twig templates
+├── tests/              # Unit and functional tests
+├── translations/       # Internationalization files
+├── var/               # Generated files (cache, logs)
+├── vendor/            # Composer dependencies
+├── .env               # Environment variables
+├── composer.json      # Composer configuration
+└── symfony.lock      # Symfony Flex lock file

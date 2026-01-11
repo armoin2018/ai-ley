@@ -1,0 +1,69 @@
+# Automated Tool Execution Based on Availability
+class SEOAnalysisExecutor:
+    def __init__(self, url, tool_detector):
+        self.url = url
+        self.detector = tool_detector
+        self.results = {}
+
+    def execute_seo_analysis(self):
+        """Execute SEO analysis using available tools"""
+
+        # 1. Detect available tools
+        print("🔍 Detecting available SEO tools...")
+        available_tools = self.detector.detect_available_tools()
+
+        if not available_tools:
+            print("⚠️ No specialized SEO tools detected. Using CLI fallbacks.")
+
+        # 2. Performance Analysis
+        perf_tool = self.detector.get_optimal_tool_for_task('performance')
+        if perf_tool == 'lighthouse':
+            self.results['performance'] = self.run_lighthouse()
+        elif perf_tool == 'google_pagespeed':
+            self.results['performance'] = self.fetch_pagespeed_insights()
+        else:
+            print("⚠️ No performance tools available. Manual assessment required.")
+
+        # 3. Crawling/Content Fetch
+        crawl_tool = self.detector.get_optimal_tool_for_task('web_fetch')
+        if crawl_tool == 'curl':
+            self.results['content'] = self.fetch_with_curl()
+        elif crawl_tool == 'wget':
+            self.results['content'] = self.fetch_with_wget()
+        else:
+            print("⚠️ No web fetch tools available. Cannot retrieve page content.")
+
+        # 4. Backlink Analysis
+        backlink_tool = self.detector.get_optimal_tool_for_task('backlink_analysis')
+        if backlink_tool:
+            self.results['backlinks'] = self.analyze_backlinks(backlink_tool)
+        else:
+            print("ℹ️ No backlink analysis tools available. Skipping backlink audit.")
+
+        # 5. Keyword Research
+        keyword_tool = self.detector.get_optimal_tool_for_task('keyword_research')
+        if keyword_tool:
+            self.results['keywords'] = self.research_keywords(keyword_tool)
+        else:
+            print("ℹ️ No keyword research tools available. Manual keyword analysis required.")
+
+        return self.results
+
+    def run_lighthouse(self):
+        """Execute Lighthouse audit"""
+        cmd = f"lighthouse {self.url} --output json --output-path ./lighthouse_report.json --chrome-flags='--headless'"
+        subprocess.run(cmd, shell=True)
+        with open('lighthouse_report.json', 'r') as f:
+            return json.load(f)
+
+    def fetch_with_curl(self):
+        """Fetch page content using curl"""
+        cmd = f"curl -L -s '{self.url}'"
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        return result.stdout
+
+    def fetch_with_wget(self):
+        """Fetch page content using wget"""
+        cmd = f"wget -qO- '{self.url}'"
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        return result.stdout

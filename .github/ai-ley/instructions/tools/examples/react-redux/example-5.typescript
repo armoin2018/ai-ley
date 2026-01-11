@@ -1,0 +1,114 @@
+// store/slices/userSlice.ts
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
+
+interface User {
+  id: string
+  name: string
+  email: string
+  avatar?: string
+}
+
+interface UserState {
+  currentUser: User | null
+  users: User[]
+  loading: boolean
+  error: string | null
+}
+
+const initialState: UserState = {
+  currentUser: null,
+  users: [],
+  loading: false,
+  error: null,
+}
+
+// Async thunk for user login
+export const loginUser = createAsyncThunk(
+  'user/login',
+  async (credentials: { email: string; password: string }, { rejectWithValue }) => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(credentials),
+      })
+      
+      if (!response.ok) {
+        throw new Error('Login failed')
+      }
+      
+      const userData = await response.json()
+      return userData
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Login failed')
+    }
+  }
+)
+
+// Async thunk for fetching users
+export const fetchUsers = createAsyncThunk(
+  'user/fetchUsers',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const response = await fetch('/api/users')
+      if (!response.ok) throw new Error('Failed to fetch users')
+      return await response.json()
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Failed to fetch users')
+    }
+  }
+)
+
+export const userSlice = createSlice({
+  name: 'user',
+  initialState,
+  reducers: {
+    // Synchronous actions
+    setCurrentUser: (state, action: PayloadAction<User>) => {
+      state.currentUser = action.payload
+    },
+    clearCurrentUser: (state) => {
+      state.currentUser = null
+    },
+    updateUserProfile: (state, action: PayloadAction<Partial<User>>) => {
+      if (state.currentUser) {
+        state.currentUser = { ...state.currentUser, ...action.payload }
+      }
+    },
+    clearError: (state) => {
+      state.error = null
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // Login user cases
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.loading = false
+        state.currentUser = action.payload
+        state.error = null
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload as string
+      })
+      // Fetch users cases
+      .addCase(fetchUsers.pending, (state) => {
+        state.loading = true
+      })
+      .addCase(fetchUsers.fulfilled, (state, action) => {
+        state.loading = false
+        state.users = action.payload
+      })
+      .addCase(fetchUsers.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload as string
+      })
+  },
+})
+
+export const { setCurrentUser, clearCurrentUser, updateUserProfile, clearError } = userSlice.actions
+export default userSlice.reducer

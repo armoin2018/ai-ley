@@ -1,0 +1,1 @@
+grep "UFW BLOCK" /var/log/ufw.log | wc -l

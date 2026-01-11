@@ -1,0 +1,45 @@
+import { test, expect, devices } from '@playwright/test'
+
+// Mobile device testing
+test.describe('Mobile testing', () => {
+  test('iPhone responsive design', async ({ browser }) => {
+    const context = await browser.newContext({
+      ...devices['iPhone 12']
+    })
+    const page = await context.newPage()
+
+    await page.goto('/')
+
+    // Test mobile navigation
+    await page.click('.mobile-menu-toggle')
+    await expect(page.locator('.mobile-menu')).toBeVisible()
+
+    // Test touch interactions
+    await page.touchscreen.tap('.touch-button', { x: 10, y: 10 })
+
+    // Test viewport-specific elements
+    await expect(page.locator('.desktop-only')).toBeHidden()
+    await expect(page.locator('.mobile-only')).toBeVisible()
+  })
+
+  test('tablet landscape mode', async ({ browser }) => {
+    const context = await browser.newContext({
+      ...devices['iPad Pro landscape']
+    })
+    const page = await context.newPage()
+
+    await page.goto('/')
+
+    // Test tablet-specific layout
+    await expect(page.locator('.tablet-grid')).toHaveCSS('grid-template-columns', 'repeat(3, 1fr)')
+  })
+
+  test('custom viewport', async ({ page }) => {
+    // Set custom viewport
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.goto('/')
+
+    // Test responsive breakpoints
+    await expect(page.locator('.responsive-element')).toHaveCSS('width', '100%')
+  })
+})

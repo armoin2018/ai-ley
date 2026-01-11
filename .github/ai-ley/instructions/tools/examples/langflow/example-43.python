@@ -1,0 +1,43 @@
+# Automated FAQ system
+faq_system = {
+    "components": [
+        {
+            "type": "BatchInput",
+            "name": "support_tickets",
+            "config": {
+                "input_type": "csv",
+                "columns": ["ticket_id", "question", "resolution", "category"]
+            }
+        },
+        {
+            "type": "OpenAI",
+            "name": "faq_generator",
+            "config": {
+                "model": "gpt-4",
+                "prompt": """
+Analyze these support tickets and generate FAQ entries:
+
+Tickets: {tickets}
+
+For each common issue, create:
+1. Clear question
+2. Comprehensive answer
+3. Related keywords
+4. Category
+
+Format as JSON array.
+                """,
+                "temperature": 0.3
+            }
+        },
+        {
+            "type": "VectorStore",
+            "name": "faq_updater",
+            "config": {
+                "operation": "upsert",
+                "vector_store": "pinecone",
+                "index_name": "faq_index"
+            }
+        }
+    ]
+}

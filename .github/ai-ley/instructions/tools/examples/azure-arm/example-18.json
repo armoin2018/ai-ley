@@ -1,0 +1,86 @@
+{
+  "functions": [
+    {
+      "namespace": "enterprise",
+      "members": {
+        "generateSecurePassword": {
+          "parameters": [
+            {
+              "name": "length",
+              "type": "int"
+            }
+          ],
+          "output": {
+            "type": "securestring",
+            "value": "[concat('P@ssw0rd', uniqueString(resourceGroup().id), take(guid(), parameters('length')))]"
+          }
+        },
+        "buildResourceName": {
+          "parameters": [
+            {
+              "name": "resourceType",
+              "type": "string"
+            },
+            {
+              "name": "environment",
+              "type": "string"
+            },
+            {
+              "name": "region",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[concat(parameters('resourceType'), '-', parameters('environment'), '-', take(parameters('region'), 3), '-', uniqueString(resourceGroup().id))]"
+          }
+        },
+        "getComplianceSettings": {
+          "parameters": [
+            {
+              "name": "framework",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "object",
+            "value": {
+              "auditRetention": "[if(equals(parameters('framework'), 'SOC2'), 2555, if(equals(parameters('framework'), 'HIPAA'), 2190, 365))]",
+              "encryptionRequired": true,
+              "networkIsolation": "[if(equals(parameters('framework'), 'PCI-DSS'), true, false)]"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[enterprise.buildResourceName('sa', parameters('environment'), parameters('primaryRegion'))]",
+      "location": "[parameters('primaryRegion')]",
+      "properties": {
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true,
+        "encryption": {
+          "keySource": "Microsoft.Storage",
+          "requireInfrastructureEncryption": "[enterprise.getComplianceSettings(parameters('complianceFramework')).encryptionRequired]",
+          "services": {
+            "blob": {
+              "enabled": true,
+              "keyType": "Account"
+            },
+            "file": {
+              "enabled": true,
+              "keyType": "Account"
+            }
+          }
+        },
+        "networkAcls": {
+          "defaultAction": "[if(enterprise.getComplianceSettings(parameters('complianceFramework')).networkIsolation, 'Deny', 'Allow')]"
+        }
+      }
+    }
+  ]
+}

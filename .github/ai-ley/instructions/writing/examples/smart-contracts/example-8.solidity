@@ -1,0 +1,27 @@
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+contract SecureContract is ReentrancyGuard {
+    mapping(address => uint256) private balances;
+
+    // BAD: Vulnerable to reentrancy
+    function withdrawBad() public {
+        uint256 amount = balances[msg.sender];
+        require(amount > 0, "No balance");
+
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
+
+        balances[msg.sender] = 0; // State change after external call
+    }
+
+    // GOOD: Reentrancy protected
+    function withdrawGood() public nonReentrant {
+        uint256 amount = balances[msg.sender];
+        require(amount > 0, "No balance");
+
+        balances[msg.sender] = 0; // State change before external call
+
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
+    }
+}

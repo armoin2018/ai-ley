@@ -1,0 +1,49 @@
+risk_assessment:
+  business_risks:
+    operational:
+      - customer_concentration: "percentage_of_revenue_from_top_customers"
+      - supplier_concentration: "percentage_of_costs_from_key_suppliers"
+      - geographic_concentration: "revenue_by_region"
+      
+    competitive:
+      - market_share_stability: "historical_market_position"
+      - competitive_threats: "new_entrants_and_substitutes"
+      - pricing_power: "ability_to_pass_through_cost_increases"
+      
+    regulatory:
+      - compliance_requirements: "industry_specific_regulations"
+      - regulatory_changes: "pending_legislation_impact"
+      - litigation_exposure: "outstanding_legal_matters"
+      
+  financial_risks:
+    credit_risk:
+      - counterparty_risk: "customer_credit_ratings"
+      - concentration_risk: "receivables_aging_analysis"
+      - default_probability: "historical_bad_debt_rates"
+      
+    market_risk:
+      - interest_rate_sensitivity: "floating_rate_debt_exposure"
+      - foreign_exchange_risk: "revenue_cost_currency_mismatch"
+      - commodity_price_risk: "input_cost_volatility"
+      
+    liquidity_risk:
+      - debt_maturity_profile: "refinancing_requirements"
+      - cash_flow_volatility: "seasonal_working_capital_needs"
+      - credit_facility_availability: "undrawn_credit_lines"
+      
+  sensitivity_analysis:
+    key_variables:
+      - revenue_growth: "±2% impact_on_valuation"
+      - operating_margin: "±1% impact_on_valuation"
+      - discount_rate: "±0.5% impact_on_valuation"
+      - terminal_growth: "±0.5% impact_on_valuation"
+      
+    scenario_analysis:
+      - base_case: "management_guidance_assumptions"
+      - bull_case: "optimistic_but_achievable_scenario"
+      - bear_case: "stress_test_assumptions"
+      
+    monte_carlo:
+      - simulation_runs: 10000
+      - probability_distributions: "normal_triangular_uniform"
+      - confidence_intervals: "90th_percentile_outcomes"

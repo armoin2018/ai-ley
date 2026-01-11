@@ -1,0 +1,32 @@
+# Custom networks
+networks:
+  frontend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+  backend:
+    driver: bridge
+    internal: true # No external access
+
+  external_network:
+    external: true
+    name: shared_network
+
+services:
+  web:
+    networks:
+      frontend:
+        ipv4_address: 172.20.0.10
+      backend:
+        aliases:
+          - web-server
+          - api-server
+
+  nginx:
+    networks:
+      - frontend
+    ports:
+      - '80:80'
+      - '443:443'

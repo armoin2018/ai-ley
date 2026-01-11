@@ -1,0 +1,67 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+
+/**
+ * @title MyContract
+ * @dev Brief description of contract functionality
+ * @author Your Name
+ */
+contract MyContract is Ownable, ReentrancyGuard, Pausable {
+    // State variables
+    uint256 public constant MAX_SUPPLY = 10000;
+    uint256 private _currentSupply;
+    mapping(address => uint256) private _balances;
+
+    // Events
+    event TokenMinted(address indexed to, uint256 amount);
+    event BalanceUpdated(address indexed user, uint256 newBalance);
+
+    // Modifiers
+    modifier validAmount(uint256 amount) {
+        require(amount > 0, "Amount must be greater than zero");
+        require(amount <= MAX_SUPPLY - _currentSupply, "Exceeds max supply");
+        _;
+    }
+
+    // Constructor
+    constructor() {
+        _currentSupply = 0;
+    }
+
+    // External functions
+    function mint(address to, uint256 amount)
+        external
+        onlyOwner
+        whenNotPaused
+        validAmount(amount)
+    {
+        _currentSupply += amount;
+        _balances[to] += amount;
+        emit TokenMinted(to, amount);
+        emit BalanceUpdated(to, _balances[to]);
+    }
+
+    // Public functions
+    function getBalance(address user) public view returns (uint256) {
+        return _balances[user];
+    }
+
+    // Internal functions
+    function _updateBalance(address user, uint256 newBalance) internal {
+        _balances[user] = newBalance;
+        emit BalanceUpdated(user, newBalance);
+    }
+
+    // Emergency functions
+    function emergencyPause() external onlyOwner {
+        _pause();
+    }
+
+    function emergencyUnpause() external onlyOwner {
+        _unpause();
+    }
+}

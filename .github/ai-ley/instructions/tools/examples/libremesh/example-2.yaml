@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  libremesh-controller:
+    build:
+      context: ./libremesh-controller
+      dockerfile: Dockerfile
+    container_name: libremesh-controller
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://libremesh:password@postgres:5432/libremesh_mgmt
+      - REDIS_URL=redis://redis:6379/0
+      - MESH_PROTOCOL_DEFAULT=batman-adv
+    volumes:
+      - ./config:/app/config
+      - ./node-configs:/app/node-configs
+      - ./topology-data:/app/topology-data
+      - ./ssh-keys:/app/ssh-keys:ro
+    ports:
+      - '8447:8443' # Management interface
+      - '9099:9090' # Metrics
+    networks:
+      - libremesh_mgmt
+
+  topology-analyzer:
+    build:
+      context: ./topology-analyzer
+      dockerfile: Dockerfile
+    container_name: libremesh-topology-analyzer
+    restart: unless-stopped
+    environment:
+      - ANALYSIS_INTERVAL=300 # 5 minutes
+      - ML_OPTIMIZATION_ENABLED=true
+    volumes:
+      - ./topology-data:/app/topology-data
+      - ./analytics:/app/analytics
+    networks:
+      - libremesh_mgmt
+
+  node-provisioning:
+    build:
+      context: ./node-provisioning
+      dockerfile: Dockerfile
+    container_name: libremesh-node-provisioning
+    restart: unless-stopped
+    environment:
+      - AUTO_PROVISIONING_ENABLED=true
+      - CONFIG_VALIDATION=strict
+    volumes:
+      - ./node-configs:/app/node-configs
+      - ./ssh-keys:/app/ssh-keys:ro
+      - ./provisioning-logs:/app/logs
+    networks:
+      - libremesh_mgmt
+
+  performance-monitor:
+    build:
+      context: ./performance-monitor
+      dockerfile: Dockerfile
+    container_name: libremesh-performance-monitor
+    restart: unless-stopped
+    environment:
+      - MONITORING_INTERVAL=60 # 1 minute
+      - ALERT_THRESHOLD_LATENCY=100 # ms
+      - ALERT_THRESHOLD_PACKET_LOSS=5 # %
+    volumes:
+      - ./monitoring-data:/app/monitoring-data
+      - ./alerts:/app/alerts
+    networks:
+      - libremesh_mgmt
+
+networks:
+  libremesh_mgmt:
+    driver: bridge

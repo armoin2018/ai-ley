@@ -1,0 +1,7 @@
+const diagnostics = vscode.languages.createDiagnosticCollection('myExt');
+const diag = new vscode.Diagnostic(
+  range,
+  'Error message',
+  vscode.DiagnosticSeverity.Error
+);
+diagnostics.set(document.uri, [diag]);

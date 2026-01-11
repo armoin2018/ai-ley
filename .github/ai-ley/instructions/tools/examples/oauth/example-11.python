@@ -1,0 +1,119 @@
+import jwt
+import json
+import requests
+from datetime import datetime, timedelta
+from cryptography.hazmat.primitives import serialization
+
+class JWTHandler:
+    """JWT token validation and parsing for OAuth."""
+
+    def __init__(self, issuer, audience, jwks_uri=None):
+        self.issuer = issuer
+        self.audience = audience
+        self.jwks_uri = jwks_uri
+        self.public_keys = {}
+
+        if jwks_uri:
+            self._fetch_public_keys()
+
+    def _fetch_public_keys(self):
+        """Fetch public keys from JWKS endpoint."""
+        try:
+            response = requests.get(self.jwks_uri, timeout=30)
+            if response.status_code == 200:
+                jwks = response.json()
+
+                for key in jwks.get('keys', []):
+                    kid = key.get('kid')
+                    if kid:
+                        self.public_keys[kid] = key
+
+        except requests.RequestException as e:
+            print(f"Failed to fetch JWKS: {e}")
+
+    def validate_token(self, token, verify_signature=True):
+        """Validate JWT token and return payload."""
+        try:
+            # Decode token header to get key ID
+            header = jwt.get_unverified_header(token)
+            kid = header.get('kid')
+
+            if verify_signature and kid:
+                # Get public key for signature verification
+                if kid not in self.public_keys:
+                    self._fetch_public_keys()
+
+                if kid in self.public_keys:
+                    public_key = self._convert_jwk_to_pem(self.public_keys[kid])
+                else:
+                    raise jwt.InvalidTokenError("Public key not found")
+            else:
+                public_key = None
+
+            # Decode and validate token
+            payload = jwt.decode(
+                token,
+                public_key,
+                algorithms=['RS256', 'HS256'] if verify_signature else None,
+                audience=self.audience,
+                issuer=self.issuer,
+                options={
+                    'verify_signature': verify_signature,
+                    'verify_exp': True,
+                    'verify_aud': True,
+                    'verify_iss': True
+                }
+            )
+
+            return payload
+
+        except jwt.ExpiredSignatureError:
+            raise Exception("Token has expired")
+        except jwt.InvalidAudienceError:
+            raise Exception("Invalid audience")
+        except jwt.InvalidIssuerError:
+            raise Exception("Invalid issuer")
+        except jwt.InvalidTokenError as e:
+            raise Exception(f"Invalid token: {str(e)}")
+
+    def _convert_jwk_to_pem(self, jwk):
+        """Convert JWK to PEM format for signature verification."""
+        try:
+            from jwt.algorithms import RSAAlgorithm
+            return RSAAlgorithm.from_jwk(json.dumps(jwk))
+        except Exception as e:
+            raise Exception(f"Failed to convert JWK to PEM: {str(e)}")
+
+    def create_token(self, payload, private_key, algorithm='RS256', expires_in=3600):
+        """Create JWT token with given payload."""
+        # Add standard claims
+        now = datetime.utcnow()
+        payload.update({
+            'iss': self.issuer,
+            'aud': self.audience,
+            'iat': now,
+            'exp': now + timedelta(seconds=expires_in),
+            'jti': secrets.token_hex(16)  # Unique token ID
+        })
+
+        try:
+            token = jwt.encode(payload, private_key, algorithm=algorithm)
+            return token
+        except Exception as e:
+            raise Exception(f"Failed to create token: {str(e)}")
+
+# Usage example
+jwt_handler = JWTHandler(
+    issuer='https://auth.yourapp.com',
+    audience='your-api-audience',
+    jwks_uri='https://auth.yourapp.com/.well-known/jwks.json'
+)
+
+# Validate incoming JWT token
+try:
+    payload = jwt_handler.validate_token(access_token)
+    user_id = payload.get('sub')
+    scopes = payload.get('scope', '').split()
+    print(f"Token valid for user {user_id} with scopes: {scopes}")
+except Exception as e:
+    print(f"Token validation failed: {e}")

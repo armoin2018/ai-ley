@@ -1,0 +1,37 @@
+.markdown-rendered pre {
+  background: #1e293b; /* Dark background */
+  color: #e2e8f0; /* Light text */
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  position: relative; /* For copy button positioning */
+}
+
+.markdown-rendered code {
+  font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font-size: 0.9em;
+}
+
+.markdown-rendered p code {
+  background: #f1f5f9; /* Light gray for inline code */
+  color: #e11d48; /* Red accent */
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+}
+
+.copy-code-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.copy-code-btn.copied {
+  background: var(--success-color);
+  border-color: var(--success-color);
+}

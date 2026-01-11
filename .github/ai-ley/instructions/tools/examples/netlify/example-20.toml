@@ -1,0 +1,18 @@
+# netlify.toml - A/B testing configuration
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Split testing
+[[split_tests]]
+  id = "homepage-test"
+  path = "/"
+  branches = [
+    { branch = "main", percentage = 50 },
+    { branch = "new-homepage", percentage = 50 }
+  ]
+
+# Feature flags
+[[edge_functions]]
+  function = "feature-flags"
+  path = "/*"

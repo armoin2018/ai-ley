@@ -1,0 +1,54 @@
+# components/terraform/compliance/main.tf - Compliance monitoring component
+resource "aws_config_configuration_recorder" "main" {
+name     = "${var.name}-config-recorder"
+role_arn = aws_iam_role.config.arn
+
+recording_group {
+all_supported = true
+include_global_resource_types = true
+}
+
+depends_on = [aws_config_delivery_channel.main]
+}
+
+resource "aws_config_delivery_channel" "main" {
+name           = "${var.name}-config-delivery-channel"
+s3_bucket_name = aws_s3_bucket.config.bucket
+
+snapshot_delivery_properties {
+delivery_frequency = "TwentyFour_Hours"
+}
+}
+
+resource "aws_config_config_rule" "s3_encrypted" {
+name = "s3-bucket-server-side-encryption-enabled"
+
+source {
+owner             = "AWS"
+source_identifier = "S3_BUCKET_SERVER_SIDE_ENCRYPTION_ENABLED"
+}
+
+depends_on = [aws_config_configuration_recorder.main]
+}
+
+resource "aws_config_config_rule" "vpc_flow_logs" {
+name = "vpc-flow-logs-enabled"
+
+source {
+owner             = "AWS"
+source_identifier = "VPC_FLOW_LOGS_ENABLED"
+}
+
+depends_on = [aws_config_configuration_recorder.main]
+}
+
+resource "aws_config_config_rule" "root_access_key_check" {
+name = "root-access-key-check"
+
+source {
+owner             = "AWS"
+source_identifier = "ROOT_ACCESS_KEY_CHECK"
+}
+
+depends_on = [aws_config_configuration_recorder.main]
+}

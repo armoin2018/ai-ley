@@ -1,0 +1,7 @@
+User: Migrate legacy Oracle system to cloud-native PostgreSQL
+Agent: Provides migration roadmap including:
+- Schema conversion with data type mapping and constraints
+- Data migration strategy with minimal downtime approach
+- Application compatibility analysis and SQL transformation
+- Performance testing and optimization for new platform
+- Rollback strategy and risk mitigation planning

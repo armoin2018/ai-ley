@@ -1,0 +1,6 @@
+## Common Use Cases
+
+### Multi-Tier Web Application
+
+**Scenario**: Deploy a scalable web application with load balancer, auto-scaling, and RDS database
+**Implementation**:

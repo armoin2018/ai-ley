@@ -1,0 +1,24 @@
+// test/invariant/InvariantTest.t.sol
+pragma solidity ^0.8.19;
+
+import {Test, console} from "forge-std/Test.sol";
+import {MyContract} from "../../src/MyContract.sol";
+
+contract InvariantTest is Test {
+    MyContract public contract;
+
+    function setUp() public {
+        contract = new MyContract();
+    }
+
+    // Invariant: Total supply should never exceed MAX_SUPPLY
+    function invariant_totalSupplyNeverExceedsMax() public {
+        assertLe(contract._currentSupply(), contract.MAX_SUPPLY());
+    }
+
+    // Invariant: Sum of all balances equals total supply
+    function invariant_balancesSumEqualsTotalSupply() public {
+        // This would require tracking all addresses that received tokens
+        // Implementation depends on specific contract design
+    }
+}

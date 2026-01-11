@@ -1,0 +1,20 @@
+import xml.etree.ElementTree as ET
+from xml.parsers.expat import ParserCreateNS
+
+def create_secure_parser():
+    """Create XML parser with security best practices"""
+    parser = ET.XMLParser()
+    # Disable external entity processing
+    parser.parser.DefaultHandler = lambda data: None
+    parser.parser.ExternalEntityRefHandler = lambda *args: False
+    return parser
+
+def validate_against_schema(xml_doc, xsd_schema):
+    """Validate XML document against XSD schema"""
+    from lxml import etree
+    
+    schema_doc = etree.parse(xsd_schema)
+    schema = etree.XMLSchema(schema_doc)
+    
+    xml_doc_parsed = etree.parse(xml_doc)
+    return schema.validate(xml_doc_parsed)

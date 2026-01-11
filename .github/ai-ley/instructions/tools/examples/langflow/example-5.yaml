@@ -1,0 +1,27 @@
+# langflow.yaml
+server:
+  host: '0.0.0.0'
+  port: 7860
+  log_level: 'INFO'
+
+database:
+  url: 'sqlite:///./langflow.db'
+
+cache:
+  type: 'memory'
+  redis_url: 'redis://localhost:6379'
+
+auth:
+  enabled: true
+  type: 'password'
+  secret_key: 'your-secret-key'
+
+llm_providers:
+  openai:
+    api_key: '${OPENAI_API_KEY}'
+    default_model: 'gpt-4'
+  anthropic:
+    api_key: '${ANTHROPIC_API_KEY}'
+    default_model: 'claude-3-sonnet'
+  huggingface:
+    api_token: '${HUGGINGFACE_API_TOKEN}'

@@ -1,0 +1,114 @@
+// src/routes/users.ts
+import { Type } from '@sinclair/typebox'
+import { FastifyPluginAsync } from 'fastify'
+
+// Schemas
+const UserSchema = Type.Object({
+  id: Type.String({ format: 'uuid' }),
+  name: Type.String({ minLength: 1, maxLength: 100 }),
+  email: Type.String({ format: 'email' }),
+  age: Type.Optional(Type.Number({ minimum: 0, maximum: 150 })),
+  createdAt: Type.String({ format: 'date-time' })
+})
+
+const CreateUserSchema = Type.Object({
+  name: Type.String({ minLength: 1, maxLength: 100 }),
+  email: Type.String({ format: 'email' }),
+  age: Type.Optional(Type.Number({ minimum: 0, maximum: 150 }))
+})
+
+const UserParamsSchema = Type.Object({
+  id: Type.String({ format: 'uuid' })
+})
+
+const usersRoute: FastifyPluginAsync = async (fastify) => {
+  // GET /users
+  fastify.get('/users', {
+    schema: {
+      response: {
+        200: Type.Array(UserSchema),
+        500: Type.Object({
+          error: Type.String(),
+          message: Type.String()
+        })
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const users = await fastify.userService.getAllUsers()
+      return users
+    } catch (error) {
+      fastify.log.error(error)
+      reply.code(500).send({
+        error: 'Internal Server Error',
+        message: 'Failed to fetch users'
+      })
+    }
+  })
+
+  // GET /users/:id
+  fastify.get('/users/:id', {
+    schema: {
+      params: UserParamsSchema,
+      response: {
+        200: UserSchema,
+        404: Type.Object({
+          error: Type.String(),
+          message: Type.String()
+        })
+      }
+    }
+  }, async (request, reply) => {
+    const { id } = request.params
+    
+    try {
+      const user = await fastify.userService.getUserById(id)
+      if (!user) {
+        return reply.code(404).send({
+          error: 'Not Found',
+          message: 'User not found'
+        })
+      }
+      return user
+    } catch (error) {
+      fastify.log.error(error)
+      reply.code(500).send({
+        error: 'Internal Server Error',
+        message: 'Failed to fetch user'
+      })
+    }
+  })
+
+  // POST /users
+  fastify.post('/users', {
+    schema: {
+      body: CreateUserSchema,
+      response: {
+        201: UserSchema,
+        400: Type.Object({
+          error: Type.String(),
+          message: Type.String()
+        })
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const user = await fastify.userService.createUser(request.body)
+      reply.code(201).send(user)
+    } catch (error) {
+      fastify.log.error(error)
+      if (error.code === 'DUPLICATE_EMAIL') {
+        return reply.code(400).send({
+          error: 'Bad Request',
+          message: 'Email already exists'
+        })
+      }
+      reply.code(500).send({
+        error: 'Internal Server Error',
+        message: 'Failed to create user'
+      })
+    }
+  })
+}
+
+export default usersRoute

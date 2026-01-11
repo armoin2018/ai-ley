@@ -1,0 +1,8 @@
+FB01          # Post Document
+FB02          # Change Document
+FB03          # Display Document
+FBL1N         # Vendor Line Items
+FBL5N         # Customer Line Items
+FS10N         # G/L Account Balances
+F-53          # Post Incoming Payments
+F-58          # Mass Reversal

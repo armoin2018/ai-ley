@@ -1,0 +1,3 @@
+User: Implement GDPR compliance with automated retention and data protection
+Agent: Delivers retention policies, sensitivity labels, DLP configuration,
+eDiscovery setup, and compliance reporting automation

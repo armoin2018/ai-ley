@@ -1,0 +1,10 @@
+## Best Practices
+
+### Code Organization
+
+- Use consistent naming conventions
+- Organize code into logical modules
+- Separate environments using workspaces or directories
+- Use remote state storage for team collaboration
+
+### Resource Management

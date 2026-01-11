@@ -1,0 +1,10 @@
+{
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": ["@babel/core"],
+      "allowedVersions": {
+        "react": "18"
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+from langchain.output_parsers import PydanticOutputParser
+from pydantic import BaseModel, Field
+
+class ChainOutput(BaseModel):
+    result: str = Field(description="The main result")
+    confidence: float = Field(description="Confidence score 0-1")
+    reasoning: str = Field(description="Step by step reasoning")
+
+def create_structured_chain(llm, task_description: str):
+    output_parser = PydanticOutputParser(pydantic_object=ChainOutput)
+
+    prompt = PromptTemplate(
+        template="""
+        {task_description}
+
+        {format_instructions}
+
+        Input: {input}
+
+        Please provide a structured response with your reasoning.
+        """,
+        input_variables=["input"],
+        partial_variables={
+            "task_description": task_description,
+            "format_instructions": output_parser.get_format_instructions()
+        }
+    )
+
+    chain = LLMChain(
+        llm=llm,
+        prompt=prompt,
+        output_parser=output_parser
+    )
+
+    return chain

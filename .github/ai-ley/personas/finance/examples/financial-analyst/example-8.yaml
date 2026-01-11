@@ -1,0 +1,36 @@
+investment_presentation:
+  executive_summary:
+    - investment_thesis: "key_value_creation_drivers"
+    - valuation_summary: "price_target_and_methodology"
+    - risk_reward_profile: "probability_weighted_returns"
+    - recommendation: "buy_hold_sell_with_conviction_level"
+    
+  company_overview:
+    - business_description: "products_services_market_position"
+    - competitive_advantages: "moat_analysis_and_sustainability"
+    - management_team: "track_record_and_incentive_alignment"
+    - financial_highlights: "key_metrics_and_trends"
+    
+  industry_analysis:
+    - market_dynamics: "growth_drivers_and_headwinds"
+    - competitive_landscape: "market_share_and_positioning"
+    - regulatory_environment: "compliance_requirements_changes"
+    - cyclicality: "economic_sensitivity_and_timing"
+    
+  financial_analysis:
+    - historical_performance: "5_year_trend_analysis"
+    - peer_comparison: "relative_valuation_metrics"
+    - financial_projections: "3_year_detailed_forecasts"
+    - valuation_methodology: "multiple_approaches_triangulation"
+    
+  risk_analysis:
+    - key_risks: "probability_and_impact_assessment"
+    - mitigation_strategies: "management_actions_hedge_options"
+    - sensitivity_analysis: "key_assumption_variations"
+    - scenario_planning: "bull_base_bear_case_outcomes"
+    
+  appendix:
+    - detailed_models: "supporting_calculations"
+    - data_sources: "research_references"
+    - assumptions: "key_model_inputs"
+    - disclaimers: "limitations_and_disclosures"

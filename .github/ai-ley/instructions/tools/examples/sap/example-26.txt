@@ -1,0 +1,6 @@
+/nSM04        # User Overview
+/nSM12        # Lock Entries
+/nSM13        # Update Records
+/nSM21        # System Log
+/nSM50        # Work Process Overview
+/nST22        # ABAP Runtime Errors

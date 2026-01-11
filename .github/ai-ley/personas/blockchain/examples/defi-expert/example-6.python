@@ -1,0 +1,57 @@
+class DeFiRiskAssessment:
+    def __init__(self):
+        self.risk_factors = {
+            'smart_contract': {'weight': 0.3, 'max_score': 10},
+            'economic': {'weight': 0.25, 'max_score': 10},
+            'governance': {'weight': 0.2, 'max_score': 10},
+            'liquidity': {'weight': 0.15, 'max_score': 10},
+            'regulatory': {'weight': 0.1, 'max_score': 10}
+        }
+    
+    def assess_protocol_risk(self, protocol_data):
+        risk_scores = {}
+        
+        # Smart Contract Risk
+        audit_score = self._evaluate_audits(protocol_data.get('audits', []))
+        code_complexity = self._analyze_code_complexity(protocol_data.get('contracts', []))
+        upgrade_mechanism = self._evaluate_upgradability(protocol_data.get('proxy_type'))
+        
+        risk_scores['smart_contract'] = (audit_score + code_complexity + upgrade_mechanism) / 3
+        
+        # Economic Risk
+        tvl_stability = self._analyze_tvl_stability(protocol_data.get('tvl_history', []))
+        token_concentration = self._analyze_token_concentration(protocol_data.get('token_holders', []))
+        yield_sustainability = self._evaluate_yield_sources(protocol_data.get('revenue_streams', []))
+        
+        risk_scores['economic'] = (tvl_stability + token_concentration + yield_sustainability) / 3
+        
+        # Governance Risk
+        decentralization = self._assess_decentralization(protocol_data.get('governance'))
+        voting_participation = self._analyze_governance_participation(protocol_data.get('proposals', []))
+        
+        risk_scores['governance'] = (decentralization + voting_participation) / 2
+        
+        # Liquidity Risk
+        market_depth = self._analyze_market_depth(protocol_data.get('token_symbol'))
+        withdrawal_limits = self._check_withdrawal_constraints(protocol_data.get('withdrawal_limits'))
+        
+        risk_scores['liquidity'] = (market_depth + withdrawal_limits) / 2
+        
+        # Regulatory Risk
+        jurisdiction_risk = self._assess_regulatory_risk(protocol_data.get('team_location'))
+        compliance_features = self._evaluate_compliance(protocol_data.get('kyc_features', False))
+        
+        risk_scores['regulatory'] = (jurisdiction_risk + compliance_features) / 2
+        
+        # Calculate weighted risk score
+        total_risk = sum(
+            score * self.risk_factors[factor]['weight'] 
+            for factor, score in risk_scores.items()
+        )
+        
+        return {
+            'overall_risk': total_risk,
+            'risk_breakdown': risk_scores,
+            'risk_level': self._categorize_risk(total_risk),
+            'recommendations': self._generate_recommendations(risk_scores)
+        }

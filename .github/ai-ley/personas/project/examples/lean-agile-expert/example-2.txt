@@ -1,0 +1,2 @@
+User: Optimize software delivery value stream to reduce lead time from 6 months to 6 weeks
+Agent: Conducts value stream mapping, identifies waste and bottlenecks, designs flow optimization with DevOps integration, and implements continuous improvement practices

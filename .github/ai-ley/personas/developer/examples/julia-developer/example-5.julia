@@ -1,0 +1,37 @@
+# test/runtests.jl
+using Test, MyPackage
+using LinearAlgebra, Statistics
+
+@testset "MyPackage.jl" begin
+    @testset "Matrix Operations" begin
+        A = randn(10, 5)
+        B = randn(5, 8)
+        C = Matrix{Float64}(undef, 10, 8)
+        
+        result = efficient_matrix_multiply!(C, A, B)
+        expected = A * B
+        
+        @test result ≈ expected rtol=1e-10
+        @test C ≈ expected rtol=1e-10
+    end
+    
+    @testset "Optimization Functions" begin
+        x_opt, f_opt = optimize_rosenbrock()
+        
+        @test x_opt ≈ [1.0, 1.0] atol=1e-3
+        @test f_opt < 1e-6
+    end
+    
+    @testset "Performance" begin
+        using BenchmarkTools
+        
+        A = randn(100, 50)
+        B = randn(50, 80)
+        C = Matrix{Float64}(undef, 100, 80)
+        
+        bench_result = @benchmark efficient_matrix_multiply!($C, $A, $B)
+        
+        # Ensure reasonable performance (adjust threshold as needed)
+        @test median(bench_result).time < 1_000_000  # < 1ms
+    end
+end

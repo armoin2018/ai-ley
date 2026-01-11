@@ -1,0 +1,12 @@
+# Display full DataFrame information
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+
+# Check for common issues
+print(f"DataFrame shape: {df.shape}")
+print(f"Memory usage: {df.memory_usage(deep=True).sum() / 1024**2:.2f} MB")
+print(f"Null values: {df.isnull().sum().sum()}")
+print(f"Duplicate rows: {df.duplicated().sum()}")
+
+# Data type analysis
+print(df.dtypes.value_counts())

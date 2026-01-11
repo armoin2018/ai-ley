@@ -1,0 +1,3 @@
+User: Migrate from SharePoint 2016 on-premises to SharePoint Online
+Agent: Provides migration assessment, content migration strategy, customization analysis,
+user training plan, and post-migration optimization

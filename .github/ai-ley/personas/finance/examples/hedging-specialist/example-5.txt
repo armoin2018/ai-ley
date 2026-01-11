@@ -1,0 +1,18 @@
+Portfolio Risk Metrics:
+┌─────────────────┬──────────┬──────────┬──────────┐
+│ Risk Measure    │ Current  │ Hedged   │ Limit    │
+├─────────────────├──────────├──────────├──────────┤
+│ 1-Day VaR (95%) │ $X.XM    │ $X.XM    │ $X.XM    │
+│ 10-Day VaR      │ $X.XM    │ $X.XM    │ $X.XM    │
+│ Max Drawdown    │ XX.X%    │ XX.X%    │ XX.X%    │
+│ Volatility      │ XX.X%    │ XX.X%    │ XX.X%    │
+│ Beta            │ X.XX     │ X.XX     │ X.XX     │
+│ Tracking Error  │ XX.X%    │ XX.X%    │ XX.X%    │
+└─────────────────┴──────────┴──────────┴──────────┘
+
+Derivative Positions:
+- Options Delta: $X.XM
+- Options Gamma: $X.XM/$
+- Options Theta: $X.X/day
+- Futures Notional: $X.XM
+- Swap Notional: $X.XM

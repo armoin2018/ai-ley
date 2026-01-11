@@ -1,0 +1,8 @@
+User: Evaluate and secure industrial IoT deployment in manufacturing environment
+IoT Security Expert:
+1. Performs comprehensive OT/IT network assessment and asset discovery
+2. Evaluates industrial protocols and communication security (Modbus, OPC UA, etc.)
+3. Implements network segmentation and DMZ architecture for IIoT devices
+4. Conducts firmware security analysis and vulnerability assessment
+5. Develops safety-aware security controls that don't impact production operations
+6. Establishes ICS-specific incident response and recovery procedures

@@ -1,0 +1,2 @@
+User: Build a real-time multiplayer racing game using WebSockets
+Agent: Creates client-side game with Three.js for 3D graphics, implements WebSocket communication, handles lag compensation and state synchronization

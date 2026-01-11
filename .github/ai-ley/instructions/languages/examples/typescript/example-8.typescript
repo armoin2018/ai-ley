@@ -1,0 +1,135 @@
+// user.service.test.ts
+import { UserService } from './user.service';
+import { createMockRepository, createMockLogger, createMockCache } from '../test-utils';
+
+describe('UserService', () => {
+  let userService: UserService;
+  let mockRepository: jest.Mocked<UserRepository>;
+  let mockLogger: jest.Mocked<Logger>;
+  let mockCache: jest.Mocked<Cache>;
+
+  beforeEach(() => {
+    mockRepository = createMockRepository<User, UserId>();
+    mockLogger = createMockLogger();
+    mockCache = createMockCache();
+    
+    userService = new UserService(mockRepository, mockLogger, mockCache);
+  });
+
+  describe('getUser', () => {
+    const userId = 'user-123' as UserId;
+    const mockUser: User = {
+      id: userId,
+      name: 'John Doe',
+      email: 'john@example.com' as Email,
+      preferences: { theme: 'light', notifications: true, language: 'en' },
+      createdAt: new Date(),
+    };
+
+    it('should return cached user when available', async () => {
+      mockCache.get.mockResolvedValue(mockUser);
+
+      const result = await userService.getUser(userId);
+
+      expect(result).toEqual(mockUser);
+      expect(mockCache.get).toHaveBeenCalledWith(`user:${userId}`);
+      expect(mockRepository.findById).not.toHaveBeenCalled();
+    });
+
+    it('should fetch from repository when not cached', async () => {
+      mockCache.get.mockResolvedValue(null);
+      mockRepository.findById.mockResolvedValue(mockUser);
+
+      const result = await userService.getUser(userId);
+
+      expect(result).toEqual(mockUser);
+      expect(mockRepository.findById).toHaveBeenCalledWith(userId);
+      expect(mockCache.set).toHaveBeenCalledWith(
+        `user:${userId}`,
+        mockUser,
+        { ttl: 300 }
+      );
+    });
+
+    it('should handle repository errors gracefully', async () => {
+      const error = new Error('Database connection failed');
+      mockCache.get.mockResolvedValue(null);
+      mockRepository.findById.mockRejectedValue(error);
+
+      await expect(userService.getUser(userId)).rejects.toThrow(UserServiceError);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Failed to get user',
+        { userId, error }
+      );
+    });
+  });
+});
+
+// ✅ Type-safe test utilities
+export function createMockRepository<T, K = string>(): jest.Mocked<Repository<T, K>> {
+  return {
+    findById: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+  };
+}
+
+export function createMockApiClient(): jest.Mocked<ApiClient> {
+  return {
+    get: jest.fn(),
+    post: jest.fn(),
+    put: jest.fn(),
+    delete: jest.fn(),
+  };
+}
+
+// ✅ Component testing
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { UserProfile } from './user-profile';
+
+describe('UserProfile', () => {
+  let queryClient: QueryClient;
+
+  beforeEach(() => {
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
+  });
+
+  const renderComponent = (props: Partial<UserProfileProps> = {}) => {
+    const defaultProps: UserProfileProps = {
+      userId: 'user-123' as UserId,
+      ...props,
+    };
+
+    return render(
+      <QueryClientProvider client={queryClient}>
+        <UserProfile {...defaultProps} />
+      </QueryClientProvider>
+    );
+  };
+
+  it('should display user information when loaded', async () => {
+    const mockUser: User = {
+      id: 'user-123' as UserId,
+      name: 'John Doe',
+      email: 'john@example.com' as Email,
+      preferences: { theme: 'light', notifications: true, language: 'en' },
+      createdAt: new Date(),
+    };
+
+    jest.mocked(userService.getUser).mockResolvedValue(mockUser);
+
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('John Doe')).toBeInTheDocument();
+      expect(screen.getByText('john@example.com')).toBeInTheDocument();
+    });
+  });
+});

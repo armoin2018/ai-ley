@@ -1,0 +1,9 @@
+.thumb_func
+interrupt_handler:
+    push   {r4-r11, lr}    ; Save context
+    
+    ; Critical timing code here
+    ldr    r0, =GPIO_BASE
+    ldr    r1, [r0, #GPIO_IDR]
+    
+    pop    {r4-r11, pc}    ; Restore and return

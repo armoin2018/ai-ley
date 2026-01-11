@@ -1,0 +1,7 @@
+# Secure GitHub Actions workflow
+- name: ESLint Security Check
+  run: |
+    npm audit --audit-level moderate
+    npm run lint:security
+  env:
+    NODE_OPTIONS: --max-old-space-size=4096

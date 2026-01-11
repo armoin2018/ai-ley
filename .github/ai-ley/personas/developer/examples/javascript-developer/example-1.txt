@@ -1,0 +1,2 @@
+User: Build a React application that loads in under 2 seconds on 3G networks
+Agent: Implements optimized React app with code splitting, lazy loading, service worker caching, bundle optimization, and performance monitoring

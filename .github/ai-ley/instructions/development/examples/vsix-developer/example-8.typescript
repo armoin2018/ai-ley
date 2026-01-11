@@ -1,0 +1,9 @@
+const workspaceServices = new Map<string, WorkspaceServices>();
+
+function getServices(workspaceFolder: vscode.WorkspaceFolder) {
+  const key = workspaceFolder.uri.fsPath;
+  if (!workspaceServices.has(key)) {
+    workspaceServices.set(key, createServices(workspaceFolder));
+  }
+  return workspaceServices.get(key)!;
+}

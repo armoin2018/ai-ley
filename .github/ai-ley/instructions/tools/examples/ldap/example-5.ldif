@@ -1,0 +1,33 @@
+# Base DIT
+dn: dc=example,dc=com
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+o: Example Corp
+dc: example
+
+# Organizational Units
+dn: ou=People,dc=example,dc=com
+objectClass: top
+objectClass: organizationalUnit
+ou: People
+
+dn: ou=Groups,dc=example,dc=com
+objectClass: top
+objectClass: organizationalUnit
+ou: Groups
+
+# User entry
+dn: uid=jdoe,ou=People,dc=example,dc=com
+objectClass: inetOrgPerson
+cn: John Doe
+sn: Doe
+uid: jdoe
+mail: john.doe@example.com
+userPassword: {SSHA}H9C7...   # hashed
+
+# Group entry
+dn: cn=engineering,ou=Groups,dc=example,dc=com
+objectClass: groupOfNames
+cn: engineering
+member: uid=jdoe,ou=People,dc=example,dc=com

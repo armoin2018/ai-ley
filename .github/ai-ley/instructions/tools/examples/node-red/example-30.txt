@@ -1,0 +1,12 @@
+node-red-project/
+├── flows/
+│   ├── development.json
+│   ├── staging.json
+│   └── production.json
+├── settings/
+│   ├── development.js
+│   ├── staging.js
+│   └── production.js
+├── package.json
+├── README.md
+└── .gitignore

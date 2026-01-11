@@ -1,0 +1,39 @@
+import CircuitBreaker from 'opossum';
+
+class ResilientServiceClient {
+  private circuitBreaker: CircuitBreaker;
+  
+  constructor(private baseUrl: string) {
+    this.circuitBreaker = new CircuitBreaker(this.makeRequest.bind(this), {
+      timeout: 3000,
+      errorThresholdPercentage: 50,
+      resetTimeout: 30000,
+      rollingCountTimeout: 10000,
+      rollingCountBuckets: 10
+    });
+  }
+
+  async callService(endpoint: string, retries = 3): Promise<any> {
+    try {
+      return await this.circuitBreaker.fire(endpoint);
+    } catch (error) {
+      if (retries > 0) {
+        await this.delay(1000 * (4 - retries)); // Exponential backoff
+        return this.callService(endpoint, retries - 1);
+      }
+      throw error;
+    }
+  }
+
+  private async makeRequest(endpoint: string): Promise<any> {
+    const response = await fetch(`${this.baseUrl}${endpoint}`);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    return response.json();
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+}

@@ -1,0 +1,4 @@
+KO01          # Create Internal Order
+KO02          # Change Internal Order
+KO03          # Display Internal Order
+KOB1          # Settlement of Internal Order

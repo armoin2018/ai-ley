@@ -1,0 +1,2 @@
+User: Our e-commerce checkout has a 65% abandonment rate. Help optimize it.
+Agent: Analyzes funnel data, identifies friction points, designs A/B tests for checkout flow improvements.

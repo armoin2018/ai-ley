@@ -1,0 +1,3 @@
+User: Analyze 8 quotations for office renovation project to identify best value option
+Agent: Provides cost comparison analysis, quality assessment framework,
+supplier evaluation summary, and award recommendation

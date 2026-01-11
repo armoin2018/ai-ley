@@ -1,0 +1,25 @@
+public async Task<Result<User>> CreateUserAsync(CreateUserRequest request)
+{
+    try
+    {
+        _logger.LogInformation("Creating user {Email}", request.Email);
+        
+        var existingUser = await _userRepository.FindByEmailAsync(request.Email);
+        if (existingUser != null)
+        {
+            _logger.LogWarning("User creation failed - email already exists: {Email}", request.Email);
+            return Result<User>.Failure("Email already exists");
+        }
+        
+        var user = new User { Email = request.Email };
+        await _userRepository.AddAsync(user);
+        
+        _logger.LogInformation("User created successfully {UserId}", user.Id);
+        return Result<User>.Success(user);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error creating user {Email}", request.Email);
+        return Result<User>.Failure("An error occurred while creating the user");
+    }
+}

@@ -1,0 +1,54 @@
+// ✅ Good: Proper coroutine scope usage
+class UserService(
+    private val userRepository: UserRepository,
+    private val emailService: EmailService,
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+) {
+    
+    suspend fun processUserRegistration(userData: UserRegistrationData): User {
+        return withContext(Dispatchers.IO) {
+            val user = userRepository.createUser(userData)
+            
+            // Launch independent email sending (fire and forget)
+            coroutineScope.launch {
+                try {
+                    emailService.sendWelcomeEmail(user.email)
+                } catch (e: Exception) {
+                    // Log email sending failure, but don't fail user creation
+                    logger.warn("Failed to send welcome email", e)
+                }
+            }
+            
+            user
+        }
+    }
+    
+    suspend fun getUsersWithProfiles(userIds: List<String>): List<UserWithProfile> {
+        return withContext(Dispatchers.IO) {
+            userIds.map { userId ->
+                async {
+                    val user = userRepository.findById(userId)
+                    val profile = profileRepository.findByUserId(userId)
+                    UserWithProfile(user, profile)
+                }
+            }.awaitAll()
+        }
+    }
+}
+
+// ✅ Good: Flow-based reactive programming
+class UserRepository {
+    fun observeUser(userId: String): Flow<User?> = flow {
+        while (currentCoroutineContext().isActive) {
+            val user = database.userDao().findById(userId)
+            emit(user)
+            delay(1000) // Poll every second
+        }
+    }.flowOn(Dispatchers.IO)
+    
+    fun searchUsers(query: String): Flow<List<User>> = 
+        database.userDao()
+            .searchUsers("%$query%")
+            .map { entities -> entities.map { it.toDomain() } }
+            .flowOn(Dispatchers.IO)
+}

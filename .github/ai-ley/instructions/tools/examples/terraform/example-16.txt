@@ -1,0 +1,5 @@
+### State Management
+
+- **Purpose**: Track infrastructure state and manage changes
+- **Usage**: Maintain state consistency and enable collaboration
+- **Example**:

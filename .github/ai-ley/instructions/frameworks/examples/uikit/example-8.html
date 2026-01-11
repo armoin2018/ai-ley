@@ -1,0 +1,62 @@
+<!-- Advanced Navigation -->
+<nav class="uk-navbar-container" uk-navbar>
+  <div class="uk-navbar-left">
+    <ul class="uk-navbar-nav">
+      <li class="uk-active"><a href="#">Active</a></li>
+      <li>
+        <a href="#">Parent</a>
+        <div class="uk-navbar-dropdown">
+          <ul class="uk-nav uk-navbar-dropdown-nav">
+            <li class="uk-active"><a href="#">Active</a></li>
+            <li><a href="#">Item</a></li>
+            <li class="uk-nav-header">Header</li>
+            <li><a href="#">Item</a></li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div class="uk-navbar-right">
+    <div>
+      <a
+        class="uk-navbar-toggle"
+        uk-search-icon
+        uk-toggle="target: .nav-overlay; animation: uk-animation-fade"
+        href="#"
+      ></a>
+    </div>
+  </div>
+</nav>
+
+<!-- Modal Component -->
+<div id="modal-example" uk-modal>
+  <div class="uk-modal-dialog uk-modal-body">
+    <h2 class="uk-modal-title">Headline</h2>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+    <p class="uk-text-right">
+      <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+      <button class="uk-button uk-button-primary" type="button">Save</button>
+    </p>
+  </div>
+</div>
+
+<!-- Advanced Card Layout -->
+<div class="uk-card uk-card-default">
+  <div class="uk-card-header">
+    <div class="uk-grid-small uk-flex-middle" uk-grid>
+      <div class="uk-width-auto">
+        <img class="uk-border-circle" width="40" height="40" src="avatar.jpg" alt="Avatar" />
+      </div>
+      <div class="uk-width-expand">
+        <h3 class="uk-card-title uk-margin-remove-bottom">Title</h3>
+        <p class="uk-text-meta uk-margin-remove-top">Subtitle</p>
+      </div>
+    </div>
+  </div>
+  <div class="uk-card-body">
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+  </div>
+  <div class="uk-card-footer">
+    <a href="#" class="uk-button uk-button-text">Read more</a>
+  </div>
+</div>

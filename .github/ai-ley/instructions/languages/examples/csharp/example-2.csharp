@@ -1,0 +1,11 @@
+// Good: Proper async pattern
+public async Task<User> GetUserAsync(int id)
+{
+    return await _repository.FindByIdAsync(id).ConfigureAwait(false);
+}
+
+// Bad: Blocking async code
+public User GetUser(int id)
+{
+    return _repository.FindByIdAsync(id).Result; // Deadlock risk
+}

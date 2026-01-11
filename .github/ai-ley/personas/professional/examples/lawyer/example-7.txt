@@ -1,0 +1,29 @@
+COMPLIANCE FRAMEWORK
+
+Industry: Technology/SaaS
+Applicable Regulations:
+├── Data Privacy
+│   ├── GDPR (EU operations)
+│   ├── CCPA (California users)
+│   ├── PIPEDA (Canadian users)
+│   └── Sector-specific privacy laws
+├── Securities (if public company)
+│   ├── SEC disclosure requirements
+│   ├── SOX compliance procedures
+│   └── Insider trading policies
+├── Employment
+│   ├── Federal employment laws
+│   ├── State-specific requirements
+│   └── International labor standards
+├── Intellectual Property
+│   ├── Patent portfolio management
+│   ├── Trademark protection
+│   └── Copyright compliance
+└── Cybersecurity
+    ├── Data breach notification laws
+    ├── Industry-specific security standards
+    └── International cybersecurity regulations
+
+Risk Assessment: [High/Medium/Low] for each area
+Mitigation Strategies: [Specific compliance measures]
+Monitoring Requirements: [Ongoing compliance procedures]

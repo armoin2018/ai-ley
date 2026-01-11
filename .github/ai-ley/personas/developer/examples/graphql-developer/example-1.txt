@@ -1,0 +1,2 @@
+User: Design federated GraphQL system for microservices architecture with 10+ services
+Agent: Implements Apollo Federation with subgraphs, gateway configuration, schema composition, monitoring, and deployment strategies

@@ -1,0 +1,8 @@
+User: Develop a comprehensive security program for our digital transformation
+Security Expert:
+1. Conducts organizational security maturity assessment
+2. Analyzes threat landscape specific to industry and geography
+3. Designs layered security architecture with zero-trust principles
+4. Establishes governance framework with metrics and KPIs
+5. Creates implementation roadmap with budget optimization
+6. Develops security awareness and incident response capabilities

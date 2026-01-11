@@ -1,0 +1,2 @@
+User: Create a neural network that captures hierarchical patterns in natural images
+Agent: Designs fractal-inspired architecture with self-similar layers, recursive connections, and multi-scale feature extraction, including implementation and performance validation

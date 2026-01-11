@@ -1,0 +1,24 @@
+// Virtual scrolling for large lists
+import { writable } from 'svelte/store';
+
+export function createVirtualList<T>(items: T[], itemHeight: number) {
+  const visibleItems = writable<T[]>([]);
+  const scrollTop = writable(0);
+  
+  function updateVisibleItems(containerHeight: number, scroll: number) {
+    const startIndex = Math.floor(scroll / itemHeight);
+    const endIndex = Math.min(
+      startIndex + Math.ceil(containerHeight / itemHeight) + 1,
+      items.length
+    );
+    
+    visibleItems.set(items.slice(startIndex, endIndex));
+  }
+  
+  return {
+    visibleItems,
+    scrollTop,
+    updateVisibleItems,
+    totalHeight: items.length * itemHeight
+  };
+}

@@ -1,0 +1,15 @@
+electron-app/
+├── src/
+│   ├── main.ts                # Main process (Node.js)
+│   ├── preload.ts             # Preload scripts (security bridge)
+│   ├── renderer.ts            # Renderer process logic
+│   ├── index.html             # Application UI
+│   └── styles.css             # Application styles
+├── out/                       # Built application
+├── .vscode/                   # VS Code configuration
+├── .eslintrc.json            # ESLint configuration
+├── .gitignore
+├── forge.config.ts           # Electron Forge configuration
+├── package.json
+├── tsconfig.json
+└── webpack.main.config.ts    # Webpack config for main process

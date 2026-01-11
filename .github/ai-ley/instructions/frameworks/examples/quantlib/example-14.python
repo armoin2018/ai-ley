@@ -1,0 +1,9 @@
+# Enable detailed error reporting
+import QuantLib as ql
+
+# Check QuantLib configuration
+print(f"QuantLib version: {ql.__version__}")
+print(f"QuantLib compilation date: {ql.__compile_date__}")
+
+# Debugging evaluation date issues
+print(f"Current evaluation date: {ql.Settings.instance().evaluationDate}")

@@ -1,0 +1,15 @@
+# Create retention policy
+$retentionPolicy = @{
+    Name = "Project Documents - 7 Years"
+    RestrictiveRetention = $true
+    RetentionRuleTypes = "Modify, Delete"
+    RetentionDuration = 2555  # 7 years in days
+    RetentionAction = "Delete"
+}
+New-RetentionCompliancePolicy @retentionPolicy
+
+# Create retention rule
+New-RetentionComplianceRule -Policy "Project Documents - 7 Years" \
+    -ContentMatchQuery "contentclass:STS_ListItem_DocumentLibrary" \
+    -ExpirationDateOption "ModificationAgeInDays" \
+    -RetentionDuration 2555

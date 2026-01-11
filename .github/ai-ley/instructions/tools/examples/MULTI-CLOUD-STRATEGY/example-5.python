@@ -1,0 +1,15 @@
+# Cost optimization engine
+cost_optimizer = {
+    "workload_analysis": {
+        "compute_intensive": "gcp",  # Best price/performance
+        "storage_heavy": "aws",      # S3 pricing advantages
+        "bandwidth_heavy": "azure",  # CDN pricing
+        "development": "digital_ocean"  # Predictable pricing
+    },
+    "geographic_optimization": {
+        "us_east": "aws",      # Lowest pricing region
+        "europe": "azure",     # Local presence benefits
+        "asia": "gcp",         # Network performance
+        "global": "cdn_mix"    # Multi-CDN strategy
+    }
+}

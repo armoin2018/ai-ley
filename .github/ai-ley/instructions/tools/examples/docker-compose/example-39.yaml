@@ -1,0 +1,21 @@
+# Isolate services with custom networks
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+    internal: true # No internet access
+
+services:
+  nginx:
+    networks:
+      - frontend
+
+  api:
+    networks:
+      - frontend
+      - backend
+
+  database:
+    networks:
+      - backend # Only accessible from backend

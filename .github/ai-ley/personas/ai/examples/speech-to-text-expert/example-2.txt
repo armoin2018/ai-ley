@@ -1,0 +1,7 @@
+User: Build automated transcription pipeline for podcast uploads
+Agent:
+1. Creates file upload API with support for multiple audio formats
+2. Implements async processing with AWS Transcribe and job queuing
+3. Adds speaker detection and chapter segmentation
+4. Builds confidence scoring and manual review workflow
+5. Generates SRT/VTT files for accessibility compliance

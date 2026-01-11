@@ -1,0 +1,64 @@
+// Reusable custom hook with error handling
+import { useState, useEffect, useCallback, useRef } from 'react';
+
+interface UseAsyncStateOptions<T> {
+  initialData?: T;
+  onSuccess?: (data: T) => void;
+  onError?: (error: Error) => void;
+}
+
+interface UseAsyncStateReturn<T> {
+  data: T | null;
+  loading: boolean;
+  error: Error | null;
+  execute: (asyncFn: () => Promise<T>) => Promise<void>;
+  reset: () => void;
+}
+
+export function useAsyncState<T>(
+  options: UseAsyncStateOptions<T> = {}
+): UseAsyncStateReturn<T> {
+  const [data, setData] = useState<T | null>(options.initialData || null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const mountedRef = useRef(true);
+  
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+  
+  const execute = useCallback(async (asyncFn: () => Promise<T>) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const result = await asyncFn();
+      
+      if (mountedRef.current) {
+        setData(result);
+        options.onSuccess?.(result);
+      }
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Unknown error');
+      
+      if (mountedRef.current) {
+        setError(error);
+        options.onError?.(error);
+      }
+    } finally {
+      if (mountedRef.current) {
+        setLoading(false);
+      }
+    }
+  }, [options]);
+  
+  const reset = useCallback(() => {
+    setData(options.initialData || null);
+    setLoading(false);
+    setError(null);
+  }, [options.initialData]);
+  
+  return { data, loading, error, execute, reset };
+}

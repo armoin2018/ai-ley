@@ -1,0 +1,14 @@
+// ❌ Bad: Using fixed timeouts
+await page.waitForTimeout(1000)
+
+// ✅ Good: Wait for specific conditions
+await page.waitForSelector('.loading-spinner', { state: 'hidden' })
+await page.waitForLoadState('networkidle')
+
+// ❌ Bad: Immediate assertions
+await page.click('#submit')
+expect(page.locator('.success')).toBeVisible()
+
+// ✅ Good: Wait for assertions
+await page.click('#submit')
+await expect(page.locator('.success')).toBeVisible()

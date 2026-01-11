@@ -1,0 +1,14 @@
+import * as vscode from 'vscode';
+
+export function activate(context: vscode.ExtensionContext) {
+    const provider = new MyTreeDataProvider();
+    vscode.window.registerTreeDataProvider('myView', provider);
+    
+    const disposable = vscode.commands.registerCommand('myExtension.command', () => {
+        vscode.window.showInformationMessage('Command executed!');
+    });
+    
+    context.subscriptions.push(disposable);
+}
+
+export function deactivate() {}

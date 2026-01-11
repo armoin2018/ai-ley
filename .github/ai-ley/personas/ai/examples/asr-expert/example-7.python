@@ -1,0 +1,53 @@
+import kenlm
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
+
+class LanguageModelRescorer:
+    def __init__(self, lm_path=None, neural_lm=None):
+        # Traditional N-gram language model
+        if lm_path:
+            self.ngram_model = kenlm.Model(lm_path)
+        else:
+            self.ngram_model = None
+            
+        # Neural language model
+        if neural_lm:
+            self.neural_model = GPT2LMHeadModel.from_pretrained(neural_lm)
+            self.tokenizer = GPT2Tokenizer.from_pretrained(neural_lm)
+        else:
+            self.neural_model = None
+            
+    def score_hypothesis(self, text):
+        scores = {}
+        
+        if self.ngram_model:
+            scores['ngram'] = self.ngram_model.score(text, bos=True, eos=True)
+            
+        if self.neural_model:
+            inputs = self.tokenizer(text, return_tensors='pt')
+            with torch.no_grad():
+                outputs = self.neural_model(**inputs, labels=inputs['input_ids'])
+                scores['neural'] = -outputs.loss.item()
+                
+        return scores
+        
+    def rescore_nbest(self, nbest_list, alpha=0.3):
+        """Rescore N-best list with language model"""
+        rescored = []
+        
+        for hypothesis in nbest_list:
+            acoustic_score = hypothesis['score']
+            lm_scores = self.score_hypothesis(hypothesis['text'])
+            
+            # Combine acoustic and language model scores
+            combined_score = acoustic_score + alpha * lm_scores.get('ngram', 0)
+            
+            rescored.append({
+                'text': hypothesis['text'],
+                'acoustic_score': acoustic_score,
+                'lm_score': lm_scores.get('ngram', 0),
+                'combined_score': combined_score
+            })
+            
+        # Sort by combined score
+        rescored.sort(key=lambda x: x['combined_score'], reverse=True)
+        return rescored

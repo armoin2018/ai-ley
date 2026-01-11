@@ -1,0 +1,151 @@
+# provisioning/grafana-setup.yml - Automated Grafana deployment
+---
+- name: Deploy Enterprise Grafana Stack
+  hosts: monitoring
+  become: true
+  vars:
+    grafana_version: '10.0.0'
+    grafana_admin_password: '{{ vault_grafana_password }}'
+
+  tasks:
+    - name: Add Grafana APT repository
+      apt_repository:
+        repo: 'deb https://packages.grafana.com/oss/deb stable main'
+        key_url: 'https://packages.grafana.com/gpg.key'
+
+    - name: Install Grafana Enterprise
+      apt:
+        name: 'grafana={{ grafana_version }}'
+        state: present
+        update_cache: true
+
+    - name: Configure Grafana
+      template:
+        src: templates/grafana.ini.j2
+        dest: /etc/grafana/grafana.ini
+        backup: true
+      notify: restart grafana
+
+    - name: Start and enable Grafana
+      systemd:
+        name: grafana-server
+        state: started
+        enabled: true
+
+    - name: Wait for Grafana to start
+      wait_for:
+        port: 3000
+        delay: 10
+
+    - name: Configure Prometheus data source
+      uri:
+        url: 'http://localhost:3000/api/datasources'
+        method: POST
+        headers:
+          Authorization: "Basic {{ ('admin:' + grafana_admin_password) | b64encode }}"
+          Content-Type: 'application/json'
+        body_format: json
+        body:
+          name: 'Vagrant Prometheus'
+          type: 'prometheus'
+          url: 'http://localhost:9090'
+          access: 'proxy'
+          isDefault: true
+          jsonData:
+            timeInterval: '15s'
+            queryTimeout: '60s'
+        status_code: [200, 409]
+
+    - name: Import Vagrant infrastructure dashboard
+      uri:
+        url: 'http://localhost:3000/api/dashboards/db'
+        method: POST
+        headers:
+          Authorization: "Basic {{ ('admin:' + grafana_admin_password) | b64encode }}"
+          Content-Type: 'application/json'
+        body_format: json
+        body:
+          dashboard:
+            id: null
+            title: 'Vagrant Enterprise Infrastructure'
+            tags: ['vagrant', 'infrastructure', 'enterprise']
+            timezone: 'browser'
+            refresh: '30s'
+            panels:
+              - id: 1
+                title: 'Infrastructure Overview'
+                type: 'stat'
+                targets:
+                  - expr: 'count(up == 1)'
+                    legendFormat: 'Online Instances'
+                  - expr: 'count(up == 0)'
+                    legendFormat: 'Offline Instances'
+                gridPos: { h: 4, w: 6, x: 0, y: 0 }
+                fieldConfig:
+                  defaults:
+                    color:
+                      mode: 'thresholds'
+                    thresholds:
+                      steps:
+                        - color: 'red'
+                          value: 0
+                        - color: 'green'
+                          value: 1
+
+              - id: 2
+                title: 'CPU Usage by Instance'
+                type: 'timeseries'
+                targets:
+                  - expr: '100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)'
+                    legendFormat: '{{ instance }}'
+                gridPos: { h: 8, w: 12, x: 0, y: 4 }
+                fieldConfig:
+                  defaults:
+                    unit: 'percent'
+                    max: 100
+                    min: 0
+
+              - id: 3
+                title: 'Memory Usage'
+                type: 'timeseries'
+                targets:
+                  - expr: '(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100'
+                    legendFormat: '{{ instance }}'
+                gridPos: { h: 8, w: 12, x: 12, y: 4 }
+
+              - id: 4
+                title: 'Network Traffic'
+                type: 'timeseries'
+                targets:
+                  - expr: 'irate(node_network_receive_bytes_total{device!="lo"}[5m])'
+                    legendFormat: '{{ instance }} - {{ device }} RX'
+                  - expr: 'irate(node_network_transmit_bytes_total{device!="lo"}[5m])'
+                    legendFormat: '{{ instance }} - {{ device }} TX'
+                gridPos: { h: 8, w: 24, x: 0, y: 12 }
+
+              - id: 5
+                title: 'Disk Usage'
+                type: 'bargauge'
+                targets:
+                  - expr: '100 - ((node_filesystem_avail_bytes{mountpoint="/"} * 100) / node_filesystem_size_bytes{mountpoint="/"})'
+                    legendFormat: '{{ instance }}'
+                gridPos: { h: 8, w: 12, x: 0, y: 20 }
+
+              - id: 6
+                title: 'Active Alerts'
+                type: 'table'
+                targets:
+                  - expr: 'ALERTS{alertstate="firing"}'
+                    format: 'table'
+                gridPos: { h: 8, w: 12, x: 12, y: 20 }
+            time:
+              from: 'now-1h'
+              to: 'now'
+          overwrite: true
+        status_code: [200, 412]
+
+  handlers:
+    - name: restart grafana
+      systemd:
+        name: grafana-server
+        state: restarted

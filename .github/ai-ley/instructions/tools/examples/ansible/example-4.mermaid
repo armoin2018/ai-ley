@@ -1,0 +1,58 @@
+graph TB
+    subgraph "Enterprise Ansible Architecture"
+        AWX[AWX/Tower Control Plane]
+        EE[Execution Environments]
+        GIT[Git Source Control]
+        VAULT[HashiCorp Vault/Ansible Vault]
+
+        subgraph "Inventory Sources"
+            CMDB[Enterprise CMDB]
+            CLOUD[Cloud Providers]
+            K8S[Kubernetes Clusters]
+            VM[Virtual Machines]
+        end
+
+        subgraph "Automation Content"
+            PLAYBOOKS[Enterprise Playbooks]
+            ROLES[Ansible Roles]
+            COLLECTIONS[Ansible Collections]
+            TEMPLATES[Jinja2 Templates]
+        end
+
+        subgraph "Target Infrastructure"
+            LINUX[Linux Systems]
+            WINDOWS[Windows Systems]
+            NETWORK[Network Devices]
+            CONTAINERS[Container Platforms]
+        end
+
+        subgraph "Monitoring & Compliance"
+            PROM[Prometheus]
+            GRAFANA[Grafana Dashboards]
+            ELK[ELK Stack]
+            COMPLIANCE[Compliance Scanning]
+        end
+    end
+
+    AWX --> EE
+    GIT --> AWX
+    VAULT --> AWX
+    CMDB --> AWX
+    CLOUD --> AWX
+    K8S --> AWX
+    VM --> AWX
+
+    EE --> PLAYBOOKS
+    EE --> ROLES
+    EE --> COLLECTIONS
+    EE --> TEMPLATES
+
+    EE --> LINUX
+    EE --> WINDOWS
+    EE --> NETWORK
+    EE --> CONTAINERS
+
+    EE --> PROM
+    EE --> GRAFANA
+    EE --> ELK
+    EE --> COMPLIANCE

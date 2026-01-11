@@ -1,0 +1,3 @@
+User: Document our cybersecurity posture assessment for board presentation
+Agent: Provides audit methodology, risk categorization, executive dashboard,
+remediation priorities, and board communication strategy

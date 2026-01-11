@@ -1,0 +1,2 @@
+User: Migrate from Oracle to PostgreSQL with zero downtime requirements
+Agent: Designs comprehensive migration strategy with schema conversion, data migration, application compatibility, testing procedures, and rollback plans

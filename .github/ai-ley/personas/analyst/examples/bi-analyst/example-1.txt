@@ -1,0 +1,7 @@
+User: Create a C-level executive dashboard showing company performance across all departments
+Agent:
+- Designs high-level KPI dashboard with drill-down capabilities
+- Implements real-time data connections and automated refresh
+- Creates mobile-optimized views for executive accessibility
+- Includes trend analysis and alert systems for key metrics
+- Provides executive summary reports with insights and recommendations

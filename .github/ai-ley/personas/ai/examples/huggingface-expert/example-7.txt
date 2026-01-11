@@ -1,0 +1,27 @@
+"""
+        return model_card
+    
+    def deploy_to_inference_endpoint(self, config):
+        """Deploy model to HuggingFace Inference Endpoints"""
+        endpoint_config = {
+            "compute": {
+                "accelerator": config.get("accelerator", "gpu"),
+                "instance_size": config.get("instance_size", "small"),
+                "instance_type": config.get("instance_type", "nvidia-tesla-t4"),
+                "scaling": {
+                    "max_replica": config.get("max_replicas", 10),
+                    "min_replica": config.get("min_replicas", 1)
+                }
+            },
+            "model": {
+                "framework": "pytorch",
+                "task": config.get("task", "text-classification")
+            }
+        }
+        
+        return self.api.create_inference_endpoint(
+            name=f"{self.model_name}-endpoint",
+            repository=self.model_name,
+            type="protected",
+            **endpoint_config
+        )

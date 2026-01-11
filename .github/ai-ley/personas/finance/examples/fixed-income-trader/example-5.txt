@@ -1,0 +1,6 @@
+Portfolio Duration: [Overall modified duration]
+Key Rate Durations: [1Y: X] [2Y: X] [5Y: X] [10Y: X] [30Y: X]
+Credit Exposure: [IG: $X] [HY: $X] [Govt: $X]
+Sector Allocation: [Financials: X%] [Energy: X%] [Utilities: X%]
+Top 10 Holdings: [List with position sizes and risk contribution]
+VaR (1-day, 99%): [$X] Stress Test Results: [Various scenarios]

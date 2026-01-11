@@ -1,0 +1,14 @@
+# Efficient memory usage
+# Bad: Creates unnecessary copies
+data = np.array(range(1000000))
+processed = data * 2 + 1
+
+# Good: Use in-place operations
+data = np.array(range(1000000))
+data *= 2
+data += 1
+
+# Memory-efficient data types
+# Use appropriate precision
+float32_data = np.array(data, dtype=np.float32)  # vs np.float64
+int32_data = np.array(indices, dtype=np.int32)   # vs np.int64

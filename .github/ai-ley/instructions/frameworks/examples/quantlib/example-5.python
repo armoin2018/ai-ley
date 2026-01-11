@@ -1,0 +1,57 @@
+# Black-Scholes-Merton option pricing
+# Market data
+spot_price = 100.0
+strike_price = 110.0
+volatility = 0.20
+risk_free_rate = 0.05
+dividend_yield = 0.02
+expiry_date = calendar.advance(today, 6, ql.Months)
+
+# Market quotes
+spot_handle = ql.QuoteHandle(ql.SimpleQuote(spot_price))
+vol_handle = ql.QuoteHandle(ql.SimpleQuote(volatility))
+
+# Term structures
+risk_free_ts = ql.YieldTermStructureHandle(
+    ql.FlatForward(today, risk_free_rate, day_count)
+)
+dividend_ts = ql.YieldTermStructureHandle(
+    ql.FlatForward(today, dividend_yield, day_count)
+)
+vol_ts = ql.BlackVolTermStructureHandle(
+    ql.BlackConstantVol(today, calendar, vol_handle, day_count)
+)
+
+# Black-Scholes process
+bs_process = ql.BlackScholesMertonProcess(
+    spot_handle, dividend_ts, risk_free_ts, vol_ts
+)
+
+# European option
+exercise = ql.EuropeanExercise(expiry_date)
+payoff = ql.PlainVanillaPayoff(ql.Option.Call, strike_price)
+option = ql.VanillaOption(payoff, exercise)
+
+# Pricing engine
+engine = ql.AnalyticEuropeanEngine(bs_process)
+option.setPricingEngine(engine)
+
+# Results
+print(f"Option Price: ${option.NPV():.4f}")
+print(f"Delta: {option.delta():.4f}")
+print(f"Gamma: {option.gamma():.6f}")
+print(f"Theta: {option.theta():.4f}")
+print(f"Vega: {option.vega():.4f}")
+print(f"Rho: {option.rho():.4f}")
+
+# American option pricing with binomial tree
+american_exercise = ql.AmericanExercise(today, expiry_date)
+american_option = ql.VanillaOption(payoff, american_exercise)
+
+# Binomial tree engine
+steps = 200
+binomial_engine = ql.BinomialVanillaEngine(bs_process, "crr", steps)
+american_option.setPricingEngine(binomial_engine)
+
+print(f"\nAmerican Option Price: ${american_option.NPV():.4f}")
+print(f"Early Exercise Premium: ${american_option.NPV() - option.NPV():.4f}")

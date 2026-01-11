@@ -1,0 +1,439 @@
+async def setup_ecommerce_platform():
+    """Example: Setup high-performance e-commerce platform with SQL Server Always On"""
+
+    # Initialize enterprise configuration for e-commerce
+    config = EnterpriseSQLServerConfig(
+        system_id="ecommerce-platform",
+        organization_name="GlobalRetailer",
+        edition=SQLServerEdition.ENTERPRISE,
+        environment=SQLServerEnvironment.PRODUCTION,
+        deployment_type=SQLServerDeployment.ALWAYS_ON_AG,
+        workload_type=SQLServerWorkloadType.OLTP,
+        infrastructure_config={
+            "always_on_configuration": {
+                "availability_groups": [
+                    {
+                        "name": "ECommerceAG",
+                        "cluster_type": "WSFC",
+                        "automated_backup_preference": "SECONDARY",
+                        "failure_condition_level": 3,
+                        "health_check_timeout": 30000,
+                        "replicas": [
+                            {
+                                "server_name": "ECOM-SQL-01",
+                                "hostname": "ecom-sql-01.globalretailer.com",
+                                "instance": "MSSQLSERVER",
+                                "role": "PRIMARY",
+                                "availability_mode": "SYNCHRONOUS_COMMIT",
+                                "failover_mode": "AUTOMATIC",
+                                "backup_priority": 30,
+                                "read_only_routing": True,
+                                "cpu_cores": 48,
+                                "memory_gb": 256,
+                                "storage_gb": 10000
+                            },
+                            {
+                                "server_name": "ECOM-SQL-02",
+                                "hostname": "ecom-sql-02.globalretailer.com",
+                                "instance": "MSSQLSERVER",
+                                "role": "SECONDARY",
+                                "availability_mode": "SYNCHRONOUS_COMMIT",
+                                "failover_mode": "AUTOMATIC",
+                                "backup_priority": 50,
+                                "read_only_routing": True,
+                                "cpu_cores": 48,
+                                "memory_gb": 256,
+                                "storage_gb": 10000
+                            },
+                            {
+                                "server_name": "ECOM-SQL-03",
+                                "hostname": "ecom-sql-03.globalretailer.com",
+                                "instance": "MSSQLSERVER",
+                                "role": "SECONDARY",
+                                "availability_mode": "ASYNCHRONOUS_COMMIT",
+                                "failover_mode": "MANUAL",
+                                "backup_priority": 70,
+                                "read_only_routing": True,
+                                "cpu_cores": 32,
+                                "memory_gb": 192,
+                                "storage_gb": 8000
+                            }
+                        ]
+                    }
+                ],
+                "listener_configuration": {
+                    "name": "ECOM-AG-LISTENER",
+                    "dns_name": "ecom-sql.globalretailer.com",
+                    "port": 1433,
+                    "ip_addresses": ["192.168.10.100", "192.168.10.101"],
+                    "subnet_mask": "255.255.255.0"
+                }
+            },
+            "memory_configuration": {
+                "max_server_memory_mb": 204800,  # 200GB for SQL Server
+                "min_server_memory_mb": 32768,
+                "in_memory_oltp": {
+                    "enabled": True,
+                    "memory_optimized_filegroup": {
+                        "name": "ECommerceInMemory",
+                        "location": "G:\\InMemory",
+                        "size_gb": 100
+                    }
+                }
+            }
+        },
+        security_config={
+            "transparent_data_encryption": {
+                "enabled": True,
+                "algorithm": "AES_256"
+            },
+            "always_encrypted": {
+                "enabled": True,
+                "sensitive_columns": [
+                    "Customers.CreditCardNumber",
+                    "Customers.SSN",
+                    "Orders.PaymentInfo"
+                ]
+            },
+            "row_level_security": {
+                "enabled": True,
+                "security_policies": [
+                    {
+                        "name": "CustomerDataPolicy",
+                        "table": "Customers",
+                        "predicate": "CustomerID = USER_ID() OR IS_MEMBER('CustomerService') = 1"
+                    }
+                ]
+            }
+        },
+        performance_config={
+            "resource_governor": {
+                "enabled": True,
+                "resource_pools": [
+                    {
+                        "name": "WebApp_Pool",
+                        "min_cpu_percent": 60,
+                        "max_cpu_percent": 80,
+                        "min_memory_percent": 50,
+                        "max_memory_percent": 70
+                    },
+                    {
+                        "name": "Reporting_Pool",
+                        "min_cpu_percent": 10,
+                        "max_cpu_percent": 30,
+                        "min_memory_percent": 10,
+                        "max_memory_percent": 25
+                    },
+                    {
+                        "name": "ETL_Pool",
+                        "min_cpu_percent": 5,
+                        "max_cpu_percent": 50,
+                        "min_memory_percent": 5,
+                        "max_memory_percent": 30
+                    }
+                ]
+            },
+            "indexing_strategy": {
+                "columnstore_indexes": {
+                    "enabled": True,
+                    "archival_compression": True
+                }
+            }
+        }
+    )
+
+    # Initialize SQL Server platform
+    platform = EnterpriseSQLServerDatabase(config)
+
+    # Setup the platform
+    setup_result = await platform.setup_enterprise_platform()
+
+    # Create e-commerce data model
+    ecommerce_schema = await create_ecommerce_data_model(platform)
+
+    # Setup real-time inventory management
+    inventory_system = await setup_inventory_management(platform)
+
+    # Configure customer analytics
+    customer_analytics = await setup_customer_analytics(platform)
+
+    return {
+        "platform_setup": setup_result,
+        "ecommerce_schema": ecommerce_schema,
+        "inventory_system": inventory_system,
+        "customer_analytics": customer_analytics,
+        "access_endpoints": {
+            "primary_connection": "ecom-sql.globalretailer.com,1433",
+            "read_only_connection": "ecom-sql.globalretailer.com,1434",
+            "api_endpoint": "https://api.globalretailer.com/v1"
+        }
+    }
+
+async def create_ecommerce_data_model(platform):
+    """Create comprehensive e-commerce data model with optimizations"""
+
+    ecommerce_ddl = """
+    -- Create ECommerce Database with multiple filegroups
+    CREATE DATABASE ECommerceDB
+    ON
+    ( NAME = 'ECommerceDB_Data',
+      FILENAME = 'D:\\Data\\ECommerceDB.mdf',
+      SIZE = 100GB,
+      MAXSIZE = 2TB,
+      FILEGROWTH = 10GB ),
+    FILEGROUP ECommerce_Indexes
+    ( NAME = 'ECommerceDB_Indexes',
+      FILENAME = 'I:\\Indexes\\ECommerceDB_Indexes.ndf',
+      SIZE = 50GB,
+      MAXSIZE = 1TB,
+      FILEGROWTH = 5GB ),
+    FILEGROUP ECommerce_Archive
+    ( NAME = 'ECommerceDB_Archive',
+      FILENAME = 'A:\\Archive\\ECommerceDB_Archive.ndf',
+      SIZE = 200GB,
+      MAXSIZE = 5TB,
+      FILEGROWTH = 20GB )
+    LOG ON
+    ( NAME = 'ECommerceDB_Log',
+      FILENAME = 'L:\\Logs\\ECommerceDB_Log.ldf',
+      SIZE = 20GB,
+      MAXSIZE = 500GB,
+      FILEGROWTH = 5GB );
+    GO
+
+    USE ECommerceDB;
+    GO
+
+    -- Enable Transparent Data Encryption
+    CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'StrongMasterKeyPassword123!';
+    GO
+    CREATE CERTIFICATE TDE_Cert WITH SUBJECT = 'TDE Certificate for ECommerce';
+    GO
+    CREATE DATABASE ENCRYPTION KEY WITH ALGORITHM = AES_256
+    ENCRYPTION BY SERVER CERTIFICATE TDE_Cert;
+    GO
+    ALTER DATABASE ECommerceDB SET ENCRYPTION ON;
+    GO
+
+    -- Create schemas for organization
+    CREATE SCHEMA catalog AUTHORIZATION dbo;
+    CREATE SCHEMA orders AUTHORIZATION dbo;
+    CREATE SCHEMA customers AUTHORIZATION dbo;
+    CREATE SCHEMA inventory AUTHORIZATION dbo;
+    CREATE SCHEMA analytics AUTHORIZATION dbo;
+    GO
+
+    -- Products table with columnstore index for analytics
+    CREATE TABLE catalog.Products (
+        ProductID BIGINT IDENTITY(1,1) NOT NULL,
+        SKU NVARCHAR(50) NOT NULL,
+        ProductName NVARCHAR(200) NOT NULL,
+        Description NVARCHAR(MAX),
+        CategoryID INT NOT NULL,
+        BrandID INT NOT NULL,
+        Price DECIMAL(10,2) NOT NULL,
+        CostPrice DECIMAL(10,2) NOT NULL,
+        Weight DECIMAL(8,3),
+        Dimensions NVARCHAR(50),
+        Color NVARCHAR(30),
+        Size NVARCHAR(20),
+        IsActive BIT NOT NULL DEFAULT 1,
+        SEOTitle NVARCHAR(200),
+        SEODescription NVARCHAR(500),
+        Tags NVARCHAR(500),
+        CreatedDate DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        ModifiedDate DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_Products PRIMARY KEY CLUSTERED (ProductID),
+        CONSTRAINT UK_Products_SKU UNIQUE NONCLUSTERED (SKU)
+    ) ON [PRIMARY];
+
+    -- Categories with hierarchical support
+    CREATE TABLE catalog.Categories (
+        CategoryID INT IDENTITY(1,1) NOT NULL,
+        ParentCategoryID INT NULL,
+        CategoryName NVARCHAR(100) NOT NULL,
+        CategoryPath AS CAST('/' + CategoryName + '/' AS NVARCHAR(500)) PERSISTED,
+        Description NVARCHAR(500),
+        DisplayOrder INT NOT NULL DEFAULT 0,
+        IsActive BIT NOT NULL DEFAULT 1,
+        SEOTitle NVARCHAR(200),
+        SEODescription NVARCHAR(500),
+        CreatedDate DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_Categories PRIMARY KEY CLUSTERED (CategoryID),
+        CONSTRAINT FK_Categories_Parent FOREIGN KEY (ParentCategoryID) REFERENCES catalog.Categories(CategoryID)
+    ) ON [PRIMARY];
+
+    -- Customers with Always Encrypted sensitive data
+    CREATE TABLE customers.Customers (
+        CustomerID BIGINT IDENTITY(1,1) NOT NULL,
+        CustomerGUID UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
+        Email NVARCHAR(255) NOT NULL,
+        FirstName NVARCHAR(100) NOT NULL,
+        LastName NVARCHAR(100) NOT NULL,
+        DateOfBirth DATE,
+        Phone NVARCHAR(20),
+        Gender CHAR(1),
+        PreferredLanguage CHAR(2) DEFAULT 'EN',
+        CustomerType TINYINT NOT NULL DEFAULT 1, -- 1=Regular, 2=Premium, 3=VIP
+        RegistrationDate DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        LastLoginDate DATETIME2,
+        IsActive BIT NOT NULL DEFAULT 1,
+        MarketingOptIn BIT NOT NULL DEFAULT 0,
+        CONSTRAINT PK_Customers PRIMARY KEY CLUSTERED (CustomerID),
+        CONSTRAINT UK_Customers_Email UNIQUE NONCLUSTERED (Email),
+        CONSTRAINT UK_Customers_GUID UNIQUE NONCLUSTERED (CustomerGUID)
+    ) ON [PRIMARY];
+
+    -- Customer addresses
+    CREATE TABLE customers.CustomerAddresses (
+        AddressID BIGINT IDENTITY(1,1) NOT NULL,
+        CustomerID BIGINT NOT NULL,
+        AddressType TINYINT NOT NULL, -- 1=Billing, 2=Shipping
+        FirstName NVARCHAR(100) NOT NULL,
+        LastName NVARCHAR(100) NOT NULL,
+        Company NVARCHAR(200),
+        AddressLine1 NVARCHAR(200) NOT NULL,
+        AddressLine2 NVARCHAR(200),
+        City NVARCHAR(100) NOT NULL,
+        StateProvince NVARCHAR(100),
+        PostalCode NVARCHAR(20),
+        Country NVARCHAR(100) NOT NULL,
+        IsDefault BIT NOT NULL DEFAULT 0,
+        CreatedDate DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_CustomerAddresses PRIMARY KEY CLUSTERED (AddressID),
+        CONSTRAINT FK_CustomerAddresses_Customer FOREIGN KEY (CustomerID) REFERENCES customers.Customers(CustomerID)
+    ) ON [PRIMARY];
+
+    -- Orders table (partitioned by month)
+    CREATE PARTITION FUNCTION pf_OrdersByMonth (DATETIME2)
+    AS RANGE RIGHT FOR VALUES (
+        '2024-01-01', '2024-02-01', '2024-03-01', '2024-04-01',
+        '2024-05-01', '2024-06-01', '2024-07-01', '2024-08-01',
+        '2024-09-01', '2024-10-01', '2024-11-01', '2024-12-01',
+        '2025-01-01'
+    );
+
+    CREATE PARTITION SCHEME ps_OrdersByMonth
+    AS PARTITION pf_OrdersByMonth
+    TO ([PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY],
+        [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY],
+        [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY]);
+
+    CREATE TABLE orders.Orders (
+        OrderID BIGINT IDENTITY(1,1) NOT NULL,
+        OrderNumber NVARCHAR(50) NOT NULL,
+        CustomerID BIGINT NOT NULL,
+        OrderDate DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        OrderStatus TINYINT NOT NULL DEFAULT 1, -- 1=Pending, 2=Processing, 3=Shipped, 4=Delivered, 5=Cancelled
+        BillingAddressID BIGINT NOT NULL,
+        ShippingAddressID BIGINT NOT NULL,
+        SubTotal DECIMAL(12,2) NOT NULL,
+        TaxAmount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+        ShippingAmount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+        DiscountAmount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+        TotalAmount DECIMAL(12,2) NOT NULL,
+        PaymentMethod NVARCHAR(50),
+        PaymentStatus TINYINT NOT NULL DEFAULT 1, -- 1=Pending, 2=Paid, 3=Failed
+        TransactionID NVARCHAR(100),
+        ShippingMethod NVARCHAR(100),
+        TrackingNumber NVARCHAR(100),
+        EstimatedDeliveryDate DATE,
+        ActualDeliveryDate DATE,
+        Notes NVARCHAR(MAX),
+        CreatedDate DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        ModifiedDate DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_Orders PRIMARY KEY CLUSTERED (OrderID, OrderDate),
+        CONSTRAINT UK_Orders_OrderNumber UNIQUE NONCLUSTERED (OrderNumber),
+        CONSTRAINT FK_Orders_Customer FOREIGN KEY (CustomerID) REFERENCES customers.Customers(CustomerID),
+        CONSTRAINT FK_Orders_BillingAddress FOREIGN KEY (BillingAddressID) REFERENCES customers.CustomerAddresses(AddressID),
+        CONSTRAINT FK_Orders_ShippingAddress FOREIGN KEY (ShippingAddressID) REFERENCES customers.CustomerAddresses(AddressID)
+    ) ON ps_OrdersByMonth(OrderDate);
+
+    -- Order Items
+    CREATE TABLE orders.OrderItems (
+        OrderItemID BIGINT IDENTITY(1,1) NOT NULL,
+        OrderID BIGINT NOT NULL,
+        OrderDate DATETIME2 NOT NULL,
+        ProductID BIGINT NOT NULL,
+        SKU NVARCHAR(50) NOT NULL,
+        ProductName NVARCHAR(200) NOT NULL,
+        Quantity INT NOT NULL,
+        UnitPrice DECIMAL(10,2) NOT NULL,
+        TotalPrice AS (Quantity * UnitPrice) PERSISTED,
+        DiscountAmount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+        NetPrice AS (Quantity * UnitPrice - DiscountAmount) PERSISTED,
+        CreatedDate DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_OrderItems PRIMARY KEY CLUSTERED (OrderItemID, OrderDate),
+        CONSTRAINT FK_OrderItems_Order FOREIGN KEY (OrderID, OrderDate) REFERENCES orders.Orders(OrderID, OrderDate),
+        CONSTRAINT FK_OrderItems_Product FOREIGN KEY (ProductID) REFERENCES catalog.Products(ProductID)
+    ) ON ps_OrdersByMonth(OrderDate);
+
+    -- Inventory with memory-optimized table for high-frequency updates
+    CREATE TABLE inventory.ProductInventory (
+        ProductID BIGINT NOT NULL,
+        LocationID INT NOT NULL,
+        QuantityOnHand INT NOT NULL DEFAULT 0,
+        QuantityReserved INT NOT NULL DEFAULT 0,
+        QuantityAvailable AS (QuantityOnHand - QuantityReserved) PERSISTED,
+        ReorderPoint INT NOT NULL DEFAULT 0,
+        MaxStockLevel INT NOT NULL DEFAULT 0,
+        LastRestockDate DATETIME2,
+        LastCountDate DATETIME2,
+        CostPerUnit DECIMAL(10,4),
+        LastModifiedDate DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_ProductInventory PRIMARY KEY CLUSTERED (ProductID, LocationID),
+        CONSTRAINT FK_ProductInventory_Product FOREIGN KEY (ProductID) REFERENCES catalog.Products(ProductID)
+    ) ON [PRIMARY];
+
+    -- Shopping cart (memory-optimized for performance)
+    IF NOT EXISTS (SELECT * FROM sys.filegroups WHERE name = 'InMemoryData')
+    BEGIN
+        ALTER DATABASE ECommerceDB ADD FILEGROUP InMemoryData CONTAINS MEMORY_OPTIMIZED_DATA;
+        ALTER DATABASE ECommerceDB ADD FILE
+        (NAME = 'ECommerceDB_InMemory', FILENAME = 'G:\\InMemory\\ECommerceDB_InMemory')
+        TO FILEGROUP InMemoryData;
+    END
+
+    CREATE TABLE customers.ShoppingCart (
+        CartID BIGINT IDENTITY(1,1) NOT NULL,
+        SessionID NVARCHAR(128) NOT NULL,
+        CustomerID BIGINT NULL,
+        ProductID BIGINT NOT NULL,
+        Quantity INT NOT NULL DEFAULT 1,
+        UnitPrice DECIMAL(10,2) NOT NULL,
+        AddedDate DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        ModifiedDate DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_ShoppingCart PRIMARY KEY NONCLUSTERED HASH (CartID) WITH (BUCKET_COUNT = 1000000),
+        INDEX IX_ShoppingCart_Session NONCLUSTERED HASH (SessionID) WITH (BUCKET_COUNT = 1000000),
+        INDEX IX_ShoppingCart_Customer NONCLUSTERED (CustomerID)
+    ) WITH (MEMORY_OPTIMIZED = ON, DURABILITY = SCHEMA_AND_DATA);
+
+    -- Create columnstore index for analytics on historical orders
+    CREATE NONCLUSTERED COLUMNSTORE INDEX NCCI_Orders_Analytics
+    ON orders.Orders (OrderDate, CustomerID, OrderStatus, SubTotal, TotalAmount, PaymentMethod);
+
+    CREATE NONCLUSTERED COLUMNSTORE INDEX NCCI_OrderItems_Analytics
+    ON orders.OrderItems (OrderDate, ProductID, Quantity, UnitPrice, TotalPrice);
+
+    -- High-performance indexes
+    CREATE NONCLUSTERED INDEX IX_Orders_Customer_Date
+    ON orders.Orders (CustomerID, OrderDate DESC) INCLUDE (OrderStatus, TotalAmount);
+
+    CREATE NONCLUSTERED INDEX IX_Orders_Status_Date
+    ON orders.Orders (OrderStatus, OrderDate DESC) INCLUDE (CustomerID, TotalAmount);
+
+    CREATE NONCLUSTERED INDEX IX_Products_Category_Active
+    ON catalog.Products (CategoryID, IsActive) INCLUDE (ProductName, Price, SKU);
+
+    CREATE NONCLUSTERED INDEX IX_Customers_Type_Registration
+    ON customers.Customers (CustomerType, RegistrationDate DESC) INCLUDE (Email, FirstName, LastName);
+
+    -- Update statistics
+    UPDATE STATISTICS catalog.Products WITH FULLSCAN;
+    UPDATE STATISTICS orders.Orders WITH FULLSCAN;
+    UPDATE STATISTICS customers.Customers WITH FULLSCAN;
+    """
+
+    return {"status": "created", "schema": "ecommerce", "tables_created": 8}
+
+### Example 2: Healthcare Information System with Advanced Security

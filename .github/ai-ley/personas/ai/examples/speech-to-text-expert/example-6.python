@@ -1,0 +1,75 @@
+import asyncio
+from abc import ABC, abstractmethod
+from enum import Enum
+import logging
+
+class STTProvider(Enum):
+    GOOGLE = "google"
+    AWS = "aws"
+    AZURE = "azure"
+    OPENAI = "openai"
+
+class BaseSTTService(ABC):
+    @abstractmethod
+    async def transcribe(self, audio_data, config):
+        pass
+
+class GoogleSTTService(BaseSTTService):
+    def __init__(self, credentials_path):
+        from google.cloud import speech
+        self.client = speech.SpeechClient.from_service_account_file(credentials_path)
+    
+    async def transcribe(self, audio_data, config):
+        # Google Cloud Speech implementation
+        pass
+
+class AWSTranscribeService(BaseSTTService):
+    def __init__(self, aws_config):
+        import boto3
+        self.client = boto3.client('transcribe', **aws_config)
+    
+    async def transcribe(self, audio_data, config):
+        # AWS Transcribe implementation
+        pass
+
+class MultiProviderSTT:
+    def __init__(self):
+        self.providers = {}
+        self.fallback_order = [STTProvider.GOOGLE, STTProvider.AWS, STTProvider.AZURE]
+        
+    def register_provider(self, provider_type: STTProvider, service: BaseSTTService):
+        self.providers[provider_type] = service
+        
+    async def transcribe_with_fallback(self, audio_data, config, preferred_provider=None):
+        """Transcribe with automatic fallback to other providers"""
+        providers_to_try = [preferred_provider] if preferred_provider else self.fallback_order
+        providers_to_try.extend([p for p in self.fallback_order if p not in providers_to_try])
+        
+        last_error = None
+        
+        for provider in providers_to_try:
+            if provider not in self.providers:
+                continue
+                
+            try:
+                logging.info(f"Attempting transcription with {provider.value}")
+                result = await self.providers[provider].transcribe(audio_data, config)
+                logging.info(f"Transcription successful with {provider.value}")
+                return {
+                    "transcript": result,
+                    "provider_used": provider.value,
+                    "success": True
+                }
+                
+            except Exception as e:
+                logging.warning(f"Transcription failed with {provider.value}: {str(e)}")
+                last_error = e
+                continue
+        
+        logging.error("All STT providers failed")
+        return {
+            "transcript": "",
+            "provider_used": None,
+            "success": False,
+            "error": str(last_error)
+        }

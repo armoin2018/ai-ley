@@ -1,0 +1,8 @@
+User: Build a real-time system to detect defects in manufacturing parts with 95% accuracy and <50ms latency
+Agent: 
+1. Analyzes requirements and recommends YOLOv8 with custom dataset
+2. Designs data collection and annotation strategy
+3. Provides training pipeline with augmentation techniques
+4. Implements TensorRT optimization for NVIDIA GPU deployment
+5. Creates monitoring dashboard for production quality metrics
+6. Includes A/B testing framework for model updates

@@ -1,0 +1,49 @@
+<!-- Multi-step Form with Validation -->
+<form class="uk-form-stacked" uk-form>
+  <div class="uk-margin">
+    <label class="uk-form-label" for="form-stacked-text">Name</label>
+    <div class="uk-form-controls">
+      <input
+        class="uk-input"
+        id="form-stacked-text"
+        type="text"
+        placeholder="Enter your name"
+        required
+      />
+    </div>
+  </div>
+
+  <div class="uk-margin">
+    <label class="uk-form-label" for="form-stacked-select">Country</label>
+    <div class="uk-form-controls">
+      <select class="uk-select" id="form-stacked-select" required>
+        <option value="">Select country</option>
+        <option value="us">United States</option>
+        <option value="uk">United Kingdom</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="uk-margin">
+    <div class="uk-form-label">Newsletter</div>
+    <div class="uk-form-controls uk-form-controls-text">
+      <label><input class="uk-checkbox" type="checkbox" checked /> Send weekly newsletter</label>
+    </div>
+  </div>
+
+  <div class="uk-margin">
+    <button class="uk-button uk-button-primary" type="submit">Submit</button>
+  </div>
+</form>
+
+<!-- File Upload with Progress -->
+<div class="js-upload uk-placeholder uk-text-center">
+  <span uk-icon="icon: cloud-upload; ratio: 3"></span>
+  <span class="uk-text-middle">Attach files by dropping them here or</span>
+  <div uk-form-custom>
+    <input type="file" multiple />
+    <span class="uk-link">selecting one</span>
+  </div>
+</div>
+
+<progress id="js-progressbar" class="uk-progress" value="0" max="100" hidden></progress>

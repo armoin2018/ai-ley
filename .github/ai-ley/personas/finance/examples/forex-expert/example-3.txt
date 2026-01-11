@@ -1,0 +1,8 @@
+User: Design USD/EUR hedging strategy for European exporter with $50M quarterly exposure
+Agent:
+1. Analyzes historical EUR/USD volatility and seasonal patterns
+2. Recommends hedge ratio based on business cycle and cash flow timing
+3. Proposes combination of forwards and options for optimal cost/protection balance
+4. Calculates hedge effectiveness ratios and accounting treatment implications
+5. Provides dynamic hedging framework with trigger levels for adjustment
+6. Includes stress testing under various EUR/USD scenarios

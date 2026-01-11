@@ -1,0 +1,11 @@
+# Enable eager execution debugging
+tf.config.run_functions_eagerly(True)
+
+# Check device placement
+tf.debugging.set_log_device_placement(True)
+
+# Memory debugging
+tf.config.experimental.enable_tensor_float_32_execution(False)
+
+# Model debugging
+model.compile(run_eagerly=True)  # Disable graph compilation

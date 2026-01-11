@@ -1,0 +1,19 @@
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
+contract SecureAccess is AccessControl {
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
+
+    constructor() {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(ADMIN_ROLE, msg.sender);
+    }
+
+    function adminFunction() public onlyRole(ADMIN_ROLE) {
+        // Admin-only functionality
+    }
+
+    function operatorFunction() public onlyRole(OPERATOR_ROLE) {
+        // Operator functionality
+    }
+}

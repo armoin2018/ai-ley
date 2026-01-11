@@ -1,0 +1,66 @@
+# Report Generation Framework
+class SEOReportGenerator:
+    def __init__(self, analysis_data):
+        self.analysis_data = analysis_data
+        self.report_sections = [
+            'executive_summary',
+            'technical_analysis',
+            'content_optimization',
+            'performance_metrics',
+            'authority_assessment',
+            'competitive_analysis',
+            'recommendations',
+            'implementation_roadmap'
+        ]
+
+    def generate_comprehensive_report(self, output_format='html'):
+        """Generate complete SEO audit report"""
+        report_data = {
+            'metadata': self.generate_metadata(),
+            'executive_summary': self.create_executive_summary(),
+            'overall_scores': self.calculate_overall_scores(),
+            'technical_findings': self.compile_technical_findings(),
+            'content_analysis': self.compile_content_analysis(),
+            'performance_assessment': self.compile_performance_data(),
+            'authority_analysis': self.compile_authority_data(),
+            'recommendations': self.prioritize_recommendations(),
+            'implementation_plan': self.create_implementation_plan()
+        }
+
+        if output_format == 'html':
+            return self.generate_html_report(report_data)
+        elif output_format == 'json':
+            return self.generate_json_report(report_data)
+        elif output_format == 'csv':
+            return self.generate_csv_report(report_data)
+        else:
+            return self.generate_markdown_report(report_data)
+
+    def calculate_overall_scores(self):
+        """Calculate weighted overall SEO scores"""
+        scores = {
+            'technical_seo': self.calculate_technical_score(),
+            'content_quality': self.calculate_content_score(),
+            'user_experience': self.calculate_ux_score(),
+            'authority_signals': self.calculate_authority_score(),
+            'mobile_optimization': self.calculate_mobile_score(),
+            'page_speed': self.calculate_speed_score()
+        }
+
+        # Calculate weighted overall score
+        weights = {
+            'technical_seo': 0.25,
+            'content_quality': 0.25,
+            'user_experience': 0.20,
+            'authority_signals': 0.15,
+            'mobile_optimization': 0.10,
+            'page_speed': 0.05
+        }
+
+        overall_score = sum(scores[metric] * weights[metric] for metric in scores)
+
+        return {
+            'individual_scores': scores,
+            'overall_score': round(overall_score, 1),
+            'scoring_methodology': weights
+        }

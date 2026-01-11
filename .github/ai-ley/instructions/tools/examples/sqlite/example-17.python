@@ -1,0 +1,85 @@
+# Problem: Database locked errors in multi-threaded applications
+# Solution: Implement retry logic and connection pooling
+
+import sqlite3
+import time
+import random
+from contextlib import contextmanager
+from threading import Lock
+
+class SQLiteConnectionPool:
+    def __init__(self, database_path, pool_size=5):
+        self.database_path = database_path
+        self.pool_size = pool_size
+        self.connections = []
+        self.lock = Lock()
+        self._initialize_pool()
+
+    def _initialize_pool(self):
+        for _ in range(self.pool_size):
+            conn = sqlite3.connect(
+                self.database_path,
+                check_same_thread=False,
+                timeout=30.0  # 30 seconds timeout
+            )
+            # Enable WAL mode for better concurrency
+            conn.execute("PRAGMA journal_mode = WAL")
+            conn.execute("PRAGMA synchronous = NORMAL")
+            conn.execute("PRAGMA cache_size = 10000")
+            conn.execute("PRAGMA temp_store = memory")
+            self.connections.append(conn)
+
+    @contextmanager
+    def get_connection(self):
+        """Get connection with automatic retry on database locked errors"""
+        max_retries = 5
+        base_delay = 0.1  # 100ms base delay
+
+        for attempt in range(max_retries):
+            try:
+                with self.lock:
+                    if not self.connections:
+                        # All connections in use, create temporary one
+                        conn = sqlite3.connect(
+                            self.database_path,
+                            timeout=30.0
+                        )
+                        conn.execute("PRAGMA journal_mode = WAL")
+                    else:
+                        conn = self.connections.pop()
+
+                try:
+                    yield conn
+                    conn.commit()
+                    break
+                except sqlite3.OperationalError as e:
+                    conn.rollback()
+                    if "database is locked" in str(e).lower() and attempt < max_retries - 1:
+                        # Exponential backoff with jitter
+                        delay = base_delay * (2 ** attempt) + random.uniform(0, 0.1)
+                        time.sleep(delay)
+                        continue
+                    else:
+                        raise
+                finally:
+                    with self.lock:
+                        if len(self.connections) < self.pool_size:
+                            self.connections.append(conn)
+                        else:
+                            conn.close()
+
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    raise
+                time.sleep(base_delay * (2 ** attempt))
+
+# Usage example
+pool = SQLiteConnectionPool("app.db")
+
+def insert_task_safe(title, user_id):
+    with pool.get_connection() as conn:
+        cursor = conn.execute(
+            "INSERT INTO tasks (title, user_id) VALUES (?, ?)",
+            (title, user_id)
+        )
+        return cursor.lastrowid

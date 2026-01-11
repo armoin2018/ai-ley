@@ -1,0 +1,36 @@
+{
+  "title": "Terminal App Exceptions - Preserve Native Shortcuts",
+  "rules": [
+    {
+      "description": "Disable custom shortcuts in Terminal and iTerm2",
+      "manipulators": [
+        {
+          "type": "basic",
+          "conditions": [
+            {
+              "type": "frontmost_application_if",
+              "bundle_identifiers": [
+                "^com\\.apple\\.Terminal$",
+                "^com\\.googlecode\\.iterm2$",
+                "^co\\.zeit\\.hyper$",
+                "^com\\.github\\.wez\\.wezterm$"
+              ]
+            }
+          ],
+          "from": {
+            "key_code": "h",
+            "modifiers": {
+              "mandatory": ["right_command"]
+            }
+          },
+          "to": [
+            {
+              "key_code": "h",
+              "modifiers": ["right_command"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+class Trainer:
+    def __init__(self, model, train_loader, optimizer, criterion, device):
+        self.model = model
+        self.train_loader = train_loader
+        self.optimizer = optimizer
+        self.criterion = criterion
+        self.device = device
+    
+    def train_epoch(self):
+        self.model.train()
+        total_loss = 0
+        
+        for data, target in self.train_loader:
+            data, target = data.to(self.device), target.to(self.device)
+            
+            self.optimizer.zero_grad()
+            output = self.model(data)
+            loss = self.criterion(output, target)
+            loss.backward()
+            self.optimizer.step()
+            
+            total_loss += loss.item()
+        
+        return total_loss / len(self.train_loader)

@@ -1,0 +1,254 @@
+// src/renderer/app.ts
+interface AppState {
+  currentFile: string | null;
+  content: string;
+  hasUnsavedChanges: boolean;
+  platform: string;
+}
+
+class RendererApp {
+  private state: AppState = {
+    currentFile: null,
+    content: '',
+    hasUnsavedChanges: false,
+    platform: 'unknown',
+  };
+
+  private elements: {
+    editor?: HTMLTextAreaElement;
+    statusBar?: HTMLElement;
+    titleBar?: HTMLElement;
+  } = {};
+
+  async initialize(): Promise<void> {
+    await this.loadPlatformInfo();
+    this.setupDOM();
+    this.setupEventListeners();
+    this.setupMenuHandlers();
+    this.updateUI();
+  }
+
+  private async loadPlatformInfo(): Promise<void> {
+    try {
+      this.state.platform = await window.electronAPI.getPlatform();
+    } catch (error) {
+      console.error('Failed to load platform info:', error);
+    }
+  }
+
+  private setupDOM(): void {
+    // Create main application structure
+    document.body.innerHTML = `
+      <div class="app">
+        <div class="title-bar" id="titleBar">
+          <div class="title">Text Editor</div>
+          <div class="window-controls" id="windowControls">
+            <button id="minimizeBtn" class="window-btn">-</button>
+            <button id="maximizeBtn" class="window-btn">□</button>
+            <button id="closeBtn" class="window-btn">×</button>
+          </div>
+        </div>
+        <div class="editor-container">
+          <textarea 
+            id="editor" 
+            class="editor" 
+            placeholder="Start typing..."
+            spellcheck="false"
+          ></textarea>
+        </div>
+        <div class="status-bar" id="statusBar">
+          <span class="status-info">Ready</span>
+          <span class="file-info"></span>
+        </div>
+      </div>
+    `;
+
+    // Cache DOM elements
+    this.elements.editor = document.getElementById('editor') as HTMLTextAreaElement;
+    this.elements.statusBar = document.getElementById('statusBar');
+    this.elements.titleBar = document.getElementById('titleBar');
+
+    // Platform-specific styling
+    if (this.state.platform === 'darwin') {
+      this.elements.titleBar?.classList.add('mac-titlebar');
+    }
+  }
+
+  private setupEventListeners(): void {
+    // Editor content changes
+    this.elements.editor?.addEventListener('input', (e) => {
+      const target = e.target as HTMLTextAreaElement;
+      this.state.content = target.value;
+      this.state.hasUnsavedChanges = true;
+      this.updateUI();
+    });
+
+    // Window controls (for custom title bar)
+    document.getElementById('minimizeBtn')?.addEventListener('click', () => {
+      window.electronAPI.windowMinimize();
+    });
+
+    document.getElementById('maximizeBtn')?.addEventListener('click', () => {
+      window.electronAPI.windowMaximize();
+    });
+
+    document.getElementById('closeBtn')?.addEventListener('click', () => {
+      this.handleClose();
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+          case 'n':
+            e.preventDefault();
+            this.newFile();
+            break;
+          case 'o':
+            e.preventDefault();
+            this.openFile();
+            break;
+          case 's':
+            e.preventDefault();
+            this.saveFile();
+            break;
+        }
+      }
+    });
+
+    // Prevent data loss
+    window.addEventListener('beforeunload', (e) => {
+      if (this.state.hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+  }
+
+  private setupMenuHandlers(): void {
+    window.electronAPI.onMenuAction((action: string) => {
+      switch (action) {
+        case 'menu:new':
+          this.newFile();
+          break;
+        case 'menu:open':
+          this.openFile();
+          break;
+        case 'menu:save':
+          this.saveFile();
+          break;
+      }
+    });
+  }
+
+  private async newFile(): Promise<void> {
+    if (this.state.hasUnsavedChanges) {
+      const shouldDiscard = confirm('You have unsaved changes. Continue without saving?');
+      if (!shouldDiscard) return;
+    }
+
+    this.state.currentFile = null;
+    this.state.content = '';
+    this.state.hasUnsavedChanges = false;
+
+    if (this.elements.editor) {
+      this.elements.editor.value = '';
+    }
+
+    this.updateUI();
+  }
+
+  private async openFile(): Promise<void> {
+    try {
+      const result = await window.electronAPI.fileOpen();
+
+      if (result.success && result.content !== undefined) {
+        this.state.currentFile = result.filePath || null;
+        this.state.content = result.content;
+        this.state.hasUnsavedChanges = false;
+
+        if (this.elements.editor) {
+          this.elements.editor.value = result.content;
+        }
+
+        this.updateUI();
+        this.updateStatus('File opened successfully');
+      }
+    } catch (error) {
+      console.error('Open file error:', error);
+      this.updateStatus('Failed to open file', true);
+    }
+  }
+
+  private async saveFile(): Promise<void> {
+    if (!this.state.currentFile) {
+      // TODO: Implement save-as dialog
+      this.updateStatus('Save-as not implemented yet', true);
+      return;
+    }
+
+    try {
+      const result = await window.electronAPI.fileSave(this.state.currentFile, this.state.content);
+
+      if (result.success) {
+        this.state.hasUnsavedChanges = false;
+        this.updateUI();
+        this.updateStatus('File saved successfully');
+      } else {
+        this.updateStatus(`Save failed: ${result.error}`, true);
+      }
+    } catch (error) {
+      console.error('Save file error:', error);
+      this.updateStatus('Failed to save file', true);
+    }
+  }
+
+  private async handleClose(): Promise<void> {
+    if (this.state.hasUnsavedChanges) {
+      const shouldSave = confirm('You have unsaved changes. Save before closing?');
+      if (shouldSave) {
+        await this.saveFile();
+      }
+    }
+
+    window.electronAPI.windowClose();
+  }
+
+  private updateUI(): void {
+    // Update title
+    const fileName = this.state.currentFile
+      ? this.state.currentFile.split('/').pop() || 'Untitled'
+      : 'Untitled';
+
+    const title = `${fileName}${this.state.hasUnsavedChanges ? ' •' : ''} - Text Editor`;
+    document.title = title;
+
+    // Update status bar
+    const fileInfo = this.state.currentFile ? `File: ${this.state.currentFile}` : 'No file open';
+
+    const statusElement = this.elements.statusBar?.querySelector('.file-info');
+    if (statusElement) {
+      statusElement.textContent = fileInfo;
+    }
+  }
+
+  private updateStatus(message: string, isError = false): void {
+    const statusElement = this.elements.statusBar?.querySelector('.status-info');
+    if (statusElement) {
+      statusElement.textContent = message;
+      statusElement.className = `status-info ${isError ? 'error' : ''}`;
+
+      // Clear status after 3 seconds
+      setTimeout(() => {
+        statusElement.textContent = 'Ready';
+        statusElement.className = 'status-info';
+      }, 3000);
+    }
+  }
+}
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', () => {
+  const app = new RendererApp();
+  app.initialize().catch(console.error);
+});

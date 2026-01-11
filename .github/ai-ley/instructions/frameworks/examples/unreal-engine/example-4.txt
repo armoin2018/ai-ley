@@ -1,0 +1,23 @@
+ProjectName/
+├── Binaries/              # Compiled executables and libraries
+├── Build/                 # Build configuration and intermediate files
+├── Config/                # Configuration files (.ini)
+│   ├── DefaultEngine.ini  # Engine configuration
+│   ├── DefaultGame.ini    # Game-specific settings
+│   └── DefaultInput.ini   # Input mappings
+├── Content/               # Game assets and blueprints
+│   ├── Blueprints/        # Blueprint classes
+│   ├── Maps/              # Level files (.umap)
+│   ├── Materials/         # Material assets
+│   ├── Meshes/            # 3D models and static meshes
+│   ├── Textures/          # Image assets
+│   └── UI/                # User interface assets
+├── Intermediate/          # Temporary build files
+├── Plugins/               # Third-party and custom plugins
+├── Saved/                 # Runtime generated files
+└── Source/                # C++ source code
+    ├── ProjectName/       # Main game module
+    │   ├── Private/       # .cpp implementation files
+    │   ├── Public/        # .h header files
+    │   └── ProjectName.Build.cs
+    └── ProjectNameEditor/ # Editor-only code

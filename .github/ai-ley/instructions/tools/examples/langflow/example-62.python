@@ -1,0 +1,12 @@
+# Solution: Implement quota management
+quota_manager = {
+    "daily_limits": {
+        "openai": 1000000,  # tokens
+        "anthropic": 500000,
+        "huggingface": 10000  # requests
+    },
+    "usage_tracking": {
+        "file": "/var/log/langflow/api_usage.json",
+        "reset_daily": True
+    }
+}

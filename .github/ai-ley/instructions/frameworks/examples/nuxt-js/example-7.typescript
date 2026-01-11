@@ -1,0 +1,71 @@
+// composables/useApi.ts
+export const useApi = <T = any>(url: string, options?: any) => {
+  const { data, pending, error, refresh } = useLazyFetch<T>(url, {
+    default: () => null,
+    server: true,
+    ...options
+  })
+
+  const isLoading = computed(() => pending.value)
+  const hasError = computed(() => !!error.value)
+
+  return {
+    data,
+    isLoading,
+    hasError,
+    error,
+    refresh
+  }
+}
+
+// composables/useForm.ts
+export const useForm = <T extends Record<string, any>>(
+  initialValues: T,
+  validationRules?: Record<keyof T, (value: any) => string | null>
+) => {
+  const formData = ref({ ...initialValues })
+  const errors = ref<Partial<Record<keyof T, string>>>({})
+  const isSubmitting = ref(false)
+
+  const validate = () => {
+    errors.value = {}
+    let isValid = true
+
+    if (validationRules) {
+      for (const [field, rule] of Object.entries(validationRules)) {
+        const error = rule(formData.value[field])
+        if (error) {
+          errors.value[field as keyof T] = error
+          isValid = false
+        }
+      }
+    }
+
+    return isValid
+  }
+
+  const submit = async (submitFn: (data: T) => Promise<void>) => {
+    if (!validate()) return
+
+    isSubmitting.value = true
+    try {
+      await submitFn(formData.value)
+    } finally {
+      isSubmitting.value = false
+    }
+  }
+
+  const reset = () => {
+    formData.value = { ...initialValues }
+    errors.value = {}
+  }
+
+  return {
+    formData,
+    errors,
+    isSubmitting,
+    validate,
+    submit,
+    reset
+  }
+}

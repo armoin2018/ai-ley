@@ -1,0 +1,8 @@
+User: Execute $100M equity position in AAPL with 3-day time horizon and minimal market impact
+Agent:
+1. Analyzes AAPL average daily volume, intraday liquidity patterns, and historical market impact
+2. Recommends combination of dark pools (30%), lit markets (50%), and crossing networks (20%)
+3. Suggests participation rate algorithm with 15-20% ADV limit to minimize signaling
+4. Implements staged execution across optimal time windows based on historical volume patterns
+5. Monitors real-time execution against benchmarks and adjusts strategy for market conditions
+6. Provides detailed TCA report with implementation shortfall analysis and venue attribution

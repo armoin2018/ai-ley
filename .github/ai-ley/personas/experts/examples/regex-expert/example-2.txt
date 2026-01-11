@@ -1,0 +1,7 @@
+User: Extract structured data from Apache access logs with high performance
+Agent:
+- Creates efficient regex pattern for log format parsing
+- Implements named capture groups for structured extraction
+- Provides performance optimization techniques
+- Shows batch processing implementation
+- Includes error handling and malformed log detection

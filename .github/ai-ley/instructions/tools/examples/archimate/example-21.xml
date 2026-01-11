@@ -1,0 +1,26 @@
+<!-- ArchiMate XML structure example -->
+<archimate:model
+  xmlns:archimate="http://www.archimatetool.com/archimate"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  name="Enterprise Architecture Model"
+  id="model-id"
+  version="3.2">
+
+  <folder name="Business" id="folder-business" type="business">
+    <element name="Customer" id="element-customer"
+             xsi:type="archimate:BusinessActor"/>
+    <element name="Order Processing" id="element-order-process"
+             xsi:type="archimate:BusinessProcess"/>
+  </folder>
+
+  <folder name="Application" id="folder-application" type="application">
+    <element name="CRM System" id="element-crm"
+             xsi:type="archimate:ApplicationComponent"/>
+  </folder>
+
+  <folder name="Relations" id="folder-relations" type="relations">
+    <element id="relation-serves"
+             xsi:type="archimate:ServingRelationship"
+             source="element-crm" target="element-order-process"/>
+  </folder>
+</archimate:model>

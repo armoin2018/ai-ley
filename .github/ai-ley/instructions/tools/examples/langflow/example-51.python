@@ -1,0 +1,36 @@
+# Performance monitoring component
+performance_monitor = {
+    "type": "PythonFunction",
+    "code": """
+import time
+import psutil
+import logging
+
+def monitor_performance(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        start_memory = psutil.Process().memory_info().rss / 1024 / 1024
+
+        try:
+            result = func(*args, **kwargs)
+            success = True
+        except Exception as e:
+            result = str(e)
+            success = False
+
+        end_time = time.time()
+        end_memory = psutil.Process().memory_info().rss / 1024 / 1024
+
+        metrics = {
+            "execution_time": end_time - start_time,
+            "memory_used": end_memory - start_memory,
+            "success": success,
+            "function": func.__name__
+        }
+
+        logging.info(f"Performance: {metrics}")
+        return result
+
+    return wrapper
+    """
+}

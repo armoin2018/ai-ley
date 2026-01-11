@@ -1,0 +1,4 @@
+/o             # Create new session
+/nSM04         # User overview
+/nSM51         # Application servers
+System → Create Session

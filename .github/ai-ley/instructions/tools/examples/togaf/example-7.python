@@ -1,0 +1,12 @@
+# Digital Transformation Roadmap
+transformation_planner = DigitalTransformationPlanner(togaf_config)
+
+roadmap_result = await transformation_planner.create_transformation_roadmap(
+    gap_prioritization=gap_analysis_result['gap_prioritization'],
+    remediation_strategies=gap_analysis_result['remediation_strategies'],
+    timeline_config={
+        'total_duration_months': 36,
+        'phase_approach': 'incremental',
+        'risk_tolerance': 'moderate'
+    }
+)

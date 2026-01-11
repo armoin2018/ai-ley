@@ -1,0 +1,44 @@
+performance_optimization:
+  query_optimization:
+    selective_queries:
+      - use_indexed_fields_in_where_clause
+      - limit_query_results_with_limit
+      - avoid_non_selective_soql
+      
+    bulk_operations:
+      - use_bulk_api_for_large_datasets
+      - batch_dml_operations_in_chunks
+      - implement_batch_apex_for_processing
+      
+  automation_optimization:
+    process_builder_migration:
+      - migrate_to_flow_for_better_performance
+      - consolidate_multiple_processes
+      - use_before_save_flows_when_possible
+      
+    trigger_optimization:
+      - one_trigger_per_object_pattern
+      - bulkify_all_trigger_logic
+      - use_trigger_handler_framework
+      
+  storage_optimization:
+    data_archival:
+      - identify_stale_data_for_archival
+      - implement_external_objects_for_historical_data
+      - use_big_objects_for_high_volume_data
+      
+    file_management:
+      - use_salesforce_files_over_attachments
+      - implement_file_size_governance
+      - leverage_external_file_storage_when_appropriate
+      
+  monitoring_strategy:
+    performance_monitoring:
+      - event_monitoring_for_api_usage
+      - query_plan_tool_for_soql_optimization
+      - custom_performance_dashboards
+      
+    proactive_alerting:
+      - api_limit_consumption_alerts
+      - storage_limit_monitoring
+      - automation_performance_metrics

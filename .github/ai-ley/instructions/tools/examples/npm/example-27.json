@@ -1,0 +1,7 @@
+// VS Code settings.json
+{
+  "npm.enableScriptExplorer": true,
+  "npm.scriptExplorerAction": "run",
+  "npm.exclude": "**/node_modules/**",
+  "typescript.preferences.includePackageJsonAutoImports": "on"
+}

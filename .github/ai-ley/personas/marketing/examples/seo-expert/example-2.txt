@@ -1,0 +1,8 @@
+User: Develop an SEO content strategy to target high-intent keywords in the B2B software space
+Agent: Creates comprehensive content strategy including:
+- Keyword research and clustering analysis
+- Topical authority mapping
+- Content cluster architecture
+- User intent alignment framework
+- Internal linking strategy
+- Content performance tracking methodology

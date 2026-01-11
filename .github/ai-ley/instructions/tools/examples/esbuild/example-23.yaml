@@ -1,0 +1,33 @@
+# GitHub Actions example
+name: Build with esbuild
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build with esbuild
+      run: npm run build
+
+    - name: Analyze bundle
+      run: |
+        npm run build:analyze
+        cat meta.json | jq '.outputs'
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-output
+        path: dist/

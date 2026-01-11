@@ -1,0 +1,55 @@
+// pages/login-page.ts
+import { Page, Locator } from '@playwright/test'
+
+export class LoginPage {
+  readonly page: Page
+  readonly usernameInput: Locator
+  readonly passwordInput: Locator
+  readonly loginButton: Locator
+  readonly errorMessage: Locator
+
+  constructor(page: Page) {
+    this.page = page
+    this.usernameInput = page.locator('[data-testid="username"]')
+    this.passwordInput = page.locator('[data-testid="password"]')
+    this.loginButton = page.locator('[data-testid="login-button"]')
+    this.errorMessage = page.locator('.error-message')
+  }
+
+  async goto() {
+    await this.page.goto('/login')
+  }
+
+  async login(username: string, password: string) {
+    await this.usernameInput.fill(username)
+    await this.passwordInput.fill(password)
+    await this.loginButton.click()
+  }
+
+  async getErrorMessage() {
+    return await this.errorMessage.textContent()
+  }
+}
+
+// tests/login.spec.ts
+import { test, expect } from '@playwright/test'
+import { LoginPage } from '../pages/login-page'
+
+test.describe('Login functionality', () => {
+  test('successful login', async ({ page }) => {
+    const loginPage = new LoginPage(page)
+    await loginPage.goto()
+    await loginPage.login('user@example.com', 'password123')
+
+    await expect(page).toHaveURL('/dashboard')
+  })
+
+  test('failed login', async ({ page }) => {
+    const loginPage = new LoginPage(page)
+    await loginPage.goto()
+    await loginPage.login('invalid@example.com', 'wrongpassword')
+
+    const errorMessage = await loginPage.getErrorMessage()
+    expect(errorMessage).toContain('Invalid credentials')
+  })
+})

@@ -1,0 +1,82 @@
+// contracts/CCIPSender.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "@chainlink/contracts-ccip/src/v0.8/ccip/interfaces/IRouterClient.sol";
+import "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Client.sol";
+import "@chainlink/contracts/src/v0.8/shared/access/OwnerIsCreator.sol";
+import "@chainlink/contracts/src/v0.8/shared/interfaces/LinkTokenInterface.sol";
+
+contract CCIPSender is OwnerIsCreator {
+    IRouterClient private s_router;
+    LinkTokenInterface private s_linkToken;
+
+    mapping(uint64 => bool) public allowlistedDestinationChains;
+    mapping(address => bool) public allowlistedSenders;
+
+    event MessageSent(
+        bytes32 indexed messageId,
+        uint64 indexed destinationChainSelector,
+        address receiver,
+        string text,
+        uint256 fees
+    );
+
+    constructor(address _router, address _link) {
+        s_router = IRouterClient(_router);
+        s_linkToken = LinkTokenInterface(_link);
+    }
+
+    modifier onlyAllowlistedDestinationChain(uint64 _destinationChainSelector) {
+        require(allowlistedDestinationChains[_destinationChainSelector], "Destination chain not allowlisted");
+        _;
+    }
+
+    function allowlistDestinationChain(uint64 _destinationChainSelector, bool allowed) external onlyOwner {
+        allowlistedDestinationChains[_destinationChainSelector] = allowed;
+    }
+
+    function sendMessagePayLINK(
+        uint64 _destinationChainSelector,
+        address _receiver,
+        string calldata _text
+    ) external onlyAllowlistedDestinationChain(_destinationChainSelector) returns (bytes32 messageId) {
+        // Create an EVM2AnyMessage struct in memory with necessary information for sending a cross-chain message
+        Client.EVM2AnyMessage memory evm2AnyMessage = _buildCCIPMessage(_receiver, _text, address(s_linkToken));
+
+        // Get the fee required to send the CCIP message
+        uint256 fees = s_router.getFee(_destinationChainSelector, evm2AnyMessage);
+
+        require(fees <= s_linkToken.balanceOf(address(this)), "Not enough LINK to pay fees");
+
+        // approve the Router to transfer LINK tokens on contract's behalf. It will spend the fees in LINK
+        s_linkToken.approve(address(s_router), fees);
+
+        // Send the message through the router and store the returned message ID
+        messageId = s_router.ccipSend(_destinationChainSelector, evm2AnyMessage);
+
+        // Emit an event with message details
+        emit MessageSent(messageId, _destinationChainSelector, _receiver, _text, fees);
+
+        // Return the message ID
+        return messageId;
+    }
+
+    function _buildCCIPMessage(
+        address _receiver,
+        string calldata _text,
+        address _feeTokenAddress
+    ) private pure returns (Client.EVM2AnyMessage memory) {
+        // Set the token amounts
+        Client.EVMTokenAmount[] memory tokenAmounts = new Client.EVMTokenAmount[](0);
+        
+        // Create an EVM2AnyMessage struct in memory with necessary information for sending a cross-chain message
+        return Client.EVM2AnyMessage({
+            receiver: abi.encode(_receiver), // ABI-encoded receiver address
+            data: abi.encode(_text), // ABI-encoded string
+            tokenAmounts: tokenAmounts, // Empty array as no tokens are transferred
+            extraArgs: Client._argsToBytes(Client.EVMExtraArgsV1({gasLimit: 200_000})),
+            feeToken: _feeTokenAddress
+        });
+    }
+}

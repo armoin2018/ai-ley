@@ -1,0 +1,8 @@
+User: Create a real-time dashboard with charts, notifications, and collaborative features
+Agent:
+1. Architects component structure with proper separation of concerns
+2. Implements WebSocket integration with reconnection logic
+3. Uses React Query for optimistic updates and cache management
+4. Integrates Chart.js or D3 with React for data visualization
+5. Implements notification system with proper UX patterns
+6. Adds comprehensive error boundaries and loading states

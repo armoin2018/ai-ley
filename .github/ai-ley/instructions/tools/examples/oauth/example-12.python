@@ -1,0 +1,132 @@
+import secrets
+import hashlib
+import time
+from functools import wraps
+
+class OAuthSecurityMiddleware:
+    """Security middleware for OAuth implementations."""
+
+    def __init__(self):
+        self.rate_limits = {}
+        self.blocked_ips = set()
+
+    def rate_limit(self, max_requests=10, window_minutes=1):
+        """Rate limiting decorator for OAuth endpoints."""
+        def decorator(func):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                from flask import request, jsonify
+
+                client_ip = request.remote_addr
+                current_time = time.time()
+                window_seconds = window_minutes * 60
+
+                # Clean old entries
+                self._cleanup_rate_limits(current_time, window_seconds)
+
+                # Check rate limit
+                if client_ip in self.rate_limits:
+                    requests_in_window = [
+                        req_time for req_time in self.rate_limits[client_ip]
+                        if current_time - req_time < window_seconds
+                    ]
+
+                    if len(requests_in_window) >= max_requests:
+                        return jsonify({
+                            'error': 'rate_limit_exceeded',
+                            'error_description': 'Too many requests'
+                        }), 429
+
+                    self.rate_limits[client_ip] = requests_in_window + [current_time]
+                else:
+                    self.rate_limits[client_ip] = [current_time]
+
+                return func(*args, **kwargs)
+            return wrapper
+        return decorator
+
+    def validate_redirect_uri(self, client_id, redirect_uri):
+        """Validate redirect URI against registered URIs."""
+        # In production, fetch from database
+        registered_uris = self._get_client_redirect_uris(client_id)
+
+        # Exact match required for security
+        if redirect_uri not in registered_uris:
+            return False
+
+        # Additional security checks
+        if not redirect_uri.startswith('https://'):
+            # Allow http only for localhost in development
+            if not (redirect_uri.startswith('http://localhost') or
+                   redirect_uri.startswith('http://127.0.0.1')):
+                return False
+
+        return True
+
+    def validate_pkce(self, code_verifier, code_challenge, method='S256'):
+        """Validate PKCE code verifier against challenge."""
+        if not code_verifier or not code_challenge:
+            return False
+
+        if method == 'S256':
+            import base64
+            computed_challenge = base64.urlsafe_b64encode(
+                hashlib.sha256(code_verifier.encode()).digest()
+            ).decode('utf-8').rstrip('=')
+
+            return computed_challenge == code_challenge
+        elif method == 'plain':
+            return code_verifier == code_challenge
+
+        return False
+
+    def generate_secure_token(self, length=32):
+        """Generate cryptographically secure random token."""
+        return secrets.token_urlsafe(length)
+
+    def validate_scope(self, requested_scope, client_allowed_scopes):
+        """Validate requested scope against client permissions."""
+        if not requested_scope:
+            return []
+
+        requested_scopes = requested_scope.split()
+        allowed_scopes = client_allowed_scopes.split()
+
+        # Check if all requested scopes are allowed
+        for scope in requested_scopes:
+            if scope not in allowed_scopes:
+                return None
+
+        return requested_scopes
+
+    def _cleanup_rate_limits(self, current_time, window_seconds):
+        """Clean up old rate limit entries."""
+        for ip in list(self.rate_limits.keys()):
+            self.rate_limits[ip] = [
+                req_time for req_time in self.rate_limits[ip]
+                if current_time - req_time < window_seconds
+            ]
+
+            if not self.rate_limits[ip]:
+                del self.rate_limits[ip]
+
+    def _get_client_redirect_uris(self, client_id):
+        """Get registered redirect URIs for client."""
+        # In production, this would query the database
+        return ['https://client.app.com/callback']
+
+# CORS handling for OAuth endpoints
+def setup_oauth_cors():
+    """Setup CORS for OAuth endpoints."""
+    from flask_cors import CORS
+
+    # Configure CORS for OAuth endpoints
+    cors_config = {
+        'origins': ['https://yourapp.com'],
+        'methods': ['GET', 'POST'],
+        'allow_headers': ['Content-Type', 'Authorization'],
+        'expose_headers': ['Content-Type'],
+        'max_age': 3600
+    }
+
+    return cors_config

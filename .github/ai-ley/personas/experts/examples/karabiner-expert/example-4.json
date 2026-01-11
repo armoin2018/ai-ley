@@ -1,0 +1,33 @@
+{
+  "title": "Caps Lock → Hyper Key (⌃⌥⇧⌘) / Escape when alone",
+  "rules": [
+    {
+      "description": "Caps Lock → Hyper Key (all modifiers)",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "caps_lock",
+            "modifiers": {
+              "optional": ["any"]
+            }
+          },
+          "to": [
+            {
+              "key_code": "left_shift",
+              "modifiers": ["left_control", "left_option", "left_command"]
+            }
+          ],
+          "to_if_alone": [
+            {
+              "key_code": "escape"
+            }
+          ],
+          "parameters": {
+            "basic.to_if_alone_timeout_milliseconds": 250
+          }
+        }
+      ]
+    }
+  ]
+}

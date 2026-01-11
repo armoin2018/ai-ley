@@ -1,0 +1,20 @@
+# Global VAR Model Implementation
+import pandas as pd
+import numpy as np
+from statsmodels.tsa.vector_ar.var_model import VAR
+
+class GlobalEconomicModel:
+    def __init__(self):
+        self.variables = ['gdp_growth', 'inflation', 'policy_rate', 
+                         'exchange_rate', 'trade_balance']
+        self.countries = ['US', 'EU', 'China', 'Japan', 'UK', 'EM_aggregate']
+    
+    def estimate_spillovers(self, data, lags=4):
+        # Estimate VAR model for spillover analysis
+        model = VAR(data)
+        results = model.fit(lags)
+        return results.forecast_interval(results.y[-lags:], steps=8)
+    
+    def scenario_analysis(self, shock_country, shock_variable, shock_size):
+        # Implement structural shock analysis
+        pass

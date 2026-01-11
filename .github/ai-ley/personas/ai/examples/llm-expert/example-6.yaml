@@ -1,0 +1,14 @@
+inference_service:
+  model_serving:
+    engine: "vllm"
+    quantization: "int8"
+    max_concurrent_requests: 100
+    
+  scaling:
+    min_replicas: 2
+    max_replicas: 10
+    target_latency_p99: "500ms"
+    
+  monitoring:
+    metrics: ["latency", "throughput", "error_rate"]
+    alerting: ["high_latency", "model_drift"]

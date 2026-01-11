@@ -1,0 +1,111 @@
+class RegulatoryReporter:
+    def __init__(self):
+        self.reporting_requirements = self.load_reporting_requirements()
+        self.report_generators = self.initialize_report_generators()
+
+    def load_reporting_requirements(self) -> Dict[str, any]:
+        """Load jurisdiction-specific reporting requirements"""
+
+        return {
+            'US_FINCEN': {
+                'suspicious_activity_reports': {
+                    'threshold_usd': 5000,
+                    'timeframe_days': 30,
+                    'submission_deadline_days': 30
+                },
+                'currency_transaction_reports': {
+                    'threshold_usd': 10000,
+                    'timeframe_days': 1,
+                    'submission_deadline_days': 15
+                }
+            },
+            'EU_AMLD5': {
+                'transaction_monitoring': {
+                    'threshold_eur': 15000,
+                    'enhanced_due_diligence': True,
+                    'reporting_frequency': 'monthly'
+                }
+            },
+            'SINGAPORE_MAS': {
+                'large_transaction_reports': {
+                    'threshold_sgd': 20000,
+                    'suspicious_pattern_monitoring': True,
+                    'submission_deadline_hours': 24
+                }
+            }
+        }
+
+    async def generate_regulatory_reports(self, jurisdiction: str, report_period: Dict[str, datetime]) -> Dict[str, any]:
+        """Generate comprehensive regulatory reports for jurisdiction"""
+
+        reports = {}
+        requirements = self.reporting_requirements.get(jurisdiction, {})
+
+        for report_type, config in requirements.items():
+            report_data = await self.generate_specific_report(
+                jurisdiction,
+                report_type,
+                config,
+                report_period
+            )
+            reports[report_type] = report_data
+
+        return {
+            'jurisdiction': jurisdiction,
+            'report_period': report_period,
+            'generated_at': datetime.now(),
+            'reports': reports,
+            'compliance_status': self.validate_compliance(reports, requirements)
+        }
+
+    async def generate_specific_report(self, jurisdiction: str, report_type: str, config: Dict, period: Dict[str, datetime]) -> Dict[str, any]:
+        """Generate specific regulatory report type"""
+
+        if report_type == 'suspicious_activity_reports':
+            return await self.generate_sar_report(config, period)
+        elif report_type == 'currency_transaction_reports':
+            return await self.generate_ctr_report(config, period)
+        elif report_type == 'transaction_monitoring':
+            return await self.generate_transaction_monitoring_report(config, period)
+        elif report_type == 'large_transaction_reports':
+            return await self.generate_large_transaction_report(config, period)
+
+        return {}
+
+    async def generate_sar_report(self, config: Dict, period: Dict[str, datetime]) -> Dict[str, any]:
+        """Generate Suspicious Activity Report"""
+
+        # Query suspicious activities from monitoring system
+        suspicious_activities = await self.query_suspicious_activities(
+            threshold=config['threshold_usd'],
+            start_date=period['start'],
+            end_date=period['end']
+        )
+
+        sar_report = {
+            'report_type': 'SAR',
+            'total_suspicious_activities': len(suspicious_activities),
+            'activities': [],
+            'summary_statistics': {}
+        }
+
+        for activity in suspicious_activities:
+            sar_entry = {
+                'activity_id': activity['id'],
+                'user_id': activity['user_id'],
+                'transaction_type': activity['type'],
+                'amount_usd': activity['amount'],
+                'suspicious_patterns': activity['patterns'],
+                'risk_score': activity['risk_score'],
+                'investigation_status': activity['status']
+            }
+            sar_report['activities'].append(sar_entry)
+
+        # Generate summary statistics
+        sar_report['summary_statistics'] = {
+            'total_amount_usd': sum(a['amount'] for a in suspicious_activities),
+            'average_risk_score': sum(a['risk_score'] for a in suspicious_activities) / len(suspicious_activities) if suspicious_activities else 0,
+            'pattern_frequency': self.calculate_pattern_frequency(suspicious_activities)
+        }
+
+        return sar_report

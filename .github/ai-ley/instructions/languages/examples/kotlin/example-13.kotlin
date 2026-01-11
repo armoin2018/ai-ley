@@ -1,0 +1,17 @@
+// ✅ Clean, well-structured class
+class UserService(
+    private val userRepository: UserRepository,
+    private val emailService: EmailService,
+    private val validator: UserValidator
+) {
+    
+    suspend fun createUser(request: CreateUserRequest): Result<User> {
+        return validator.validate(request)
+            .map { validatedRequest ->
+                userRepository.save(validatedRequest.toUser())
+            }
+            .onSuccess { user ->
+                emailService.sendWelcomeEmail(user.email)
+            }
+    }
+}

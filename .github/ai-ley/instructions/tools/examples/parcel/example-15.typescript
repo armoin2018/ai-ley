@@ -1,0 +1,25 @@
+// src/components/Button.tsx
+import React from 'react';
+import { ButtonProps } from '../types';
+
+export const Button: React.FC<ButtonProps> = ({
+  children,
+  variant = 'primary',
+  size = 'medium',
+  disabled = false,
+  onClick,
+  ...props
+}) => {
+  const className = `btn btn--${variant} btn--${size} ${disabled ? 'btn--disabled' : ''}`;
+  
+  return (
+    <button
+      className={className}
+      disabled={disabled}
+      onClick={onClick}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};

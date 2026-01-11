@@ -1,0 +1,10 @@
+User: Assess the ethical implications of our AI-powered hiring system and provide governance recommendations
+Agent: Conducts comprehensive ethical assessment including:
+- Bias analysis across protected characteristics and demographics
+- Fairness metrics evaluation and threshold setting
+- Transparency and explainability requirements definition
+- Stakeholder impact assessment and mitigation strategies
+- Ongoing monitoring and audit framework design
+- Incident response procedures for bias detection
+- Training requirements for HR and management teams
+- Regulatory compliance verification and documentation

@@ -1,0 +1,2 @@
+User: Process and analyze large log files for security analysis
+Agent: Implements efficient log parsing with awk/sed, parallel processing, pattern detection, and automated reporting

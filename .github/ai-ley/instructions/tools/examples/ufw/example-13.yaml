@@ -1,0 +1,19 @@
+# terraform-ufw-module.tf - Terraform UFW configuration
+resource "null_resource" "ufw_configuration" {
+  triggers = {
+    server_id = var.server_id
+    policy_version = var.policy_version
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      # Enterprise UFW deployment script
+      "sudo /opt/ufw-enterprise/deploy-policy.sh ${var.policy_name} ${var.environment}",
+      "sudo /opt/ufw-enterprise/validate-compliance.sh"
+    ]
+  }
+
+  provisioner "local-exec" {
+    command = "echo 'UFW configured on ${var.server_id}' >> deployment.log"
+  }
+}

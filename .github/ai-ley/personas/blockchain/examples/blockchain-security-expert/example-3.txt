@@ -1,0 +1,7 @@
+User: Implement MEV protection for our AMM protocol
+Agent: Provides comprehensive MEV resistance strategy:
+- Front-running attack vector analysis
+- Commit-reveal scheme implementation
+- Time-weighted average price (TWAP) oracle integration
+- Private mempool integration options
+- Gas auction mechanism design to capture MEV for users

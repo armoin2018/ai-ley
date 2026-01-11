@@ -1,0 +1,5 @@
+string result = "";
+foreach (var line in lines)
+{
+    result += line; // prohibited - creates new strings
+}

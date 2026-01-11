@@ -1,0 +1,51 @@
+# HuggingFace fine-tuning with LoRA
+from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments, Trainer
+from peft import LoraConfig, get_peft_model, TaskType
+from datasets import load_dataset
+import torch
+
+class HuggingFaceFineTuner:
+    def __init__(self, model_name, task_type="CAUSAL_LM"):
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            torch_dtype=torch.float16,
+            device_map="auto"
+        )
+        self.setup_lora(task_type)
+    
+    def setup_lora(self, task_type):
+        lora_config = LoraConfig(
+            task_type=TaskType.CAUSAL_LM,
+            inference_mode=False,
+            r=16,
+            lora_alpha=32,
+            lora_dropout=0.1
+        )
+        self.model = get_peft_model(self.model, lora_config)
+    
+    def train(self, dataset, output_dir):
+        training_args = TrainingArguments(
+            output_dir=output_dir,
+            per_device_train_batch_size=4,
+            gradient_accumulation_steps=4,
+            warmup_steps=100,
+            max_steps=1000,
+            learning_rate=2e-4,
+            fp16=True,
+            logging_steps=50,
+            save_steps=500,
+            evaluation_strategy="steps",
+            eval_steps=500
+        )
+        
+        trainer = Trainer(
+            model=self.model,
+            args=training_args,
+            train_dataset=dataset["train"],
+            eval_dataset=dataset["validation"],
+            tokenizer=self.tokenizer
+        )
+        
+        trainer.train()
+        return trainer

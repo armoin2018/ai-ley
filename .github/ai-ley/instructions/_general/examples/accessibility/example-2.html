@@ -1,0 +1,27 @@
+<!--  Good: Use semantic HTML -->
+<header>
+  <nav aria-label="Main navigation">
+    <ul>
+      <li><a href="/home">Home</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section aria-labelledby="main-heading">
+    <h1 id="main-heading">Page Title</h1>
+    <article>
+      <h2>Article Title</h2>
+      <p>Article content...</p>
+    </article>
+  </section>
+</main>
+
+<!-- L Bad: Generic divs without semantic meaning -->
+<div class="header">
+  <div class="nav">
+    <div class="nav-item">Home</div>
+    <div class="nav-item">About</div>
+  </div>
+</div>

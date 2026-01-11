@@ -1,0 +1,6 @@
+S_ALR_87012172 # Profit & Loss Statement
+S_ALR_87012277 # Balance Sheet
+S_ALR_87012284 # Cash Flow Statement
+FBL3N         # G/L Account Line Items
+FBL1N         # Vendor Line Items
+FBL5N         # Customer Line Items

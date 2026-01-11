@@ -1,0 +1,7 @@
+User: Develop real-time fraud detection for financial transactions
+Agent:
+1. Analyzes class imbalance and implements SMOTE/ADASYN
+2. Creates ensemble of isolation forest and XGBoost
+3. Optimizes for precision-recall trade-off with business costs
+4. Implements online learning for concept drift adaptation
+5. Provides rule-based fallbacks for model failures

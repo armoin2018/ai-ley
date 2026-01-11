@@ -1,0 +1,2 @@
+const config = vscode.workspace.getConfiguration('myExt');
+await config.update('setting', value, vscode.ConfigurationTarget.Workspace);

@@ -1,0 +1,148 @@
+// contexts/AuthContext.tsx
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+interface AuthState {
+  user: User | null;
+  token: string | null;
+  loading: boolean;
+  error: string | null;
+}
+
+type AuthAction =
+  | { type: 'LOGIN_START' }
+  | { type: 'LOGIN_SUCCESS'; payload: { user: User; token: string } }
+  | { type: 'LOGIN_FAILURE'; payload: string }
+  | { type: 'LOGOUT' }
+  | { type: 'RESTORE_TOKEN'; payload: { user: User; token: string } | null };
+
+const initialState: AuthState = {
+  user: null,
+  token: null,
+  loading: true,
+  error: null,
+};
+
+const authReducer = (state: AuthState, action: AuthAction): AuthState => {
+  switch (action.type) {
+    case 'LOGIN_START':
+      return { ...state, loading: true, error: null };
+    case 'LOGIN_SUCCESS':
+      return {
+        ...state,
+        user: action.payload.user,
+        token: action.payload.token,
+        loading: false,
+        error: null,
+      };
+    case 'LOGIN_FAILURE':
+      return {
+        ...state,
+        user: null,
+        token: null,
+        loading: false,
+        error: action.payload,
+      };
+    case 'LOGOUT':
+      return {
+        ...state,
+        user: null,
+        token: null,
+        loading: false,
+        error: null,
+      };
+    case 'RESTORE_TOKEN':
+      return {
+        ...state,
+        user: action.payload?.user || null,
+        token: action.payload?.token || null,
+        loading: false,
+      };
+    default:
+      return state;
+  }
+};
+
+interface AuthContextType {
+  state: AuthState;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [state, dispatch] = useReducer(authReducer, initialState);
+
+  useEffect(() => {
+    const restoreToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const userData = await AsyncStorage.getItem('user');
+        if (token && userData) {
+          const user = JSON.parse(userData);
+          dispatch({ type: 'RESTORE_TOKEN', payload: { user, token } });
+        } else {
+          dispatch({ type: 'RESTORE_TOKEN', payload: null });
+        }
+      } catch (error) {
+        dispatch({ type: 'RESTORE_TOKEN', payload: null });
+      }
+    };
+
+    restoreToken();
+  }, []);
+
+  const login = async (email: string, password: string) => {
+    dispatch({ type: 'LOGIN_START' });
+    try {
+      const response = await fetch('https://api.example.com/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Invalid credentials');
+      }
+
+      const data = await response.json();
+      await AsyncStorage.setItem('token', data.token);
+      await AsyncStorage.setItem('user', JSON.stringify(data.user));
+
+      dispatch({
+        type: 'LOGIN_SUCCESS',
+        payload: { user: data.user, token: data.token },
+      });
+    } catch (error) {
+      dispatch({
+        type: 'LOGIN_FAILURE',
+        payload: error instanceof Error ? error.message : 'Login failed',
+      });
+    }
+  };
+
+  const logout = async () => {
+    await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('user');
+    dispatch({ type: 'LOGOUT' });
+  };
+
+  return <AuthContext.Provider value={{ state, login, logout }}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};

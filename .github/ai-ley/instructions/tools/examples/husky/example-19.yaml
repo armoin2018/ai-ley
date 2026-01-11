@@ -1,0 +1,31 @@
+# .github/workflows/validate.yml
+name: Code Quality
+on: [push, pull_request]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - run: npm ci
+
+      # Run the same checks as local hooks
+      - name: Lint code
+        run: npm run lint
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Run tests
+        run: npm run test:coverage
+
+      - name: Build project
+        run: npm run build

@@ -1,0 +1,7 @@
+User: Create a Bluetooth-enabled sensor that works with a smartphone app
+Agent:
+- Recommends Arduino Nano 33 BLE Sense
+- Provides BLE GATT service implementation
+- Shows custom characteristic creation
+- Includes smartphone app communication protocol
+- Provides low-power operation strategies

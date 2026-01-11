@@ -1,0 +1,66 @@
+import { test, expect } from '@playwright/test'
+
+test.describe('Performance testing', () => {
+  test('page load performance', async ({ page }) => {
+    const startTime = Date.now()
+
+    await page.goto('/')
+    await page.waitForLoadState('networkidle')
+
+    const loadTime = Date.now() - startTime
+    expect(loadTime).toBeLessThan(3000) // Less than 3 seconds
+
+    // Check performance metrics
+    const performanceEntries = await page.evaluate(() => {
+      return JSON.stringify(performance.getEntriesByType('navigation'))
+    })
+
+    const navigation = JSON.parse(performanceEntries)[0]
+    expect(navigation.loadEventEnd - navigation.fetchStart).toBeLessThan(3000)
+  })
+
+  test('Core Web Vitals', async ({ page }) => {
+    await page.goto('/')
+
+    // Measure Core Web Vitals
+    const vitals = await page.evaluate(() => {
+      return new Promise(resolve => {
+        let vitalsData: any = {}
+
+        // Largest Contentful Paint
+        new PerformanceObserver(list => {
+          const entries = list.getEntries()
+          const lastEntry = entries[entries.length - 1]
+          vitalsData.lcp = lastEntry.startTime
+        }).observe({ entryTypes: ['largest-contentful-paint'] })
+
+        // First Input Delay
+        new PerformanceObserver(list => {
+          const entries = list.getEntries()
+          entries.forEach(entry => {
+            vitalsData.fid = entry.processingStart - entry.startTime
+          })
+        }).observe({ entryTypes: ['first-input'] })
+
+        // Cumulative Layout Shift
+        new PerformanceObserver(list => {
+          let cls = 0
+          for (const entry of list.getEntries()) {
+            if (!entry.hadRecentInput) {
+              cls += entry.value
+            }
+          }
+          vitalsData.cls = cls
+          resolve(vitalsData)
+        }).observe({ entryTypes: ['layout-shift'] })
+
+        // Fallback timeout
+        setTimeout(() => resolve(vitalsData), 5000)
+      })
+    })
+
+    expect(vitals.lcp).toBeLessThan(2500) // LCP < 2.5s
+    expect(vitals.fid).toBeLessThan(100)  // FID < 100ms
+    expect(vitals.cls).toBeLessThan(0.1)  // CLS < 0.1
+  })
+})

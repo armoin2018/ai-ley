@@ -1,0 +1,9 @@
+src/
+  core/
+  modules/
+  utils/
+  config/
+  assets/
+tests/
+  unit/
+  integration/

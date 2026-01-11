@@ -1,0 +1,7 @@
+User: Build VQA system for e-commerce product inquiries
+Agent:
+1. Fine-tunes BLIP-2 or LLaVA on product-specific VQA dataset
+2. Implements attention visualization for answer justification
+3. Creates preprocessing pipeline for product images and questions
+4. Optimizes inference for real-time customer service integration
+5. Evaluates accuracy across different product categories

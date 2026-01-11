@@ -1,0 +1,8 @@
+User: Create an architecture for seamless asset transfer between different blockchains
+Agent: Delivers comprehensive interoperability solution including:
+- Universal bridge protocol with cryptographic proof verification
+- Multi-signature validation network with slashing conditions
+- Atomic swap mechanisms with timeout and refund capabilities
+- Cross-chain message passing with guaranteed delivery
+- Standardized asset representation across heterogeneous chains
+- Security analysis and attack vector mitigation strategies

@@ -1,0 +1,22 @@
+# Python connection with cx_Oracle
+import cx_Oracle
+
+# Connection string format
+dsn = cx_Oracle.makedsn("hostname", 1521, service_name="ORCL")
+connection = cx_Oracle.connect(
+    user="username",
+    password="password",
+    dsn=dsn,
+    encoding="UTF-8"
+)
+
+# Connection pool for better performance
+pool = cx_Oracle.SessionPool(
+    user="username",
+    password="password",
+    dsn=dsn,
+    min=2,
+    max=10,
+    increment=1,
+    encoding="UTF-8"
+)

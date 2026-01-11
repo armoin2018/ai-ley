@@ -1,0 +1,2 @@
+User: Design Databricks lakehouse for real-time analytics and ML at petabyte scale
+Agent: Implements Delta Lake architecture with streaming ingestion, batch processing, ML pipelines, Unity Catalog governance, and cost optimization

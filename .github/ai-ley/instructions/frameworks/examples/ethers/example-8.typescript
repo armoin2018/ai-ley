@@ -1,0 +1,60 @@
+// services/provider.ts
+import { ethers } from 'ethers';
+
+export class ProviderService {
+  private static instance: ProviderService;
+  private provider: ethers.Provider | null = null;
+  private signer: ethers.Signer | null = null;
+
+  private constructor() {}
+
+  static getInstance(): ProviderService {
+    if (!ProviderService.instance) {
+      ProviderService.instance = new ProviderService();
+    }
+    return ProviderService.instance;
+  }
+
+  async initializeProvider(): Promise<ethers.Provider> {
+    if (typeof window !== 'undefined' && window.ethereum) {
+      // Browser environment
+      this.provider = new ethers.BrowserProvider(window.ethereum);
+    } else {
+      // Server environment or fallback
+      this.provider = new ethers.JsonRpcProvider(
+        process.env.NEXT_PUBLIC_RPC_URL || 'https://cloudflare-eth.com'
+      );
+    }
+    return this.provider;
+  }
+
+  async getSigner(): Promise<ethers.Signer> {
+    if (!this.provider) {
+      await this.initializeProvider();
+    }
+
+    if (this.provider instanceof ethers.BrowserProvider) {
+      this.signer = await this.provider.getSigner();
+    } else {
+      throw new Error('Cannot get signer from non-browser provider');
+    }
+
+    return this.signer;
+  }
+
+  getProvider(): ethers.Provider {
+    if (!this.provider) {
+      throw new Error('Provider not initialized');
+    }
+    return this.provider;
+  }
+
+  async getNetwork(): Promise<ethers.Network> {
+    return await this.getProvider().getNetwork();
+  }
+
+  async getBalance(address: string): Promise<string> {
+    const balance = await this.getProvider().getBalance(address);
+    return ethers.formatEther(balance);
+  }
+}

@@ -1,0 +1,16 @@
+import torch
+from transformers import pipeline
+
+class SafetyEvaluator:
+    def __init__(self):
+        self.toxicity_classifier = pipeline(
+            "text-classification",
+            model="unitary/toxic-bert"
+        )
+        
+    def evaluate_safety(self, generated_texts):
+        safety_scores = []
+        for text in generated_texts:
+            result = self.toxicity_classifier(text)
+            safety_scores.append(result[0]['score'])
+        return safety_scores

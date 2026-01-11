@@ -1,0 +1,42 @@
+// Key Vault integration for secrets
+{
+  "parameters": {
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/{subscription-id}/resourceGroups/{rg}/providers/Microsoft.KeyVault/vaults/{vault-name}"
+        },
+        "secretName": "vmAdminPassword"
+      }
+    }
+  }
+}
+
+// Managed Identity for secure access
+{
+  "type": "Microsoft.Compute/virtualMachines",
+  "apiVersion": "2021-03-01",
+  "name": "[variables('vmName')]",
+  "location": "[parameters('location')]",
+  "identity": {
+    "type": "SystemAssigned"
+  },
+  "properties": {
+    // VM properties
+  }
+}
+
+// Role assignments
+{
+  "type": "Microsoft.Authorization/roleAssignments",
+  "apiVersion": "2020-04-01-preview",
+  "name": "[guid(resourceGroup().id, variables('vmName'), 'Reader')]",
+  "dependsOn": [
+    "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]"
+  ],
+  "properties": {
+    "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
+    "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', variables('vmName')), '2021-03-01', 'full').identity.principalId]",
+    "principalType": "ServicePrincipal"
+  }
+}

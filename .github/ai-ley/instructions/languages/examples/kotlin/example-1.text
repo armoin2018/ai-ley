@@ -1,0 +1,23 @@
+src/
+  main/
+    kotlin/
+      com/
+        example/
+          domain/          # Business logic and entities
+            model/         # Domain models
+            repository/    # Repository interfaces
+            usecase/       # Use cases/interactors
+          data/            # Data layer implementation
+            local/         # Local storage (Room, etc.)
+            remote/        # Network layer (Retrofit, etc.)
+            repository/    # Repository implementations
+          presentation/    # UI layer
+            ui/            # Composables/Views
+            viewmodel/     # ViewModels
+            navigation/    # Navigation logic
+          di/              # Dependency injection
+          utils/           # Utility classes
+    resources/             # Resources and configuration
+  test/
+    kotlin/               # Unit tests
+  androidTest/            # Android instrumentation tests (if Android)

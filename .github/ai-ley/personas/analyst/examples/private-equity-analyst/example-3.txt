@@ -1,0 +1,8 @@
+User: Prepare exit analysis for 3-year-old technology investment approaching maturity
+Agent:
+- Conducts comprehensive valuation analysis using multiple methodologies
+- Evaluates strategic vs. financial buyer universe and optimal timing
+- Prepares management presentation and data room materials
+- Develops auction process timeline and competitive dynamics assessment
+- Models expected returns across different exit scenarios
+- Recommends optimal exit strategy based on market conditions and asset positioning

@@ -1,0 +1,58 @@
+# GitHub Actions workflow for RPM building
+name: Build RPM Package
+
+on:
+  push:
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-rpm:
+    runs-on: ubuntu-latest
+    container:
+      image: centos:7
+    
+    steps:
+      - name: Install dependencies
+        run: |
+          yum update -y
+          yum install -y rpm-build rpm-devel rpmlint rpmdevtools git
+          
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Setup build environment
+        run: |
+          rpmdev-setuptree
+          
+      - name: Create source tarball
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          tar czf ~/rpmbuild/SOURCES/myapp-${VERSION}.tar.gz \
+            --transform "s,^,myapp-${VERSION}/," \
+            --exclude='.git*' \
+            --exclude='*.spec' \
+            .
+            
+      - name: Build RPM
+        run: |
+          rpmbuild -ba packaging/myapp.spec
+          
+      - name: Test RPM installation
+        run: |
+          yum localinstall -y ~/rpmbuild/RPMS/*/myapp-*.rpm
+          
+      - name: Run package tests
+        run: |
+          rpm -qi myapp
+          rpm -ql myapp
+          
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: rpm-packages
+          path: |
+            ~/rpmbuild/RPMS/
+            ~/rpmbuild/SRPMS/

@@ -1,0 +1,59 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/governance/Governor.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
+
+contract QuadraticGovernor is Governor, GovernorVotes {
+    mapping(uint256 => mapping(address => uint256)) public proposalVotes;
+    mapping(uint256 => uint256) public proposalVotingCredits;
+    
+    constructor(IVotes _token) 
+        Governor("QuadraticGovernor") 
+        GovernorVotes(_token) 
+    {}
+    
+    // Quadratic voting implementation
+    function castQuadraticVote(
+        uint256 proposalId,
+        uint8 support,
+        uint256 credits
+    ) public returns (uint256) {
+        require(state(proposalId) == ProposalState.Active, "Voting is closed");
+        
+        uint256 availableCredits = getVotes(msg.sender, proposalSnapshot(proposalId));
+        require(credits <= availableCredits, "Insufficient voting credits");
+        
+        // Calculate quadratic vote weight: sqrt(credits)
+        uint256 voteWeight = sqrt(credits);
+        
+        proposalVotes[proposalId][msg.sender] = credits;
+        proposalVotingCredits[proposalId] += credits;
+        
+        return _castVote(proposalId, msg.sender, support, "", voteWeight);
+    }
+    
+    // Babylonian method for square root
+    function sqrt(uint256 x) internal pure returns (uint256) {
+        if (x == 0) return 0;
+        uint256 z = (x + 1) / 2;
+        uint256 y = x;
+        while (z < y) {
+            y = z;
+            z = (x / z + z) / 2;
+        }
+        return y;
+    }
+    
+    function votingDelay() public pure override returns (uint256) {
+        return 1 days;
+    }
+    
+    function votingPeriod() public pure override returns (uint256) {
+        return 1 weeks;
+    }
+    
+    function quorum(uint256) public pure override returns (uint256) {
+        return 1000e18; // 1000 tokens
+    }
+}

@@ -1,0 +1,8 @@
+User: Prepare for post-quantum cryptography transition
+Encryption Expert:
+1. Conducts cryptographic inventory and quantum vulnerability assessment
+2. Evaluates NIST PQC algorithms for organizational requirements
+3. Designs hybrid classical/post-quantum cryptographic architecture
+4. Creates phased migration plan with compatibility considerations
+5. Implements testing and validation procedures for PQC algorithms
+6. Establishes ongoing quantum threat monitoring and response procedures

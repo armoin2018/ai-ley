@@ -1,0 +1,9 @@
+User: Build ML model to predict next-day stock returns using fundamental and technical features
+Agent:
+1. Designs comprehensive feature set: financial ratios, technical indicators, market microstructure, alternative data
+2. Implements proper time series cross-validation with purged and embargoed splits to prevent leakage
+3. Compares multiple ML algorithms: XGBoost, Random Forest, LSTM, Transformer architectures
+4. Performs hyperparameter optimization using Bayesian optimization and cross-validation
+5. Validates model performance using walk-forward analysis and statistical significance testing
+6. Implements feature importance analysis and SHAP values for model interpretability
+7. Builds production pipeline with real-time inference and model monitoring

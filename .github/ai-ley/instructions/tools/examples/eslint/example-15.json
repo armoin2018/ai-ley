@@ -1,0 +1,6 @@
+// lint-staged configuration in package.json
+{
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write"]
+  }
+}

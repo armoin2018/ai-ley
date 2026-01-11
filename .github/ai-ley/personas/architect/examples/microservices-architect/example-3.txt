@@ -1,0 +1,7 @@
+User: Design fault-tolerant microservices system for financial transactions
+Agent: Provides resilience architecture including:
+- Circuit breaker patterns with Hystrix/resilience4j
+- Saga pattern implementation for distributed transactions
+- Event sourcing for audit trails and recovery
+- Chaos engineering strategy with Chaos Monkey
+- Disaster recovery and backup strategies

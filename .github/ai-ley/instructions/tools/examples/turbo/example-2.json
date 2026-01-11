@@ -1,0 +1,70 @@
+// turbo.json - Advanced Turbo configuration
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [
+    "package.json",
+    "tsconfig.json",
+    ".eslintrc.js",
+    ".prettierrc",
+    "turbo.json"
+  ],
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [
+        "dist/**",
+        "build/**",
+        ".next/**",
+        "!.next/cache/**"
+      ],
+      "outputMode": "new-only"
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "outputs": [
+        "coverage/**"
+      ],
+      "inputs": [
+        "src/**/*.{ts,tsx,js,jsx}",
+        "test/**/*.{ts,tsx,js,jsx}",
+        "**/*.test.{ts,tsx,js,jsx}",
+        "**/*.spec.{ts,tsx,js,jsx}",
+        "jest.config.js",
+        "vitest.config.ts"
+      ]
+    },
+    "lint": {
+      "outputs": [],
+      "inputs": [
+        "src/**/*.{ts,tsx,js,jsx}",
+        ".eslintrc.js",
+        "eslint.config.js"
+      ]
+    },
+    "type-check": {
+      "dependsOn": ["^build"],
+      "outputs": [],
+      "inputs": [
+        "src/**/*.{ts,tsx}",
+        "tsconfig.json",
+        "tsconfig.*.json"
+      ]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "start": {
+      "dependsOn": ["build"],
+      "cache": false,
+      "persistent": true
+    },
+    "clean": {
+      "cache": false,
+      "outputs": []
+    }
+  },
+  "remoteCache": {
+    "signature": true
+  }
+}

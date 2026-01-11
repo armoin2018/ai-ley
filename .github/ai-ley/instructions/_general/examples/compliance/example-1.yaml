@@ -1,0 +1,17 @@
+# Example compliance checking in CI/CD
+compliance_validation:
+  steps:
+    - name: Data Classification Scan
+      run: |
+        # Scan code for handling of regulated data types
+        compliance-scanner --data-classification src/
+        
+    - name: Security Controls Validation
+      run: |
+        # Verify security controls implementation
+        security-validator --compliance-framework GDPR src/
+        
+    - name: Audit Trail Generation
+      run: |
+        # Generate audit trail for compliance documentation
+        audit-generator --output compliance-audit.json

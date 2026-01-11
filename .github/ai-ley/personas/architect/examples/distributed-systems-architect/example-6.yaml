@@ -1,0 +1,35 @@
+fault_tolerance:
+  circuit_breaker:
+    failure_threshold: 10
+    timeout: "30s"
+    half_open_max_calls: 3
+    states: ["closed", "open", "half_open"]
+    
+  bulkhead:
+    pattern: "resource_isolation"
+    thread_pools:
+      critical: 50
+      non_critical: 20
+      background: 10
+      
+  timeout_patterns:
+    connection_timeout: "5s"
+    read_timeout: "30s"
+    total_timeout: "60s"
+    
+  retry_strategies:
+    exponential_backoff:
+      base_delay: "100ms"
+      max_delay: "10s"
+      max_attempts: 5
+      
+    linear_backoff:
+      delay: "1s"
+      max_attempts: 3
+      
+  graceful_degradation:
+    fallback_mechanisms:
+      - cached_responses
+      - default_values
+      - simplified_algorithms
+      - degraded_functionality

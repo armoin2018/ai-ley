@@ -1,0 +1,100 @@
+# .github/workflows/infrastructure_test.yml - CI/CD testing pipeline
+name: Infrastructure Testing Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'playbooks/**'
+      - 'roles/**'
+      - 'inventory/**'
+  pull_request:
+    branches: [main]
+
+jobs:
+  syntax_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install ansible-core>=2.15 ansible-lint yamllint
+          ansible-galaxy collection install community.general
+
+      - name: Ansible syntax check
+        run: |
+          find playbooks -name "*.yml" -exec ansible-playbook --syntax-check {} \;
+
+      - name: Ansible lint
+        run: |
+          ansible-lint playbooks/ roles/
+
+      - name: YAML lint
+        run: |
+          yamllint -d relaxed playbooks/ roles/ inventory/
+
+  security_scan:
+    runs-on: ubuntu-latest
+    needs: syntax_check
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run ansible-security scan
+        run: |
+          pip install ansible-security
+          ansible-security scan --format json --output security_report.json
+
+      - name: Upload security scan results
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-scan-results
+          path: security_report.json
+
+  molecule_test:
+    runs-on: ubuntu-latest
+    needs: syntax_check
+    strategy:
+      matrix:
+        role: [common, security, monitoring, application]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install molecule
+        run: |
+          pip install molecule[docker] ansible-core pytest testinfra
+
+      - name: Run molecule tests
+        run: |
+          cd roles/${{ matrix.role }}
+          molecule test
+        env:
+          MOLECULE_DISTRO: ubuntu2004
+
+  integration_test:
+    runs-on: ubuntu-latest
+    needs: [syntax_check, molecule_test]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup test infrastructure
+        run: |
+          docker-compose -f tests/docker-compose.test.yml up -d
+
+      - name: Run integration playbooks
+        run: |
+          ansible-playbook -i tests/inventory tests/integration.yml
+
+      - name: Validate deployment
+        run: |
+          python tests/validate_deployment.py

@@ -1,0 +1,2 @@
+User: Integrate our Erlang telecom system with modern REST APIs and cloud services
+Agent: Designs bridge processes, implements HTTP clients, provides JSON handling with proper error recovery

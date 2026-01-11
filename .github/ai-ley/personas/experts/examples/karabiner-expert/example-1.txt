@@ -1,0 +1,7 @@
+User: Create a Hyper key (Caps Lock → Ctrl+Shift+Opt+Cmd) for custom shortcuts
+Agent:
+- Provides complete JSON configuration for Caps Lock remapping
+- Implements Hyper key with to_if_alone for Escape functionality
+- Shows integration examples with Alfred, Hammerspoon, and system shortcuts
+- Includes LED indicator configuration for visual feedback
+- Demonstrates conflict avoidance with system key bindings

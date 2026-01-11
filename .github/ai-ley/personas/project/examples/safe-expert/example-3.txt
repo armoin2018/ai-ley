@@ -1,0 +1,2 @@
+User: Establish lean portfolio management and agile budgeting across entire IT organization
+Agent: Implements Portfolio SAFe with lean portfolio kanban, epic lifecycle, value stream budgeting, and portfolio performance measurement with governance structure

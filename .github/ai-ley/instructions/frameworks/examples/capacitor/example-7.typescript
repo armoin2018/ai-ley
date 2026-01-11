@@ -1,0 +1,101 @@
+// services/push-notification.service.ts
+import {
+  PushNotifications,
+  PushNotificationSchema,
+  Token,
+  ActionPerformed,
+} from '@capacitor/push-notifications';
+import { Capacitor } from '@capacitor/core';
+
+export class PushNotificationService {
+  async initializePushNotifications(): Promise<void> {
+    if (!Capacitor.isNativePlatform()) {
+      console.warn('Push notifications not available on web platform');
+      return;
+    }
+
+    // Request permission
+    const permission = await PushNotifications.requestPermissions();
+
+    if (permission.receive === 'granted') {
+      await this.registerForPushNotifications();
+      this.setupEventListeners();
+    } else {
+      console.warn('Push notification permission denied');
+    }
+  }
+
+  private async registerForPushNotifications(): Promise<void> {
+    try {
+      await PushNotifications.register();
+    } catch (error) {
+      console.error('Failed to register for push notifications:', error);
+    }
+  }
+
+  private setupEventListeners(): void {
+    // Registration success
+    PushNotifications.addListener('registration', (token: Token) => {
+      console.log('Push registration success, token:', token.value);
+      this.sendTokenToServer(token.value);
+    });
+
+    // Registration error
+    PushNotifications.addListener('registrationError', (error: any) => {
+      console.error('Push registration error:', error);
+    });
+
+    // Notification received (app in foreground)
+    PushNotifications.addListener(
+      'pushNotificationReceived',
+      (notification: PushNotificationSchema) => {
+        console.log('Push notification received:', notification);
+        this.handleForegroundNotification(notification);
+      },
+    );
+
+    // Notification action (app opened from notification)
+    PushNotifications.addListener(
+      'pushNotificationActionPerformed',
+      (notification: ActionPerformed) => {
+        console.log('Push notification action performed:', notification);
+        this.handleNotificationAction(notification);
+      },
+    );
+  }
+
+  private async sendTokenToServer(token: string): Promise<void> {
+    try {
+      // Send token to your backend server
+      const response = await fetch('/api/push-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send token to server');
+      }
+    } catch (error) {
+      console.error('Error sending token to server:', error);
+    }
+  }
+
+  private handleForegroundNotification(notification: PushNotificationSchema): void {
+    console.log('Handling foreground notification:', notification.title);
+  }
+
+  private handleNotificationAction(notification: ActionPerformed): void {
+    const data = notification.notification.data;
+
+    if (data?.route) {
+      this.navigateToRoute(data.route, data.params);
+    }
+  }
+
+  private navigateToRoute(route: string, params?: any): void {
+    console.log('Navigating to:', route, params);
+  }
+}

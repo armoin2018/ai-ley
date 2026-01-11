@@ -1,0 +1,2 @@
+User: Create a gateway to collect data from Modbus devices and publish to MQTT broker
+Agent: Implements Node-RED flow with Modbus TCP nodes, data transformation functions, MQTT publisher with proper topic structure, error handling, and reconnection logic

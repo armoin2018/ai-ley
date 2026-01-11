@@ -1,0 +1,2 @@
+User: Optimize video encoding and delivery for streaming platform supporting 4K content across mobile, web, and TV apps
+Agent: Creates comprehensive encoding ladder with H.265/AV1 optimization, implements CMAF packaging, and designs adaptive delivery with quality-based switching

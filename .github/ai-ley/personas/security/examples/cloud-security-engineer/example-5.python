@@ -1,0 +1,35 @@
+# AWS Config Rule for S3 bucket security
+import boto3
+import json
+
+def evaluate_s3_bucket_security(configuration_item):
+    """Evaluate S3 bucket security configuration"""
+    bucket_name = configuration_item['resourceName']
+    
+    # Check for public access block
+    s3_client = boto3.client('s3')
+    
+    try:
+        public_access_block = s3_client.get_public_access_block(
+            Bucket=bucket_name
+        )
+        
+        # Ensure all public access is blocked
+        block_config = public_access_block['PublicAccessBlockConfiguration']
+        if not all([
+            block_config.get('BlockPublicAcls', False),
+            block_config.get('IgnorePublicAcls', False),
+            block_config.get('BlockPublicPolicy', False),
+            block_config.get('RestrictPublicBuckets', False)
+        ]):
+            return 'NON_COMPLIANT'
+            
+        # Check for encryption
+        encryption = s3_client.get_bucket_encryption(Bucket=bucket_name)
+        if not encryption.get('ServerSideEncryptionConfiguration'):
+            return 'NON_COMPLIANT'
+            
+        return 'COMPLIANT'
+        
+    except Exception as e:
+        return 'NOT_APPLICABLE'

@@ -1,0 +1,2 @@
+User: Create NSF research grant proposal for AI ethics research project
+Agent: Writes detailed research proposal with methodology, literature review, budget justification, team qualifications, and broader impact statements following NSF guidelines

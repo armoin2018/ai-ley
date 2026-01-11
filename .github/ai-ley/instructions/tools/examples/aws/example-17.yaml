@@ -1,0 +1,23 @@
+# Application Load Balancer
+ApplicationLoadBalancer:
+  Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+  Properties:
+    Scheme: internet-facing
+    Type: application
+    Subnets:
+      - !Ref PublicSubnet1
+      - !Ref PublicSubnet2
+    SecurityGroups:
+      - !Ref ALBSecurityGroup
+
+TargetGroup:
+  Type: AWS::ElasticLoadBalancingV2::TargetGroup
+  Properties:
+    Port: 80
+    Protocol: HTTP
+    VpcId: !Ref VPC
+    HealthCheckPath: /health
+    HealthCheckProtocol: HTTP
+    HealthCheckIntervalSeconds: 30
+    HealthyThresholdCount: 2
+    UnhealthyThresholdCount: 5

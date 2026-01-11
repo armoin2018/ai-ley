@@ -1,0 +1,14 @@
+# Python example
+import json
+
+with open('page-analysis.json', 'r') as f:
+    data = json.load(f)
+
+# Get all CRITICAL pages
+critical_pages = [p for p in data['pages'] if p['priority'] == 'CRITICAL']
+
+# Calculate average score
+avg_score = sum(p['overall_score'] for p in data['pages']) / len(data['pages'])
+
+# Find pages with missing schema
+no_schema = [p for p in data['pages'] if p['scores']['schema'] < 50]

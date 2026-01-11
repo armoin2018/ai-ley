@@ -1,0 +1,3 @@
+## 12. Implementation Guidelines & Best Practices
+
+### Meta Element Size Validation

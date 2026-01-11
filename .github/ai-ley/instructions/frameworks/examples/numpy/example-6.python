@@ -1,0 +1,13 @@
+def preprocess_data(data):
+    """Comprehensive data preprocessing with NumPy"""
+    # Handle missing values
+    data = np.where(np.isnan(data), np.nanmean(data, axis=0), data)
+    
+    # Normalize data
+    data_normalized = (data - np.mean(data, axis=0)) / np.std(data, axis=0)
+    
+    # Remove outliers (3 sigma rule)
+    z_scores = np.abs((data - np.mean(data, axis=0)) / np.std(data, axis=0))
+    data_clean = data[np.all(z_scores < 3, axis=1)]
+    
+    return data_clean

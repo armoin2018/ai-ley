@@ -1,0 +1,206 @@
+#!/usr/bin/env python3
+# sqlite_maintenance.py
+
+import sqlite3
+import shutil
+import os
+import gzip
+import json
+import logging
+from datetime import datetime, timedelta
+from pathlib import Path
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class SQLiteMaintenanceManager:
+    def __init__(self, database_path, backup_dir="backups"):
+        self.database_path = Path(database_path)
+        self.backup_dir = Path(backup_dir)
+        self.backup_dir.mkdir(exist_ok=True)
+
+    def create_backup(self, compress=True):
+        """Create a backup of the SQLite database"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_name = f"{self.database_path.stem}_backup_{timestamp}.db"
+        backup_path = self.backup_dir / backup_name
+
+        logger.info(f"Creating backup: {backup_path}")
+
+        # Use SQLite's BACKUP API for hot backup
+        source_conn = sqlite3.connect(str(self.database_path))
+        backup_conn = sqlite3.connect(str(backup_path))
+
+        try:
+            source_conn.backup(backup_conn)
+            logger.info("Backup completed successfully")
+
+            if compress:
+                compressed_path = backup_path.with_suffix('.db.gz')
+                with open(backup_path, 'rb') as f_in:
+                    with gzip.open(compressed_path, 'wb') as f_out:
+                        shutil.copyfileobj(f_in, f_out)
+
+                os.remove(backup_path)
+                backup_path = compressed_path
+                logger.info(f"Backup compressed: {compressed_path}")
+
+            return backup_path
+
+        finally:
+            source_conn.close()
+            backup_conn.close()
+
+    def cleanup_old_backups(self, retention_days=30):
+        """Remove backups older than retention period"""
+        cutoff_date = datetime.now() - timedelta(days=retention_days)
+
+        for backup_file in self.backup_dir.glob("*.db*"):
+            if backup_file.stat().st_mtime < cutoff_date.timestamp():
+                logger.info(f"Removing old backup: {backup_file}")
+                backup_file.unlink()
+
+    def check_integrity(self):
+        """Check database integrity"""
+        conn = sqlite3.connect(str(self.database_path))
+
+        try:
+            # Check integrity
+            integrity_result = conn.execute("PRAGMA integrity_check").fetchall()
+            if integrity_result != [('ok',)]:
+                logger.error(f"Integrity check failed: {integrity_result}")
+                return False
+
+            # Check foreign keys
+            fk_violations = conn.execute("PRAGMA foreign_key_check").fetchall()
+            if fk_violations:
+                logger.error(f"Foreign key violations: {fk_violations}")
+                return False
+
+            logger.info("Database integrity check passed")
+            return True
+
+        finally:
+            conn.close()
+
+    def analyze_database(self):
+        """Analyze database and update statistics"""
+        conn = sqlite3.connect(str(self.database_path))
+
+        try:
+            logger.info("Analyzing database...")
+            conn.execute("ANALYZE")
+            conn.commit()
+            logger.info("Database analysis completed")
+
+        finally:
+            conn.close()
+
+    def vacuum_database(self):
+        """Vacuum database to reclaim space"""
+        conn = sqlite3.connect(str(self.database_path))
+
+        try:
+            # Get size before vacuum
+            before_size = os.path.getsize(self.database_path)
+
+            logger.info("Starting database vacuum...")
+            conn.execute("VACUUM")
+
+            # Get size after vacuum
+            after_size = os.path.getsize(self.database_path)
+
+            space_saved = before_size - after_size
+            logger.info(f"Vacuum completed. Space saved: {space_saved / 1024 / 1024:.2f} MB")
+
+        finally:
+            conn.close()
+
+    def get_database_stats(self):
+        """Get comprehensive database statistics"""
+        conn = sqlite3.connect(str(self.database_path))
+
+        try:
+            stats = {}
+
+            # Basic database info
+            stats['file_size_mb'] = os.path.getsize(self.database_path) / 1024 / 1024
+            stats['page_count'] = conn.execute("PRAGMA page_count").fetchone()[0]
+            stats['page_size'] = conn.execute("PRAGMA page_size").fetchone()[0]
+            stats['freelist_count'] = conn.execute("PRAGMA freelist_count").fetchone()[0]
+            stats['fragmentation_percent'] = (stats['freelist_count'] / stats['page_count']) * 100
+
+            # Table statistics
+            tables = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+            ).fetchall()
+
+            stats['tables'] = {}
+            for (table_name,) in tables:
+                table_stats = conn.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[0]
+                stats['tables'][table_name] = {'row_count': table_stats}
+
+            # Index statistics
+            indexes = conn.execute(
+                "SELECT name, tbl_name FROM sqlite_master WHERE type='index' AND name NOT LIKE 'sqlite_%'"
+            ).fetchall()
+
+            stats['indexes'] = len(indexes)
+
+            return stats
+
+        finally:
+            conn.close()
+
+    def run_maintenance(self, force_vacuum=False):
+        """Run complete maintenance routine"""
+        logger.info("Starting SQLite maintenance routine")
+
+        # Check integrity first
+        if not self.check_integrity():
+            logger.error("Integrity check failed, skipping maintenance")
+            return False
+
+        # Create backup
+        backup_path = self.create_backup()
+
+        # Analyze database
+        self.analyze_database()
+
+        # Get stats before maintenance
+        before_stats = self.get_database_stats()
+        logger.info(f"Database size before maintenance: {before_stats['file_size_mb']:.2f} MB")
+        logger.info(f"Fragmentation: {before_stats['fragmentation_percent']:.2f}%")
+
+        # Vacuum if fragmentation is high or forced
+        if before_stats['fragmentation_percent'] > 25 or force_vacuum:
+            self.vacuum_database()
+
+        # Clean up old backups
+        self.cleanup_old_backups()
+
+        # Get final stats
+        after_stats = self.get_database_stats()
+        logger.info(f"Database size after maintenance: {after_stats['file_size_mb']:.2f} MB")
+
+        logger.info("Maintenance routine completed successfully")
+        return True
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="SQLite Database Maintenance")
+    parser.add_argument("database_path", help="Path to SQLite database")
+    parser.add_argument("--backup-dir", default="backups", help="Backup directory")
+    parser.add_argument("--force-vacuum", action="store_true", help="Force vacuum operation")
+    parser.add_argument("--stats-only", action="store_true", help="Only show database statistics")
+
+    args = parser.parse_args()
+
+    manager = SQLiteMaintenanceManager(args.database_path, args.backup_dir)
+
+    if args.stats_only:
+        stats = manager.get_database_stats()
+        print(json.dumps(stats, indent=2))
+    else:
+        manager.run_maintenance(force_vacuum=args.force_vacuum)

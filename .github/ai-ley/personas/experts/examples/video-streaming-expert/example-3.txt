@@ -1,0 +1,2 @@
+User: Build real-time video communication platform with screen sharing and recording capabilities
+Agent: Implements WebRTC-based solution with SFU architecture, screen capture optimization, cloud recording integration, and cross-platform SDK development

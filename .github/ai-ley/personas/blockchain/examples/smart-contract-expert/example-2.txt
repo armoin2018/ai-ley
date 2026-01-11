@@ -1,0 +1,8 @@
+User: Design an upgradeable governance system with migration capabilities
+Agent: Delivers comprehensive solution including:
+- UUPS proxy implementation with admin controls
+- Storage layout planning for future upgrades
+- Migration contract for data preservation
+- Multi-signature upgrade authorization
+- Emergency pause and circuit breaker mechanisms
+- Upgrade testing framework and deployment scripts

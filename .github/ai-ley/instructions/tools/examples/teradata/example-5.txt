@@ -1,0 +1,33 @@
+# Main execution example
+
+if **name** == "**main**":
+import asyncio
+
+    async def main():
+        print("🚀 Starting Enterprise Teradata Vantage Setup...")
+
+        # Setup financial data warehouse
+        print("\n🏦 Setting up Financial Data Warehouse...")
+        financial_result = await setup_financial_data_warehouse()
+        print(f"✅ Financial DW: {financial_result['platform_setup']['status']}")
+
+        # Setup retail analytics
+        print("\n🛒 Setting up Retail Analytics Warehouse...")
+        retail_result = await setup_retail_analytics_warehouse()
+        print(f"✅ Retail Analytics: {retail_result['platform_setup']['status']}")
+
+        # Setup healthcare analytics
+        print("\n🏥 Setting up Healthcare Analytics Platform...")
+        healthcare_result = await setup_healthcare_analytics()
+        print(f"✅ Healthcare Platform: {healthcare_result['platform_setup']['status']}")
+        print(f"✅ HIPAA Compliance: {healthcare_result['compliance_status']}")
+
+        print("\n🎉 Enterprise Teradata Vantage Setup Complete!")
+        print("=" * 60)
+        print("Summary:")
+        print(f"- Financial DW: {financial_result['platform_setup']['status']}")
+        print(f"- Retail Analytics: {retail_result['platform_setup']['status']}")
+        print(f"- Healthcare Platform: {healthcare_result['platform_setup']['status']}")
+
+    # Run the main example
+    asyncio.run(main())

@@ -1,0 +1,36 @@
+# .github/workflows/testing.yml - Comprehensive testing workflow
+name: 'Infrastructure Testing'
+
+on:
+  pull_request:
+    paths: ['components/**', 'stacks/**']
+
+jobs:
+  unit-tests:
+    name: 'Unit Tests'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Terratest
+        run: |
+          cd tests
+          go test -v ./...
+
+  integration-tests:
+    name: 'Integration Tests'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy Test Environment
+        run: |
+          atmos terraform apply vpc -s test-us-east-1 --auto-approve
+          atmos terraform apply eks -s test-us-east-1 --auto-approve
+      - name: Run Tests
+        run: |
+          cd tests/integration
+          go test -v ./...
+      - name: Cleanup
+        if: always()
+        run: |
+          atmos terraform destroy eks -s test-us-east-1 --auto-approve
+          atmos terraform destroy vpc -s test-us-east-1 --auto-approve

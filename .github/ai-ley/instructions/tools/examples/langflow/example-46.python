@@ -1,0 +1,76 @@
+# Automated report generation
+bi_reporting = {
+    "components": [
+        {
+            "type": "DataConnector",
+            "name": "sales_data",
+            "config": {
+                "source": "postgresql",
+                "query": """
+                SELECT
+                    DATE_TRUNC('month', order_date) as month,
+                    SUM(revenue) as total_revenue,
+                    COUNT(*) as order_count,
+                    AVG(order_value) as avg_order_value
+                FROM sales
+                WHERE order_date >= DATE_TRUNC('year', CURRENT_DATE)
+                GROUP BY month
+                ORDER BY month
+                """
+            }
+        },
+        {
+            "type": "PythonFunction",
+            "name": "data_analyzer",
+            "config": {
+                "code": """
+import pandas as pd
+import numpy as np
+
+def analyze_sales_data(data: list) -> dict:
+    df = pd.DataFrame(data)
+
+    # Calculate trends
+    df['revenue_growth'] = df['total_revenue'].pct_change()
+    df['order_growth'] = df['order_count'].pct_change()
+
+    # Key metrics
+    total_revenue = df['total_revenue'].sum()
+    avg_growth = df['revenue_growth'].mean()
+    best_month = df.loc[df['total_revenue'].idxmax()]
+
+    return {
+        "total_revenue": total_revenue,
+        "average_growth_rate": avg_growth,
+        "best_performing_month": best_month.to_dict(),
+        "trend_analysis": "positive" if avg_growth > 0 else "negative",
+        "monthly_data": df.to_dict('records')
+    }
+                """
+            }
+        },
+        {
+            "type": "OpenAI",
+            "name": "insight_generator",
+            "config": {
+                "model": "gpt-4",
+                "prompt": """
+Generate business insights from this sales data:
+
+{analysis_results}
+
+Provide:
+1. Executive Summary (3-4 sentences)
+2. Key Findings (5-7 bullet points)
+3. Trends and Patterns
+4. Recommendations (3-5 actionable items)
+5. Areas of Concern (if any)
+6. Growth Opportunities
+
+Format as a professional business report.
+                """,
+                "temperature": 0.4
+            }
+        }
+    ]
+}

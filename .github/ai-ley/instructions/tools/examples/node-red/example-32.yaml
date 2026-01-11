@@ -1,0 +1,36 @@
+# GitHub Actions workflow
+name: Node-RED Deploy
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Validate flows
+        run: node scripts/validate-flows.js
+
+      - name: Deploy to staging
+        run: |
+          scp flows/staging.json user@staging-server:/opt/node-red/
+          ssh user@staging-server "sudo systemctl restart nodered"
+
+      - name: Run tests
+        run: npm test
+
+      - name: Deploy to production
+        if: success()
+        run: |
+          scp flows/production.json user@prod-server:/opt/node-red/
+          ssh user@prod-server "sudo systemctl restart nodered"

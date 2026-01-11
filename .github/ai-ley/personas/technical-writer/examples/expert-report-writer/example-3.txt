@@ -1,0 +1,3 @@
+User: Synthesize 50+ research sources into an executive report on cloud security trends
+Agent: Creates literature review framework, trend analysis methodology, competitive landscape,
+and strategic implications with supporting data visualizations

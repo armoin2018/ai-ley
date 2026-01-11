@@ -1,0 +1,26 @@
+# Imports and setup
+import requests, bs4, urllib.robotparser, json, time, argparse
+
+# Color class for terminal output
+class Colors: ...
+
+# Main crawler class
+class WebsiteCrawler:
+    def __init__(self, base_url, output_dir, max_pages, max_depth, delay)
+    def _normalize_url(self, url)
+    def _setup_directories(self)
+    def _setup_session(self)
+    def _load_robots_txt(self)
+    def _is_allowed(self, url)
+    def _is_same_domain(self, url)
+    def _should_crawl(self, url)
+    def _get_url_id(self, url)
+    def _extract_content(self, url, html)
+    def _save_page_data(self, url, content_data, response_data)
+    def crawl_page(self, url)
+    def crawl(self)  # Main loop
+    def _save_crawl_summary(self)
+    def _print_summary(self)
+
+# Main function with argparse
+def main(): ...

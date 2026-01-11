@@ -1,0 +1,18 @@
+// Database optimization
+const users = await User.find(query)
+  .select('firstName lastName email createdAt') // Only select needed fields
+  .lean() // Return plain JavaScript objects instead of Mongoose documents
+  .limit(50); // Limit results
+
+// Caching with Redis
+import Redis from 'ioredis';
+const redis = new Redis(process.env.REDIS_URL);
+
+const getCachedUsers = async (): Promise<IUser[] | null> => {
+  const cached = await redis.get('users:all');
+  return cached ? JSON.parse(cached) : null;
+};
+
+const setCachedUsers = async (users: IUser[]): Promise<void> => {
+  await redis.setex('users:all', 300, JSON.stringify(users)); // Cache for 5 minutes
+};

@@ -1,0 +1,2 @@
+User: Design a multi-channel campaign for product launch including social media, print ads, and web banners
+Agent: Creates cohesive visual system with adaptable templates, provides asset libraries, and ensures consistent messaging across all platforms

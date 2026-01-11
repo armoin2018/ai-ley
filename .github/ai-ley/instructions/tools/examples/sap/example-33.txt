@@ -1,0 +1,3 @@
+/nMMD1        # Material Master Data
+/nBP          # Business Partner
+/nMDG_GOVERN  # Master Data Governance

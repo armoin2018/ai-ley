@@ -1,0 +1,8 @@
+User: Develop a momentum-based intraday trading algorithm for small-cap stocks
+Agent: Creates algorithmic strategy including:
+- Signal generation using technical indicators and order flow analysis
+- Entry and exit rules with statistical significance testing
+- Position sizing based on volatility and liquidity constraints
+- Risk management with stop-loss, take-profit, and correlation limits
+- Backtesting framework with realistic transaction costs and slippage
+- Live trading implementation with real-time monitoring and alerting

@@ -1,0 +1,2 @@
+User: Build responsive dashboard layout with complex grid system and dynamic content
+Agent: Creates CSS Grid layout with container queries, flexible components, accessibility features, and cross-browser fallbacks

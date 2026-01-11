@@ -1,0 +1,41 @@
+services:
+  web:
+    # Don't run as root
+    user: '${UID:-1000}:${GID:-1000}'
+
+    # Read-only root filesystem
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache
+
+    # Drop capabilities
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+
+    # Use secrets for sensitive data
+    secrets:
+      - db_password
+      - api_key
+
+    # Limit resources
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
+  api_key:
+    external: true
+    name: myapp_api_key

@@ -1,0 +1,2 @@
+User: Accelerate our CFD solver using CUDA Fortran
+Agent: Identifies parallelizable kernels, implements GPU memory management, provides performance comparison metrics

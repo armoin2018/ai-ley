@@ -1,0 +1,166 @@
+# .github/workflows/docker-compose-ci.yml
+name: Enterprise Docker Compose CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'docker-compose*.yml'
+      - 'Dockerfile*'
+      - '.env*'
+      - 'src/**'
+  pull_request:
+    branches: [main]
+
+env:
+  COMPOSE_PROJECT_NAME: enterprise-app
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  validate-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Validate Docker Compose
+        run: |
+          echo "🔍 Validating Docker Compose configuration..."
+          docker-compose config --quiet
+          docker-compose config | jq -e '.services | length > 0'
+          echo "✅ Docker Compose configuration is valid"
+
+      - name: Lint Dockerfiles
+        uses: hadolint/hadolint-action@v2.1.0
+        with:
+          dockerfile: 'Dockerfile*'
+          recursive: true
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: validate-and-lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  build-and-test:
+    runs-on: ubuntu-latest
+    needs: [validate-and-lint, security-scan]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build services
+        run: |
+          echo "🏗️ Building Docker Compose services..."
+          docker-compose build --parallel
+          echo "✅ Build completed"
+
+      - name: Run integration tests
+        run: |
+          echo "🧪 Running integration tests..."
+          cp environments/development/.env .env
+          docker-compose -f docker-compose.yml -f docker-compose.test.yml up -d
+
+          # Wait for services to be healthy
+          timeout 300 bash -c 'until docker-compose exec -T web-app curl -f http://localhost:8080/health; do sleep 5; done'
+
+          docker-compose exec -T web-app npm run test:integration
+          echo "✅ Integration tests completed"
+
+      - name: Push images
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "📦 Pushing images to registry..."
+          docker-compose push
+          echo "✅ Images pushed successfully"
+
+      - name: Cleanup
+        if: always()
+        run: docker-compose down -v
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
+    environment: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to staging
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            cd /opt/enterprise-app
+            git pull origin main
+            cp environments/staging/.env .env
+            docker-compose -f docker-compose.yml -f environments/staging/docker-compose.override.yml pull
+            docker-compose -f docker-compose.yml -f environments/staging/docker-compose.override.yml up -d
+            docker-compose ps
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to production
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: |
+            cd /opt/enterprise-app
+            git pull origin main
+            cp environments/production/.env .env
+
+            # Blue-green deployment
+            docker-compose -f docker-compose.yml -f environments/production/docker-compose.override.yml pull
+            docker-compose -f docker-compose.yml -f environments/production/docker-compose.override.yml up -d --scale web-app=0
+
+            # Health check
+            sleep 30
+            curl -f http://localhost:8080/health
+
+            # Scale up new version
+            docker-compose -f docker-compose.yml -f environments/production/docker-compose.override.yml up -d
+
+            # Final verification
+            sleep 30
+            curl -f http://localhost:8080/health

@@ -1,0 +1,2 @@
+User: Migrate from JSON package configuration to TOML with complex dependency management
+Agent: Develops comprehensive TOML structure with dependency resolution, script definitions, and build optimization

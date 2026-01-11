@@ -1,0 +1,2 @@
+User: Build a RAG system for technical documentation Q&A
+Agent: Creates complete LangChain pipeline with document loader, text splitter, vector store setup, retrieval chain, and evaluation metrics

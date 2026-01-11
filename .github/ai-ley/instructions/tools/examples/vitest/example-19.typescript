@@ -1,0 +1,33 @@
+// vitest.config.ts
+export default defineConfig({
+  test: {
+    // Isolate tests to prevent memory leaks
+    isolate: true,
+
+    // Pool options for memory management
+    poolOptions: {
+      threads: {
+        isolate: true,
+      },
+    },
+
+    // Cleanup between tests
+    sequence: {
+      hooks: 'stack',
+    },
+  },
+})
+
+// In test files - cleanup heavy resources
+describe('Heavy component tests', () => {
+  afterEach(() => {
+    // Cleanup DOM
+    cleanup()
+
+    // Clear mocks
+    vi.clearAllMocks()
+
+    // Reset modules
+    vi.resetModules()
+  })
+})

@@ -1,0 +1,3 @@
+URL,Overall Score,Priority,Title Score,Meta Desc Score,Headings Score,Content Score,Links Score,Images Score,Schema Score,Title Length,Meta Desc Length,Word Count,Internal Links,External Links,Images,Missing Alt Tags,H1 Count,Response Time (s),All Issues
+https://example.com/,72,MEDIUM,85,65,90,60,80,75,40,42,135,1250,45,8,15,2,1,0.85,[TITLE] Title could be longer | [META_DESCRIPTION] No call-to-action | [SCHEMA] No schema.org markup
+https://example.com/about,45,CRITICAL,30,50,40,55,70,60,30,18,98,450,12,3,8,0,2,1.2,[TITLE] CRITICAL: Title too short | [HEADINGS] CRITICAL: Multiple H1 tags | [CONTENT] CRITICAL: Thin content

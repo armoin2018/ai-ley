@@ -1,0 +1,65 @@
+-- Key Performance Indicators
+Revenue = 
+SUMX(
+    Sales,
+    Sales[Quantity] * RELATED(Products[UnitPrice])
+)
+
+Revenue Growth % = 
+VAR CurrentPeriodRevenue = [Revenue]
+VAR PreviousPeriodRevenue = 
+    CALCULATE(
+        [Revenue],
+        DATEADD(Calendar[Date], -1, MONTH)
+    )
+RETURN
+    DIVIDE(
+        CurrentPeriodRevenue - PreviousPeriodRevenue,
+        PreviousPeriodRevenue,
+        0
+    ) * 100
+
+Customer Acquisition Cost = 
+DIVIDE(
+    SUM(Marketing[Spend]),
+    DISTINCTCOUNT(Sales[CustomerID])
+)
+
+Customer Lifetime Value = 
+AVERAGEX(
+    VALUES(Customers[CustomerID]),
+    CALCULATE(
+        SUM(Sales[Amount]),
+        FILTER(
+            ALL(Calendar),
+            Calendar[Date] >= RELATED(Customers[FirstPurchaseDate]) &&
+            Calendar[Date] <= RELATED(Customers[LastPurchaseDate])
+        )
+    )
+)
+
+-- Dynamic time intelligence
+Revenue MTD = 
+CALCULATE(
+    [Revenue],
+    DATESMTD(Calendar[Date])
+)
+
+Revenue YTD = 
+CALCULATE(
+    [Revenue],
+    DATESYTD(Calendar[Date])
+)
+
+-- Advanced analytics
+Revenue Forecast = 
+VAR LastKnownValue = [Revenue]
+VAR GrowthRate = [Revenue Growth %] / 100
+VAR ForecastPeriods = 3
+RETURN
+    IF(
+        HASONEVALUE(Calendar[Date]) && 
+        MAX(Calendar[Date]) > TODAY(),
+        LastKnownValue * POWER(1 + GrowthRate, ForecastPeriods),
+        BLANK()
+    )

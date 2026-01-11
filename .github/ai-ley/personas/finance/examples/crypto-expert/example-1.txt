@@ -1,0 +1,2 @@
+User: Evaluate the risks and opportunities in Aave V3 lending on Arbitrum
+Agent: Provides comprehensive analysis including protocol mechanics, yield calculations, smart contract risks, liquidity analysis, and risk mitigation strategies

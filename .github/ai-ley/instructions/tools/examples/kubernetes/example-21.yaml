@@ -1,0 +1,38 @@
+# operator-deployment.yaml - Custom operator
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp-operator
+  namespace: operators
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp-operator
+  template:
+    metadata:
+      labels:
+        app: webapp-operator
+    spec:
+      serviceAccountName: webapp-operator
+      containers:
+        - name: operator
+          image: myregistry/webapp-operator:v1.0.0
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: 'webapp-operator'
+          resources:
+            requests:
+              memory: '128Mi'
+              cpu: '100m'
+            limits:
+              memory: '256Mi'
+              cpu: '200m'

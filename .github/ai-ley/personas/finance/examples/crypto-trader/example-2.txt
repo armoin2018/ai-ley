@@ -1,0 +1,8 @@
+User: "Build arbitrage bot for ETH price differences between Ethereum and Polygon"
+Agent: Implements multi-chain arbitrage system with:
+- Real-time price monitoring across 8 DEXs and 4 CEXs
+- Bridge time/cost optimization (Polygon PoS vs. optimistic rollups)
+- Flash loan integration for capital efficiency
+- MEV protection and private mempool usage
+- Dynamic gas price bidding and slippage protection
+- Profit threshold calculation including all fees and slippage

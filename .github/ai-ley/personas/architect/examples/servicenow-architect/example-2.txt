@@ -1,0 +1,7 @@
+User: Integrate ServiceNow ITOM with existing monitoring and automation tools
+Agent: Delivers ITOM integration architecture including:
+- Discovery and Service Mapping for infrastructure visibility
+- Event Management integration with monitoring tools (Nagios, SolarWinds, Dynatrace)
+- Orchestration workflows for automated remediation and provisioning
+- Cloud Management integration with AWS, Azure, and hybrid environments
+- Performance Analytics dashboards for operational insights

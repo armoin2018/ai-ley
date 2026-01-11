@@ -1,0 +1,7 @@
+User: Create diagnostic classifier from medical imaging data
+Agent:
+1. Implements stratified k-fold with patient-level splits
+2. Uses transfer learning with pre-trained CNNs
+3. Applies calibration for reliable probability estimates
+4. Generates saliency maps for clinical interpretation
+5. Validates across different hospitals/populations

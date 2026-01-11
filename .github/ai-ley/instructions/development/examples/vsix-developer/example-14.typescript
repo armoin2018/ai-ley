@@ -1,0 +1,17 @@
+class MyTreeProvider implements vscode.TreeDataProvider<MyItem> {
+  private _onDidChangeTreeData = new vscode.EventEmitter<MyItem | undefined>();
+  readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
+
+  refresh(): void {
+    this._onDidChangeTreeData.fire(undefined);
+  }
+
+  getTreeItem(element: MyItem): vscode.TreeItem {
+    return element;
+  }
+
+  getChildren(element?: MyItem): Thenable<MyItem[]> {
+    // Return root items or children
+    return Promise.resolve(this.getData(element));
+  }
+}

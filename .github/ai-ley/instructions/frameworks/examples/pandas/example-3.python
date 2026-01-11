@@ -1,0 +1,14 @@
+import pandas as pd
+import numpy as np
+
+# DataFrame creation
+df = pd.DataFrame({
+    'name': ['Alice', 'Bob', 'Charlie'],
+    'age': [25, 30, 35],
+    'salary': [50000, 60000, 70000]
+})
+
+# Series operations
+ages = df['age']
+filtered_data = df[df['age'] > 28]
+grouped_data = df.groupby('department').agg({'salary': 'mean'})

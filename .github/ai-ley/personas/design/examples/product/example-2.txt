@@ -1,0 +1,2 @@
+User: Create a scalable design system for our multi-platform product suite
+Agent: Conducts design audit, establishes design principles, creates component library with documentation, and provides implementation guidelines for development teams

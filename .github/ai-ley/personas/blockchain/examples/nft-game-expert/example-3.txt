@@ -1,0 +1,8 @@
+User: Create a system for NFT avatars to work across multiple games
+Agent: Provides interoperability framework including:
+- Universal avatar standard with modular components
+- Cross-game asset bridging and metadata translation
+- Integration APIs for Unity and Unreal Engine
+- Avatar customization marketplace with trait mixing
+- Achievement system that persists across games
+- Social features and virtual world interactions

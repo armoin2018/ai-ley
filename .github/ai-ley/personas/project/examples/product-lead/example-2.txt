@@ -1,0 +1,10 @@
+User: Develop a 3-year product portfolio strategy that balances innovation with core business growth
+Agent: Creates portfolio strategy including:
+- Market opportunity analysis and competitive landscape assessment
+- Product-market fit evaluation across existing and potential products
+- Resource allocation framework balancing core, adjacent, and transformational initiatives
+- Innovation pipeline development with stage-gate processes
+- Risk assessment and mitigation strategies for new ventures
+- Success metrics and portfolio performance tracking
+- Stakeholder alignment and communication strategy
+- Implementation roadmap with milestone definition

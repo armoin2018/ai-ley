@@ -1,0 +1,86 @@
+// src/tests/e2e/user-workflow.test.ts
+import request from 'supertest';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import mongoose from 'mongoose';
+import app from '../../app';
+
+describe('User Workflow E2E Tests', () => {
+  let mongoServer: MongoMemoryServer;
+  let authToken: string;
+
+  beforeAll(async () => {
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
+    await mongoose.connect(mongoUri);
+  });
+
+  afterAll(async () => {
+    await mongoose.disconnect();
+    await mongoServer.stop();
+  });
+
+  it('should complete full user registration and profile management workflow', async () => {
+    // Step 1: Register a new user
+    const registrationData = {
+      email: 'workflow@example.com',
+      password: 'Test123!@#',
+      firstName: 'Workflow',
+      lastName: 'Test',
+    };
+
+    const registerResponse = await request(app)
+      .post('/api/auth/register')
+      .send(registrationData)
+      .expect(201);
+
+    expect(registerResponse.body.success).toBe(true);
+    authToken = registerResponse.body.data.token;
+
+    // Step 2: Get user profile
+    const profileResponse = await request(app)
+      .get('/api/users/profile')
+      .set('Authorization', `Bearer ${authToken}`)
+      .expect(200);
+
+    expect(profileResponse.body.data.email).toBe(registrationData.email);
+
+    // Step 3: Update user profile
+    const updateData = {
+      firstName: 'Updated',
+      lastName: 'Name',
+    };
+
+    const updateResponse = await request(app)
+      .put('/api/users/profile')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send(updateData)
+      .expect(200);
+
+    expect(updateResponse.body.data.firstName).toBe(updateData.firstName);
+    expect(updateResponse.body.data.lastName).toBe(updateData.lastName);
+
+    // Step 4: Change password
+    const passwordChangeData = {
+      currentPassword: 'Test123!@#',
+      newPassword: 'NewTest123!@#',
+    };
+
+    await request(app)
+      .put('/api/users/change-password')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send(passwordChangeData)
+      .expect(200);
+
+    // Step 5: Login with new password
+    const loginResponse = await request(app)
+      .post('/api/auth/login')
+      .send({
+        email: registrationData.email,
+        password: passwordChangeData.newPassword,
+      })
+      .expect(200);
+
+    expect(loginResponse.body.success).toBe(true);
+    expect(loginResponse.body.data.token).toBeDefined();
+  });
+});

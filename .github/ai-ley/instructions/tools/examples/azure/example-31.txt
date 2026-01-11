@@ -1,0 +1,9 @@
+## Troubleshooting
+
+### Common Issues
+
+#### Authentication and Access Issues
+
+**Problem**: Access denied or authentication failures
+**Symptoms**: 401 Unauthorized, access denied errors
+**Solution**:

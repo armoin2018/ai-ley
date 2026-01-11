@@ -1,0 +1,39 @@
+evaluation_criteria:
+  functional_requirements:
+    weight: 40%
+    criteria:
+      - feature_completeness
+      - integration_capabilities
+      - customization_options
+      - performance_characteristics
+      
+  non_functional_requirements:
+    weight: 30%
+    criteria:
+      - scalability
+      - security
+      - reliability
+      - maintainability
+      
+  commercial_factors:
+    weight: 20%
+    criteria:
+      - total_cost_ownership
+      - licensing_model
+      - vendor_stability
+      - support_quality
+      
+  strategic_alignment:
+    weight: 10%
+    criteria:
+      - technology_roadmap_fit
+      - skill_availability
+      - organizational_readiness
+      - innovation_potential
+
+scoring_matrix:
+  excellent: 5
+  good: 4
+  satisfactory: 3
+  poor: 2
+  unacceptable: 1

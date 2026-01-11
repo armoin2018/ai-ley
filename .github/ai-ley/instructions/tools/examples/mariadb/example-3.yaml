@@ -1,0 +1,167 @@
+# docker-compose.yml for MariaDB Galera Cluster
+version: '3.8'
+
+services:
+  mariadb-node1:
+    build: .
+    container_name: mariadb-node1
+    hostname: mariadb-node1
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=secure_root_password
+      - MYSQL_DATABASE=app_db
+      - MYSQL_USER=app_user
+      - MYSQL_PASSWORD=app_password
+      - GALERA_CLUSTER=1
+      - GALERA_NODE_NAME=mariadb-node1
+      - GALERA_NODE_ADDRESS=mariadb-node1
+      - WSREP_CLUSTER_ADDRESS=gcomm://mariadb-node1,mariadb-node2,mariadb-node3
+    volumes:
+      - mariadb_data_1:/var/lib/mysql
+      - mariadb_logs_1:/var/log/mysql
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - '3306:3306'
+    networks:
+      galera_cluster:
+        ipv4_address: 172.20.0.11
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  mariadb-node2:
+    build: .
+    container_name: mariadb-node2
+    hostname: mariadb-node2
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=secure_root_password
+      - GALERA_CLUSTER=1
+      - GALERA_NODE_NAME=mariadb-node2
+      - GALERA_NODE_ADDRESS=mariadb-node2
+      - WSREP_CLUSTER_ADDRESS=gcomm://mariadb-node1,mariadb-node2,mariadb-node3
+    volumes:
+      - mariadb_data_2:/var/lib/mysql
+      - mariadb_logs_2:/var/log/mysql
+    ports:
+      - '3307:3306'
+    networks:
+      galera_cluster:
+        ipv4_address: 172.20.0.12
+    depends_on:
+      - mariadb-node1
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  mariadb-node3:
+    build: .
+    container_name: mariadb-node3
+    hostname: mariadb-node3
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=secure_root_password
+      - GALERA_CLUSTER=1
+      - GALERA_NODE_NAME=mariadb-node3
+      - GALERA_NODE_ADDRESS=mariadb-node3
+      - WSREP_CLUSTER_ADDRESS=gcomm://mariadb-node1,mariadb-node2,mariadb-node3
+    volumes:
+      - mariadb_data_3:/var/lib/mysql
+      - mariadb_logs_3:/var/log/mysql
+    ports:
+      - '3308:3306'
+    networks:
+      galera_cluster:
+        ipv4_address: 172.20.0.13
+    depends_on:
+      - mariadb-node1
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  # HAProxy Load Balancer
+  haproxy:
+    image: haproxy:latest
+    container_name: mariadb-haproxy
+    restart: unless-stopped
+    ports:
+      - '3300:3306'
+      - '8080:8080' # HAProxy stats
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    networks:
+      galera_cluster:
+        ipv4_address: 172.20.0.10
+    depends_on:
+      - mariadb-node1
+      - mariadb-node2
+      - mariadb-node3
+
+  # Backup Service
+  backup-service:
+    image: mariadb:11.2
+    container_name: mariadb-backup
+    restart: 'no'
+    environment:
+      - MYSQL_ROOT_PASSWORD=secure_root_password
+    volumes:
+      - mariadb_backups:/backups
+      - ./backup-scripts:/scripts
+    networks:
+      - galera_cluster
+    entrypoint: |
+      sh -c "
+        apt-get update && apt-get install -y cron
+        echo '0 2 * * * /scripts/backup.sh' | crontab -
+        cron -f
+      "
+
+volumes:
+  mariadb_data_1:
+    driver: local
+  mariadb_data_2:
+    driver: local
+  mariadb_data_3:
+    driver: local
+  mariadb_logs_1:
+    driver: local
+  mariadb_logs_2:
+    driver: local
+  mariadb_logs_3:
+    driver: local
+  mariadb_backups:
+    driver: local
+
+networks:
+  galera_cluster:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

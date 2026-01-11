@@ -1,0 +1,2 @@
+User: Transform legacy XML format to new structure while preserving data integrity
+Agent: Develops XSLT 2.0 stylesheet with comprehensive mapping rules, error handling, and validation checks

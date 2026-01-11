@@ -1,0 +1,584 @@
+from dataclasses import dataclass, field
+from typing import List, Dict, Optional, Tuple
+from datetime import datetime
+import numpy as np
+import pandas as pd
+
+@dataclass
+class FounderProfile:
+    """Individual founder evaluation profile"""
+    name: str
+    role: str
+    background: str
+    previous_experience: List[str]
+    domain_expertise: float  # 0-10 scale
+    execution_track_record: float  # 0-10 scale
+    leadership_quality: float  # 0-10 scale
+    market_knowledge: float  # 0-10 scale
+    fundraising_ability: float  # 0-10 scale
+    references: List[Dict]
+    commitment_level: float  # 0-10 scale
+
+@dataclass
+class MarketOpportunity:
+    """Market analysis structure"""
+    tam_size: float  # Total addressable market in $B
+    sam_size: float  # Serviceable addressable market in $B
+    som_size: float  # Serviceable obtainable market in $M
+    growth_rate: float  # Annual market growth rate
+    competitive_landscape: str  # Competitive dynamics description
+    barriers_to_entry: List[str]
+    market_timing: float  # 0-10 scale for market timing
+    customer_pain_severity: float  # 0-10 scale
+    willingness_to_pay: float  # 0-10 scale
+
+@dataclass
+class BusinessModel:
+    """Business model evaluation"""
+    revenue_model: str
+    customer_acquisition_cost: Optional[float]
+    lifetime_value: Optional[float]
+    gross_margin: Optional[float]
+    unit_economics_viability: float  # 0-10 scale
+    scalability_factor: float  # 0-10 scale
+    defensibility: float  # 0-10 scale
+    monetization_clarity: float  # 0-10 scale
+
+@dataclass
+class StartupOpportunity:
+    """Complete startup investment opportunity"""
+    company_name: str
+    stage: str  # pre-seed, seed, etc.
+    sector: str
+    founding_date: datetime
+    founders: List[FounderProfile]
+    market: MarketOpportunity
+    business_model: BusinessModel
+    funding_request: float
+    pre_money_valuation: float
+    current_revenue: Optional[float]
+    revenue_growth_rate: Optional[float]
+    customer_count: Optional[int]
+    product_development_stage: str
+    competition_analysis: Dict
+    risk_factors: List[str]
+
+class AngelInvestorEvaluationFramework:
+    def __init__(self):
+        self.evaluation_weights = {
+            'founder_quality': 0.35,
+            'market_opportunity': 0.25,
+            'business_model': 0.20,
+            'product_traction': 0.15,
+            'valuation_attractiveness': 0.05
+        }
+        self.min_threshold = 7.0  # Minimum score for investment consideration
+
+    def evaluate_founders(self, founders: List[FounderProfile]) -> Tuple[float, Dict]:
+        """Comprehensive founder evaluation"""
+
+        if not founders:
+            return 0.0, {"error": "No founders provided"}
+
+        # Individual founder scores
+        founder_scores = []
+        for founder in founders:
+            individual_score = (
+                founder.domain_expertise * 0.25 +
+                founder.execution_track_record * 0.25 +
+                founder.leadership_quality * 0.20 +
+                founder.market_knowledge * 0.15 +
+                founder.fundraising_ability * 0.10 +
+                founder.commitment_level * 0.05
+            )
+            founder_scores.append(individual_score)
+
+        # Team composition analysis
+        roles_covered = set(f.role.lower() for f in founders)
+        key_roles = {'ceo', 'cto', 'founder', 'co-founder'}
+        role_coverage = len(roles_covered.intersection(key_roles)) / len(key_roles)
+
+        # Team diversity and complementarity
+        experience_diversity = len(set(exp for f in founders for exp in f.previous_experience)) / max(len(founders) * 2, 1)
+
+        # Calculate composite founder score
+        avg_individual_score = np.mean(founder_scores)
+        team_dynamics_bonus = min(role_coverage + experience_diversity, 1.0)
+
+        composite_score = avg_individual_score * (1 + team_dynamics_bonus * 0.2)
+
+        analysis = {
+            'individual_scores': dict(zip([f.name for f in founders], founder_scores)),
+            'average_individual_score': avg_individual_score,
+            'team_composition_score': role_coverage,
+            'experience_diversity_score': experience_diversity,
+            'composite_score': min(composite_score, 10.0),
+            'strengths': self._identify_founder_strengths(founders),
+            'concerns': self._identify_founder_concerns(founders)
+        }
+
+        return min(composite_score, 10.0), analysis
+
+    def evaluate_market_opportunity(self, market: MarketOpportunity) -> Tuple[float, Dict]:
+        """Market opportunity assessment"""
+
+        # Market size scoring (logarithmic scale for TAM)
+        tam_score = min(np.log10(market.tam_size + 1) * 2, 10.0)
+        sam_score = min(np.log10(market.sam_size + 1) * 2.5, 10.0)
+
+        # Growth and timing factors
+        growth_score = min(market.growth_rate * 20, 10.0)  # 5% growth = 1 point
+        timing_score = market.market_timing
+        pain_score = market.customer_pain_severity
+        payment_willingness = market.willingness_to_pay
+
+        # Composite market score
+        market_score = (
+            tam_score * 0.20 +
+            sam_score * 0.20 +
+            growth_score * 0.20 +
+            timing_score * 0.15 +
+            pain_score * 0.15 +
+            payment_willingness * 0.10
+        )
+
+        analysis = {
+            'tam_score': tam_score,
+            'sam_score': sam_score,
+            'growth_score': growth_score,
+            'timing_score': timing_score,
+            'pain_score': pain_score,
+            'payment_willingness': payment_willingness,
+            'market_score': market_score,
+            'market_size_category': self._categorize_market_size(market.tam_size),
+            'competitive_assessment': self._assess_competition(market.competitive_landscape)
+        }
+
+        return market_score, analysis
+
+    def evaluate_business_model(self, model: BusinessModel) -> Tuple[float, Dict]:
+        """Business model viability assessment"""
+
+        # Unit economics evaluation
+        if model.customer_acquisition_cost and model.lifetime_value:
+            ltv_cac_ratio = model.lifetime_value / model.customer_acquisition_cost
+            unit_economics_score = min(ltv_cac_ratio, 10.0)
+        else:
+            unit_economics_score = model.unit_economics_viability
+
+        # Revenue model clarity and scalability
+        revenue_model_score = self._score_revenue_model(model.revenue_model)
+
+        # Composite business model score
+        business_score = (
+            unit_economics_score * 0.30 +
+            model.scalability_factor * 0.25 +
+            model.defensibility * 0.20 +
+            revenue_model_score * 0.15 +
+            model.monetization_clarity * 0.10
+        )
+
+        analysis = {
+            'unit_economics_score': unit_economics_score,
+            'scalability_score': model.scalability_factor,
+            'defensibility_score': model.defensibility,
+            'revenue_model_score': revenue_model_score,
+            'monetization_score': model.monetization_clarity,
+            'business_model_score': business_score,
+            'ltv_cac_ratio': model.lifetime_value / model.customer_acquisition_cost if model.customer_acquisition_cost and model.lifetime_value else None,
+            'gross_margin': model.gross_margin
+        }
+
+        return business_score, analysis
+
+    def evaluate_traction(self, opportunity: StartupOpportunity) -> Tuple[float, Dict]:
+        """Product and market traction evaluation"""
+
+        # Revenue traction
+        if opportunity.current_revenue:
+            revenue_score = min(np.log10(opportunity.current_revenue + 1) * 2, 10.0)
+            if opportunity.revenue_growth_rate:
+                growth_score = min(opportunity.revenue_growth_rate * 10, 10.0)  # 10% monthly = 1 point
+            else:
+                growth_score = 5.0  # Neutral if no growth data
+        else:
+            revenue_score = 2.0  # Pre-revenue penalty
+            growth_score = 5.0
+
+        # Customer traction
+        if opportunity.customer_count:
+            customer_score = min(np.log10(opportunity.customer_count + 1) * 2, 10.0)
+        else:
+            customer_score = 3.0
+
+        # Product development stage
+        stage_scores = {
+            'idea': 2.0,
+            'prototype': 4.0,
+            'mvp': 6.0,
+            'beta': 7.0,
+            'launched': 8.5,
+            'scaling': 10.0
+        }
+        product_score = stage_scores.get(opportunity.product_development_stage.lower(), 5.0)
+
+        # Composite traction score
+        traction_score = (
+            revenue_score * 0.30 +
+            growth_score * 0.25 +
+            customer_score * 0.25 +
+            product_score * 0.20
+        )
+
+        analysis = {
+            'revenue_score': revenue_score,
+            'growth_score': growth_score,
+            'customer_score': customer_score,
+            'product_development_score': product_score,
+            'traction_score': traction_score,
+            'monthly_recurring_revenue': opportunity.current_revenue,
+            'revenue_growth_rate': opportunity.revenue_growth_rate,
+            'customer_count': opportunity.customer_count
+        }
+
+        return traction_score, analysis
+
+    def evaluate_valuation(self, opportunity: StartupOpportunity) -> Tuple[float, Dict]:
+        """Valuation attractiveness assessment"""
+
+        # Compare to market benchmarks
+        if opportunity.current_revenue:
+            revenue_multiple = opportunity.pre_money_valuation / (opportunity.current_revenue * 12)
+            # Typical early-stage multiples: 10-20x ARR
+            if revenue_multiple <= 10:
+                valuation_score = 10.0
+            elif revenue_multiple <= 15:
+                valuation_score = 8.0
+            elif revenue_multiple <= 25:
+                valuation_score = 6.0
+            else:
+                valuation_score = 3.0
+        else:
+            # Pre-revenue valuation assessment
+            if opportunity.pre_money_valuation <= 2_000_000:
+                valuation_score = 9.0
+            elif opportunity.pre_money_valuation <= 5_000_000:
+                valuation_score = 7.0
+            elif opportunity.pre_money_valuation <= 10_000_000:
+                valuation_score = 5.0
+            else:
+                valuation_score = 3.0
+
+        analysis = {
+            'pre_money_valuation': opportunity.pre_money_valuation,
+            'revenue_multiple': opportunity.pre_money_valuation / (opportunity.current_revenue * 12) if opportunity.current_revenue else None,
+            'valuation_score': valuation_score,
+            'valuation_category': self._categorize_valuation(opportunity.pre_money_valuation, opportunity.current_revenue)
+        }
+
+        return valuation_score, analysis
+
+    def comprehensive_evaluation(self, opportunity: StartupOpportunity) -> Dict:
+        """Complete investment opportunity evaluation"""
+
+        # Individual component evaluations
+        founder_score, founder_analysis = self.evaluate_founders(opportunity.founders)
+        market_score, market_analysis = self.evaluate_market_opportunity(opportunity.market)
+        business_score, business_analysis = self.evaluate_business_model(opportunity.business_model)
+        traction_score, traction_analysis = self.evaluate_traction(opportunity)
+        valuation_score, valuation_analysis = self.evaluate_valuation(opportunity)
+
+        # Weighted composite score
+        composite_score = (
+            founder_score * self.evaluation_weights['founder_quality'] +
+            market_score * self.evaluation_weights['market_opportunity'] +
+            business_score * self.evaluation_weights['business_model'] +
+            traction_score * self.evaluation_weights['product_traction'] +
+            valuation_score * self.evaluation_weights['valuation_attractiveness']
+        )
+
+        # Investment recommendation
+        if composite_score >= 8.0:
+            recommendation = "STRONG INVEST"
+        elif composite_score >= 7.0:
+            recommendation = "INVEST"
+        elif composite_score >= 6.0:
+            recommendation = "CONDITIONAL"
+        elif composite_score >= 5.0:
+            recommendation = "PASS - REVISIT LATER"
+        else:
+            recommendation = "PASS"
+
+        # Risk assessment
+        risk_factors = self._assess_risk_factors(opportunity, {
+            'founder_score': founder_score,
+            'market_score': market_score,
+            'business_score': business_score,
+            'traction_score': traction_score,
+            'valuation_score': valuation_score
+        })
+
+        return {
+            'company': opportunity.company_name,
+            'evaluation_date': datetime.now().isoformat(),
+            'composite_score': round(composite_score, 2),
+            'recommendation': recommendation,
+            'component_scores': {
+                'founders': round(founder_score, 2),
+                'market': round(market_score, 2),
+                'business_model': round(business_score, 2),
+                'traction': round(traction_score, 2),
+                'valuation': round(valuation_score, 2)
+            },
+            'detailed_analysis': {
+                'founder_analysis': founder_analysis,
+                'market_analysis': market_analysis,
+                'business_analysis': business_analysis,
+                'traction_analysis': traction_analysis,
+                'valuation_analysis': valuation_analysis
+            },
+            'risk_assessment': risk_factors,
+            'next_steps': self._generate_next_steps(composite_score, recommendation),
+            'investment_thesis': self._generate_investment_thesis(opportunity, composite_score)
+        }
+
+    def _identify_founder_strengths(self, founders: List[FounderProfile]) -> List[str]:
+        """Identify key founder team strengths"""
+        strengths = []
+
+        avg_domain = np.mean([f.domain_expertise for f in founders])
+        avg_execution = np.mean([f.execution_track_record for f in founders])
+        avg_leadership = np.mean([f.leadership_quality for f in founders])
+
+        if avg_domain >= 8.0:
+            strengths.append("Strong domain expertise")
+        if avg_execution >= 8.0:
+            strengths.append("Proven execution track record")
+        if avg_leadership >= 8.0:
+            strengths.append("Exceptional leadership qualities")
+        if len(founders) >= 2:
+            strengths.append("Strong founding team composition")
+
+        return strengths
+
+    def _identify_founder_concerns(self, founders: List[FounderProfile]) -> List[str]:
+        """Identify potential founder-related concerns"""
+        concerns = []
+
+        if len(founders) == 1:
+            concerns.append("Single founder risk")
+
+        avg_fundraising = np.mean([f.fundraising_ability for f in founders])
+        if avg_fundraising < 6.0:
+            concerns.append("Limited fundraising experience")
+
+        first_time_founders = sum(1 for f in founders if not f.previous_experience)
+        if first_time_founders == len(founders):
+            concerns.append("All first-time founders")
+
+        return concerns
+
+    def _categorize_market_size(self, tam: float) -> str:
+        """Categorize market size"""
+        if tam >= 100:
+            return "Very Large Market (>$100B)"
+        elif tam >= 10:
+            return "Large Market ($10B-$100B)"
+        elif tam >= 1:
+            return "Medium Market ($1B-$10B)"
+        else:
+            return "Small Market (<$1B)"
+
+    def _score_revenue_model(self, model: str) -> float:
+        """Score revenue model based on predictability and scalability"""
+        model_scores = {
+            'subscription': 9.0,
+            'saas': 9.0,
+            'marketplace': 8.0,
+            'transaction': 7.0,
+            'advertising': 6.0,
+            'one-time': 5.0,
+            'freemium': 7.0,
+            'licensing': 8.0
+        }
+        return model_scores.get(model.lower(), 6.0)
+
+    def _categorize_valuation(self, valuation: float, revenue: Optional[float]) -> str:
+        """Categorize valuation attractiveness"""
+        if revenue:
+            multiple = valuation / (revenue * 12)
+            if multiple <= 10:
+                return "Attractive"
+            elif multiple <= 20:
+                return "Fair"
+            else:
+                return "Expensive"
+        else:
+            if valuation <= 3_000_000:
+                return "Attractive"
+            elif valuation <= 8_000_000:
+                return "Fair"
+            else:
+                return "Expensive"
+
+    def _assess_risk_factors(self, opportunity: StartupOpportunity, scores: Dict) -> Dict:
+        """Comprehensive risk factor assessment"""
+        risks = {
+            'high_risk': [],
+            'medium_risk': [],
+            'low_risk': []
+        }
+
+        # Founder risks
+        if scores['founder_score'] < 6.0:
+            risks['high_risk'].append("Founder team concerns")
+        elif scores['founder_score'] < 7.5:
+            risks['medium_risk'].append("Founder experience limitations")
+
+        # Market risks
+        if scores['market_score'] < 6.0:
+            risks['high_risk'].append("Market opportunity concerns")
+        elif opportunity.market.competitive_landscape == "highly competitive":
+            risks['medium_risk'].append("Intense competition")
+
+        # Business model risks
+        if scores['business_score'] < 6.0:
+            risks['high_risk'].append("Business model viability")
+
+        # Traction risks
+        if scores['traction_score'] < 5.0:
+            risks['high_risk'].append("Limited market traction")
+        elif scores['traction_score'] < 7.0:
+            risks['medium_risk'].append("Early-stage traction")
+
+        # Valuation risks
+        if scores['valuation_score'] < 5.0:
+            risks['high_risk'].append("Valuation concerns")
+
+        return risks
+
+    def _generate_next_steps(self, score: float, recommendation: str) -> List[str]:
+        """Generate actionable next steps based on evaluation"""
+        if recommendation == "STRONG INVEST":
+            return [
+                "Schedule founder meeting within 1 week",
+                "Conduct reference checks on founding team",
+                "Review legal documents and cap table",
+                "Prepare term sheet and investment documentation"
+            ]
+        elif recommendation == "INVEST":
+            return [
+                "Deep dive due diligence on specific concerns",
+                "Additional founder interviews",
+                "Customer reference calls",
+                "Technical product review if applicable"
+            ]
+        elif recommendation == "CONDITIONAL":
+            return [
+                "Identify specific conditions for investment",
+                "Request additional information and metrics",
+                "Monitor progress over next 3-6 months",
+                "Reassess after key milestones"
+            ]
+        else:
+            return [
+                "Provide constructive feedback to founders",
+                "Maintain relationship for future opportunities",
+                "Make relevant network introductions",
+                "Consider advisory role if appropriate"
+            ]
+
+    def _generate_investment_thesis(self, opportunity: StartupOpportunity, score: float) -> str:
+        """Generate concise investment thesis"""
+        if score >= 8.0:
+            return f"Strong investment opportunity in {opportunity.sector} with exceptional founding team, large market opportunity, and clear path to scalability. {opportunity.company_name} addresses significant market need with differentiated approach."
+        elif score >= 7.0:
+            return f"Solid investment opportunity with strong fundamentals. {opportunity.company_name} shows promise in {opportunity.sector} with capable team and growing market opportunity."
+        elif score >= 6.0:
+            return f"Promising early-stage opportunity with some execution risks. {opportunity.company_name} has potential but requires monitoring of key development milestones."
+        else:
+            return f"Current stage not optimal for investment. {opportunity.company_name} may be suitable for future consideration after addressing key growth challenges."
+
+# Usage example for comprehensive startup evaluation
+def evaluate_startup_opportunity():
+    """Example comprehensive startup evaluation"""
+
+    # Create sample founder profiles
+    founders = [
+        FounderProfile(
+            name="Sarah Chen",
+            role="CEO",
+            background="Former product manager at Stripe, MBA from Wharton",
+            previous_experience=["fintech", "product_management", "b2b_sales"],
+            domain_expertise=8.5,
+            execution_track_record=7.5,
+            leadership_quality=8.0,
+            market_knowledge=8.5,
+            fundraising_ability=7.0,
+            references=[{"name": "Former manager at Stripe", "rating": "strong"}],
+            commitment_level=9.0
+        ),
+        FounderProfile(
+            name="David Rodriguez",
+            role="CTO",
+            background="Senior engineer at Square, CS from Stanford",
+            previous_experience=["payments", "backend_systems", "team_leadership"],
+            domain_expertise=9.0,
+            execution_track_record=8.0,
+            leadership_quality=7.5,
+            market_knowledge=7.0,
+            fundraising_ability=6.0,
+            references=[{"name": "Engineering director at Square", "rating": "strong"}],
+            commitment_level=9.0
+        )
+    ]
+
+    # Market opportunity definition
+    market = MarketOpportunity(
+        tam_size=50.0,  # $50B market
+        sam_size=5.0,   # $5B serviceable market
+        som_size=250.0, # $250M obtainable market
+        growth_rate=0.15, # 15% annual growth
+        competitive_landscape="fragmented with incumbents",
+        barriers_to_entry=["regulatory compliance", "network effects"],
+        market_timing=8.0,
+        customer_pain_severity=8.5,
+        willingness_to_pay=8.0
+    )
+
+    # Business model
+    business_model = BusinessModel(
+        revenue_model="subscription",
+        customer_acquisition_cost=5000,
+        lifetime_value=50000,
+        gross_margin=0.85,
+        unit_economics_viability=8.0,
+        scalability_factor=8.5,
+        defensibility=7.0,
+        monetization_clarity=8.0
+    )
+
+    # Complete opportunity
+    opportunity = StartupOpportunity(
+        company_name="FinFlow",
+        stage="seed",
+        sector="fintech",
+        founding_date=datetime(2023, 6, 1),
+        founders=founders,
+        market=market,
+        business_model=business_model,
+        funding_request=2_000_000,
+        pre_money_valuation=8_000_000,
+        current_revenue=50_000,  # Monthly revenue
+        revenue_growth_rate=0.20,  # 20% monthly growth
+        customer_count=150,
+        product_development_stage="beta",
+        competition_analysis={"direct": 3, "indirect": 8},
+        risk_factors=["regulatory changes", "customer concentration"]
+    )
+
+    # Evaluate opportunity
+    evaluator = AngelInvestorEvaluationFramework()
+    evaluation = evaluator.comprehensive_evaluation(opportunity)
+
+    return evaluation

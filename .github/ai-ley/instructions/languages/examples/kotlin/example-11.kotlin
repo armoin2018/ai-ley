@@ -1,0 +1,37 @@
+@SpringBootTest
+@Testcontainers
+class UserRepositoryIntegrationTest {
+    
+    companion object {
+        @Container
+        val postgresContainer = PostgreSQLContainer<Nothing>("postgres:14").apply {
+            withDatabaseName("testdb")
+            withUsername("test")
+            withPassword("test")
+        }
+    }
+    
+    @Autowired
+    private lateinit var userRepository: UserRepository
+    
+    @Test
+    fun `should save and retrieve user`() = runTest {
+        // Given
+        val user = User(
+            id = UserId.generate(),
+            email = "integration@test.com",
+            name = "Integration Test",
+            status = UserStatus.Active,
+            createdAt = Instant.now()
+        )
+        
+        // When
+        val savedUser = userRepository.save(user)
+        val retrievedUser = userRepository.findById(savedUser.id)
+        
+        // Then
+        retrievedUser shouldNotBe null
+        retrievedUser?.email shouldBe user.email
+        retrievedUser?.name shouldBe user.name
+    }
+}

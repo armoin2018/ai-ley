@@ -1,0 +1,7 @@
+User: Integrate speech-to-text into electronic health records system
+Agent:
+1. Implements HIPAA-compliant transcription with data encryption
+2. Uses Azure Speech Services with medical vocabulary
+3. Adds custom post-processing for medical terminology
+4. Creates approval workflow for physician review
+5. Integrates with existing EHR APIs and databases

@@ -1,0 +1,37 @@
+// src/controllers/file_manager.rs
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use tempfile::tempdir;
+
+    #[test]
+    fn test_read_file() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("test.txt");
+        let content = "Hello, GTK!";
+
+        fs::write(&file_path, content).unwrap();
+
+        let result = read_file(file_path.to_str().unwrap()).unwrap();
+        assert_eq!(result, content);
+    }
+
+    #[test]
+    fn test_write_file() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("output.txt");
+        let content = "Test content";
+
+        write_file(file_path.to_str().unwrap(), content).unwrap();
+
+        let written_content = fs::read_to_string(&file_path).unwrap();
+        assert_eq!(written_content, content);
+    }
+
+    #[test]
+    fn test_read_nonexistent_file() {
+        let result = read_file("/nonexistent/file.txt");
+        assert!(result.is_err());
+    }
+}

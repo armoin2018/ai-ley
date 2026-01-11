@@ -1,0 +1,19 @@
+capacitor-app/
+├── src/                      # Web application source
+│   ├── components/
+│   ├── pages/
+│   ├── services/
+│   └── index.html
+├── public/                   # Static assets
+├── dist/                     # Built web application
+├── android/                  # Android platform
+│   ├── app/
+│   ├── gradle/
+│   └── build.gradle
+├── ios/                      # iOS platform
+│   ├── App/
+│   ├── App.xcodeproj/
+│   └── Podfile
+├── capacitor.config.ts       # Capacitor configuration
+├── package.json
+└── tsconfig.json

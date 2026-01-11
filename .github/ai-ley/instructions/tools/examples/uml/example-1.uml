@@ -1,0 +1,25 @@
+@startuml EnterpriseArchitecture
+!theme aws-orange
+
+package "Enterprise Architecture" {
+  [Business Layer] --> [Application Layer]
+  [Application Layer] --> [Data Layer]
+  [Application Layer] --> [Integration Layer]
+
+  note right of [Business Layer] : Business processes,\nstrategy, governance
+  note right of [Application Layer] : Core applications,\nservices, APIs
+  note right of [Data Layer] : Data models,\ndatabases, analytics
+  note right of [Integration Layer] : ESB, message queues,\nprotocols
+}
+
+package "Cross-Cutting Concerns" {
+  [Security Framework]
+  [Monitoring & Logging]
+  [Configuration Management]
+}
+
+[Business Layer] ..> [Security Framework]
+[Application Layer] ..> [Security Framework]
+[Data Layer] ..> [Security Framework]
+
+@enduml

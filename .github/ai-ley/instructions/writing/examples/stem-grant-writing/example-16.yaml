@@ -1,0 +1,26 @@
+# STEM Grant Management Workflow
+stem_grant_pipeline:
+  - stage: research_foundation
+    tools: [literature_databases, citation_managers, collaboration_platforms]
+    outputs: [literature_review, research_gaps, team_formation]
+    timeline: "6-12 months before proposal deadline"
+
+  - stage: methodology_development
+    tools: [statistical_software, experimental_design_tools, protocol_databases]
+    outputs: [research_design, analysis_plan, protocol_documentation]
+    timeline: "4-6 months before proposal deadline"
+
+  - stage: proposal_writing
+    tools: [collaborative_editors, reference_managers, budget_calculators]
+    outputs: [technical_narrative, budget_justification, supporting_documents]
+    timeline: "2-4 months development period"
+
+  - stage: review_submission
+    tools: [peer_review_platforms, format_validators, submission_systems]
+    outputs: [refined_proposal, compliance_verification, submitted_application]
+    timeline: "1-2 months before deadline"
+
+  - stage: award_management
+    tools: [project_management, data_management, reporting_platforms]
+    outputs: [progress_reports, research_outputs, compliance_documentation]
+    timeline: "Award duration and reporting period"

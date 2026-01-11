@@ -1,0 +1,21 @@
+# Execute Architecture Vision Phase
+vision_result = await togaf_engine.execute_adm_phase(
+    architecture_id=architecture_result['architecture_id'],
+    adm_phase=ADMPhase.ARCHITECTURE_VISION,
+    phase_config={
+        'stakeholder_engagement': 'comprehensive',
+        'vision_scope': 'enterprise_wide',
+        'business_case_development': 'detailed'
+    }
+)
+
+# Execute Business Architecture Phase
+business_result = await togaf_engine.execute_adm_phase(
+    architecture_id=architecture_result['architecture_id'],
+    adm_phase=ADMPhase.BUSINESS_ARCHITECTURE,
+    phase_config={
+        'capability_modeling': 'detailed',
+        'process_analysis': 'comprehensive',
+        'service_design': 'soa_aligned'
+    }
+)

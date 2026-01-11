@@ -1,0 +1,27 @@
+esg_integration:
+  investment_process:
+    screening_approach:
+      negative_screening: "exclude_controversial_weapons_tobacco"
+      positive_screening: "best_in_class_esg_leaders"
+      thematic_investing: "clean_energy_sustainable_infrastructure"
+      
+    esg_factor_integration:
+      fundamental_analysis: "material_esg_factors_by_sector"
+      risk_assessment: "esg_controversy_monitoring"
+      valuation_impact: "esg_premium_discount_analysis"
+      
+    engagement_strategy:
+      shareholder_engagement: "proxy_voting_management_dialogue"
+      collaborative_initiatives: "climate_action_100_prii"
+      impact_measurement: "sdg_alignment_carbon_footprint"
+      
+  measurement_reporting:
+    esg_metrics:
+      - carbon_intensity: "scope_1_2_3_emissions"
+      - esg_scores: "msci_sustainalytics_composite"
+      - controversy_tracking: "esg_incident_monitoring"
+      
+    impact_reporting:
+      - quarterly_esg_dashboard
+      - annual_sustainability_report
+      - regulatory_compliance_sfdr_taxonomy

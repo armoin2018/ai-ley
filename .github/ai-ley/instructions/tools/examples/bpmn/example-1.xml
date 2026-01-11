@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:enterprise="http://enterprise.com/bpmn/extensions"
+                  id="OrderProcessingWorkflow"
+                  targetNamespace="http://enterprise.com/processes">
+
+  <bpmn:process id="orderProcess" name="Enterprise Order Processing" isExecutable="true">
+
+    <!-- Start Event -->
+    <bpmn:startEvent id="orderReceived" name="Order Received">
+      <bpmn:extensionElements>
+        <enterprise:triggerType>API</enterprise:triggerType>
+        <enterprise:dataValidation>OrderSchema</enterprise:dataValidation>
+        <enterprise:securityLevel>Internal</enterprise:securityLevel>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>validateOrderFlow</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- Service Task - Order Validation -->
+    <bpmn:serviceTask id="validateOrder" name="Validate Order"
+                      implementation="##WebService">
+      <bpmn:extensionElements>
+        <enterprise:serviceEndpoint>http://validation-service/validate</enterprise:serviceEndpoint>
+        <enterprise:retryPolicy>
+          <enterprise:maxAttempts>3</enterprise:maxAttempts>
+          <enterprise:backoffStrategy>exponential</enterprise:backoffStrategy>
+        </enterprise:retryPolicy>
+        <enterprise:timeout>PT30S</enterprise:timeout>
+        <enterprise:monitoring>
+          <enterprise:sla>PT5S</enterprise:sla>
+          <enterprise:alertOnFailure>true</enterprise:alertOnFailure>
+        </enterprise:monitoring>
+      </bpmn:extensionElements>
+      <bpmn:incoming>validateOrderFlow</bpmn:incoming>
+      <bpmn:outgoing>validationResultFlow</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- Exclusive Gateway - Validation Result -->
+    <bpmn:exclusiveGateway id="validationGateway" name="Validation Result">
+      <bpmn:incoming>validationResultFlow</bpmn:incoming>
+      <bpmn:outgoing>validOrderFlow</bpmn:outgoing>
+      <bpmn:outgoing>invalidOrderFlow</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- Parallel Gateway - Process Valid Order -->
+    <bpmn:parallelGateway id="processOrderGateway" name="Process Order">
+      <bpmn:incoming>validOrderFlow</bpmn:incoming>
+      <bpmn:outgoing>checkInventoryFlow</bpmn:outgoing>
+      <bpmn:outgoing>processPaymentFlow</bpmn:outgoing>
+      <bpmn:outgoing>calculateShippingFlow</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <!-- Service Tasks - Parallel Processing -->
+    <bpmn:serviceTask id="checkInventory" name="Check Inventory">
+      <bpmn:extensionElements>
+        <enterprise:serviceEndpoint>http://inventory-service/check</enterprise:serviceEndpoint>
+        <enterprise:circuitBreaker>
+          <enterprise:failureThreshold>5</enterprise:failureThreshold>
+          <enterprise:recoveryTimeout>PT60S</enterprise:recoveryTimeout>
+        </enterprise:circuitBreaker>
+      </bpmn:extensionElements>
+      <bpmn:incoming>checkInventoryFlow</bpmn:incoming>
+      <bpmn:outgoing>inventoryResultFlow</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="processPayment" name="Process Payment">
+      <bpmn:extensionElements>
+        <enterprise:serviceEndpoint>http://payment-service/process</enterprise:serviceEndpoint>
+        <enterprise:security>
+          <enterprise:encryption>true</enterprise:encryption>
+          <enterprise:auditLevel>FULL</enterprise:auditLevel>
+        </enterprise:security>
+      </bpmn:extensionElements>
+      <bpmn:incoming>processPaymentFlow</bpmn:incoming>
+      <bpmn:outgoing>paymentResultFlow</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="calculateShipping" name="Calculate Shipping">
+      <bpmn:extensionElements>
+        <enterprise:serviceEndpoint>http://shipping-service/calculate</enterprise:serviceEndpoint>
+      </bpmn:extensionElements>
+      <bpmn:incoming>calculateShippingFlow</bpmn:incoming>
+      <bpmn:outgoing>shippingResultFlow</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- Parallel Gateway - Synchronization -->
+    <bpmn:parallelGateway id="synchronizeResults" name="Synchronize Results">
+      <bpmn:incoming>inventoryResultFlow</bpmn:incoming>
+      <bpmn:incoming>paymentResultFlow</bpmn:incoming>
+      <bpmn:incoming>shippingResultFlow</bpmn:incoming>
+      <bpmn:outgoing>processResultsFlow</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <!-- Business Rule Task - Order Decision -->
+    <bpmn:businessRuleTask id="orderDecision" name="Order Decision Engine">
+      <bpmn:extensionElements>
+        <enterprise:decisionTable>OrderApprovalRules</enterprise:decisionTable>
+        <enterprise:ruleEngine>Drools</enterprise:ruleEngine>
+        <enterprise:knowledgeBase>OrderProcessingKB</enterprise:knowledgeBase>
+      </bpmn:extensionElements>
+      <bpmn:incoming>processResultsFlow</bpmn:incoming>
+      <bpmn:outgoing>orderDecisionFlow</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+
+    <!-- Exclusive Gateway - Order Decision Result -->
+    <bpmn:exclusiveGateway id="orderDecisionGateway" name="Order Approved?">
+      <bpmn:incoming>orderDecisionFlow</bpmn:incoming>
+      <bpmn:outgoing>approvedOrderFlow</bpmn:outgoing>
+      <bpmn:outgoing>rejectedOrderFlow</bpmn:outgoing>
+      <bpmn:outgoing>manualReviewFlow</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- User Task - Manual Review -->
+    <bpmn:userTask id="manualReview" name="Manual Order Review">
+      <bpmn:extensionElements>
+        <enterprise:assignee>orderManager</enterprise:assignee>
+        <enterprise:candidateRoles>OrderManager,SeniorAnalyst</enterprise:candidateRoles>
+        <enterprise:priority>HIGH</enterprise:priority>
+        <enterprise:dueDate>PT4H</enterprise:dueDate>
+        <enterprise:escalation>
+          <enterprise:escalateAfter>PT2H</enterprise:escalateAfter>
+          <enterprise:escalateTo>orderDirector</enterprise:escalateTo>
+        </enterprise:escalation>
+        <enterprise:formKey>OrderReviewForm</enterprise:formKey>
+      </bpmn:extensionElements>
+      <bpmn:incoming>manualReviewFlow</bpmn:incoming>
+      <bpmn:outgoing>reviewDecisionFlow</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Service Task - Create Order -->
+    <bpmn:serviceTask id="createOrder" name="Create Order Record">
+      <bpmn:extensionElements>
+        <enterprise:serviceEndpoint>http://order-service/create</enterprise:serviceEndpoint>
+        <enterprise:transactional>true</enterprise:transactional>
+        <enterprise:compensation>CancelOrderCompensation</enterprise:compensation>
+      </bpmn:extensionElements>
+      <bpmn:incoming>approvedOrderFlow</bpmn:incoming>
+      <bpmn:incoming>reviewApprovedFlow</bpmn:incoming>
+      <bpmn:outgoing>orderCreatedFlow</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- Send Task - Order Confirmation -->
+    <bpmn:sendTask id="sendConfirmation" name="Send Order Confirmation">
+      <bpmn:extensionElements>
+        <enterprise:messageType>email</enterprise:messageType>
+        <enterprise:template>OrderConfirmationTemplate</enterprise:template>
+        <enterprise:cc>customerService@enterprise.com</enterprise:cc>
+      </bpmn:extensionElements>
+      <bpmn:incoming>orderCreatedFlow</bpmn:incoming>
+      <bpmn:outgoing>confirmationSentFlow</bpmn:outgoing>
+    </bpmn:sendTask>
+
+    <!-- End Event - Order Completed -->
+    <bpmn:endEvent id="orderCompleted" name="Order Completed">
+      <bpmn:extensionElements>
+        <enterprise:metrics>
+          <enterprise:recordProcessTime>true</enterprise:recordProcessTime>
+          <enterprise:recordThroughput>true</enterprise:recordThroughput>
+        </enterprise:metrics>
+      </bpmn:extensionElements>
+      <bpmn:incoming>confirmationSentFlow</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Error Handling -->
+    <bpmn:endEvent id="orderRejected" name="Order Rejected">
+      <bpmn:extensionElements>
+        <enterprise:errorCode>ORDER_REJECTED</enterprise:errorCode>
+        <enterprise:notifyCustomer>true</enterprise:notifyCustomer>
+      </bpmn:extensionElements>
+      <bpmn:incoming>invalidOrderFlow</bpmn:incoming>
+      <bpmn:incoming>rejectedOrderFlow</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Sequence Flows with Conditions -->
+    <bpmn:sequenceFlow id="validateOrderFlow" sourceRef="orderReceived" targetRef="validateOrder"/>
+    <bpmn:sequenceFlow id="validationResultFlow" sourceRef="validateOrder" targetRef="validationGateway"/>
+
+    <bpmn:sequenceFlow id="validOrderFlow" name="Valid Order" sourceRef="validationGateway" targetRef="processOrderGateway">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validationResult == 'VALID'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="invalidOrderFlow" name="Invalid Order" sourceRef="validationGateway" targetRef="orderRejected">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validationResult == 'INVALID'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <!-- Additional sequence flows... -->
+
+  </bpmn:process>
+</bpmn:definitions>

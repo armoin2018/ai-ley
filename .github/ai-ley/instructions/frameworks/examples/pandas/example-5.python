@@ -1,0 +1,30 @@
+def validate_dataframe(df, required_columns=None, date_columns=None):
+    """Comprehensive data validation"""
+    validation_report = {}
+    
+    # Check required columns
+    if required_columns:
+        missing_cols = set(required_columns) - set(df.columns)
+        validation_report['missing_columns'] = list(missing_cols)
+    
+    # Check for null values
+    null_counts = df.isnull().sum()
+    validation_report['null_counts'] = null_counts[null_counts > 0].to_dict()
+    
+    # Check data types
+    validation_report['data_types'] = df.dtypes.to_dict()
+    
+    # Check duplicates
+    validation_report['duplicate_rows'] = df.duplicated().sum()
+    
+    # Validate date columns
+    if date_columns:
+        for col in date_columns:
+            if col in df.columns:
+                try:
+                    pd.to_datetime(df[col])
+                    validation_report[f'{col}_date_valid'] = True
+                except:
+                    validation_report[f'{col}_date_valid'] = False
+    
+    return validation_report

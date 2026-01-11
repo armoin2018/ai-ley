@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "docker:build": "docker build -t myapp:latest .",
+    "docker:run": "docker-compose up",
+    "docker:test": "docker-compose -f docker-compose.test.yml up --abort-on-container-exit",
+    "docker:clean": "docker system prune -f"
+  }
+}

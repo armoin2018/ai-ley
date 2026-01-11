@@ -1,0 +1,74 @@
+import { test, expect } from '@playwright/test'
+
+test.describe('E-commerce flow', () => {
+  test('complete purchase journey', async ({ page }) => {
+    // Browse products
+    await page.goto('/products')
+    await page.click('.product-card:first-child')
+
+    // Add to cart
+    await page.selectOption('#size', 'M')
+    await page.selectOption('#color', 'blue')
+    await page.click('#add-to-cart')
+
+    // Verify cart update
+    await expect(page.locator('.cart-count')).toContainText('1')
+
+    // Go to cart
+    await page.click('.cart-icon')
+    await expect(page.locator('.cart-item')).toHaveCount(1)
+
+    // Proceed to checkout
+    await page.click('#checkout-button')
+
+    // Fill shipping information
+    await page.fill('#firstName', 'John')
+    await page.fill('#lastName', 'Doe')
+    await page.fill('#address', '123 Main St')
+    await page.fill('#city', 'New York')
+    await page.selectOption('#state', 'NY')
+    await page.fill('#zipCode', '10001')
+
+    // Fill payment information
+    await page.fill('#cardNumber', '4111111111111111')
+    await page.fill('#expiryDate', '12/25')
+    await page.fill('#cvv', '123')
+
+    // Complete purchase
+    await page.click('#place-order')
+
+    // Verify order confirmation
+    await expect(page.locator('.order-confirmation')).toBeVisible()
+    await expect(page.locator('.order-number')).toBeVisible()
+  })
+
+  test('cart management', async ({ page }) => {
+    // Add multiple items
+    await page.goto('/products')
+
+    const products = page.locator('.product-card')
+    const count = await products.count()
+
+    for (let i = 0; i < Math.min(3, count); i++) {
+      await products.nth(i).click()
+      await page.click('#add-to-cart')
+      await page.goBack()
+    }
+
+    // Go to cart
+    await page.click('.cart-icon')
+
+    // Update quantities
+    await page.fill('.quantity-input:first-child', '2')
+    await page.click('#update-cart')
+
+    // Remove item
+    await page.click('.remove-item:first-child')
+    await expect(page.locator('.cart-item')).toHaveCount(2)
+
+    // Apply discount code
+    await page.fill('#discount-code', 'SAVE10')
+    await page.click('#apply-discount')
+    await expect(page.locator('.discount-amount')).toBeVisible()
+  })
+})

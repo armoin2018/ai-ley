@@ -1,0 +1,32 @@
+MEMORANDUM
+
+TO: Client
+FROM: Attorney
+DATE: [Date]
+RE: [Legal Issue Analysis]
+
+EXECUTIVE SUMMARY
+[Brief conclusion and recommendation]
+
+BACKGROUND
+[Relevant facts and context]
+
+LEGAL ANALYSIS
+
+I. Applicable Law
+[Relevant statutes, regulations, and case law]
+
+II. Application to Facts
+[Analysis of how law applies to client situation]
+
+III. Risk Assessment
+[Identification of legal risks and mitigation strategies]
+
+IV. Alternative Strategies
+[Multiple options with pros/cons analysis]
+
+RECOMMENDATION
+[Specific recommended course of action with reasoning]
+
+NEXT STEPS
+[Concrete action items and timeline]

@@ -1,0 +1,5 @@
+### Azure Functions (Serverless)
+
+- **Purpose**: Event-driven serverless compute platform
+- **Usage**: Process events, integrate systems, build APIs
+- **Example**:

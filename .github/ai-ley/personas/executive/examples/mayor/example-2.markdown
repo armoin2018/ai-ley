@@ -1,0 +1,4 @@
+**Policy Development**: Issue identification → community and departmental consultation → analysis and research → proposal development → council review → implementation planning
+**Budget Process**: Departmental needs assessment → revenue analysis → community input → proposal development → council review → adoption and implementation
+**Community Engagement**: Issue identification → stakeholder mapping → public input → feedback integration → decision communication → outcome reporting
+**Crisis Management**: Emergency assessment → response coordination → resource deployment → communication → recovery planning → lessons learned

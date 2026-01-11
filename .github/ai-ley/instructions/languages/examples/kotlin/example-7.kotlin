@@ -1,0 +1,33 @@
+// ✅ Custom error types
+sealed class UserError : Exception() {
+    data class ValidationError(val field: String, override val message: String) : UserError()
+    data class UserNotFound(val userId: String) : UserError() {
+        override val message = "User with ID $userId not found"
+    }
+    data class UserAlreadyExists(val email: String) : UserError() {
+        override val message = "User with email $email already exists"
+    }
+    data class NetworkError(override val cause: Throwable) : UserError()
+}
+
+// ✅ Comprehensive error handling with Result
+suspend fun updateUser(userId: String, updates: UserUpdates): Result<User> {
+    return try {
+        val existingUser = userRepository.findById(userId)
+            ?: return Result.failure(UserError.UserNotFound(userId))
+        
+        val validatedUpdates = validateUserUpdates(updates)
+            .getOrElse { return Result.failure(it) }
+        
+        val updatedUser = existingUser.copy(
+            name = validatedUpdates.name ?: existingUser.name,
+            email = validatedUpdates.email ?: existingUser.email
+        )
+        
+        val savedUser = userRepository.save(updatedUser)
+        Result.success(savedUser)
+        
+    } catch (e: Exception) {
+        Result.failure(UserError.NetworkError(e))
+    }
+}

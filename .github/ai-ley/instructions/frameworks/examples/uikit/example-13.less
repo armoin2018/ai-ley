@@ -1,0 +1,25 @@
+// main.less
+// Import UIKit source for customization
+@import '~uikit/src/less/uikit.less';
+
+// Custom theme variables
+@global-primary-background: #e74c3c;
+@navbar-background: @global-primary-background;
+@button-primary-background: @global-primary-background;
+
+// Custom components
+.uk-button-custom {
+  background: linear-gradient(
+    135deg,
+    @global-primary-background 0%,
+    darken(@global-primary-background, 15%) 100%
+  );
+  border: none;
+  border-radius: 25px;
+  padding: 0 30px;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+}

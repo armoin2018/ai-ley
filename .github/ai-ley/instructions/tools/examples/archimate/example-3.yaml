@@ -1,0 +1,7 @@
+# Enterprise Studio Integration
+integrations:
+  - office_365
+  - sharepoint
+  - azure_devops
+  - servicenow
+  - confluence

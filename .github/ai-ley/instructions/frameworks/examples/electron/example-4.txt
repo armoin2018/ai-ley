@@ -1,0 +1,32 @@
+enterprise-electron-app/
+├── src/
+│   ├── main/                  # Main process modules
+│   │   ├── main.ts
+│   │   ├── menu.ts
+│   │   ├── windows.ts
+│   │   └── ipc-handlers.ts
+│   ├── preload/               # Preload scripts
+│   │   ├── preload.ts
+│   │   └── types.ts
+│   ├── renderer/              # Renderer process
+│   │   ├── components/
+│   │   ├── services/
+│   │   ├── utils/
+│   │   ├── index.html
+│   │   ├── app.ts
+│   │   └── styles/
+│   └── shared/                # Shared types and utilities
+│       ├── types.ts
+│       ├── constants.ts
+│       └── ipc-channels.ts
+├── assets/                    # Static assets
+│   ├── icons/
+│   └── images/
+├── build/                     # Build configuration
+│   ├── icon.ico
+│   ├── icon.png
+│   └── installer.nsh
+├── dist/                      # Distribution builds
+├── tests/                     # Test files
+├── docs/                      # Documentation
+└── scripts/                   # Build and utility scripts

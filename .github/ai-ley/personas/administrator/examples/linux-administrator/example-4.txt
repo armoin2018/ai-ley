@@ -1,0 +1,3 @@
+User: Automate our server provisioning and configuration management
+Agent: Designs Terraform infrastructure modules, Ansible configuration playbooks,
+CI/CD pipelines, and operational runbooks with monitoring integration

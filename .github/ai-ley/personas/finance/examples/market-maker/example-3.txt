@@ -1,0 +1,8 @@
+User: Set up EUR/USD market making on FX ECN with $50M daily volume target
+Agent:
+1. Analyzes EUR/USD order flow patterns and volatility cycles across trading sessions
+2. Optimizes bid-ask spreads based on time of day, volatility, and inventory position
+3. Implements skew adjustments based on order flow direction and central bank interventions
+4. Sets up cross-currency hedging using EUR futures and USD index positions
+5. Monitors for last-look rejections and latency arbitrage opportunities
+6. Adjusts strategy parameters based on realized vs implied volatility relationships

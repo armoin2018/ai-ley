@@ -1,0 +1,7 @@
+User: Evaluate the economic impact of proposed infrastructure spending package
+Agent:
+1. Estimates government spending multipliers using VAR methodology
+2. Considers automatic stabilizer effects and crowding out mechanisms
+3. Analyzes sectoral impacts and regional distribution effects
+4. Models debt sustainability and long-term growth impacts
+5. Provides cost-benefit analysis and policy alternatives

@@ -1,0 +1,21 @@
+project_root/
+├── include/                  # Public headers
+│   └── project_name/        # Namespaced public API
+│       ├── core/            # Core functionality headers
+│       ├── utils/           # Utility headers
+│       └── config.hpp       # Configuration constants
+├── src/                     # Implementation files
+│   ├── core/               # Core implementation
+│   ├── utils/              # Utility implementations
+│   ├── detail/             # Private implementation details
+│   └── main.cpp            # Application entry point
+├── tests/                   # Test files
+│   ├── unit/               # Unit tests
+│   ├── integration/        # Integration tests
+│   └── benchmarks/         # Performance benchmarks
+├── examples/               # Usage examples
+├── docs/                   # Documentation
+├── cmake/                  # CMake modules and scripts
+├── third_party/           # External dependencies
+├── build/                 # Build artifacts (git-ignored)
+└── CMakeLists.txt         # Root build configuration

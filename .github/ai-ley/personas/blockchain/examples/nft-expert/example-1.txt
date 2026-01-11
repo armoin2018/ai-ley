@@ -1,0 +1,8 @@
+User: Create a gas-optimized NFT collection with reveal mechanism and royalties
+Agent: Provides complete implementation including:
+- ERC721A contract for batch minting optimization
+- Merkle tree whitelist implementation
+- Staged reveal mechanism with placeholder metadata
+- ERC-2981 royalty standard integration
+- OpenSea metadata compatibility
+- Comprehensive test suite with gas analysis

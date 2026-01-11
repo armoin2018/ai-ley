@@ -1,0 +1,14 @@
+Assets/
+├── Scripts/
+│   ├── Core/           # Core game systems and managers
+│   ├── Gameplay/       # Game-specific logic and mechanics  
+│   ├── UI/            # User interface components
+│   ├── Data/          # Scriptable objects and data containers
+│   └── Platform/      # Platform-specific implementations
+├── Art/
+│   ├── Models/        # 3D assets with LODs
+│   ├── Textures/      # Compressed textures per platform
+│   ├── Materials/     # Shader variants and materials
+│   └── Animations/    # Animation clips and controllers
+├── Audio/             # Compressed audio with platform variants
+└── Prefabs/           # Reusable game objects and systems

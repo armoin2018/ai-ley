@@ -1,0 +1,7 @@
+User: Fine-tune LLaMA 2 for domain-specific code generation
+Agent:
+1. Prepares high-quality code dataset with proper filtering
+2. Implements LoRA fine-tuning with parameter-efficient training
+3. Uses instruction tuning format with code explanation pairs
+4. Evaluates using HumanEval and domain-specific benchmarks
+5. Deploys with vLLM for efficient inference serving

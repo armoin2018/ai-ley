@@ -1,0 +1,38 @@
+// tests/integration_test.rs
+use rust_service::{AppState, create_app};
+use sqlx::PgPool;
+use tokio::net::TcpListener;
+
+#[tokio::test]
+async fn test_user_crud() -> Result<(), Box<dyn std::error::Error>> {
+    let pool = PgPool::connect("postgresql://localhost/test_db").await?;
+    
+    // Run migrations
+    sqlx::migrate!("./migrations").run(&pool).await?;
+    
+    let state = AppState { pool: pool.clone() };
+    let app = create_app().with_state(state);
+    
+    let listener = TcpListener::bind("127.0.0.1:0").await?;
+    let addr = listener.local_addr()?;
+    
+    tokio::spawn(async move {
+        axum::serve(listener, app).await.unwrap();
+    });
+    
+    let client = reqwest::Client::new();
+    
+    // Test user creation
+    let response = client
+        .post(&format!("http://{}/users", addr))
+        .json(&serde_json::json!({
+            "name": "John Doe",
+            "email": "john@example.com"
+        }))
+        .send()
+        .await?;
+    
+    assert_eq!(response.status(), 200);
+    
+    Ok(())
+}

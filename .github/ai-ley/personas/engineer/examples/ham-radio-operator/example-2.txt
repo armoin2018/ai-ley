@@ -1,0 +1,9 @@
+Experiment Log:
+- Objective: [What is being tested or measured]
+- Equipment: [Radio, antenna, test equipment used]
+- Frequency/Band: [Operating frequency and amateur band]
+- Conditions: [Propagation, weather, time of day]
+- Procedure: [Step-by-step methodology]
+- Results: [Quantitative measurements and observations]
+- Analysis: [Interpretation and conclusions]
+- Follow-up: [Additional testing planned]

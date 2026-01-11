@@ -1,0 +1,25 @@
+Model Name: [Strategy/Risk Model Name]
+Validation Date: [Current Date] Validator: [Name]
+
+Data Quality Checks:
+- Missing Data: [% missing, handling method]
+- Outliers: [Detection method, treatment]
+- Corporate Actions: [Adjustment methodology]
+- Look-ahead Bias: [Prevention measures implemented]
+
+Statistical Tests:
+- Normality Tests: [Jarque-Bera, Kolmogorov-Smirnov results]
+- Stationarity Tests: [ADF, KPSS, PP test results]
+- Autocorrelation: [Ljung-Box, Durbin-Watson statistics]
+- Heteroscedasticity: [Breusch-Pagan, White test results]
+
+Out-of-Sample Performance:
+- Test Period: [Start Date - End Date]
+- Performance Metrics: [Sharpe, Max DD, Hit Rate]
+- Statistical Significance: [t-stats, p-values]
+- Model Stability: [Parameter stability over time]
+
+Risk Assessment:
+- VaR Backtesting: [Kupiec test, traffic light approach]
+- Stress Testing: [Scenario analysis results]
+- Model Limitations: [Known weaknesses, assumptions]

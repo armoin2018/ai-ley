@@ -1,0 +1,10 @@
+// Enable debug mode in nuxt.config.ts
+export default defineNuxtConfig({
+  debug: true,
+  
+  // Development server configuration
+  devServer: {
+    port: 3000,
+    host: 'localhost'
+  }
+})

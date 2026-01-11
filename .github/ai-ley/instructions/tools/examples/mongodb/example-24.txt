@@ -1,0 +1,47 @@
+## Common Issues & Troubleshooting
+
+### Performance Issues
+
+**Issue**: Slow query performance
+**Solution**:
+
+- Use `.explain()` to analyze query execution plans
+- Create appropriate indexes for query patterns
+- Consider query restructuring or data model changes
+- Use aggregation pipeline optimization techniques
+
+**Issue**: High memory usage
+**Solution**:
+
+- Monitor working set size and adjust cache settings
+- Optimize document size and eliminate unnecessary fields
+- Use projection to reduce data transfer
+- Consider archiving old data
+
+### Connection Issues
+
+**Issue**: Connection pool exhaustion
+**Solution**:
+
+- Increase maxPoolSize in connection options
+- Implement proper connection cleanup in application
+- Monitor connection usage patterns
+- Use connection pooling middleware
+
+**Issue**: Authentication failures
+**Solution**:
+
+- Verify user credentials and roles
+- Check authentication database settings
+- Ensure proper SSL/TLS configuration
+- Monitor authentication logs
+
+### Data Consistency Issues
+
+**Issue**: Read preference conflicts
+**Solution**:
+
+- Use appropriate read concern levels
+- Implement proper error handling for replica set operations
+- Consider read preference based on use case
+- Monitor replication lag

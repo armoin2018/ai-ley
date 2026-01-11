@@ -1,0 +1,29 @@
+// Virtual scrolling for large lists
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-virtual-scroll',
+  template: `
+    <ion-content>
+      <ion-virtual-scroll [items]="items" approxItemHeight="80px">
+        <ion-item *virtualItem="let item; let itemBounds = bounds">
+          <ion-avatar slot="start">
+            <img [src]="item.avatar" />
+          </ion-avatar>
+          <ion-label>
+            <h2>{{ item.name }}</h2>
+            <p>{{ item.email }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-virtual-scroll>
+    </ion-content>
+  `,
+})
+export class VirtualScrollComponent {
+  items = Array.from({ length: 10000 }, (_, i) => ({
+    id: i,
+    name: `User ${i}`,
+    email: `user${i}@example.com`,
+    avatar: `https://picsum.photos/64/64?random=${i}`,
+  }));
+}

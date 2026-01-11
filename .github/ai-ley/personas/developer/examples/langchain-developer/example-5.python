@@ -1,0 +1,57 @@
+from langchain.memory import VectorStoreRetrieverMemory
+from langchain.vectorstores import FAISS
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.schema import Document
+
+class PersonalizedMemorySystem:
+    def __init__(self, user_id: str):
+        self.user_id = user_id
+        self.embeddings = HuggingFaceEmbeddings()
+        self.vector_store = self._initialize_vector_store()
+        self.memory = VectorStoreRetrieverMemory(
+            vectorstore=self.vector_store,
+            memory_key="relevant_context",
+            return_docs=True
+        )
+
+    def _initialize_vector_store(self):
+        # Load existing user memory or create new
+        try:
+            return FAISS.load_local(f"memory_{self.user_id}", self.embeddings)
+        except:
+            # Create empty vector store
+            texts = ["Initial conversation started"]
+            return FAISS.from_texts(texts, self.embeddings)
+
+    def add_conversation_turn(self, human_input: str, ai_response: str):
+        # Store conversation context
+        conversation_doc = Document(
+            page_content=f"Human: {human_input}\nAI: {ai_response}",
+            metadata={
+                "type": "conversation",
+                "timestamp": datetime.now().isoformat(),
+                "user_id": self.user_id
+            }
+        )
+        self.vector_store.add_documents([conversation_doc])
+
+    def add_user_preference(self, preference: str, context: str):
+        # Store user preferences
+        preference_doc = Document(
+            page_content=f"Preference: {preference}\nContext: {context}",
+            metadata={
+                "type": "preference",
+                "user_id": self.user_id,
+                "timestamp": datetime.now().isoformat()
+            }
+        )
+        self.vector_store.add_documents([preference_doc])
+
+    def get_relevant_context(self, query: str, k: int = 5):
+        # Retrieve relevant memories
+        docs = self.vector_store.similarity_search(query, k=k)
+        return [doc.page_content for doc in docs]
+
+    def persist_memory(self):
+        # Save memory to disk
+        self.vector_store.save_local(f"memory_{self.user_id}")

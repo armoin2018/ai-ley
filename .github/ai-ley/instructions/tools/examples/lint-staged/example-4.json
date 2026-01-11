@@ -1,0 +1,18 @@
+{
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write"],
+    "*.{css,scss,less}": ["stylelint --fix", "prettier --write"],
+    "*.{json,md,yaml,yml}": ["prettier --write"],
+    "*.{png,jpg,jpeg,gif,svg}": ["imagemin-lint-staged"]
+  },
+  "scripts": {
+    "lint-staged": "lint-staged",
+    "precommit": "lint-staged"
+  },
+  "devDependencies": {
+    "lint-staged": "^15.0.0",
+    "husky": "^9.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0"
+  }
+}

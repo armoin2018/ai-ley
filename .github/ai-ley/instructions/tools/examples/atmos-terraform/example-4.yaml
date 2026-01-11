@@ -1,0 +1,161 @@
+# stacks/orgs/enterprise/platform/prod/us-east-1/eks.yaml - Production EKS cluster
+import:
+  - "globals/enterprise-baseline"
+  - "mixins/aws-production"
+
+vars:
+  environment: "production"
+  stage: "prod"
+  tenant: "platform"
+  region: "us-east-1"
+
+  # EKS cluster configuration
+  cluster_name: "enterprise-platform-prod"
+  cluster_version: "1.28"
+  cluster_endpoint_private_access: true
+  cluster_endpoint_public_access: true
+  cluster_endpoint_public_access_cidrs: ["0.0.0.0/0"]  # Restrict in production
+
+  # Node group configuration
+  node_groups:
+    general:
+      instance_types: ["m5.large", "m5.xlarge"]
+      ami_type: "AL2_x86_64"
+      capacity_type: "ON_DEMAND"
+      min_size: 3
+      max_size: 10
+      desired_size: 5
+
+    compute:
+      instance_types: ["c5.2xlarge", "c5.4xlarge"]
+      ami_type: "AL2_x86_64"
+      capacity_type: "SPOT"
+      min_size: 0
+      max_size: 20
+      desired_size: 5
+
+  # Security configuration
+  cluster_encryption_config:
+    provider_key_arn: "alias/aws/eks"
+    resources: ["secrets"]
+
+  # Logging configuration
+  cluster_enabled_log_types: [
+    "api",
+    "audit",
+    "authenticator",
+    "controllerManager",
+    "scheduler"
+  ]
+
+  # Add-ons
+  cluster_addons:
+    coredns:
+      resolve_conflicts: "OVERWRITE"
+    kube-proxy:
+      resolve_conflicts: "OVERWRITE"
+    vpc-cni:
+      resolve_conflicts: "OVERWRITE"
+      configuration_values: |
+        {
+          "env": {
+            "ENABLE_POD_ENI": "true",
+            "ENABLE_PREFIX_DELEGATION": "true"
+          }
+        }
+    aws-ebs-csi-driver:
+      resolve_conflicts: "OVERWRITE"
+
+components:
+  terraform:
+    eks:
+      metadata:
+        component: "eks"
+        type: "terraform"
+        description: "Enterprise production EKS cluster with security hardening"
+
+      settings:
+        spacelift:
+          workspace_enabled: true
+          autodeploy: false
+
+      deps:
+        - "vpc"
+
+      vars:
+        # Cluster configuration
+        cluster_name: "{{ .vars.cluster_name }}"
+        cluster_version: "{{ .vars.cluster_version }}"
+
+        # Network configuration
+        vpc_id: "{{ (atmos.Component \"vpc\").outputs.vpc_id }}"
+        subnet_ids: "{{ (atmos.Component \"vpc\").outputs.private_subnets }}"
+        control_plane_subnet_ids: "{{ (atmos.Component \"vpc\").outputs.private_subnets }}"
+
+        # Endpoint configuration
+        cluster_endpoint_private_access: "{{ .vars.cluster_endpoint_private_access }}"
+        cluster_endpoint_public_access: "{{ .vars.cluster_endpoint_public_access }}"
+        cluster_endpoint_public_access_cidrs: "{{ .vars.cluster_endpoint_public_access_cidrs | toYaml | nindent 8 }}"
+
+        # Security configuration
+        cluster_encryption_config: "{{ .vars.cluster_encryption_config | toYaml | nindent 8 }}"
+
+        # Logging
+        cluster_enabled_log_types: "{{ .vars.cluster_enabled_log_types | toYaml | nindent 8 }}"
+        cloudwatch_log_group_retention_in_days: 90
+
+        # Node groups
+        eks_managed_node_groups: |
+          {{- range $name, $config := .vars.node_groups }}
+          {{ $name }}:
+            instance_types: {{ $config.instance_types | toYaml | nindent 12 }}
+            ami_type: {{ $config.ami_type }}
+            capacity_type: {{ $config.capacity_type }}
+            min_size: {{ $config.min_size }}
+            max_size: {{ $config.max_size }}
+            desired_size: {{ $config.desired_size }}
+
+            block_device_mappings:
+              xvda:
+                device_name: "/dev/xvda"
+                ebs:
+                  volume_size: 100
+                  volume_type: "gp3"
+                  iops: 3000
+                  encrypted: true
+                  delete_on_termination: true
+
+            metadata_options:
+              http_endpoint: "enabled"
+              http_tokens: "required"
+              http_put_response_hop_limit: 2
+
+            labels:
+              Environment: "{{ $.vars.environment }}"
+              NodeGroup: "{{ $name }}"
+
+            taints: []
+
+            update_config:
+              max_unavailable_percentage: 33
+
+          {{- end }}
+
+        # Add-ons
+        cluster_addons: "{{ .vars.cluster_addons | toYaml | nindent 8 }}"
+
+        # RBAC
+        manage_aws_auth_configmap: true
+        aws_auth_roles: [
+          {
+            rolearn  = "arn:aws:iam::{{ (datasources.aws_caller_identity).account_id }}:role/EKSAdminRole"
+            username = "eks-admin"
+            groups   = ["system:masters"]
+          }
+        ]
+
+        # Tags
+        tags: "{{ .vars.tags.common | toYaml | nindent 8 }}"
+        cluster_tags:
+          Name: "{{ .vars.cluster_name }}"
+          Type: "production"

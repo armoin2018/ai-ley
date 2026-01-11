@@ -1,0 +1,585 @@
+# Decision Intelligence and Analytics Platform with AI-Powered Insights
+from typing import Dict, List, Any, Optional, Tuple
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from enum import Enum
+import asyncio
+import json
+import uuid
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingClassifier
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_absolute_error, accuracy_score
+import plotly.graph_objects as go
+import plotly.express as px
+from plotly.subplots import make_subplots
+
+class AnalyticsType(Enum):
+    DESCRIPTIVE = "DESCRIPTIVE"
+    DIAGNOSTIC = "DIAGNOSTIC"
+    PREDICTIVE = "PREDICTIVE"
+    PRESCRIPTIVE = "PRESCRIPTIVE"
+
+class InsightPriority(Enum):
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
+
+class DecisionPattern(Enum):
+    CONSISTENT = "CONSISTENT"
+    TRENDING = "TRENDING"
+    SEASONAL = "SEASONAL"
+    ANOMALOUS = "ANOMALOUS"
+    DRIFT = "DRIFT"
+
+@dataclass
+class DecisionInsight:
+    insight_id: str
+    title: str
+    description: str
+    insight_type: AnalyticsType
+    priority: InsightPriority
+
+    # Insight data
+    affected_decisions: List[str] = field(default_factory=list)
+    statistical_confidence: float = 0.0
+    business_impact: str = ""
+
+    # Supporting data
+    supporting_metrics: Dict[str, float] = field(default_factory=dict)
+    visualizations: List[Dict[str, Any]] = field(default_factory=list)
+    data_sources: List[str] = field(default_factory=list)
+
+    # Recommendations
+    recommended_actions: List[str] = field(default_factory=list)
+    potential_roi: Optional[float] = None
+    implementation_effort: str = "MEDIUM"  # LOW, MEDIUM, HIGH
+
+    # Lifecycle
+    generated_at: datetime = field(default_factory=datetime.now)
+    expires_at: Optional[datetime] = None
+    acknowledgments: List[str] = field(default_factory=list)  # User IDs who acknowledged
+
+    # Follow-up
+    related_insights: List[str] = field(default_factory=list)
+    follow_up_actions: List[Dict[str, Any]] = field(default_factory=list)
+
+@dataclass
+class DecisionMetrics:
+    model_id: str
+    decision_id: str
+    measurement_period: Tuple[datetime, datetime]
+
+    # Performance metrics
+    total_executions: int = 0
+    successful_executions: int = 0
+    failed_executions: int = 0
+    average_response_time_ms: float = 0.0
+    percentile_95_response_time_ms: float = 0.0
+    throughput_per_second: float = 0.0
+
+    # Quality metrics
+    accuracy_score: Optional[float] = None
+    consistency_score: float = 0.0
+    coverage_percentage: float = 0.0
+    exception_rate: float = 0.0
+
+    # Business metrics
+    business_value_generated: Optional[float] = None
+    cost_savings: Optional[float] = None
+    efficiency_improvement: Optional[float] = None
+    user_satisfaction_score: Optional[float] = None
+
+    # Pattern analysis
+    decision_patterns: List[DecisionPattern] = field(default_factory=list)
+    trend_direction: Optional[str] = None  # IMPROVING, DECLINING, STABLE
+    seasonality_detected: bool = False
+    anomalies_count: int = 0
+
+    # Distribution analysis
+    input_value_distributions: Dict[str, Dict[str, float]] = field(default_factory=dict)
+    output_value_distributions: Dict[str, Dict[str, float]] = field(default_factory=dict)
+    correlation_analysis: Dict[str, float] = field(default_factory=dict)
+
+@dataclass
+class ABTestConfiguration:
+    test_id: str
+    name: str
+    description: str
+
+    # Test design
+    control_decision_id: str
+    variant_decision_ids: List[str] = field(default_factory=list)
+    traffic_split: Dict[str, float] = field(default_factory=dict)  # decision_id -> percentage
+
+    # Success criteria
+    primary_metric: str = ""
+    secondary_metrics: List[str] = field(default_factory=list)
+    success_threshold: float = 0.05  # Minimum improvement threshold
+    statistical_confidence: float = 0.95
+
+    # Test execution
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    status: str = "PLANNED"  # PLANNED, RUNNING, PAUSED, COMPLETED, STOPPED
+
+    # Results
+    preliminary_results: Dict[str, Any] = field(default_factory=dict)
+    final_results: Dict[str, Any] = field(default_factory=dict)
+    statistical_significance: Optional[bool] = None
+
+    # Configuration
+    minimum_sample_size: int = 1000
+    maximum_test_duration_days: int = 30
+    early_stopping_enabled: bool = True
+
+class DecisionIntelligenceEngine:
+    """
+    Advanced Decision Intelligence and Analytics Platform
+    Provides comprehensive decision analytics with AI-powered insights and optimization
+    """
+
+    def __init__(self, config: Dict[str, Any]):
+        self.config = config
+        self.execution_history: List[Dict[str, Any]] = []
+        self.insights_cache: Dict[str, List[DecisionInsight]] = {}
+        self.metrics_cache: Dict[str, DecisionMetrics] = {}
+        self.ab_tests: Dict[str, ABTestConfiguration] = {}
+        self.ml_models = self._initialize_ml_models()
+        self.analytics_pipelines = self._initialize_analytics_pipelines()
+
+    async def generate_comprehensive_decision_insights(
+        self,
+        model_id: str,
+        analysis_period: Tuple[datetime, datetime],
+        insight_types: List[AnalyticsType] = None,
+        focus_areas: List[str] = None  # ['performance', 'quality', 'business_impact', 'user_behavior']
+    ) -> Dict[str, Any]:
+        """Generate comprehensive AI-powered decision insights"""
+
+        if insight_types is None:
+            insight_types = list(AnalyticsType)
+
+        if focus_areas is None:
+            focus_areas = ['performance', 'quality', 'business_impact', 'user_behavior']
+
+        # Collect execution data for analysis period
+        execution_data = await self._collect_execution_data(model_id, analysis_period)
+
+        if not execution_data:
+            return {
+                'model_id': model_id,
+                'analysis_period': analysis_period,
+                'insights': [],
+                'message': 'No execution data available for the specified period'
+            }
+
+        generated_insights = []
+
+        # Generate descriptive analytics insights
+        if AnalyticsType.DESCRIPTIVE in insight_types:
+            descriptive_insights = await self._generate_descriptive_insights(
+                model_id, execution_data, focus_areas
+            )
+            generated_insights.extend(descriptive_insights)
+
+        # Generate diagnostic analytics insights
+        if AnalyticsType.DIAGNOSTIC in insight_types:
+            diagnostic_insights = await self._generate_diagnostic_insights(
+                model_id, execution_data, focus_areas
+            )
+            generated_insights.extend(diagnostic_insights)
+
+        # Generate predictive analytics insights
+        if AnalyticsType.PREDICTIVE in insight_types:
+            predictive_insights = await self._generate_predictive_insights(
+                model_id, execution_data, focus_areas
+            )
+            generated_insights.extend(predictive_insights)
+
+        # Generate prescriptive analytics insights
+        if AnalyticsType.PRESCRIPTIVE in insight_types:
+            prescriptive_insights = await self._generate_prescriptive_insights(
+                model_id, execution_data, focus_areas
+            )
+            generated_insights.extend(prescriptive_insights)
+
+        # Prioritize insights based on business impact
+        prioritized_insights = self._prioritize_insights(generated_insights, model_id)
+
+        # Generate executive summary
+        executive_summary = self._generate_executive_summary(prioritized_insights, execution_data)
+
+        # Create interactive dashboards
+        dashboards = await self._create_decision_intelligence_dashboards(
+            model_id, execution_data, prioritized_insights
+        )
+
+        # Generate actionable recommendations
+        action_plan = self._generate_action_plan(prioritized_insights, model_id)
+
+        # Cache insights for future reference
+        self.insights_cache[model_id] = prioritized_insights
+
+        return {
+            'model_id': model_id,
+            'analysis_period': analysis_period,
+            'executive_summary': executive_summary,
+            'insights': [self._serialize_insight(insight) for insight in prioritized_insights],
+            'dashboards': dashboards,
+            'action_plan': action_plan,
+            'analytics_metadata': {
+                'total_executions_analyzed': len(execution_data),
+                'insights_generated': len(prioritized_insights),
+                'high_priority_insights': len([i for i in prioritized_insights if i.priority == InsightPriority.HIGH]),
+                'critical_insights': len([i for i in prioritized_insights if i.priority == InsightPriority.CRITICAL]),
+                'analysis_completion_time': datetime.now().isoformat()
+            }
+        }
+
+    async def _generate_predictive_insights(
+        self,
+        model_id: str,
+        execution_data: List[Dict[str, Any]],
+        focus_areas: List[str]
+    ) -> List[DecisionInsight]:
+        """Generate predictive insights using machine learning"""
+
+        insights = []
+
+        # Prepare data for ML analysis
+        df = pd.DataFrame(execution_data)
+
+        if len(df) < 100:  # Need sufficient data for meaningful predictions
+            return insights
+
+        # Performance prediction insights
+        if 'performance' in focus_areas:
+            performance_predictions = await self._predict_performance_trends(df, model_id)
+            if performance_predictions:
+                insights.extend(performance_predictions)
+
+        # Quality prediction insights
+        if 'quality' in focus_areas:
+            quality_predictions = await self._predict_quality_issues(df, model_id)
+            if quality_predictions:
+                insights.extend(quality_predictions)
+
+        # Volume prediction insights
+        volume_predictions = await self._predict_decision_volume(df, model_id)
+        if volume_predictions:
+            insights.extend(volume_predictions)
+
+        # Anomaly prediction insights
+        anomaly_predictions = await self._predict_anomalies(df, model_id)
+        if anomaly_predictions:
+            insights.extend(anomaly_predictions)
+
+        return insights
+
+    async def _predict_performance_trends(
+        self,
+        df: pd.DataFrame,
+        model_id: str
+    ) -> List[DecisionInsight]:
+        """Predict future performance trends using time series analysis"""
+
+        insights = []
+
+        try:
+            # Prepare time series data
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
+            df_hourly = df.groupby(pd.Grouper(key='timestamp', freq='H')).agg({
+                'execution_time_ms': ['mean', 'count'],
+                'success': 'mean'
+            }).reset_index()
+
+            df_hourly.columns = ['timestamp', 'avg_execution_time', 'volume', 'success_rate']
+            df_hourly = df_hourly.fillna(0)
+
+            if len(df_hourly) < 24:  # Need at least 24 hours of data
+                return insights
+
+            # Feature engineering for prediction
+            df_hourly['hour'] = df_hourly['timestamp'].dt.hour
+            df_hourly['day_of_week'] = df_hourly['timestamp'].dt.dayofweek
+            df_hourly['is_weekend'] = df_hourly['day_of_week'].isin([5, 6])
+
+            # Prepare features and targets
+            features = ['hour', 'day_of_week', 'is_weekend', 'volume']
+            X = df_hourly[features].iloc[:-6]  # Use all but last 6 hours for training
+            y_response_time = df_hourly['avg_execution_time'].iloc[:-6]
+            y_success_rate = df_hourly['success_rate'].iloc[:-6]
+
+            # Train prediction models
+            rf_response_time = RandomForestRegressor(n_estimators=100, random_state=42)
+            rf_success_rate = RandomForestRegressor(n_estimators=100, random_state=42)
+
+            rf_response_time.fit(X, y_response_time)
+            rf_success_rate.fit(X, y_success_rate)
+
+            # Make predictions for next 24 hours
+            future_hours = pd.date_range(
+                start=df_hourly['timestamp'].max() + timedelta(hours=1),
+                periods=24,
+                freq='H'
+            )
+
+            future_features = pd.DataFrame({
+                'hour': future_hours.hour,
+                'day_of_week': future_hours.dayofweek,
+                'is_weekend': future_hours.dayofweek.isin([5, 6]),
+                'volume': df_hourly['volume'].median()  # Use median volume as baseline
+            })
+
+            predicted_response_times = rf_response_time.predict(future_features)
+            predicted_success_rates = rf_success_rate.predict(future_features)
+
+            # Analyze predictions for insights
+            current_avg_response_time = df_hourly['avg_execution_time'].tail(6).mean()
+            predicted_avg_response_time = predicted_response_times.mean()
+
+            current_success_rate = df_hourly['success_rate'].tail(6).mean()
+            predicted_success_rate = predicted_success_rates.mean()
+
+            # Generate response time trend insight
+            if predicted_avg_response_time > current_avg_response_time * 1.2:
+                response_time_insight = DecisionInsight(
+                    insight_id=str(uuid.uuid4()),
+                    title="Performance Degradation Expected",
+                    description=f"ML models predict a {((predicted_avg_response_time / current_avg_response_time - 1) * 100):.1f}% increase in average response time over the next 24 hours",
+                    insight_type=AnalyticsType.PREDICTIVE,
+                    priority=InsightPriority.HIGH,
+                    affected_decisions=[model_id],
+                    statistical_confidence=0.85,
+                    business_impact="Potential SLA violations and user experience degradation",
+                    supporting_metrics={
+                        'current_avg_response_time_ms': current_avg_response_time,
+                        'predicted_avg_response_time_ms': predicted_avg_response_time,
+                        'increase_percentage': (predicted_avg_response_time / current_avg_response_time - 1) * 100
+                    },
+                    recommended_actions=[
+                        "Scale up compute resources proactively",
+                        "Review and optimize decision logic",
+                        "Implement additional caching layers",
+                        "Monitor resource utilization closely"
+                    ],
+                    implementation_effort="MEDIUM"
+                )
+                insights.append(response_time_insight)
+
+            # Generate success rate trend insight
+            if predicted_success_rate < current_success_rate * 0.95:
+                success_rate_insight = DecisionInsight(
+                    insight_id=str(uuid.uuid4()),
+                    title="Quality Degradation Predicted",
+                    description=f"Success rate is predicted to decrease by {((1 - predicted_success_rate / current_success_rate) * 100):.1f}% over the next 24 hours",
+                    insight_type=AnalyticsType.PREDICTIVE,
+                    priority=InsightPriority.HIGH,
+                    affected_decisions=[model_id],
+                    statistical_confidence=0.80,
+                    business_impact="Increased error rates and potential business rule violations",
+                    supporting_metrics={
+                        'current_success_rate': current_success_rate,
+                        'predicted_success_rate': predicted_success_rate,
+                        'decrease_percentage': (1 - predicted_success_rate / current_success_rate) * 100
+                    },
+                    recommended_actions=[
+                        "Review error logs for patterns",
+                        "Validate input data quality",
+                        "Check external dependencies",
+                        "Implement additional error handling"
+                    ],
+                    implementation_effort="MEDIUM"
+                )
+                insights.append(success_rate_insight)
+
+        except Exception as e:
+            # Log error but don't fail the entire analysis
+            print(f"Error in performance trend prediction: {str(e)}")
+
+        return insights
+
+    def create_ab_test_experiment(
+        self,
+        test_name: str,
+        control_decision_id: str,
+        variant_decision_ids: List[str],
+        test_configuration: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Create comprehensive A/B test experiment for decision optimization"""
+
+        # Validate test configuration
+        validation_result = self._validate_ab_test_config(
+            control_decision_id, variant_decision_ids, test_configuration
+        )
+
+        if not validation_result['valid']:
+            return {
+                'status': 'VALIDATION_FAILED',
+                'errors': validation_result['errors']
+            }
+
+        # Create A/B test configuration
+        ab_test = ABTestConfiguration(
+            test_id=str(uuid.uuid4()),
+            name=test_name,
+            description=test_configuration.get('description', ''),
+            control_decision_id=control_decision_id,
+            variant_decision_ids=variant_decision_ids,
+            primary_metric=test_configuration.get('primary_metric', 'accuracy'),
+            secondary_metrics=test_configuration.get('secondary_metrics', []),
+            success_threshold=test_configuration.get('success_threshold', 0.05),
+            statistical_confidence=test_configuration.get('statistical_confidence', 0.95),
+            minimum_sample_size=test_configuration.get('minimum_sample_size', 1000),
+            maximum_test_duration_days=test_configuration.get('max_duration_days', 30),
+            early_stopping_enabled=test_configuration.get('early_stopping', True)
+        )
+
+        # Calculate traffic split
+        total_variants = len(variant_decision_ids) + 1  # Include control
+        control_percentage = test_configuration.get('control_percentage', 50.0)
+        variant_percentage = (100.0 - control_percentage) / len(variant_decision_ids)
+
+        ab_test.traffic_split = {control_decision_id: control_percentage}
+        for variant_id in variant_decision_ids:
+            ab_test.traffic_split[variant_id] = variant_percentage
+
+        # Calculate required sample size using statistical power analysis
+        required_sample_size = self._calculate_required_sample_size(
+            ab_test.success_threshold,
+            ab_test.statistical_confidence,
+            test_configuration.get('baseline_conversion_rate', 0.1),
+            test_configuration.get('statistical_power', 0.8)
+        )
+
+        ab_test.minimum_sample_size = max(ab_test.minimum_sample_size, required_sample_size)
+
+        # Generate test implementation plan
+        implementation_plan = self._generate_ab_test_implementation_plan(ab_test)
+
+        # Create monitoring configuration
+        monitoring_config = self._create_ab_test_monitoring_config(ab_test)
+
+        # Generate test analysis framework
+        analysis_framework = self._create_ab_test_analysis_framework(ab_test)
+
+        # Store A/B test
+        self.ab_tests[ab_test.test_id] = ab_test
+
+        return {
+            'status': 'SUCCESS',
+            'test_id': ab_test.test_id,
+            'ab_test_config': self._serialize_ab_test(ab_test),
+            'implementation_plan': implementation_plan,
+            'monitoring_configuration': monitoring_config,
+            'analysis_framework': analysis_framework,
+            'estimated_test_duration_days': self._estimate_test_duration(ab_test),
+            'required_sample_size': required_sample_size,
+            'traffic_allocation': ab_test.traffic_split
+        }
+
+    async def analyze_ab_test_results(
+        self,
+        test_id: str,
+        interim_analysis: bool = False
+    ) -> Dict[str, Any]:
+        """Analyze A/B test results with statistical significance testing"""
+
+        ab_test = self.ab_tests.get(test_id)
+        if not ab_test:
+            raise ValueError(f"A/B test {test_id} not found")
+
+        # Collect test execution data
+        test_data = await self._collect_ab_test_data(ab_test)
+
+        if not test_data or len(test_data) < ab_test.minimum_sample_size:
+            return {
+                'test_id': test_id,
+                'status': 'INSUFFICIENT_DATA',
+                'current_sample_size': len(test_data) if test_data else 0,
+                'required_sample_size': ab_test.minimum_sample_size,
+                'message': 'Insufficient data for statistical analysis'
+            }
+
+        # Prepare data for analysis
+        control_data = [d for d in test_data if d['decision_id'] == ab_test.control_decision_id]
+        variant_data = {
+            variant_id: [d for d in test_data if d['decision_id'] == variant_id]
+            for variant_id in ab_test.variant_decision_ids
+        }
+
+        # Calculate metrics for each group
+        control_metrics = self._calculate_group_metrics(control_data, ab_test.primary_metric, ab_test.secondary_metrics)
+        variant_metrics = {
+            variant_id: self._calculate_group_metrics(data, ab_test.primary_metric, ab_test.secondary_metrics)
+            for variant_id, data in variant_data.items()
+        }
+
+        # Perform statistical significance testing
+        significance_results = {}
+        for variant_id, metrics in variant_metrics.items():
+            significance_test = self._perform_statistical_significance_test(
+                control_metrics, metrics, ab_test.statistical_confidence
+            )
+            significance_results[variant_id] = significance_test
+
+        # Determine winning variant
+        winning_analysis = self._determine_winning_variant(
+            control_metrics, variant_metrics, significance_results, ab_test
+        )
+
+        # Calculate business impact
+        business_impact = self._calculate_business_impact(
+            control_metrics, variant_metrics, significance_results, ab_test
+        )
+
+        # Generate recommendations
+        recommendations = self._generate_ab_test_recommendations(
+            winning_analysis, business_impact, significance_results, ab_test
+        )
+
+        # Create visualizations
+        visualizations = self._create_ab_test_visualizations(
+            control_metrics, variant_metrics, significance_results, ab_test
+        )
+
+        # Update test results
+        results = {
+            'analysis_timestamp': datetime.now().isoformat(),
+            'sample_sizes': {
+                'control': len(control_data),
+                **{variant_id: len(data) for variant_id, data in variant_data.items()}
+            },
+            'metrics': {
+                'control': control_metrics,
+                'variants': variant_metrics
+            },
+            'significance_results': significance_results,
+            'winning_analysis': winning_analysis,
+            'business_impact': business_impact,
+            'recommendations': recommendations,
+            'visualizations': visualizations
+        }
+
+        if interim_analysis:
+            ab_test.preliminary_results = results
+        else:
+            ab_test.final_results = results
+            ab_test.statistical_significance = winning_analysis.get('statistically_significant', False)
+            ab_test.status = 'COMPLETED'
+
+        return {
+            'test_id': test_id,
+            'status': 'ANALYSIS_COMPLETE',
+            'analysis_type': 'INTERIM' if interim_analysis else 'FINAL',
+            'results': results,
+            'test_conclusion': winning_analysis.get('conclusion', 'No significant difference detected'),
+            'confidence_level': ab_test.statistical_confidence,
+            'next_steps': recommendations.get('next_steps', [])
+        }
+
+#### **Real-Time Decision Services Platform**

@@ -1,0 +1,35 @@
+# Model quantization for inference
+def quantize_model(model):
+    """Apply post-training quantization"""
+    converter = tf.lite.TFLiteConverter.from_keras_model(model)
+    converter.optimizations = [tf.lite.Optimize.DEFAULT]
+    
+    # Optional: Use representative dataset for better quantization
+    def representative_dataset():
+        for data in representative_data.take(100):
+            yield [tf.cast(data, tf.float32)]
+    
+    converter.representative_dataset = representative_dataset
+    converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
+    converter.inference_input_type = tf.int8
+    converter.inference_output_type = tf.int8
+    
+    quantized_model = converter.convert()
+    return quantized_model
+
+# Model pruning
+def create_pruned_model(base_model, target_sparsity=0.5):
+    """Apply magnitude-based pruning"""
+    import tensorflow_model_optimization as tfmot
+    
+    pruning_params = {
+        'pruning_schedule': tfmot.sparsity.keras.PolynomialDecay(
+            initial_sparsity=0.0,
+            final_sparsity=target_sparsity,
+            begin_step=0,
+            end_step=1000
+        )
+    }
+    
+    pruned_model = tfmot.sparsity.keras.prune_low_magnitude(base_model, **pruning_params)
+    return pruned_model

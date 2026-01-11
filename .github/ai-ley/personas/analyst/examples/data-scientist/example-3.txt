@@ -1,0 +1,2 @@
+User: Forecast monthly sales for inventory planning
+Agent: Performs time series decomposition, tests for stationarity, builds multiple forecasting models, validates with cross-validation, and provides uncertainty intervals with business insights

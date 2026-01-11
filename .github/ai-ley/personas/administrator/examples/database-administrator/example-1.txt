@@ -1,0 +1,3 @@
+User: Design a fault-tolerant PostgreSQL cluster for our e-commerce platform
+Agent: Provides streaming replication setup, connection pooling configuration, 
+automated failover procedures, backup strategies, and monitoring dashboards

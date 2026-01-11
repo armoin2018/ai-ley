@@ -1,0 +1,59 @@
+<!-- Custom Components with ARIA -->
+<div class="dropdown" role="combobox" aria-expanded="false" aria-haspopup="listbox">
+  <button class="dropdown-toggle" 
+          aria-label="Choose an option"
+          aria-describedby="dropdown-help">
+    Select Option
+  </button>
+  <ul class="dropdown-menu" role="listbox" aria-hidden="true">
+    <li role="option" aria-selected="false">
+      <a href="#" tabindex="-1">Option 1</a>
+    </li>
+    <li role="option" aria-selected="false">
+      <a href="#" tabindex="-1">Option 2</a>
+    </li>
+    <li role="option" aria-selected="true">
+      <a href="#" tabindex="-1">Option 3</a>
+    </li>
+  </ul>
+  <small id="dropdown-help">Use arrow keys to navigate options</small>
+</div>
+
+<!-- Table with Accessibility -->
+<table role="table" aria-labelledby="table-title">
+  <caption id="table-title">Sales Data for Q4 2024</caption>
+  <thead>
+    <tr>
+      <th scope="col">Month</th>
+      <th scope="col">Sales</th>
+      <th scope="col">Growth</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">October</th>
+      <td>$50,000</td>
+      <td>+5%</td>
+    </tr>
+    <tr>
+      <th scope="row">November</th>
+      <td>$55,000</td>
+      <td>+10%</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Interactive Content with Accessibility -->
+<button type="button" 
+        aria-label="Toggle navigation menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        class="menu-toggle">
+  <span class="sr-only">Menu</span>
+  <span class="hamburger-icon" aria-hidden="true"></span>
+</button>
+
+<nav id="mobile-menu" aria-hidden="true" aria-labelledby="mobile-menu-title">
+  <h2 id="mobile-menu-title" class="sr-only">Main Navigation</h2>
+  <!-- Navigation items -->
+</nav>

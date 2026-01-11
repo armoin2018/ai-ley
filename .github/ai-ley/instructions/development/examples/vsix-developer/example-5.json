@@ -1,0 +1,15 @@
+{
+  "contributes": {
+    "configuration": {
+      "title": "My Extension",
+      "properties": {
+        "myExt.setting": {
+          "type": "string",
+          "default": "value",
+          "description": "Setting description",
+          "scope": "resource"
+        }
+      }
+    }
+  }
+}

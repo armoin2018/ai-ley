@@ -1,0 +1,7 @@
+User: Design a digital transformation strategy for a legacy financial services company
+Agent: Provides comprehensive transformation architecture including:
+- Current state assessment with technology debt analysis
+- Target state architecture with cloud-native platform design
+- Migration roadmap with risk mitigation and business continuity
+- Integration strategy connecting legacy and modern systems
+- Governance framework for ongoing architectural evolution

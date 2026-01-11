@@ -1,0 +1,22 @@
+# ATS Document Structure Best Practices
+format_requirements:
+  file_types:
+    preferred: ['.docx', '.pdf']
+    avoid: ['.jpg', '.png', '.html', '.pages']
+
+  structure:
+    sections:
+      - 'Contact Information'
+      - 'Professional Summary'
+      - 'Core Competencies/Skills'
+      - 'Professional Experience'
+      - 'Education'
+      - 'Certifications'
+
+    formatting:
+      fonts: ['Arial', 'Calibri', 'Times New Roman']
+      font_size: '10-12pt'
+      margins: '0.5-1 inch'
+      bullet_points: 'simple bullets only'
+      tables: 'avoid complex tables'
+      graphics: 'avoid images, charts, logos'

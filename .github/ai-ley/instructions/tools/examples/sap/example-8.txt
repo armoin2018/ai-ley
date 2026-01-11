@@ -1,0 +1,8 @@
+MM01          # Create Material Master
+MM02          # Change Material Master
+MM03          # Display Material Master
+ME21N         # Create Purchase Order
+ME22N         # Change Purchase Order
+ME23N         # Display Purchase Order
+MIGO          # Goods Movement
+ME2L          # Purchase Orders by Vendor

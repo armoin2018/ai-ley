@@ -1,0 +1,13 @@
+tailwind-project/
+├── tailwind.config.js      # Tailwind configuration
+├── postcss.config.js       # PostCSS configuration
+├── package.json            # Dependencies
+├── src/
+│   ├── styles/
+│   │   ├── tailwind.css    # Main CSS file
+│   │   └── components.css  # Component styles
+│   ├── js/
+│   │   └── main.js         # JavaScript entry
+│   └── index.html          # HTML files
+├── dist/                   # Built files
+└── assets/                 # Static assets

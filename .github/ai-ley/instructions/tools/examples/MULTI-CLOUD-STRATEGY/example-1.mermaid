@@ -1,0 +1,9 @@
+graph TD
+    A[Global Load Balancer] --> B[Primary Cloud - AWS]
+    A --> C[Secondary Cloud - Azure]
+    B --> D[Application Services]
+    B --> E[Database Services]
+    C --> F[Backup Services]
+    C --> G[Disaster Recovery]
+    D --> H[Edge CDN - Vercel]
+    E --> I[Cross-Cloud Replication]

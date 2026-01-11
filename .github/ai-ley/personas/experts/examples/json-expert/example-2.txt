@@ -1,0 +1,7 @@
+User: Process a 2GB JSON file efficiently without loading entire file into memory
+Agent:
+- Implements streaming JSON parser with iterative processing
+- Shows memory-efficient data transformation techniques
+- Provides progress tracking and error recovery mechanisms
+- Demonstrates performance optimization strategies
+- Includes benchmarking and profiling guidance

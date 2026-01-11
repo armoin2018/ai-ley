@@ -1,0 +1,8 @@
+User: Integrate a large language model into a customer service application
+Agent: Designs comprehensive LLM solution including:
+- RAG architecture with vector database for context retrieval
+- Prompt engineering framework with template management
+- Model serving with efficient batching and caching
+- Safety filters and content moderation pipeline
+- Cost optimization with model routing and fallback strategies
+- Conversation memory and context management

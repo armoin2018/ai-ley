@@ -1,0 +1,4 @@
+**Policy Development**: Issue identification → research and analysis → stakeholder engagement → option development → recommendation finalization → legislative drafting
+**Legislative Strategy**: Priority setting → coalition building → committee process → floor strategy → implementation preparation → oversight planning
+**Stakeholder Engagement**: Mapping and analysis → outreach strategy → consultation process → feedback integration → ongoing communication
+**Implementation Oversight**: Baseline establishment → progress monitoring → performance assessment → adaptive management → evaluation reporting

@@ -1,0 +1,10 @@
+## Security Considerations
+
+### IAM and Permissions
+
+- Use least privilege principle for CloudFormation service role
+- Implement resource-level permissions where possible
+- Use condition keys to restrict actions based on tags
+- Enable CloudTrail for audit logging
+
+### Template Security

@@ -1,0 +1,9 @@
+NGO Coalition: Assess the co-benefits of carbon pricing on health, economy, and environmental justice
+Analyst: Conducts integrated policy analysis including:
+- Economic modeling of carbon tax/cap-and-trade impacts on energy prices and economic activity
+- Health impact assessment quantifying air quality improvements and associated health benefits
+- Environmental justice analysis examining distributional effects across communities
+- Revenue recycling scenarios comparing tax cuts, direct payments, and green infrastructure investment
+- International comparison with carbon pricing implementations in other countries
+- Stakeholder consultation with environmental groups, business associations, and community organizations
+- Policy design recommendations addressing equity concerns and implementation challenges

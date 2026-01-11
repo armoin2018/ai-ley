@@ -1,0 +1,13 @@
+// Good: String interpolation
+var message = $"Hello, {username}!";
+
+// Good: StringBuilder for multiple operations
+var sb = new StringBuilder();
+foreach (var item in items)
+{
+    sb.AppendLine(item.ToString());
+}
+var result = sb.ToString();
+
+// Good: Constants for repeated values
+private const string NewLine = "\n";

@@ -1,0 +1,42 @@
+from scipy import linalg
+from scipy.sparse import csc_matrix
+import numpy as np
+
+# Matrix decompositions
+A = np.array([[1, 2, 3],
+              [4, 5, 6],
+              [7, 8, 10]])
+
+# LU decomposition
+P, L, U = linalg.lu(A)
+print("LU Decomposition:")
+print(f"P:\n{P}")
+print(f"L:\n{L}")
+print(f"U:\n{U}")
+
+# QR decomposition
+Q, R = linalg.qr(A)
+print("QR Decomposition:")
+print(f"Q:\n{Q}")
+print(f"R:\n{R}")
+
+# Singular Value Decomposition
+U, s, Vt = linalg.svd(A)
+print(f"Singular values: {s}")
+
+# Eigenvalue problems
+eigenvalues, eigenvectors = linalg.eig(A)
+print(f"Eigenvalues: {eigenvalues}")
+
+# Sparse matrix operations
+# Create sparse matrix
+row = np.array([0, 0, 1, 2, 2, 2])
+col = np.array([0, 2, 1, 0, 1, 2])
+data = np.array([1, 2, 3, 4, 5, 6])
+sparse_matrix = csc_matrix((data, (row, col)), shape=(3, 3))
+
+# Sparse linear system solving
+from scipy.sparse.linalg import spsolve
+b = np.array([1, 2, 3])
+x = spsolve(sparse_matrix, b)
+print(f"Sparse system solution: {x}")

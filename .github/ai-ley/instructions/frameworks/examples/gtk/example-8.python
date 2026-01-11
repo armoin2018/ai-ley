@@ -1,0 +1,276 @@
+# src/window.py - Main Window Implementation
+import gi
+gi.require_version('Gtk', '4.0')
+gi.require_version('Adw', '1')
+
+from gi.repository import Gtk, Adw, Gio, GLib
+from .widgets.file_chooser import FileChooserWidget
+from .controllers.file_manager import FileManager
+
+@Gtk.Template(resource_path='/org/example/MyApp/ui/main_window.ui')
+class MainWindow(Adw.ApplicationWindow):
+    """Main application window with adaptive layout."""
+
+    __gtype_name__ = 'MainWindow'
+
+    # Template widgets (defined in UI file)
+    header_bar = Gtk.Template.Child()
+    main_box = Gtk.Template.Child()
+    sidebar = Gtk.Template.Child()
+    content_area = Gtk.Template.Child()
+    status_bar = Gtk.Template.Child()
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.file_manager = FileManager()
+        self.current_file = None
+
+        self.setup_ui()
+        self.connect_signals()
+        self.load_window_state()
+
+    def setup_ui(self):
+        """Initialize user interface components."""
+        # Setup header bar
+        self.setup_header_bar()
+
+        # Setup main content area
+        self.setup_content_area()
+
+        # Setup sidebar
+        self.setup_sidebar()
+
+        # Setup status bar
+        self.setup_status_bar()
+
+    def setup_header_bar(self):
+        """Configure header bar with buttons and menu."""
+        # Primary menu button
+        menu_button = Gtk.MenuButton()
+        menu_button.set_icon_name('open-menu-symbolic')
+        menu_button.set_menu_model(self.create_primary_menu())
+        self.header_bar.pack_end(menu_button)
+
+        # Open file button
+        open_button = Gtk.Button()
+        open_button.set_icon_name('document-open-symbolic')
+        open_button.set_tooltip_text('Open File')
+        open_button.connect('clicked', self.on_open_file)
+        self.header_bar.pack_start(open_button)
+
+        # Save button
+        save_button = Gtk.Button()
+        save_button.set_icon_name('document-save-symbolic')
+        save_button.set_tooltip_text('Save File')
+        save_button.set_sensitive(False)
+        save_button.connect('clicked', self.on_save_file)
+        self.header_bar.pack_start(save_button)
+
+        # Window title
+        self.header_bar.set_title_widget(Adw.WindowTitle(
+            title='My GTK App',
+            subtitle='Ready'
+        ))
+
+    def setup_content_area(self):
+        """Setup main content area with text editor."""
+        # Create leaflet for adaptive layout
+        leaflet = Adw.Leaflet()
+        leaflet.set_can_navigate_back(True)
+        leaflet.set_can_navigate_forward(True)
+
+        # Text view with scrolling
+        scrolled_window = Gtk.ScrolledWindow()
+        scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        scrolled_window.set_vexpand(True)
+
+        self.text_view = Gtk.TextView()
+        self.text_view.set_left_margin(12)
+        self.text_view.set_right_margin(12)
+        self.text_view.set_top_margin(12)
+        self.text_view.set_bottom_margin(12)
+        self.text_view.get_buffer().connect('changed', self.on_text_changed)
+
+        scrolled_window.set_child(self.text_view)
+
+        # Add to leaflet
+        leaflet.append(self.sidebar)
+        leaflet.append(scrolled_window)
+
+        self.main_box.append(leaflet)
+
+    def setup_sidebar(self):
+        """Setup sidebar with file browser."""
+        sidebar_page = Adw.ToolbarView()
+
+        # Sidebar header
+        sidebar_header = Adw.HeaderBar()
+        sidebar_header.set_title_widget(Gtk.Label(label='Files'))
+        sidebar_page.add_top_bar(sidebar_header)
+
+        # File tree view
+        self.file_tree = FileChooserWidget()
+        self.file_tree.connect('file-selected', self.on_sidebar_file_selected)
+
+        sidebar_page.set_content(self.file_tree)
+        self.sidebar.set_child(sidebar_page)
+
+    def setup_status_bar(self):
+        """Setup status bar with file information."""
+        status_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+
+        self.status_label = Gtk.Label()
+        self.status_label.set_markup('<small>Ready</small>')
+        self.status_label.set_halign(Gtk.Align.START)
+
+        self.position_label = Gtk.Label()
+        self.position_label.set_markup('<small>Line 1, Column 1</small>')
+        self.position_label.set_halign(Gtk.Align.END)
+
+        status_box.append(self.status_label)
+        status_box.append(self.position_label)
+
+        self.status_bar.append(status_box)
+
+    def create_primary_menu(self):
+        """Create primary menu model."""
+        menu = Gio.Menu()
+
+        file_section = Gio.Menu()
+        file_section.append('New Window', 'app.new_window')
+        file_section.append('Preferences', 'app.preferences')
+
+        help_section = Gio.Menu()
+        help_section.append('About', 'app.about')
+
+        menu.append_section(None, file_section)
+        menu.append_section(None, help_section)
+
+        return menu
+
+    def connect_signals(self):
+        """Connect window signals."""
+        self.connect('close-request', self.on_close_request)
+
+        # Text view cursor position tracking
+        buffer = self.text_view.get_buffer()
+        buffer.connect('notify::cursor-position', self.update_cursor_position)
+
+    def load_window_state(self):
+        """Load saved window state."""
+        settings = self.get_application().settings
+
+        width = settings.get_int('window-width')
+        height = settings.get_int('window-height')
+        is_maximized = settings.get_boolean('window-maximized')
+
+        if width > 0 and height > 0:
+            self.set_default_size(width, height)
+
+        if is_maximized:
+            self.maximize()
+
+    def save_window_state(self):
+        """Save current window state."""
+        settings = self.get_application().settings
+
+        width, height = self.get_default_size()
+        settings.set_int('window-width', width)
+        settings.set_int('window-height', height)
+        settings.set_boolean('window-maximized', self.is_maximized())
+
+    def on_open_file(self, button):
+        """Handle open file button click."""
+        file_dialog = Gtk.FileDialog()
+        file_dialog.set_title('Open File')
+
+        file_dialog.open(self, None, self.on_file_dialog_response)
+
+    def on_file_dialog_response(self, dialog, result):
+        """Handle file dialog response."""
+        try:
+            file = dialog.open_finish(result)
+            if file:
+                self.load_file(file)
+        except Exception as e:
+            self.show_error_dialog(f'Failed to open file: {e}')
+
+    def load_file(self, file):
+        """Load file content into text view."""
+        try:
+            content = self.file_manager.read_file(file.get_path())
+            buffer = self.text_view.get_buffer()
+            buffer.set_text(content)
+
+            self.current_file = file
+            self.update_title()
+            self.update_status(f'Loaded {file.get_basename()}')
+
+        except Exception as e:
+            self.show_error_dialog(f'Failed to load file: {e}')
+
+    def on_save_file(self, button):
+        """Handle save file button click."""
+        if self.current_file:
+            self.save_current_file()
+        else:
+            self.save_file_as()
+
+    def save_current_file(self):
+        """Save content to current file."""
+        try:
+            buffer = self.text_view.get_buffer()
+            start, end = buffer.get_bounds()
+            content = buffer.get_text(start, end, False)
+
+            self.file_manager.write_file(self.current_file.get_path(), content)
+            self.update_status(f'Saved {self.current_file.get_basename()}')
+
+        except Exception as e:
+            self.show_error_dialog(f'Failed to save file: {e}')
+
+    def on_text_changed(self, buffer):
+        """Handle text buffer changes."""
+        self.update_status('Modified')
+
+    def update_cursor_position(self, buffer, param):
+        """Update cursor position display."""
+        mark = buffer.get_insert()
+        iter = buffer.get_iter_at_mark(mark)
+        line = iter.get_line() + 1
+        column = iter.get_line_offset() + 1
+
+        self.position_label.set_markup(f'<small>Line {line}, Column {column}</small>')
+
+    def update_title(self):
+        """Update window title."""
+        if self.current_file:
+            title = self.current_file.get_basename()
+            subtitle = self.current_file.get_parent().get_path()
+        else:
+            title = 'My GTK App'
+            subtitle = 'Untitled'
+
+        title_widget = self.header_bar.get_title_widget()
+        title_widget.set_title(title)
+        title_widget.set_subtitle(subtitle)
+
+    def update_status(self, message):
+        """Update status bar message."""
+        self.status_label.set_markup(f'<small>{message}</small>')
+
+    def show_error_dialog(self, message):
+        """Show error dialog."""
+        dialog = Adw.MessageDialog(
+            transient_for=self,
+            heading='Error',
+            body=message
+        )
+        dialog.add_response('ok', 'OK')
+        dialog.present()
+
+    def on_close_request(self, window):
+        """Handle window close request."""
+        self.save_window_state()
+        return False  # Allow close

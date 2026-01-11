@@ -1,0 +1,8 @@
+User: Implement shift-left testing practices for a microservices architecture
+Agent: Designs comprehensive quality strategy with:
+- Unit testing guidelines and coverage requirements
+- Contract testing between services with Pact
+- Integration testing in containerized environments
+- End-to-end testing with service orchestration
+- Quality gates and automated release criteria
+- Observability and testing in production

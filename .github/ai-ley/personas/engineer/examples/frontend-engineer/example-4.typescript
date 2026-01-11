@@ -1,0 +1,14 @@
+// Compound component with TypeScript
+interface DataTableProps {
+  data: TableData[];
+  loading?: boolean;
+  onSort?: (column: string, direction: 'asc' | 'desc') => void;
+}
+
+const DataTable = ({ data, loading, onSort }: DataTableProps) => {
+  // Implementation with accessibility and performance optimizations
+};
+
+DataTable.Header = Header;
+DataTable.Body = Body;
+DataTable.Pagination = Pagination;

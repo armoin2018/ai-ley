@@ -1,0 +1,25 @@
+// src/routes/user.routes.ts
+import { Router } from 'express';
+import { UserController } from '../controllers/user.controller';
+import { authenticateToken, authorize } from '../middleware/auth.middleware';
+import { validateRequest } from '../middleware/validation.middleware';
+import { createUserSchema, updateUserSchema } from '../validators/user.validator';
+
+const router = Router();
+const userController = new UserController();
+
+// Public routes
+router.post('/register', validateRequest(createUserSchema), userController.register);
+
+// Protected routes
+router.use(authenticateToken);
+
+router.get('/', userController.getAllUsers);
+router.get('/:id', userController.getUserById);
+
+router.put('/:id', validateRequest(updateUserSchema), userController.updateUser);
+
+// Admin only routes
+router.delete('/:id', authorize('admin'), userController.deleteUser);
+
+export default router;

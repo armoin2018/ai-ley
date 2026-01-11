@@ -1,0 +1,2 @@
+User: Add new fields to existing protobuf schema while maintaining backward compatibility
+Agent: Implements evolution strategy with proper field numbering, deprecation handling, and migration path

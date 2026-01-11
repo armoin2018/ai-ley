@@ -1,0 +1,43 @@
+// stores/user.ts
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+
+export const useUserStore = defineStore('user', () => {
+  // State
+  const users = ref<User[]>([]);
+  const currentUser = ref<User | null>(null);
+  const isLoading = ref(false);
+
+  // Getters
+  const activeUsers = computed(() => users.value.filter((user) => user.status === 'active'));
+
+  const userCount = computed(() => users.value.length);
+
+  // Actions
+  const fetchUsers = async () => {
+    isLoading.value = true;
+    try {
+      const response = await api.get('/users');
+      users.value = response.data;
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  const setCurrentUser = (user: User) => {
+    currentUser.value = user;
+  };
+
+  return {
+    // State
+    users,
+    currentUser,
+    isLoading,
+    // Getters
+    activeUsers,
+    userCount,
+    // Actions
+    fetchUsers,
+    setCurrentUser,
+  };
+});

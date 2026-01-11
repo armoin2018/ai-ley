@@ -1,0 +1,20 @@
+// Use proper CSS specificity and cascade order
+// 1. Include Bootstrap first
+@import 'bootstrap/scss/bootstrap';
+
+// 2. Add custom styles after Bootstrap
+.my-custom-button {
+  // Use Bootstrap's existing classes as base
+  @extend .btn;
+  @extend .btn-primary;
+
+  // Add custom modifications
+  border-radius: 50px;
+  font-weight: 600;
+}
+
+// 3. Or use CSS custom properties for theming
+:root {
+  --bs-primary: #007bff;
+  --bs-secondary: #6c757d;
+}

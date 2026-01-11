@@ -1,0 +1,2 @@
+/nSU3          # Maintain user profile
+System → User Profile → Own Data

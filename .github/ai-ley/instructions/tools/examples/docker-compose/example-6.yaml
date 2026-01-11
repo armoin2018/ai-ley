@@ -1,0 +1,269 @@
+# .gitlab-ci.yml - Enterprise Docker Compose CI/CD Pipeline
+stages:
+  - validate
+  - security-scan
+  - build
+  - test
+  - deploy-staging
+  - security-test
+  - deploy-production
+  - monitor
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
+  COMPOSE_PROJECT_NAME: "${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}"
+  SECURITY_SCAN_ENABLED: "true"
+
+# Validation Stage
+compose-validate:
+  stage: validate
+  image: docker/compose:alpine-1.29.2
+  services:
+    - docker:20.10.16-dind
+  before_script:
+    - apk add --no-cache curl jq
+  script:
+    - echo "🔍 Validating Docker Compose configuration..."
+    - docker-compose config --quiet
+    - docker-compose config | jq -e '.services | length > 0'
+    - echo "✅ Docker Compose configuration is valid"
+  rules:
+    - changes:
+        - docker-compose*.yml
+        - .env*
+        - Dockerfile*
+
+compose-lint:
+  stage: validate
+  image: hadolint/hadolint:latest-debian
+  script:
+    - echo "🔍 Linting Dockerfiles..."
+    - find . -name "Dockerfile*" -exec hadolint {} +
+    - echo "✅ Dockerfile linting completed"
+  rules:
+    - changes:
+        - Dockerfile*
+
+# Security Scanning Stage
+security-scan-images:
+  stage: security-scan
+  image: aquasec/trivy:latest
+  services:
+    - docker:20.10.16-dind
+  variables:
+    TRIVY_NO_PROGRESS: "true"
+    TRIVY_CACHE_DIR: ".trivycache/"
+  cache:
+    paths:
+      - .trivycache/
+  script:
+    - echo "🔒 Scanning Docker images for vulnerabilities..."
+    - |
+      for service in $(docker-compose config --services); do
+        image=$(docker-compose config | yq eval ".services.$service.image" -)
+        if [ "$image" != "null" ]; then
+          echo "Scanning $service image: $image"
+          trivy image --exit-code 0 --severity HIGH,CRITICAL --format json --output "$service-scan.json" "$image"
+          trivy image --exit-code 1 --severity CRITICAL "$image"
+        fi
+      done
+    - echo "✅ Security scanning completed"
+  artifacts:
+    when: always
+    reports:
+      container_scanning: "*-scan.json"
+    paths:
+      - "*-scan.json"
+    expire_in: 1 week
+
+compose-security-scan:
+  stage: security-scan
+  image: owasp/dependency-check:latest
+  script:
+    - echo "🔒 Scanning compose dependencies..."
+    - /usr/share/dependency-check/bin/dependency-check.sh --project "$CI_PROJECT_NAME" --scan . --format JSON --out ./dependency-check-report.json
+    - echo "✅ Dependency scanning completed"
+  artifacts:
+    reports:
+      dependency_scanning: dependency-check-report.json
+    expire_in: 1 week
+
+# Build Stage
+build-services:
+  stage: build
+  image: docker/compose:alpine-1.29.2
+  services:
+    - docker:20.10.16-dind
+  variables:
+    DOCKER_BUILDKIT: 1
+    COMPOSE_DOCKER_CLI_BUILD: 1
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - echo "🏗️ Building Docker Compose services..."
+    - docker-compose build --parallel
+    - docker-compose push
+    - echo "✅ Build and push completed"
+  only:
+    - main
+    - develop
+    - /^release\/.*$/
+
+# Test Stage
+integration-tests:
+  stage: test
+  image: docker/compose:alpine-1.29.2
+  services:
+    - docker:20.10.16-dind
+  variables:
+    DATABASE_URL: "mysql://test_user:test_pass@database:3306/test_db"
+  script:
+    - echo "🧪 Running integration tests..."
+    - cp environments/development/.env .env
+    - docker-compose -f docker-compose.yml -f docker-compose.test.yml up -d
+    - docker-compose exec -T web-app npm run test:integration
+    - docker-compose exec -T web-app npm run test:e2e
+    - echo "✅ Integration tests completed"
+  after_script:
+    - docker-compose logs
+    - docker-compose down -v
+  artifacts:
+    when: always
+    reports:
+      junit: test-results.xml
+      coverage: coverage/cobertura-coverage.xml
+    paths:
+      - test-results.xml
+      - coverage/
+    expire_in: 1 week
+
+performance-tests:
+  stage: test
+  image: docker/compose:alpine-1.29.2
+  services:
+    - docker:20.10.16-dind
+  script:
+    - echo "⚡ Running performance tests..."
+    - cp environments/staging/.env .env
+    - docker-compose up -d
+    - docker-compose exec -T web-app npm run test:performance
+    - echo "✅ Performance tests completed"
+  after_script:
+    - docker-compose down -v
+  artifacts:
+    reports:
+      performance: performance-report.json
+    expire_in: 1 week
+
+# Staging Deployment
+deploy-staging:
+  stage: deploy-staging
+  image: docker/compose:alpine-1.29.2
+  environment:
+    name: staging
+    url: https://staging.${CI_PROJECT_NAME}.com
+  before_script:
+    - eval $(ssh-agent -s)
+    - echo "$STAGING_SSH_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    - ssh-keyscan -H $STAGING_HOST >> ~/.ssh/known_hosts
+  script:
+    - echo "🚀 Deploying to staging environment..."
+    - ssh $STAGING_USER@$STAGING_HOST "mkdir -p /opt/${CI_PROJECT_NAME}"
+    - scp -r . $STAGING_USER@$STAGING_HOST:/opt/${CI_PROJECT_NAME}/
+    - |
+      ssh $STAGING_USER@$STAGING_HOST "
+        cd /opt/${CI_PROJECT_NAME}
+        cp environments/staging/.env .env
+        docker-compose -f docker-compose.yml -f environments/staging/docker-compose.override.yml pull
+        docker-compose -f docker-compose.yml -f environments/staging/docker-compose.override.yml up -d
+        docker-compose ps
+      "
+    - echo "✅ Staging deployment completed"
+  only:
+    - main
+    - develop
+
+# Security Testing in Staging
+security-test-staging:
+  stage: security-test
+  image: owasp/zap2docker-stable:latest
+  script:
+    - echo "🔐 Running security tests against staging..."
+    - zap-baseline.py -t https://staging.${CI_PROJECT_NAME}.com -J zap-report.json
+    - echo "✅ Security testing completed"
+  artifacts:
+    reports:
+      dast: zap-report.json
+    expire_in: 1 week
+  only:
+    - main
+
+# Production Deployment
+deploy-production:
+  stage: deploy-production
+  image: docker/compose:alpine-1.29.2
+  environment:
+    name: production
+    url: https://${CI_PROJECT_NAME}.com
+  when: manual
+  before_script:
+    - eval $(ssh-agent -s)
+    - echo "$PRODUCTION_SSH_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    - ssh-keyscan -H $PRODUCTION_HOST >> ~/.ssh/known_hosts
+  script:
+    - echo "🚀 Deploying to production environment..."
+    - ssh $PRODUCTION_USER@$PRODUCTION_HOST "mkdir -p /opt/${CI_PROJECT_NAME}"
+    - scp -r . $PRODUCTION_USER@$PRODUCTION_HOST:/opt/${CI_PROJECT_NAME}/
+    - |
+      ssh $PRODUCTION_USER@$PRODUCTION_HOST "
+        cd /opt/${CI_PROJECT_NAME}
+        cp environments/production/.env .env
+
+        # Blue-green deployment
+        docker-compose -f docker-compose.yml -f environments/production/docker-compose.override.yml pull
+        docker-compose -f docker-compose.yml -f environments/production/docker-compose.override.yml up -d --scale web-app=0
+
+        # Health check
+        sleep 30
+        curl -f http://localhost:8080/health || exit 1
+
+        # Scale up new version
+        docker-compose -f docker-compose.yml -f environments/production/docker-compose.override.yml up -d
+
+        # Final health check
+        sleep 30
+        curl -f http://localhost:8080/health || exit 1
+
+        docker-compose ps
+      "
+    - echo "✅ Production deployment completed"
+  only:
+    - main
+
+# Monitoring Stage
+post-deployment-monitoring:
+  stage: monitor
+  image: curlimages/curl:latest
+  script:
+    - echo "📊 Running post-deployment monitoring..."
+    - |
+      for i in {1..10}; do
+        if curl -f https://${CI_PROJECT_NAME}.com/health; then
+          echo "✅ Application is healthy"
+          break
+        else
+          echo "⚠️ Health check failed, attempt $i/10"
+          sleep 30
+        fi
+
+        if [ $i -eq 10 ]; then
+          echo "❌ Application health check failed after 10 attempts"
+          exit 1
+        fi
+      done
+    - echo "✅ Post-deployment monitoring completed"
+  only:
+    - main

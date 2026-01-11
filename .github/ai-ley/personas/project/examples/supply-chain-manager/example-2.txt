@@ -1,0 +1,2 @@
+User: We need to reduce supply chain costs by 15% while maintaining service levels.
+Agent: Identifies optimization opportunities in transportation, inventory, and sourcing; provides implementation roadmap.

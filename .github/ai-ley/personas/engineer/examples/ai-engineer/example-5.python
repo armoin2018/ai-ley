@@ -1,0 +1,113 @@
+# inference_service.py
+from fastapi import FastAPI, HTTPException, BackgroundTasks
+from pydantic import BaseModel
+import torch
+import mlflow.pytorch
+import numpy as np
+from typing import List, Dict, Any
+import redis
+import json
+from prometheus_client import Counter, Histogram, generate_latest
+
+app = FastAPI(title="ML Inference Service")
+redis_client = redis.Redis(host="redis", port=6379, decode_responses=True)
+
+# Metrics
+REQUEST_COUNT = Counter('ml_requests_total', 'Total ML requests', ['model_name', 'version'])
+REQUEST_DURATION = Histogram('ml_request_duration_seconds', 'ML request duration')
+PREDICTION_ACCURACY = Histogram('ml_prediction_confidence', 'Model prediction confidence')
+
+class PredictionRequest(BaseModel):
+    features: List[float]
+    model_version: str = "latest"
+    
+class PredictionResponse(BaseModel):
+    prediction: int
+    confidence: float
+    model_version: str
+    request_id: str
+
+class ModelManager:
+    def __init__(self):
+        self.models = {}
+        self.load_models()
+    
+    def load_models(self):
+        """Load models from MLflow registry"""
+        client = mlflow.tracking.MlflowClient()
+        for model_name in ["image_classifier", "text_classifier"]:
+            latest_version = client.get_latest_versions(model_name, stages=["Production"])[0]
+            model_uri = f"models:/{model_name}/{latest_version.version}"
+            self.models[model_name] = {
+                "model": mlflow.pytorch.load_model(model_uri),
+                "version": latest_version.version
+            }
+    
+    def predict(self, model_name: str, features: np.ndarray) -> Dict[str, Any]:
+        if model_name not in self.models:
+            raise ValueError(f"Model {model_name} not found")
+        
+        model_info = self.models[model_name]
+        model = model_info["model"]
+        
+        with torch.no_grad():
+            input_tensor = torch.FloatTensor(features).unsqueeze(0)
+            outputs = model(input_tensor)
+            probabilities = torch.softmax(outputs, dim=1)
+            prediction = torch.argmax(probabilities, dim=1).item()
+            confidence = torch.max(probabilities).item()
+        
+        return {
+            "prediction": prediction,
+            "confidence": confidence,
+            "model_version": model_info["version"]
+        }
+
+model_manager = ModelManager()
+
+@app.post("/predict/{model_name}", response_model=PredictionResponse)
+async def predict(model_name: str, request: PredictionRequest, background_tasks: BackgroundTasks):
+    request_id = f"{model_name}_{hash(str(request.features))}"
+    
+    # Check cache first
+    cached_result = redis_client.get(f"prediction:{request_id}")
+    if cached_result:
+        return PredictionResponse.parse_raw(cached_result)
+    
+    try:
+        with REQUEST_DURATION.time():
+            result = model_manager.predict(model_name, np.array(request.features))
+        
+        response = PredictionResponse(
+            prediction=result["prediction"],
+            confidence=result["confidence"],
+            model_version=result["model_version"],
+            request_id=request_id
+        )
+        
+        # Cache result
+        redis_client.setex(f"prediction:{request_id}", 3600, response.json())
+        
+        # Update metrics
+        REQUEST_COUNT.labels(model_name=model_name, version=result["model_version"]).inc()
+        PREDICTION_ACCURACY.observe(result["confidence"])
+        
+        # Log prediction for monitoring (async)
+        background_tasks.add_task(log_prediction, model_name, request, response)
+        
+        return response
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+async def log_prediction(model_name: str, request: PredictionRequest, response: PredictionResponse):
+    """Log prediction for model monitoring"""
+    log_data = {
+        "model_name": model_name,
+        "features": request.features,
+        "prediction": response.prediction,
+        "confidence": response.confidence,
+        "timestamp": datetime.utcnow().isoformat()
+    }
+    # Send to monitoring system (e.g., Kafka, logs)
+    pass

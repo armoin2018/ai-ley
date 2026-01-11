@@ -1,0 +1,58 @@
+class DataCleaner:
+    def __init__(self):
+        self.cleaning_steps = []
+    
+    def remove_duplicates(self, df, subset=None):
+        """Remove duplicate rows"""
+        before_count = len(df)
+        df_clean = df.drop_duplicates(subset=subset)
+        after_count = len(df_clean)
+        self.cleaning_steps.append(f"Removed {before_count - after_count} duplicates")
+        return df_clean
+    
+    def handle_missing_values(self, df, strategy='drop', fill_values=None):
+        """Handle missing values with various strategies"""
+        if strategy == 'drop':
+            df_clean = df.dropna()
+            self.cleaning_steps.append("Dropped rows with missing values")
+        elif strategy == 'fill':
+            if fill_values:
+                df_clean = df.fillna(fill_values)
+            else:
+                # Fill numeric columns with median, categorical with mode
+                numeric_cols = df.select_dtypes(include=[np.number]).columns
+                categorical_cols = df.select_dtypes(include=['object']).columns
+                
+                fill_dict = {}
+                for col in numeric_cols:
+                    fill_dict[col] = df[col].median()
+                for col in categorical_cols:
+                    fill_dict[col] = df[col].mode()[0] if not df[col].mode().empty else 'Unknown'
+                
+                df_clean = df.fillna(fill_dict)
+            
+            self.cleaning_steps.append(f"Filled missing values with strategy: {strategy}")
+        
+        return df_clean
+    
+    def standardize_columns(self, df):
+        """Standardize column names"""
+        df_clean = df.copy()
+        df_clean.columns = df_clean.columns.str.lower().str.replace(' ', '_')
+        self.cleaning_steps.append("Standardized column names")
+        return df_clean
+    
+    def convert_data_types(self, df, type_mapping):
+        """Convert data types according to mapping"""
+        df_clean = df.copy()
+        for col, dtype in type_mapping.items():
+            if col in df_clean.columns:
+                if dtype == 'category':
+                    df_clean[col] = df_clean[col].astype('category')
+                elif dtype == 'datetime':
+                    df_clean[col] = pd.to_datetime(df_clean[col], errors='coerce')
+                else:
+                    df_clean[col] = df_clean[col].astype(dtype)
+        
+        self.cleaning_steps.append(f"Converted data types: {type_mapping}")
+        return df_clean

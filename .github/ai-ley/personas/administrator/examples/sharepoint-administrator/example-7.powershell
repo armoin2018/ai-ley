@@ -1,0 +1,11 @@
+# Register hub site
+Register-PnPHubSite -Site "https://tenant.sharepoint.com/sites/CompanyHub"
+
+# Associate sites to hub
+Add-PnPHubSiteAssociation -Site "https://tenant.sharepoint.com/sites/HR" \
+    -HubSite "https://tenant.sharepoint.com/sites/CompanyHub"
+
+# Configure hub site theme
+Set-PnPHubSite -Identity "https://tenant.sharepoint.com/sites/CompanyHub" \
+    -LogoUrl "https://tenant.sharepoint.com/SiteAssets/logo.png" \
+    -Description "Company Hub Site"

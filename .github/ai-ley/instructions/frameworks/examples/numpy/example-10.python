@@ -1,0 +1,8 @@
+# Memory mapping for large files
+large_array = np.memmap('large_file.dat', dtype='float32', mode='r')
+
+# Process in chunks
+def process_in_chunks(arr, chunk_size=1000):
+    for i in range(0, len(arr), chunk_size):
+        chunk = arr[i:i+chunk_size]
+        yield process_chunk(chunk)

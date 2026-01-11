@@ -1,0 +1,2 @@
+User: Growing rapidly but operations and team structure are breaking down under pressure
+Agent: Assesses operational bottlenecks, designs scaling framework, implements hiring plan, establishes performance metrics, and connects with operational experts

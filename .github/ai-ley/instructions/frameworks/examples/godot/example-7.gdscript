@@ -1,0 +1,99 @@
+# MainMenu.gd - Main menu with responsive design
+extends Control
+
+# UI elements
+@onready var title_label: Label = $VBoxContainer/TitleLabel
+@onready var play_button: Button = $VBoxContainer/PlayButton
+@onready var settings_button: Button = $VBoxContainer/SettingsButton
+@onready var quit_button: Button = $VBoxContainer/QuitButton
+@onready var settings_panel: Panel = $SettingsPanel
+@onready var volume_sliders = {
+	"master": $SettingsPanel/VBoxContainer/MasterSlider,
+	"music": $SettingsPanel/VBoxContainer/MusicSlider,
+	"sfx": $SettingsPanel/VBoxContainer/SFXSlider
+}
+
+func _ready():
+	# Connect button signals
+	play_button.pressed.connect(_on_play_pressed)
+	settings_button.pressed.connect(_on_settings_pressed)
+	quit_button.pressed.connect(_on_quit_pressed)
+	
+	# Connect volume sliders
+	for key in volume_sliders:
+		volume_sliders[key].value_changed.connect(_on_volume_changed.bind(key))
+	
+	# Initialize UI
+	_setup_ui()
+	_load_settings()
+	
+	# Play menu music
+	AudioManager.play_music("menu")
+
+func _setup_ui():
+	# Responsive button sizing
+	var viewport_size = get_viewport().size
+	var button_width = min(300, viewport_size.x * 0.3)
+	
+	for button in [play_button, settings_button, quit_button]:
+		button.custom_minimum_size.x = button_width
+
+func _load_settings():
+	# Load volume settings
+	volume_sliders.master.value = GameManager.player_data.settings.master_volume
+	volume_sliders.music.value = GameManager.player_data.settings.music_volume
+	volume_sliders.sfx.value = GameManager.player_data.settings.sfx_volume
+
+func _on_play_pressed():
+	AudioManager.play_sfx("button_click")
+	
+	# Transition to game scene
+	var tween = create_tween()
+	tween.tween_property(self, "modulate:a", 0.0, 0.5)
+	await tween.finished
+	
+	get_tree().change_scene_to_file("res://scenes/levels/Level1.tscn")
+
+func _on_settings_pressed():
+	AudioManager.play_sfx("button_click")
+	_show_settings_panel()
+
+func _on_quit_pressed():
+	AudioManager.play_sfx("button_click")
+	GameManager.quit_game()
+
+func _show_settings_panel():
+	settings_panel.visible = true
+	
+	# Animate panel appearance
+	settings_panel.modulate.a = 0.0
+	settings_panel.scale = Vector2(0.8, 0.8)
+	
+	var tween = create_tween()
+	tween.parallel().tween_property(settings_panel, "modulate:a", 1.0, 0.3)
+	tween.parallel().tween_property(settings_panel, "scale", Vector2.ONE, 0.3)
+
+func _hide_settings_panel():
+	var tween = create_tween()
+	tween.parallel().tween_property(settings_panel, "modulate:a", 0.0, 0.3)
+	tween.parallel().tween_property(settings_panel, "scale", Vector2(0.8, 0.8), 0.3)
+	await tween.finished
+	
+	settings_panel.visible = false
+
+func _on_volume_changed(volume_type: String, value: float):
+	match volume_type:
+		"master":
+			AudioManager.set_master_volume(value)
+		"music":
+			AudioManager.set_music_volume(value)
+		"sfx":
+			AudioManager.set_sfx_volume(value)
+			AudioManager.play_sfx("button_click", -10.0)  # Quieter test sound
+	
+	# Save settings
+	GameManager.save_settings()
+
+func _input(event):
+	if event.is_action_pressed("ui_cancel") and settings_panel.visible:
+		_hide_settings_panel()

@@ -1,0 +1,10 @@
+import evidently
+from evidently.metrics import DataDriftTable, ModelQualityTable
+
+def monitor_model_performance(reference_data, current_data, model):
+    report = evidently.Report(metrics=[
+        DataDriftTable(),
+        ModelQualityTable()
+    ])
+    report.run(reference_data=reference_data, current_data=current_data)
+    return report

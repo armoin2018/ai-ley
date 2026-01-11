@@ -1,0 +1,10 @@
+{
+  "name": "my-monorepo",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "devDependencies": {
+    "lerna": "^7.1.4"
+  }
+}

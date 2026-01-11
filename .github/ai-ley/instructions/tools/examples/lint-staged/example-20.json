@@ -1,0 +1,19 @@
+// package.json - Coordinated tool configuration
+{
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": ["eslint --fix --max-warnings=0", "prettier --write", "git add"]
+  },
+  "eslintConfig": {
+    "extends": ["eslint:recommended", "@typescript-eslint/recommended", "prettier"],
+    "plugins": ["prettier"],
+    "rules": {
+      "prettier/prettier": "error"
+    }
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "tabWidth": 2
+  }
+}

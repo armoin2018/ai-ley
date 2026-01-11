@@ -1,0 +1,166 @@
+# Comprehensive Marketing Content Proofreading Framework
+marketing_content_review_process:
+  content_types:
+    website_copy:
+      review_focus:
+        - 'Brand voice consistency across pages'
+        - 'SEO keyword integration naturalness'
+        - 'Call-to-action clarity and persuasiveness'
+        - 'Target audience tone appropriateness'
+        - 'Conversion optimization language'
+
+      style_requirements:
+        tone: 'professional yet conversational'
+        voice: 'brand_specific_guidelines'
+        reading_level: '8th_grade_maximum'
+        sentence_length: '25_words_average'
+        paragraph_length: '3_sentences_maximum'
+
+      specific_checks:
+        - 'Meta description length (155 characters)'
+        - 'Header tag hierarchy (H1, H2, H3)'
+        - 'Alt text accuracy for images'
+        - 'Internal link anchor text optimization'
+        - 'Mobile-friendly content formatting'
+
+    email_campaigns:
+      review_focus:
+        - 'Subject line effectiveness and length'
+        - 'Preview text optimization'
+        - 'Personalization accuracy'
+        - 'CTA button text clarity'
+        - 'Unsubscribe compliance'
+
+      deliverability_checks:
+        - 'Spam trigger word avoidance'
+        - 'Image-to-text ratio optimization'
+        - 'Link quantity and quality'
+        - 'Authentication setup references'
+        - 'Legal compliance language'
+
+      a_b_testing_considerations:
+        - 'Variable element identification'
+        - 'Consistent control version maintenance'
+        - 'Statistical significance planning'
+        - 'Conversion tracking setup'
+        - 'Results interpretation guidelines'
+
+    social_media_content:
+      platform_specific_requirements:
+        twitter:
+          character_limit: 280
+          hashtag_strategy: '2_3_relevant_hashtags'
+          mention_etiquette: 'strategic_influencer_mentions'
+          link_formatting: 'shortened_url_with_preview'
+
+        linkedin:
+          tone: 'professional_thought_leadership'
+          content_length: '1300_characters_optimal'
+          hashtag_limit: '3_5_professional_hashtags'
+          engagement_strategy: 'conversation_starters'
+
+        facebook:
+          content_length: '40_80_characters_optimal'
+          visual_content_requirement: 'image_or_video_mandatory'
+          link_preview_optimization: 'compelling_meta_descriptions'
+          audience_targeting_language: 'inclusive_and_accessible'
+
+        instagram:
+          caption_length: '125_words_optimal'
+          hashtag_strategy: 'mix_of_popular_and_niche'
+          story_content_formatting: 'mobile_first_design'
+          accessibility: 'alt_text_for_all_images'
+
+    advertising_copy:
+      compliance_requirements:
+        legal_disclaimers: 'accurate_and_prominent'
+        truth_in_advertising: 'verifiable_claims_only'
+        accessibility_standards: 'wcag_2_1_aa_compliance'
+        industry_regulations: 'sector_specific_guidelines'
+
+      persuasion_optimization:
+        headline_effectiveness: 'attention_grabbing_benefit_focused'
+        value_proposition_clarity: 'unique_selling_point_emphasis'
+        urgency_creation: 'scarcity_and_time_sensitivity'
+        social_proof_integration: 'testimonials_and_reviews'
+        risk_reversal: 'guarantee_and_return_policies'
+
+  brand_voice_consistency:
+    voice_attributes:
+      personality_traits:
+        - 'authoritative_yet_approachable'
+        - 'innovative_and_forward_thinking'
+        - 'customer_centric_and_empathetic'
+        - 'professional_with_human_touch'
+
+      communication_style:
+        formality_level: 'business_casual'
+        technical_language: 'minimal_jargon_with_explanations'
+        humor_appropriateness: 'light_and_professional'
+        cultural_sensitivity: 'inclusive_global_perspective'
+
+      consistency_checklist:
+        - 'Terminology usage matches brand glossary'
+        - 'Tone remains consistent across channels'
+        - 'Value proposition messaging alignment'
+        - 'Target audience language appropriateness'
+        - 'Competitive positioning consistency'
+
+  quality_assurance_metrics:
+    grammar_and_style:
+      error_tolerance: 'zero_tolerance_policy'
+      style_guide_compliance: 'ap_style_for_press_releases'
+      readability_score: 'flesch_kincaid_8th_grade'
+      sentence_variety: 'mix_of_simple_complex_compound'
+
+    marketing_effectiveness:
+      conversion_language: 'action_oriented_verbs'
+      benefit_focused_messaging: 'customer_value_emphasis'
+      competitive_differentiation: 'unique_advantage_highlighting'
+      target_audience_alignment: 'persona_specific_language'
+
+    technical_accuracy:
+      product_information: 'feature_specification_accuracy'
+      pricing_details: 'current_rate_verification'
+      legal_compliance: 'terms_and_conditions_alignment'
+      contact_information: 'current_details_verification'
+
+  review_workflow:
+    initial_review:
+      focus_areas:
+        - 'Overall message clarity and coherence'
+        - 'Brand voice and tone consistency'
+        - 'Grammar, punctuation, and spelling'
+        - 'Target audience appropriateness'
+
+      deliverables:
+        - 'Tracked changes document with corrections'
+        - 'Comment summary explaining major changes'
+        - 'Style guide compliance verification'
+        - 'Brand voice assessment report'
+
+    technical_verification:
+      accuracy_checks:
+        - 'Product feature descriptions'
+        - 'Pricing and promotional details'
+        - 'Contact information and links'
+        - 'Legal disclaimer accuracy'
+
+      compliance_review:
+        - 'Industry regulation adherence'
+        - 'Accessibility standard compliance'
+        - 'International market considerations'
+        - 'Cultural sensitivity assessment'
+
+    final_polish:
+      optimization_focus:
+        - 'Conversion language enhancement'
+        - 'SEO keyword integration refinement'
+        - 'Call-to-action optimization'
+        - 'Mobile responsiveness consideration'
+
+      quality_assurance:
+        - 'Final proofreading pass'
+        - 'Format consistency verification'
+        - 'Cross-platform compatibility check'
+        - 'Performance metric baseline establishment'

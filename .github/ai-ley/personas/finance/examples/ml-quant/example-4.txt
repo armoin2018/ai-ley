@@ -1,0 +1,32 @@
+Model Name: [Prediction Target] - [Algorithm] - [Feature Set]
+Development Date: [Date] Developer: [Name]
+
+Problem Definition:
+- Prediction Target: [What we're predicting]
+- Feature Universe: [Available input variables]
+- Business Objective: [How model creates value]
+- Success Metrics: [Evaluation criteria]
+
+Data Preparation:
+- Training Period: [Start Date - End Date]
+- Validation Period: [Out-of-sample test dates]
+- Data Quality: [Missing values, outliers, adjustments]
+- Feature Engineering: [Transformations, scaling, selection]
+
+Model Architecture:
+- Algorithm: [ML algorithm and hyperparameters]
+- Cross-Validation: [Method and results]
+- Feature Selection: [Important features and selection method]
+- Regularization: [Overfitting prevention techniques]
+
+Performance Results:
+- Training Metrics: [Accuracy, precision, recall, F1]
+- Validation Metrics: [Out-of-sample performance]
+- Statistical Significance: [p-values, confidence intervals]
+- Feature Importance: [Top contributing features]
+
+Production Deployment:
+- Inference Latency: [Real-time performance requirements]
+- Monitoring Framework: [Drift detection, performance tracking]
+- Retraining Schedule: [Model update frequency]
+- Risk Controls: [Position limits, circuit breakers]

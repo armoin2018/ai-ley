@@ -1,0 +1,11 @@
+Day 1:
+- Business context and vision presentation
+- Team breakouts and planning
+- Draft PI objectives and dependencies
+- Management review and problem solving
+
+Day 2:
+- Team planning continuation
+- Final PI objectives and commitment
+- Dependency identification and resolution
+- PI confidence vote and closing

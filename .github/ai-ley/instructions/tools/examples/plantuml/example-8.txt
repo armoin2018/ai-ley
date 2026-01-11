@@ -1,0 +1,11 @@
+POST /api/v1/diagrams
+Content-Type: application/json
+
+{
+"title": "System Architecture",
+"content": "@startuml
+...
+@enduml",
+"classification": "internal",
+"tags": ["architecture", "microservices"]
+}

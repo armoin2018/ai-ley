@@ -1,0 +1,50 @@
+// ✅ Conditional types
+type NonNullable<T> = T extends null | undefined ? never : T;
+type ApiEndpoint<T> = T extends 'users' ? User[] : 
+                     T extends 'posts' ? Post[] : 
+                     unknown;
+
+// ✅ Mapped types
+type Optional<T> = {
+  [K in keyof T]?: T[K];
+};
+
+type Readonly<T> = {
+  readonly [K in keyof T]: T[K];
+};
+
+// ✅ Template literal types
+type EventName<T extends string> = `on${Capitalize<T>}`;
+type ApiPath<T extends string> = `/api/${T}`;
+
+// Usage
+type UserEventName = EventName<'userCreated'>; // 'onUserCreated'
+type UserApiPath = ApiPath<'users'>; // '/api/users'
+
+// ✅ Branded types for type safety
+type UserId = string & { readonly brand: unique symbol };
+type Email = string & { readonly brand: unique symbol };
+
+function createUserId(id: string): UserId {
+  // Validation logic here
+  return id as UserId;
+}
+
+function sendEmail(to: Email, subject: string, body: string): void {
+  // Email sending logic
+}
+
+// ✅ Type guards
+function isUser(obj: unknown): obj is User {
+  return typeof obj === 'object' && 
+         obj !== null && 
+         'id' in obj && 
+         'name' in obj && 
+         'email' in obj;
+}
+
+function assertIsNumber(value: unknown): asserts value is number {
+  if (typeof value !== 'number') {
+    throw new Error('Expected number');
+  }
+}

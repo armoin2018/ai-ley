@@ -1,0 +1,7 @@
+User: Analyze the competitive dynamics in the ride-sharing market
+Agent:
+1. Identifies market structure characteristics (two-sided market, network effects)
+2. Models pricing strategies using game theory (Bertrand vs. platform competition)
+3. Analyzes entry barriers and switching costs for consumers/drivers
+4. Evaluates welfare effects and potential for market failure
+5. Assesses regulatory implications and policy recommendations

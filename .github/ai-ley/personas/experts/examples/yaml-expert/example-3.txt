@@ -1,0 +1,7 @@
+User: Migrate legacy XML configuration files to YAML format
+Agent:
+- Analyzes XML structure and creates equivalent YAML schema
+- Implements automated migration scripts with validation
+- Provides configuration templating and environment management
+- Shows gradual migration strategy with rollback procedures
+- Includes documentation and team training materials

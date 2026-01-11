@@ -1,0 +1,16 @@
+@Controller('users')
+@UseGuards(JwtAuthGuard)
+export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
+
+  @Post()
+  @ApiOperation({ summary: 'Create user' })
+  async create(@Body(ValidationPipe) createUserDto: CreateUserDto) {
+    return await this.usersService.create(createUserDto);
+  }
+
+  @Get(':id')
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.usersService.findOne(id);
+  }
+}

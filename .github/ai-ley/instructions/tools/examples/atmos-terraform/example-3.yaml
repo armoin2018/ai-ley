@@ -1,0 +1,131 @@
+# stacks/orgs/enterprise/platform/prod/us-east-1/vpc.yaml - Production VPC stack
+import:
+  - "globals/enterprise-baseline"
+  - "mixins/aws-production"
+
+vars:
+  # Environment-specific overrides
+  environment: "production"
+  stage: "prod"
+  tenant: "platform"
+  region: "us-east-1"
+  availability_zones: ["us-east-1a", "us-east-1b", "us-east-1c"]
+
+  # Production-specific compliance
+  compliance:
+    audit_logging: true
+    encryption_in_transit: true
+    encryption_at_rest: true
+    vulnerability_scanning: true
+    penetration_testing_approved: true
+
+  # Production network configuration
+  vpc_cidr: "10.0.0.0/16"
+  public_subnet_cidrs: ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  private_subnet_cidrs: ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+  database_subnet_cidrs: ["10.0.201.0/24", "10.0.202.0/24", "10.0.203.0/24"]
+
+  # Security groups
+  allow_ssh_from_cidr: ["10.0.0.0/8"]  # Internal only
+  allow_https_from_cidr: ["0.0.0.0/0"]
+  allow_http_redirect: true
+
+  # NAT Gateway configuration
+  enable_nat_gateway: true
+  single_nat_gateway: false  # High availability
+  enable_vpn_gateway: true
+
+  # Flow logs
+  flow_logs_destination_type: "s3"
+  flow_logs_s3_bucket: "enterprise-vpc-flow-logs-prod-us-east-1"
+
+  # Enhanced monitoring
+  detailed_monitoring: true
+  enable_network_insights: true
+
+components:
+  terraform:
+    vpc:
+      metadata:
+        component: "vpc"
+        type: "terraform"
+        description: "Enterprise production VPC with multi-AZ high availability"
+      settings:
+        spacelift:
+          workspace_enabled: true
+          autodeploy: false  # Manual approval required for production
+
+      vars:
+        # VPC configuration
+        vpc_cidr_block: "{{ .vars.vpc_cidr }}"
+        availability_zones: "{{ .vars.availability_zones }}"
+
+        # Subnet configuration
+        public_subnets: "{{ .vars.public_subnet_cidrs }}"
+        private_subnets: "{{ .vars.private_subnet_cidrs }}"
+        database_subnets: "{{ .vars.database_subnet_cidrs }}"
+
+        # Gateway configuration
+        create_igw: true
+        enable_nat_gateway: "{{ .vars.enable_nat_gateway }}"
+        single_nat_gateway: "{{ .vars.single_nat_gateway }}"
+        enable_vpn_gateway: "{{ .vars.enable_vpn_gateway }}"
+
+        # DNS configuration
+        enable_dns_hostnames: true
+        enable_dns_support: true
+
+        # Flow logs configuration
+        enable_flow_log: true
+        flow_log_destination_type: "{{ .vars.flow_logs_destination_type }}"
+        flow_log_destination_arn: "arn:aws:s3:::{{ .vars.flow_logs_s3_bucket }}"
+        flow_log_log_format: "${start} ${end} ${srcaddr} ${dstaddr} ${srcport} ${dstport} ${protocol} ${packets} ${bytes} ${action}"
+
+        # Network ACLs
+        manage_default_network_acl: true
+        default_network_acl_ingress: [
+          {
+            rule_no    = 100
+            action     = "allow"
+            from_port  = 0
+            to_port    = 65535
+            protocol   = "-1"
+            cidr_block = "10.0.0.0/16"
+          }
+        ]
+        default_network_acl_egress: [
+          {
+            rule_no    = 100
+            action     = "allow"
+            from_port  = 0
+            to_port    = 65535
+            protocol   = "-1"
+            cidr_block = "0.0.0.0/0"
+          }
+        ]
+
+        # Security groups
+        manage_default_security_group: true
+        default_security_group_ingress: []
+        default_security_group_egress: [
+          {
+            from_port   = 0
+            to_port     = 0
+            protocol    = "-1"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+        ]
+
+        # Tags
+        tags: "{{ .vars.tags.common | toYaml | nindent 8 }}"
+        vpc_tags:
+          Name: "{{ .vars.organization.name }}-{{ .vars.tenant }}-{{ .vars.stage }}-vpc"
+          Type: "production"
+        public_subnet_tags:
+          Type: "public"
+          kubernetes.io/role/elb: "1"
+        private_subnet_tags:
+          Type: "private"
+          kubernetes.io/role/internal-elb: "1"
+        database_subnet_tags:
+          Type: "database"

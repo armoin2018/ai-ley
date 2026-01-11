@@ -1,0 +1,53 @@
+# roles/common/meta/main.yml - Enterprise role metadata
+galaxy_info:
+  role_name: enterprise_common
+  author: Infrastructure Team
+  description: Enterprise common configurations and security baselines
+  company: Enterprise Organization
+  license: proprietary
+  min_ansible_version: 2.15
+
+  platforms:
+    - name: Ubuntu
+      versions: [20.04, 22.04]
+    - name: RedHat
+      versions: [8, 9]
+    - name: Windows
+      versions: [2019, 2022]
+
+  galaxy_tags:
+    - enterprise
+    - security
+    - compliance
+    - monitoring
+
+dependencies:
+  - { role: security.hardening, when: security_hardening_enabled | bool }
+  - { role: monitoring.base, when: monitoring_enabled | bool }
+
+# roles/common/tasks/main.yml - Enterprise common tasks
+---
+- name: Include OS-specific variables
+  include_vars: '{{ ansible_os_family }}.yml'
+  tags: always
+
+- name: Ensure enterprise repositories
+  include_tasks: repositories/{{ ansible_os_family | lower }}.yml
+  tags: ['repos']
+
+- name: Configure enterprise NTP
+  include_tasks: ntp.yml
+  tags: ['ntp', 'time']
+
+- name: Configure enterprise logging
+  include_tasks: logging.yml
+  tags: ['logging', 'audit']
+
+- name: Apply security baseline
+  include_tasks: security/baseline.yml
+  tags: ['security', 'compliance']
+
+- name: Configure monitoring agents
+  include_tasks: monitoring/agents.yml
+  when: monitoring_enabled | bool
+  tags: ['monitoring']

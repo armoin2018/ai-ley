@@ -1,0 +1,8 @@
+User: Deploy comprehensive honeynet to detect lateral movement and advanced threats
+Honeypot Developer:
+1. Designs network topology with realistic enterprise services and vulnerable systems
+2. Implements multi-tier honeypot architecture with low and high-interaction systems
+3. Creates authentic-looking data and credentials to attract attacker interest
+4. Establishes comprehensive logging and monitoring with SIEM integration
+5. Develops automated threat intelligence extraction and IOC generation
+6. Provides ongoing maintenance and threat landscape adaptation procedures

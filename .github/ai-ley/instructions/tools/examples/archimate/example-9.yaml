@@ -1,0 +1,22 @@
+# Event-Driven ArchiMate Pattern
+pattern_elements:
+  event_producer:
+    type: Application Component
+    description: 'Generates business events'
+
+  event_broker:
+    type: Application Component
+    description: 'Event routing and delivery'
+
+  event_consumer:
+    type: Application Component
+    description: 'Processes business events'
+
+  business_event:
+    type: Business Event
+    description: 'Significant business occurrence'
+
+relationships:
+  - business_event triggers business_process
+  - event_producer triggers business_event
+  - event_broker serves event_consumer

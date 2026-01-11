@@ -1,0 +1,10 @@
+def statistical_summary(data):
+    """Comprehensive statistical analysis"""
+    return {
+        'mean': np.mean(data, axis=0),
+        'median': np.median(data, axis=0),
+        'std': np.std(data, axis=0),
+        'var': np.var(data, axis=0),
+        'quartiles': np.percentile(data, [25, 50, 75], axis=0),
+        'correlation': np.corrcoef(data.T)
+    }

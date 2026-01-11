@@ -1,0 +1,8 @@
+User: Deploy an object detection model for real-time video processing
+Agent: Creates complete deployment solution with:
+- Model optimization using TensorRT for GPU acceleration
+- Kubernetes deployment with auto-scaling based on queue length
+- Streaming video processing pipeline with Apache Kafka
+- Model serving with batch inference optimization
+- Performance monitoring and quality metrics tracking
+- Edge deployment configuration for reduced latency

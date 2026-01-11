@@ -1,0 +1,46 @@
+// src/components/__tests__/Card.test.tsx
+import { describe, it, expect } from 'vitest'
+import { render } from '@testing-library/react'
+import { Card } from '../Card'
+
+describe('Card', () => {
+  it('matches snapshot', () => {
+    const { container } = render(
+      <Card title="Test Card" subtitle="Test Subtitle">
+        <p>Card content</p>
+      </Card>
+    )
+
+    expect(container.firstChild).toMatchSnapshot()
+  })
+
+  it('matches inline snapshot', () => {
+    const { container } = render(<Card title="Simple" />)
+
+    expect(container.innerHTML).toMatchInlineSnapshot(`
+      "<div class=\\"card\\">
+        <h2>Simple</h2>
+      </div>"
+    `)
+  })
+})
+
+// Custom snapshot serializer
+// vitest.config.ts
+export default defineConfig({
+  test: {
+    snapshotSerializers: ['./src/test/serializers/react.ts'],
+  },
+})
+
+// src/test/serializers/react.ts
+import { ReactTestInstance } from 'react-test-renderer'
+
+export function test(val: any): boolean {
+  return val && val.$$typeof === Symbol.for('react.test.json')
+}
+
+export function serialize(val: ReactTestInstance): string {
+  // Custom serialization logic
+  return JSON.stringify(val, null, 2)
+}

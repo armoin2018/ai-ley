@@ -1,0 +1,12 @@
+SMED Implementation Steps:
+1. Observe Current Setup: Document all changeover activities and timing
+2. Separate Internal/External: Identify activities that can be done while running
+3. Convert Internal to External: Move setup activities outside production time
+4. Streamline Remaining Activities: Standardize tools, eliminate adjustments
+5. Document New Procedure: Create visual work instructions and training
+
+Target Metrics:
+- Setup Time: < 10 minutes for single-digit SMED
+- Setup Frequency: Enable small batch production
+- Operator Training: 100% standardized procedures
+- Tool Organization: Shadow boards and standardized locations

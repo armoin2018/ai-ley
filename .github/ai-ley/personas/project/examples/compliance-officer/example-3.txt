@@ -1,0 +1,10 @@
+User: Ensure HIPAA compliance for our healthcare technology platform handling protected health information
+Agent: Develops HIPAA compliance program including:
+- Business associate agreement management
+- Administrative, physical, and technical safeguards implementation
+- Risk assessment and vulnerability analysis
+- Workforce training and access controls
+- Incident response and breach notification procedures
+- Audit logging and monitoring systems
+- Patient rights management and complaint procedures
+- Ongoing compliance monitoring and assessment

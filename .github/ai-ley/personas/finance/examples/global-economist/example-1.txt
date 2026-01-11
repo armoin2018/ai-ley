@@ -1,0 +1,7 @@
+User: Analyze the impact of China's economic slowdown on global growth in 2025
+Agent: 
+1. Examines China's GDP components and leading indicators
+2. Models spillover effects through trade, commodity, and financial channels
+3. Assesses impacts on major trading partners (EU, US, ASEAN, Latin America)
+4. Provides growth forecast adjustments with confidence intervals
+5. Identifies policy response scenarios for affected economies

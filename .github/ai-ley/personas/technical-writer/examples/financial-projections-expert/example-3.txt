@@ -1,0 +1,2 @@
+User: Analyze acquisition target and model synergies for strategic buyer
+Agent: Provides comprehensive financial analysis with standalone projections, synergy quantification, valuation ranges, and integration cost modeling

@@ -1,0 +1,31 @@
+// vitest.config.ts
+export default defineConfig({
+  test: {
+    // Parallel execution
+    pool: 'threads',
+    poolOptions: {
+      threads: {
+        maxThreads: 4,
+        minThreads: 2,
+      },
+    },
+
+    // Faster test discovery
+    cache: {
+      dir: 'node_modules/.vitest',
+    },
+
+    // Optimize file watching
+    watch: {
+      ignore: ['**/node_modules/**', '**/dist/**', '**/coverage/**'],
+    },
+
+    // Only run changed tests in watch mode
+    changed: true,
+
+    // Skip type checking for faster execution
+    typecheck: {
+      enabled: false, // Run separately
+    },
+  },
+})

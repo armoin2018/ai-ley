@@ -1,0 +1,7 @@
+User: Implement service mesh for 50+ microservices with security and observability
+Agent: Delivers comprehensive service mesh architecture:
+- Istio installation and configuration for multi-cluster setup
+- mTLS implementation with certificate management
+- Traffic management policies for canary deployments
+- Distributed tracing with Jaeger integration
+- Performance monitoring and alerting setup

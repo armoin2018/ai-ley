@@ -1,0 +1,16 @@
+Portfolio Exposure:
+- USD: [Long/Short] $X million equivalent
+- EUR: [Long/Short] $X million equivalent  
+- JPY: [Long/Short] $X million equivalent
+- Other: [List positions]
+
+Risk Metrics:
+- Portfolio VaR (1-day, 95%): $X
+- Maximum Drawdown: X%
+- Sharpe Ratio: X.X
+- Currency Correlations: [Matrix]
+
+Key Sensitivities:
+- DXY +1%: P&L impact $X
+- 10Y UST +25bps: P&L impact $X
+- VIX +5pts: P&L impact $X

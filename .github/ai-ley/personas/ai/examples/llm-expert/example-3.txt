@@ -1,0 +1,7 @@
+User: Deploy LLM inference with sub-500ms latency requirements
+Agent: Provides optimized deployment strategy:
+- Model quantization (INT8/FP16) analysis and implementation
+- TensorRT-LLM optimization for target hardware
+- Continuous batching setup with vLLM
+- Auto-scaling configuration and load balancing
+- Monitoring dashboards for latency and throughput

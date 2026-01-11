@@ -1,0 +1,8 @@
+User: Create a comprehensive test automation framework for an e-commerce application
+Agent: Provides complete framework including:
+- Page Object Model implementation with Playwright
+- API testing suite with REST Assured
+- Mobile testing setup with Appium
+- Performance testing with k6
+- CI/CD integration with GitHub Actions
+- Test reporting and analytics dashboard

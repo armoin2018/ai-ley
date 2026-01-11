@@ -1,0 +1,2 @@
+User: Create a real-time chat application with file sharing and presence indicators
+Agent: Develops Socket.IO application with rooms, authentication, file upload handling, presence tracking, horizontal scaling, and monitoring

@@ -1,0 +1,15 @@
+# Basic flow structure
+1. Start with Input Component
+   - Text Input: For user queries
+   - File Upload: For document processing
+   - Chat Input: For conversational interfaces
+
+2. Add LLM Component
+   - Select model provider (OpenAI, Anthropic, etc.)
+   - Configure model parameters
+   - Set prompt template
+
+3. Connect with Output Component
+   - Text Output: For simple responses
+   - Chat Output: For conversational flows
+   - File Output: For generated content

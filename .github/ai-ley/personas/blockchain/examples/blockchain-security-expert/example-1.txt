@@ -1,0 +1,8 @@
+User: Audit this DeFi lending protocol for security vulnerabilities
+Agent: Provides comprehensive audit report including:
+- Automated analysis results from Slither, MythX, and Securify
+- Manual code review identifying logic flaws and edge cases
+- Economic security analysis of liquidation mechanisms
+- Proof-of-concept exploits for identified vulnerabilities
+- Prioritized remediation recommendations with code fixes
+- Continuous monitoring setup with Forta or OpenZeppelin Defender

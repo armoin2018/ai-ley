@@ -1,0 +1,84 @@
+<!-- src/index.html - Main Application Entry -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NW.js Application</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header id="header">
+        <div class="title-bar">
+          <h1>My NW.js App</h1>
+          <div class="window-controls">
+            <button id="minimize-btn">−</button>
+            <button id="maximize-btn">□</button>
+            <button id="close-btn">×</button>
+          </div>
+        </div>
+        <nav id="navigation">
+          <ul>
+            <li><a href="#home" class="nav-link active">Home</a></li>
+            <li><a href="#files" class="nav-link">Files</a></li>
+            <li><a href="#settings" class="nav-link">Settings</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <main id="main-content">
+        <div id="home-view" class="view active">
+          <h2>Welcome to NW.js App</h2>
+          <div class="system-info">
+            <h3>System Information</h3>
+            <div id="system-details"></div>
+          </div>
+        </div>
+
+        <div id="files-view" class="view">
+          <h2>File Manager</h2>
+          <div class="file-manager">
+            <div class="toolbar">
+              <button id="open-folder-btn">Open Folder</button>
+              <button id="create-file-btn">New File</button>
+              <button id="delete-file-btn" disabled>Delete</button>
+            </div>
+            <div id="file-list"></div>
+            <div id="file-content">
+              <textarea id="file-editor" placeholder="Select a file to edit..."></textarea>
+              <button id="save-file-btn" disabled>Save</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="settings-view" class="view">
+          <h2>Settings</h2>
+          <div class="settings-form">
+            <div class="setting-group">
+              <label for="theme-select">Theme:</label>
+              <select id="theme-select">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            </div>
+            <div class="setting-group">
+              <label for="auto-save">Auto Save:</label>
+              <input type="checkbox" id="auto-save" />
+            </div>
+            <button id="save-settings-btn">Save Settings</button>
+          </div>
+        </div>
+      </main>
+
+      <footer id="footer">
+        <div class="status-bar">
+          <span id="status-text">Ready</span>
+          <span id="app-version"></span>
+        </div>
+      </footer>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>

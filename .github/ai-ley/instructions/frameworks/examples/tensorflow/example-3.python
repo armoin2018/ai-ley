@@ -1,0 +1,26 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+
+# Sequential model
+model = keras.Sequential([
+    layers.Dense(128, activation='relu', input_shape=(784,)),
+    layers.Dropout(0.2),
+    layers.Dense(64, activation='relu'),
+    layers.Dense(10, activation='softmax')
+])
+
+# Functional API
+inputs = keras.Input(shape=(784,))
+x = layers.Dense(128, activation='relu')(inputs)
+x = layers.Dropout(0.2)(x)
+x = layers.Dense(64, activation='relu')(x)
+outputs = layers.Dense(10, activation='softmax')(x)
+model = keras.Model(inputs=inputs, outputs=outputs)
+
+# Model compilation
+model.compile(
+    optimizer='adam',
+    loss='sparse_categorical_crossentropy',
+    metrics=['accuracy']
+)

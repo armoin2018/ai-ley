@@ -1,0 +1,83 @@
+// types/uikit.d.ts
+import UIkit from 'uikit';
+
+declare global {
+  interface Window {
+    UIkit: typeof UIkit;
+  }
+}
+
+// Custom component types
+interface CustomSliderOptions {
+  autoplay?: boolean;
+  interval?: number;
+  animation?: string;
+}
+
+class CustomSlider {
+  private element: HTMLElement;
+  private options: CustomSliderOptions;
+  private timer?: NodeJS.Timeout;
+
+  constructor(element: HTMLElement, options: CustomSliderOptions = {}) {
+    this.element = element;
+    this.options = {
+      autoplay: true,
+      interval: 5000,
+      animation: 'slide',
+      ...options,
+    };
+
+    this.init();
+  }
+
+  private init(): void {
+    if (this.options.autoplay) {
+      this.startAutoplay();
+    }
+
+    this.bindEvents();
+  }
+
+  private bindEvents(): void {
+    this.element.addEventListener('mouseenter', () => this.pause());
+    this.element.addEventListener('mouseleave', () => this.resume());
+  }
+
+  private startAutoplay(): void {
+    this.timer = setInterval(() => {
+      this.next();
+    }, this.options.interval);
+  }
+
+  public pause(): void {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  }
+
+  public resume(): void {
+    if (this.options.autoplay) {
+      this.startAutoplay();
+    }
+  }
+
+  public next(): void {
+    // Implementation for next slide
+  }
+
+  public previous(): void {
+    // Implementation for previous slide
+  }
+}
+
+// Usage
+document.addEventListener('DOMContentLoaded', () => {
+  const sliders = document.querySelectorAll<HTMLElement>('.custom-slider');
+  sliders.forEach((slider) => {
+    new CustomSlider(slider, {
+      autoplay: true,
+      interval: 3000,
+    });
+  });
+});

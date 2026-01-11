@@ -1,0 +1,4 @@
+const uri = vscode.Uri.file('/path/to/file');
+const content = await vscode.workspace.fs.readFile(uri);
+await vscode.workspace.fs.writeFile(uri, Buffer.from('data'));
+await vscode.workspace.fs.delete(uri);

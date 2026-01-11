@@ -1,0 +1,31 @@
+// ✅ Proper resource management with use
+fun readConfigFile(fileName: String): Properties {
+    return Properties().apply {
+        FileInputStream(fileName).use { input ->
+            load(input)
+        }
+    }
+}
+
+// ✅ Lazy initialization for expensive operations
+class DatabaseConnection {
+    private val connectionPool by lazy {
+        HikariDataSource().apply {
+            jdbcUrl = config.databaseUrl
+            username = config.username
+            password = config.password
+            maximumPoolSize = 10
+        }
+    }
+    
+    fun getConnection(): Connection = connectionPool.connection
+}
+
+// ✅ Memory-efficient collection processing
+fun processLargeDataset(data: Sequence<DataItem>): List<ProcessedItem> {
+    return data
+        .filter { it.isValid() }
+        .map { it.process() }
+        .take(1000) // Limit results to prevent memory issues
+        .toList()
+}

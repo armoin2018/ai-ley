@@ -1,0 +1,168 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/interfaces/IERC2981.sol";
+
+contract NFTMarketplace is ReentrancyGuard {
+    struct Listing {
+        address seller;
+        address nftContract;
+        uint256 tokenId;
+        uint256 price;
+        address paymentToken; // address(0) for ETH
+        uint256 deadline;
+        bool active;
+    }
+    
+    struct Auction {
+        address seller;
+        address nftContract;
+        uint256 tokenId;
+        uint256 startingPrice;
+        uint256 currentBid;
+        address highestBidder;
+        address paymentToken;
+        uint256 endTime;
+        bool active;
+    }
+    
+    mapping(bytes32 => Listing) public listings;
+    mapping(bytes32 => Auction) public auctions;
+    mapping(address => uint256) public pendingWithdrawals;
+    
+    uint256 public marketplaceFee = 250; // 2.5%
+    address public feeRecipient;
+    
+    event ItemListed(
+        bytes32 indexed listingId,
+        address indexed seller,
+        address indexed nftContract,
+        uint256 tokenId,
+        uint256 price
+    );
+    
+    event ItemSold(
+        bytes32 indexed listingId,
+        address indexed buyer,
+        address indexed seller,
+        uint256 price
+    );
+    
+    event AuctionCreated(
+        bytes32 indexed auctionId,
+        address indexed seller,
+        address indexed nftContract,
+        uint256 tokenId,
+        uint256 startingPrice,
+        uint256 duration
+    );
+    
+    function createListing(
+        address nftContract,
+        uint256 tokenId,
+        uint256 price,
+        address paymentToken,
+        uint256 duration
+    ) external {
+        require(IERC721(nftContract).ownerOf(tokenId) == msg.sender, "Not token owner");
+        require(IERC721(nftContract).isApprovedForAll(msg.sender, address(this)), "Marketplace not approved");
+        
+        bytes32 listingId = keccak256(abi.encodePacked(nftContract, tokenId, msg.sender, block.timestamp));
+        
+        listings[listingId] = Listing({
+            seller: msg.sender,
+            nftContract: nftContract,
+            tokenId: tokenId,
+            price: price,
+            paymentToken: paymentToken,
+            deadline: block.timestamp + duration,
+            active: true
+        });
+        
+        emit ItemListed(listingId, msg.sender, nftContract, tokenId, price);
+    }
+    
+    function buyItem(bytes32 listingId) external payable nonReentrant {
+        Listing storage listing = listings[listingId];
+        require(listing.active, "Listing not active");
+        require(block.timestamp <= listing.deadline, "Listing expired");
+        
+        uint256 totalPrice = listing.price;
+        
+        if (listing.paymentToken == address(0)) {
+            require(msg.value >= totalPrice, "Insufficient payment");
+        } else {
+            IERC20(listing.paymentToken).transferFrom(msg.sender, address(this), totalPrice);
+        }
+        
+        listing.active = false;
+        
+        // Calculate fees and royalties
+        (address royaltyRecipient, uint256 royaltyAmount) = _getRoyaltyInfo(listing.nftContract, listing.tokenId, totalPrice);
+        uint256 marketplaceFeeAmount = (totalPrice * marketplaceFee) / 10000;
+        uint256 sellerAmount = totalPrice - royaltyAmount - marketplaceFeeAmount;
+        
+        // Transfer NFT
+        IERC721(listing.nftContract).safeTransferFrom(listing.seller, msg.sender, listing.tokenId);
+        
+        // Distribute payments
+        _transferPayment(listing.paymentToken, listing.seller, sellerAmount);
+        if (royaltyAmount > 0) {
+            _transferPayment(listing.paymentToken, royaltyRecipient, royaltyAmount);
+        }
+        _transferPayment(listing.paymentToken, feeRecipient, marketplaceFeeAmount);
+        
+        emit ItemSold(listingId, msg.sender, listing.seller, totalPrice);
+    }
+    
+    function createAuction(
+        address nftContract,
+        uint256 tokenId,
+        uint256 startingPrice,
+        address paymentToken,
+        uint256 duration
+    ) external {
+        require(IERC721(nftContract).ownerOf(tokenId) == msg.sender, "Not token owner");
+        require(IERC721(nftContract).isApprovedForAll(msg.sender, address(this)), "Marketplace not approved");
+        
+        bytes32 auctionId = keccak256(abi.encodePacked(nftContract, tokenId, msg.sender, block.timestamp));
+        
+        auctions[auctionId] = Auction({
+            seller: msg.sender,
+            nftContract: nftContract,
+            tokenId: tokenId,
+            startingPrice: startingPrice,
+            currentBid: 0,
+            highestBidder: address(0),
+            paymentToken: paymentToken,
+            endTime: block.timestamp + duration,
+            active: true
+        });
+        
+        emit AuctionCreated(auctionId, msg.sender, nftContract, tokenId, startingPrice, duration);
+    }
+    
+    function _getRoyaltyInfo(address nftContract, uint256 tokenId, uint256 salePrice) 
+        internal 
+        view 
+        returns (address, uint256) 
+    {
+        try IERC2981(nftContract).royaltyInfo(tokenId, salePrice) returns (address recipient, uint256 amount) {
+            return (recipient, amount);
+        } catch {
+            return (address(0), 0);
+        }
+    }
+    
+    function _transferPayment(address token, address to, uint256 amount) internal {
+        if (token == address(0)) {
+            (bool success, ) = to.call{value: amount}("");
+            require(success, "ETH transfer failed");
+        } else {
+            IERC20(token).transfer(to, amount);
+        }
+    }
+}

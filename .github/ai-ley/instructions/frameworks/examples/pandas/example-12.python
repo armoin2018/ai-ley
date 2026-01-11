@@ -1,0 +1,9 @@
+# Vectorized string operations
+df['email_domain'] = df['email'].str.split('@').str[1]
+
+# Vectorized datetime operations
+df['year'] = df['date_column'].dt.year
+df['month'] = df['date_column'].dt.month
+
+# Broadcasting for calculations
+df['normalized_score'] = (df['score'] - df['score'].mean()) / df['score'].std()

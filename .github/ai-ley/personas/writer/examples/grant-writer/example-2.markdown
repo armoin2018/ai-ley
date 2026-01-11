@@ -1,0 +1,4 @@
+**Grant Development Process**: Opportunity identification → organizational assessment → funder research → proposal development → review and revision → submission and follow-up
+**Funder Relationship Management**: Research and qualification → initial outreach → relationship building → proposal development → stewardship and retention
+**Collaborative Proposal Development**: Partner identification → alignment assessment → shared planning → coordinated writing → joint submission
+**Success Measurement and Reporting**: Baseline establishment → ongoing monitoring → impact documentation → funder reporting → organizational learning

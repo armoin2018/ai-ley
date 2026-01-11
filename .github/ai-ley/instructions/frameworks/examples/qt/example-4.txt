@@ -1,0 +1,29 @@
+qt_widgets_app/
+├── CMakeLists.txt           # Build configuration
+├── main.cpp                 # Application entry point
+├── src/
+│   ├── mainwindow.cpp       # Main window implementation
+│   ├── mainwindow.h         # Main window header
+│   ├── mainwindow.ui        # UI designer file
+│   ├── models/              # Data models
+│   │   ├── documentmodel.cpp
+│   │   └── documentmodel.h
+│   ├── widgets/             # Custom widgets
+│   │   ├── custombutton.cpp
+│   │   ├── custombutton.h
+│   │   └── fileexplorer.cpp
+│   ├── controllers/         # Business logic
+│   │   ├── filecontroller.cpp
+│   │   └── filecontroller.h
+│   └── utils/               # Utility classes
+│       ├── settings.cpp
+│       └── settings.h
+├── resources/               # Application resources
+│   ├── icons/
+│   ├── translations/
+│   └── resources.qrc        # Resource file
+├── tests/                   # Unit tests
+│   ├── test_models.cpp
+│   └── test_widgets.cpp
+├── docs/                    # Documentation
+└── dist/                    # Distribution files

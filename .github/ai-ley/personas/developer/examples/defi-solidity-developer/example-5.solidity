@@ -1,0 +1,75 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+interface IFlashLoanReceiver {
+    function executeOperation(
+        address[] calldata assets,
+        uint256[] calldata amounts,
+        uint256[] calldata premiums,
+        address initiator,
+        bytes calldata params
+    ) external returns (bool);
+}
+
+contract FlashLoanProvider is ReentrancyGuard {
+    uint256 public constant FLASHLOAN_PREMIUM = 9; // 0.09%
+    uint256 public constant PREMIUM_PRECISION = 10000;
+    
+    mapping(address => uint256) public reserves;
+    
+    event FlashLoan(
+        address indexed receiver,
+        address indexed asset,
+        uint256 amount,
+        uint256 premium
+    );
+    
+    function flashLoan(
+        address receiverAddress,
+        address[] calldata assets,
+        uint256[] calldata amounts,
+        bytes calldata params
+    ) external nonReentrant {
+        require(assets.length == amounts.length, "Inconsistent params");
+        require(receiverAddress != address(0), "Invalid receiver");
+        
+        uint256[] memory premiums = new uint256[](assets.length);
+        uint256[] memory balancesBefore = new uint256[](assets.length);
+        
+        // Calculate premiums and check availability
+        for (uint256 i = 0; i < assets.length; i++) {
+            premiums[i] = (amounts[i] * FLASHLOAN_PREMIUM) / PREMIUM_PRECISION;
+            balancesBefore[i] = IERC20(assets[i]).balanceOf(address(this));
+            require(balancesBefore[i] >= amounts[i], "Insufficient liquidity");
+            
+            // Transfer assets to receiver
+            IERC20(assets[i]).transfer(receiverAddress, amounts[i]);
+        }
+        
+        // Execute receiver's logic
+        require(
+            IFlashLoanReceiver(receiverAddress).executeOperation(
+                assets,
+                amounts,
+                premiums,
+                msg.sender,
+                params
+            ),
+            "Flash loan execution failed"
+        );
+        
+        // Verify repayment
+        for (uint256 i = 0; i < assets.length; i++) {
+            uint256 currentBalance = IERC20(assets[i]).balanceOf(address(this));
+            require(
+                currentBalance >= balancesBefore[i] + premiums[i],
+                "Flash loan not repaid"
+            );
+            
+            emit FlashLoan(receiverAddress, assets[i], amounts[i], premiums[i]);
+        }
+    }
+}

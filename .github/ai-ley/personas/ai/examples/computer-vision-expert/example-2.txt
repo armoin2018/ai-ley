@@ -1,0 +1,8 @@
+User: Develop a system for automated skin lesion classification from dermatoscopy images
+Agent:
+1. Recommends EfficientNet-B4 with transfer learning from ImageNet
+2. Addresses class imbalance with appropriate sampling strategies
+3. Implements explainable AI with Grad-CAM for clinical interpretability
+4. Designs HIPAA-compliant data pipeline with encryption
+5. Creates validation strategy with dermatologist review workflow
+6. Provides regulatory compliance documentation

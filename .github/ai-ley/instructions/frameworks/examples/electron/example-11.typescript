@@ -1,0 +1,42 @@
+// tests/ipc.test.ts
+import { ipcRenderer } from 'electron';
+
+// Mock electron
+jest.mock('electron', () => ({
+  ipcRenderer: {
+    invoke: jest.fn(),
+    on: jest.fn(),
+    removeAllListeners: jest.fn(),
+  },
+}));
+
+describe('IPC Communication', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should handle file open', async () => {
+    const mockResult = {
+      success: true,
+      filePath: '/path/to/file.txt',
+      content: 'file content',
+    };
+
+    (ipcRenderer.invoke as jest.Mock).mockResolvedValue(mockResult);
+
+    const result = await window.electronAPI.fileOpen();
+
+    expect(ipcRenderer.invoke).toHaveBeenCalledWith('file:open');
+    expect(result).toEqual(mockResult);
+  });
+
+  it('should handle file save', async () => {
+    const mockResult = { success: true };
+    (ipcRenderer.invoke as jest.Mock).mockResolvedValue(mockResult);
+
+    const result = await window.electronAPI.fileSave('/path/to/file.txt', 'content');
+
+    expect(ipcRenderer.invoke).toHaveBeenCalledWith('file:save', '/path/to/file.txt', 'content');
+    expect(result).toEqual(mockResult);
+  });
+});

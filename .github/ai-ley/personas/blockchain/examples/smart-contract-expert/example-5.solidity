@@ -1,0 +1,58 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract BatchOperations {
+    mapping(address => uint256) public balances;
+    
+    // Optimized batch transfer using assembly
+    function batchTransfer(
+        address[] calldata recipients,
+        uint256[] calldata amounts
+    ) external {
+        require(recipients.length == amounts.length, "Length mismatch");
+        
+        uint256 totalAmount;
+        uint256 length = recipients.length;
+        
+        // Calculate total amount using unchecked arithmetic
+        unchecked {
+            for (uint256 i; i < length; ++i) {
+                totalAmount += amounts[i];
+            }
+        }
+        
+        require(balances[msg.sender] >= totalAmount, "Insufficient balance");
+        
+        // Update balances using assembly for gas optimization
+        assembly {
+            let sender := caller()
+            let senderBalanceSlot := balances.slot
+            
+            // Load sender balance
+            mstore(0x00, sender)
+            mstore(0x20, senderBalanceSlot)
+            let senderBalanceKey := keccak256(0x00, 0x40)
+            let senderBalance := sload(senderBalanceKey)
+            
+            // Update sender balance
+            sstore(senderBalanceKey, sub(senderBalance, totalAmount))
+            
+            // Process recipients
+            let recipientsOffset := recipients.offset
+            let amountsOffset := amounts.offset
+            
+            for { let i := 0 } lt(i, length) { i := add(i, 1) } {
+                let recipient := calldataload(add(recipientsOffset, mul(i, 0x20)))
+                let amount := calldataload(add(amountsOffset, mul(i, 0x20)))
+                
+                // Calculate recipient balance slot
+                mstore(0x00, recipient)
+                let recipientBalanceKey := keccak256(0x00, 0x40)
+                let recipientBalance := sload(recipientBalanceKey)
+                
+                // Update recipient balance
+                sstore(recipientBalanceKey, add(recipientBalance, amount))
+            }
+        }
+    }
+}

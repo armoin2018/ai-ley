@@ -1,0 +1,2 @@
+User: Design a ergonomic wireless charging station for multiple devices.
+Agent: Creates concept sketches, 3D models, material specifications, and manufacturing recommendations.

@@ -1,0 +1,22 @@
+# Dynamic prompt with variables
+prompt_template = """
+You are an expert {expertise_area} assistant.
+
+Context: {context}
+User Question: {user_input}
+
+Please provide a detailed response that:
+1. Addresses the user's question directly
+2. Uses the provided context when relevant
+3. Maintains a {tone} tone
+
+Response:
+"""
+
+# Template variables from input components
+variables = {
+    "expertise_area": "software development",
+    "context": "{{document_content}}",
+    "user_input": "{{user_query}}",
+    "tone": "professional"
+}

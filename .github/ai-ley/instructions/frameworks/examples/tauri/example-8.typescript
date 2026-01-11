@@ -1,0 +1,91 @@
+// src/services/tauri-api.ts
+import { invoke } from '@tauri-apps/api/tauri';
+import { listen } from '@tauri-apps/api/event';
+
+export interface FileInfo {
+  name: string;
+  path: string;
+  size: number;
+  modified: string;
+}
+
+export interface SaveRequest {
+  path: string;
+  content: string;
+}
+
+export interface CommandResult<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+export interface AppSettings {
+  theme: string;
+  language: string;
+  auto_save: boolean;
+  recent_files: string[];
+}
+
+export class TauriAPI {
+  // File operations
+  static async readFile(path: string): Promise<CommandResult<string>> {
+    return await invoke('read_file', { path });
+  }
+
+  static async writeFile(request: SaveRequest): Promise<CommandResult<void>> {
+    return await invoke('write_file', { request });
+  }
+
+  static async getFileInfo(path: string): Promise<CommandResult<FileInfo>> {
+    return await invoke('get_file_info', { path });
+  }
+
+  static async listDirectory(path: string): Promise<CommandResult<FileInfo[]>> {
+    return await invoke('list_directory', { path });
+  }
+
+  static async openFileDialog(): Promise<CommandResult<string>> {
+    return await invoke('open_file_dialog');
+  }
+
+  static async saveFileDialog(): Promise<CommandResult<string>> {
+    return await invoke('save_file_dialog');
+  }
+
+  // Settings management
+  static async getSettings(): Promise<AppSettings> {
+    return await invoke('get_settings');
+  }
+
+  static async updateSettings(settings: AppSettings): Promise<void> {
+    return await invoke('update_settings', { settings });
+  }
+
+  static async addRecentFile(filePath: string): Promise<void> {
+    return await invoke('add_recent_file', { filePath });
+  }
+
+  static async clearRecentFiles(): Promise<void> {
+    return await invoke('clear_recent_files');
+  }
+
+  // Event listeners
+  static async onMenuAction(callback: (action: string) => void) {
+    const unlisten = await listen('menu:new', () => callback('new'));
+    const unlisten2 = await listen('menu:open', () => callback('open'));
+    const unlisten3 = await listen('menu:save', () => callback('save'));
+    const unlisten4 = await listen('menu:save_as', () => callback('save_as'));
+
+    return () => {
+      unlisten();
+      unlisten2();
+      unlisten3();
+      unlisten4();
+    };
+  }
+
+  static async onWindowCloseRequested(callback: () => void) {
+    return await listen('window:close-requested', callback);
+  }
+}

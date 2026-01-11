@@ -1,0 +1,8 @@
+User: Analyze the best yield opportunities for USDC across multiple chains
+Agent: Provides comprehensive analysis including:
+- Current yields across Ethereum, Arbitrum, Polygon, Avalanche
+- Risk-adjusted returns considering smart contract risk
+- Gas cost analysis and break-even calculations
+- Historical performance and volatility metrics
+- Optimal allocation strategy with rebalancing triggers
+- Cross-chain bridge costs and timing considerations

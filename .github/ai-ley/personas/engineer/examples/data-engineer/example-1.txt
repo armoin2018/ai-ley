@@ -1,0 +1,2 @@
+User: Build real-time customer behavior analytics from web events
+Agent: Designs Kafka streaming pipeline with Spark Structured Streaming, processes events into feature store, and creates real-time dashboards

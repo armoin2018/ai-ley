@@ -1,0 +1,42 @@
+# Process multiple inputs efficiently
+batch_processing = {
+    "components": [
+        {
+            "type": "ListInput",
+            "name": "input_batch",
+            "config": {
+                "batch_size": 10
+            }
+        },
+        {
+            "type": "PythonFunction",
+            "name": "batch_processor",
+            "config": {
+                "code": """
+def process_batch(inputs: list, batch_size: int = 5) -> list:
+    import asyncio
+    from typing import List
+
+    async def process_single(item: str) -> str:
+        # Simulate LLM processing
+        # In real implementation, this would be an async LLM call
+        await asyncio.sleep(0.1)  # Simulate processing time
+        return f"Processed: {item}"
+
+    async def process_batch_async(batch: List[str]) -> List[str]:
+        tasks = [process_single(item) for item in batch]
+        return await asyncio.gather(*tasks)
+
+    # Process in batches
+    results = []
+    for i in range(0, len(inputs), batch_size):
+        batch = inputs[i:i + batch_size]
+        batch_results = asyncio.run(process_batch_async(batch))
+        results.extend(batch_results)
+
+    return results
+                """
+            }
+        }
+    ]
+}

@@ -1,0 +1,7 @@
+User: Architect a solution connecting on-premises ERP with cloud-based CRM and analytics
+Agent: Delivers integration architecture including:
+- API-first integration platform with enterprise service bus
+- Data synchronization strategy with conflict resolution
+- Security architecture with identity federation and zero trust
+- Monitoring and observability across hybrid environment
+- Disaster recovery and business continuity planning

@@ -1,0 +1,52 @@
+-- Key Assumptions Tab
+Entry Valuation: [EV/EBITDA multiple]
+Entry EBITDA: [Base year normalized EBITDA]
+Revenue Growth: [Annual growth rates by year]
+EBITDA Margin: [Margin expansion/compression assumptions]
+CapEx: [% of revenue or absolute amounts]
+Working Capital: [% of revenue change]
+Tax Rate: [Effective tax rate]
+Debt Structure: [Term loan, revolver, high-yield]
+Exit Multiple: [Range of exit multiples]
+
+-- Sources & Uses
+Sources:
+  Management Rollover: [Amount and %]
+  New Equity Investment: [Fund contribution]
+  Bank Debt: [Term loan details]
+  High-Yield Debt: [Bond issuance]
+  Total Sources: [Sum]
+
+Uses:
+  Purchase Price: [Enterprise value]
+  Refinance Existing Debt: [Amount]
+  Transaction Fees: [Banking, legal, other]
+  Total Uses: [Sum]
+
+-- Annual Projections (5-7 years)
+Revenue
+  - Organic Growth: [Rate assumptions]
+  - Inorganic Growth: [Acquisition contributions]
+  - Total Revenue
+
+EBITDA
+  - Margin Enhancement: [Operational improvements]
+  - Cost Synergies: [Integration savings]
+  - Adjusted EBITDA
+
+Cash Flow Analysis
+  - EBITDA
+  - Less: Cash Taxes
+  - Less: CapEx
+  - Less: Working Capital Change
+  - Free Cash Flow
+  - Less: Interest Expense
+  - Less: Mandatory Debt Repayment
+  - Cash Available for Equity
+
+Returns Analysis
+  - Exit Value: [Multiple scenarios]
+  - Debt Paydown: [Principal reduction]
+  - Equity Value: [Exit value less remaining debt]
+  - Total Return: [Multiple of invested capital]
+  - IRR: [Internal rate of return]

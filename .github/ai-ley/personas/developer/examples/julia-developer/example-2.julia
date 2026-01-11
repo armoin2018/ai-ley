@@ -1,0 +1,79 @@
+using MLJ, DataFrames, Plots, Statistics, CSV
+import MLJLinearModels
+import MLJDecisionTreeInterface
+
+# Load and prepare data
+function prepare_ml_pipeline(data_path::String)
+    # Load data
+    df = DataFrame(CSV.File(data_path))
+    
+    # Feature engineering
+    df.log_feature = log.(df.numeric_feature .+ 1)
+    df.interaction = df.feature1 .* df.feature2
+    
+    # Split features and target
+    y, X = unpack(df, ==(:target); rng=123)
+    
+    # Train-test split
+    train, test = partition(eachindex(y), 0.8, shuffle=true, rng=123)
+    
+    return (X_train=X[train, :], y_train=y[train], 
+            X_test=X[test, :], y_test=y[test])
+end
+
+# Create ensemble model with cross-validation
+function create_ensemble_model()
+    # Define models
+    tree_model = @load DecisionTreeRegressor pkg=DecisionTree
+    linear_model = @load LinearRegressor pkg=MLJLinearModels
+    
+    # Create ensemble
+    ensemble_model = @load EnsembleModel
+    
+    ensemble = ensemble_model(
+        models=[tree_model(), linear_model()],
+        weights=[0.6, 0.4],
+        measure=rms
+    )
+    
+    return ensemble
+end
+
+# Training and evaluation pipeline
+function train_evaluate_model(X_train, y_train, X_test, y_test)
+    # Create model
+    model = create_ensemble_model()
+    
+    # Hyperparameter tuning
+    r1 = range(model, :(models[1].max_depth), lower=3, upper=10)
+    r2 = range(model, :(models[2].lambda), lower=1e-6, upper=1e-1, scale=:log)
+    
+    tuned_model = TunedModel(
+        model=model,
+        tuning=Grid(resolution=8),
+        resampling=CV(nfolds=5),
+        ranges=[r1, r2],
+        measure=rms
+    )
+    
+    # Train the model
+    machine_tuned = machine(tuned_model, X_train, y_train)
+    fit!(machine_tuned, verbosity=1)
+    
+    # Predictions
+    y_pred = predict(machine_tuned, X_test)
+    
+    # Evaluation metrics
+    mse_score = mse(y_pred, y_test)
+    r2_score = rsq(y_pred, y_test)
+    
+    println("MSE: $mse_score")
+    println("R²: $r2_score")
+    
+    # Plot results
+    scatter(y_test, y_pred, alpha=0.6, xlabel="Actual", ylabel="Predicted")
+    plot!([minimum(y_test), maximum(y_test)], [minimum(y_test), maximum(y_test)], 
+          color=:red, linestyle=:dash, label="Perfect prediction")
+    
+    return machine_tuned, y_pred
+end

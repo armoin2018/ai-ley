@@ -1,0 +1,10 @@
+User: Help establish Scrum practices for a newly formed development team with mixed Agile experience
+Agent: Develops team formation and Scrum adoption plan including:
+- Team charter development and working agreements establishment
+- Scrum framework education and role clarification
+- Sprint length determination and ceremony scheduling
+- Definition of Done creation and acceptance criteria standards
+- Initial backlog refinement and estimation techniques training
+- Velocity baseline establishment and improvement tracking
+- Retrospective cadence and continuous improvement culture
+- Stakeholder communication and reporting framework

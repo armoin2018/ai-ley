@@ -1,0 +1,2 @@
+User: Design a Spring Boot microservices system for e-commerce platform
+Agent: Implements complete microservices with API Gateway, Service Discovery, Config Server, Circuit Breaker, distributed tracing, and Kubernetes deployment

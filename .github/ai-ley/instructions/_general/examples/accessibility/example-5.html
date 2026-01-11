@@ -1,0 +1,33 @@
+<!--  Good: Accessible buttons and controls -->
+<button 
+  type="button"
+  aria-expanded="false"
+  aria-controls="menu"
+  aria-haspopup="true"
+>
+  Menu
+</button>
+
+<ul id="menu" role="menu" hidden>
+  <li role="menuitem">
+    <a href="/profile" role="menuitem">Profile</a>
+  </li>
+  <li role="menuitem">
+    <a href="/settings" role="menuitem">Settings</a>
+  </li>
+</ul>
+
+<!--  Good: Modal dialog -->
+<div 
+  role="dialog" 
+  aria-modal="true" 
+  aria-labelledby="dialog-title"
+  aria-describedby="dialog-desc"
+>
+  <h2 id="dialog-title">Confirm Action</h2>
+  <p id="dialog-desc">Are you sure you want to delete this item?</p>
+  
+  <button type="button" aria-label="Close dialog">×</button>
+  <button type="button">Cancel</button>
+  <button type="button">Delete</button>
+</div>

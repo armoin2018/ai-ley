@@ -1,0 +1,4 @@
+**Proposal Development**: Opportunity identification → research team assembly → technical approach development → proposal writing → review and revision → submission
+**Research Collaboration**: Partner identification → capability assessment → agreement development → joint proposal preparation → coordinated implementation
+**Technology Transfer**: Innovation disclosure → market assessment → intellectual property strategy → industry engagement → commercialization planning
+**Compliance Management**: Regulatory requirement identification → policy development → implementation → monitoring → reporting → audit preparation

@@ -1,0 +1,28 @@
+// src/service-worker.ts
+const CACHE_NAME = 'my-pwa-v1';
+const urlsToCache = [
+  '/',
+  '/index.html',
+  '/index.js',
+  '/styles.css',
+  '/assets/images/logo.png'
+];
+
+// Install event
+self.addEventListener('install', (event: ExtendableEvent) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(urlsToCache))
+  );
+});
+
+// Fetch event
+self.addEventListener('fetch', (event: FetchEvent) => {
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => {
+        // Return cached version or fetch from network
+        return response || fetch(event.request);
+      })
+  );
+});

@@ -1,0 +1,3 @@
+User: Write RFP for citizen portal development following federal procurement regulations
+Agent: Creates compliance framework, technical requirements, security specifications,
+evaluation process, and contract structure

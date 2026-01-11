@@ -1,0 +1,48 @@
+---
+- name: Manage packages with YUM
+  hosts: rhel_servers
+  become: yes
+  tasks:
+    - name: Ensure EPEL repository is installed
+      yum:
+        name: epel-release
+        state: present
+
+    - name: Update all packages
+      yum:
+        name: '*'
+        state: latest
+        update_cache: yes
+
+    - name: Install essential packages
+      yum:
+        name:
+          - curl
+          - wget
+          - git
+          - vim
+          - htop
+          - tree
+          - ntp
+          - firewalld
+        state: present
+
+    - name: Install specific package versions
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - python3-3.6.8
+        - nodejs-10.24.1
+        - nginx-1.14.1
+
+    - name: Remove unnecessary packages
+      yum:
+        name:
+          - sendmail
+          - postfix
+        state: absent
+
+    - name: Clean YUM cache
+      command: yum clean all
+      changed_when: false

@@ -1,0 +1,12 @@
+import numpy as np
+
+# Array creation
+arr = np.array([1, 2, 3, 4, 5])
+zeros = np.zeros((3, 4))
+ones = np.ones((2, 3))
+random_data = np.random.randn(1000, 10)
+
+# Array manipulation
+reshaped = arr.reshape(5, 1)
+transposed = random_data.T
+concatenated = np.concatenate([arr, arr])

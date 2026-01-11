@@ -1,0 +1,6 @@
+# config/packages/stof_doctrine_extensions.yaml
+  stof_doctrine_extensions:
+      orm:
+          default:
+              timestampable: true
+              sluggable: true

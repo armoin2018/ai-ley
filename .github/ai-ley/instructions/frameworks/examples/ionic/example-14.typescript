@@ -1,0 +1,39 @@
+// tab1.page.spec.ts
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { IonicModule } from '@ionic/angular';
+import { Tab1Page } from './tab1.page';
+import { UserService } from '../services/user.service';
+
+describe('Tab1Page', () => {
+  let component: Tab1Page;
+  let fixture: ComponentFixture<Tab1Page>;
+  let userService: jasmine.SpyObj<UserService>;
+
+  beforeEach(async () => {
+    const userServiceSpy = jasmine.createSpyObj('UserService', ['getUsers', 'deleteUser']);
+
+    await TestBed.configureTestingModule({
+      declarations: [Tab1Page],
+      imports: [IonicModule.forRoot()],
+      providers: [{ provide: UserService, useValue: userServiceSpy }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(Tab1Page);
+    component = fixture.componentInstance;
+    userService = TestBed.inject(UserService) as jasmine.SpyObj<UserService>;
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should load users on init', async () => {
+    const mockUsers = [{ id: '1', name: 'John Doe', email: 'john@example.com' }];
+    userService.getUsers.and.returnValue(Promise.resolve(mockUsers));
+
+    await component.ngOnInit();
+
+    expect(userService.getUsers).toHaveBeenCalled();
+    expect(component.users).toEqual(mockUsers);
+  });
+});

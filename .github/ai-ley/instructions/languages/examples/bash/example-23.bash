@@ -1,0 +1,1 @@
+trap 'echo "An error occurred"; exit 1' ERR

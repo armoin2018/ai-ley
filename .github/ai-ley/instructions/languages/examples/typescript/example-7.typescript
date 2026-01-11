@@ -1,0 +1,94 @@
+// ✅ Well-typed React component
+interface UserProfileProps {
+  userId: UserId;
+  showActions?: boolean;
+  onUserUpdate?: (user: User) => void;
+  className?: string;
+}
+
+export const UserProfile: React.FC<UserProfileProps> = ({
+  userId,
+  showActions = false,
+  onUserUpdate,
+  className
+}) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const { data, error: fetchError, isLoading } = useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => userService.getUser(userId),
+    enabled: !!userId,
+  });
+
+  const updateUserMutation = useMutation({
+    mutationFn: (updates: UpdateUserRequest) => 
+      userService.updateUser(userId, updates),
+    onSuccess: (updatedUser) => {
+      setUser(updatedUser);
+      onUserUpdate?.(updatedUser);
+    },
+  });
+
+  if (isLoading) return <UserProfileSkeleton />;
+  if (fetchError) return <ErrorMessage error={fetchError} />;
+  if (!data) return <NotFound message="User not found" />;
+
+  return (
+    <div className={clsx('user-profile', className)}>
+      <UserAvatar user={data} size="large" />
+      <UserInfo user={data} />
+      {showActions && (
+        <UserActions 
+          user={data}
+          onUpdate={updateUserMutation.mutate}
+          updating={updateUserMutation.isPending}
+        />
+      )}
+    </div>
+  );
+};
+
+// ✅ Custom hooks with proper typing
+interface UseApiOptions<T> {
+  initialData?: T;
+  enabled?: boolean;
+  onSuccess?: (data: T) => void;
+  onError?: (error: Error) => void;
+}
+
+function useApi<T>(
+  fetcher: () => Promise<T>,
+  deps: React.DependencyList,
+  options: UseApiOptions<T> = {}
+) {
+  const [data, setData] = useState<T | undefined>(options.initialData);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const execute = useCallback(async () => {
+    if (options.enabled === false) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await fetcher();
+      setData(result);
+      options.onSuccess?.(result);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      setError(error);
+      options.onError?.(error);
+    } finally {
+      setLoading(false);
+    }
+  }, deps);
+
+  useEffect(() => {
+    execute();
+  }, [execute]);
+
+  return { data, loading, error, refetch: execute };
+}

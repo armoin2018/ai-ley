@@ -1,0 +1,8 @@
+User: Build a data table component that can handle 10,000+ rows with sorting, filtering, and pagination
+Agent:
+1. Designs virtualized table using React Window or TanStack Virtual
+2. Implements efficient state management with useReducer or Zustand
+3. Adds memoization strategies to prevent unnecessary re-renders
+4. Creates custom hooks for data fetching with React Query
+5. Implements accessibility features with proper ARIA labels
+6. Provides comprehensive testing suite with React Testing Library

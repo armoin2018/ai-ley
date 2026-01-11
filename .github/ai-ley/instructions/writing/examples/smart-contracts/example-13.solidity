@@ -1,0 +1,37 @@
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
+contract PriceOracle {
+    AggregatorV3Interface internal priceFeed;
+    uint256 private constant PRICE_DEVIATION_THRESHOLD = 1000; // 10%
+    uint256 private lastValidPrice;
+
+    constructor() {
+        priceFeed = AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
+    }
+
+    function getSecurePrice() public view returns (uint256) {
+        (
+            uint80 roundId,
+            int256 price,
+            uint256 startedAt,
+            uint256 updatedAt,
+            uint80 answeredInRound
+        ) = priceFeed.latestRoundData();
+
+        require(price > 0, "Invalid price");
+        require(updatedAt > block.timestamp - 3600, "Price too old");
+
+        uint256 currentPrice = uint256(price);
+
+        // Check for price manipulation
+        if (lastValidPrice > 0) {
+            uint256 deviation = currentPrice > lastValidPrice
+                ? ((currentPrice - lastValidPrice) * 10000) / lastValidPrice
+                : ((lastValidPrice - currentPrice) * 10000) / lastValidPrice;
+
+            require(deviation <= PRICE_DEVIATION_THRESHOLD, "Price deviation too high");
+        }
+
+        return currentPrice;
+    }
+}

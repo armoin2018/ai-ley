@@ -1,0 +1,38 @@
+{
+  "name": "modern-web-app",
+  "version": "1.0.0",
+  "description": "Modern web application with Parcel",
+  "scripts": {
+    "dev": "parcel src/index.html --open",
+    "build": "parcel build src/index.html",
+    "preview": "parcel serve dist",
+    "clean": "rm -rf dist .parcel-cache",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "source": "src/index.html",
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions"
+  ],
+  "devDependencies": {
+    "parcel": "^2.9.0",
+    "@parcel/transformer-typescript": "^2.9.0",
+    "@parcel/transformer-sass": "^2.9.0",
+    "@parcel/transformer-postcss": "^2.9.0",
+    "typescript": "^5.0.0",
+    "sass": "^1.60.0",
+    "postcss": "^8.4.0",
+    "autoprefixer": "^10.4.0",
+    "eslint": "^8.40.0",
+    "jest": "^29.5.0"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

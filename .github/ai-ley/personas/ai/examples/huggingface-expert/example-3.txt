@@ -1,0 +1,8 @@
+User: Pre-train a 7B parameter language model on custom domain data
+Agent:
+1. Designs training architecture using accelerate and DeepSpeed
+2. Implements efficient data pipeline with streaming datasets
+3. Sets up distributed training across multiple GPUs/nodes
+4. Implements gradient checkpointing and memory optimization
+5. Creates comprehensive logging and checkpointing strategy
+6. Provides model evaluation and benchmarking framework

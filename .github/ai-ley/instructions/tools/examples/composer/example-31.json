@@ -1,0 +1,12 @@
+// VS Code settings.json
+{
+    "php.validate.executablePath": "/usr/bin/php",
+    "composer.executablePath": "/usr/local/bin/composer",
+    "php.suggest.basic": false,
+    "composer.enabled": true
+}
+
+// PhpStorm configuration
+// File > Settings > Languages & Frameworks > PHP > Composer
+// Path to composer.json: /path/to/project/composer.json
+// Composer executable: /usr/local/bin/composer

@@ -1,0 +1,22 @@
+.animated-path {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: draw-line 2s ease-in-out forwards;
+}
+
+@keyframes draw-line {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Interactive hover effects */
+.interactive-svg:hover .hover-element {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+.interactive-svg .hover-element {
+  transform-origin: center;
+  transition: transform 0.3s ease;
+}

@@ -1,0 +1,39 @@
+**Expected Result**: [What should happen]
+
+## Integration with Other Tools
+
+### [Related Tool 1]
+
+- **Integration Purpose**: [Why integrate]
+- **Setup**: [How to configure integration]
+- **Usage**: [How they work together]
+
+### [Related Tool 2]
+
+- **Integration Purpose**: [Why integrate]
+- **Setup**: [How to configure integration]
+- **Usage**: [How they work together]
+
+## Troubleshooting
+
+### Common Issues
+
+#### [Issue 1]
+
+**Problem**: [Description of the problem]
+**Symptoms**: [How to identify this issue]
+**Solution**: [Step-by-step fix]
+
+#### [Issue 2]
+
+**Problem**: [Description of the problem]
+**Symptoms**: [How to identify this issue]
+**Solution**: [Step-by-step fix]
+
+#### [Issue 3]
+
+**Problem**: [Description of the problem]
+**Symptoms**: [How to identify this issue]
+**Solution**: [Step-by-step fix]
+
+### Debug Mode

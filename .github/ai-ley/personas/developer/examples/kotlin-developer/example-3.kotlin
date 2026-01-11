@@ -1,0 +1,16 @@
+// Shared business logic across platforms
+expect class DatabaseDriver
+
+class UserRepository(private val driver: DatabaseDriver) {
+    private val database = Database(driver)
+    
+    suspend fun getUser(id: String): User? = withContext(Dispatchers.Default) {
+        database.userQueries.selectById(id).executeAsOneOrNull()?.let(::mapToUser)
+    }
+    
+    fun observeUsers(): Flow<List<User>> = database.userQueries
+        .selectAll()
+        .asFlow()
+        .mapToList(Dispatchers.Default)
+        .map { it.map(::mapToUser) }
+}

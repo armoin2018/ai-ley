@@ -1,0 +1,5 @@
+### Local Storage Integration
+
+- **Purpose**: Persist data locally using SQLite, Hive, or shared preferences
+- **Setup**: `flutter pub add sqflite hive shared_preferences`
+- **Usage**:

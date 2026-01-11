@@ -1,0 +1,79 @@
+# Python integration with PyMySQL
+import pymysql
+from contextlib import contextmanager
+from typing import Optional, List, Dict, Any
+
+class DatabaseManager:
+    def __init__(self, config: Dict[str, Any]):
+        self.config = config
+        self.pool = self._create_pool()
+
+    def _create_pool(self):
+        return pymysql.connect(
+            host=self.config['host'],
+            port=self.config['port'],
+            user=self.config['user'],
+            password=self.config['password'],
+            database=self.config['database'],
+            charset='utf8mb4',
+            cursorclass=pymysql.cursors.DictCursor,
+            autocommit=True
+        )
+
+    @contextmanager
+    def get_cursor(self, commit=True):
+        cursor = self.pool.cursor()
+        try:
+            yield cursor
+            if commit:
+                self.pool.commit()
+        except Exception as e:
+            self.pool.rollback()
+            raise
+        finally:
+            cursor.close()
+
+    def execute_query(self, sql: str, params: tuple = None) -> List[Dict[str, Any]]:
+        with self.get_cursor() as cursor:
+            cursor.execute(sql, params)
+            return cursor.fetchall()
+
+    def execute_single(self, sql: str, params: tuple = None) -> Optional[Dict[str, Any]]:
+        results = self.execute_query(sql, params)
+        return results[0] if results else None
+
+class UserService:
+    def __init__(self, db: DatabaseManager):
+        self.db = db
+
+    def get_user_by_id(self, user_id: int) -> Optional[Dict[str, Any]]:
+        sql = """
+            SELECT id, email, username, first_name, last_name, created_at
+            FROM users
+            WHERE id = %s AND is_active = 1
+        """
+        return self.db.execute_single(sql, (user_id,))
+
+    def create_user(self, user_data: Dict[str, Any]) -> Dict[str, Any]:
+        sql = """
+            INSERT INTO users (email, username, password_hash, first_name, last_name)
+            VALUES (%(email)s, %(username)s, %(password_hash)s, %(first_name)s, %(last_name)s)
+        """
+
+        with self.db.get_cursor() as cursor:
+            cursor.execute(sql, user_data)
+            user_id = cursor.lastrowid
+
+            return self.get_user_by_id(user_id)
+
+    def search_users(self, search_term: str, limit: int = 20) -> List[Dict[str, Any]]:
+        sql = """
+            SELECT id, username, first_name, last_name, email
+            FROM users
+            WHERE (first_name LIKE %s OR last_name LIKE %s OR username LIKE %s)
+              AND is_active = 1
+            ORDER BY username
+            LIMIT %s
+        """
+        search_pattern = f"%{search_term}%"
+        return self.db.execute_query(sql, (search_pattern, search_pattern, search_pattern, limit))

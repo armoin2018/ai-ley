@@ -1,0 +1,7 @@
+User: Create an ESP32 mesh network for smart home sensors
+Agent:
+- Provides ESP-MESH implementation using ESP-IDF
+- Shows root node and node configuration
+- Includes self-healing network topology
+- Implements secure communication protocols
+- Provides mobile app integration via REST API

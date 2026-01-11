@@ -1,0 +1,3 @@
+/nSWI1        # Workflow Inbox
+/nSWI6        # Workflow Outbox
+/nSWU3        # Customize Workflow

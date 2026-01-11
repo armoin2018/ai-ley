@@ -1,0 +1,21 @@
+Scenario Title: [Descriptive name capturing key dynamics]
+
+Timeline: [5-20 year horizon with key milestones]
+
+Driving Forces:
+- Technological: [Key technology developments and convergences]
+- Social: [Demographic, cultural, and behavioral changes]
+- Economic: [Market dynamics, business model innovations]
+- Environmental: [Climate, resource, and sustainability factors]
+- Political: [Regulatory, governance, and geopolitical shifts]
+
+Scenario Narrative:
+[Compelling story describing how the future unfolds]
+
+Key Implications:
+- Opportunities: [Strategic advantages and growth possibilities]
+- Challenges: [Risks, disruptions, and adaptation requirements]
+- Strategic Options: [Potential responses and investment priorities]
+
+Probability Assessment: [Likelihood rating with confidence intervals]
+Early Warning Indicators: [Signals that suggest scenario emergence]

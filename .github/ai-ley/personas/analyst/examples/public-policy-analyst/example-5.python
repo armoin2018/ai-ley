@@ -1,0 +1,119 @@
+# Policy Impact Forecasting Model
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import cross_val_score
+import matplotlib.pyplot as plt
+
+class PolicyForecastingModel:
+    def __init__(self, baseline_data, policy_parameters):
+        self.baseline_data = baseline_data
+        self.policy_params = policy_parameters
+        self.models = {}
+        self.forecasts = {}
+
+    def prepare_features(self, data):
+        """Create feature matrix for policy forecasting"""
+        features = pd.DataFrame({
+            'population': data['total_population'],
+            'income_median': data['median_household_income'],
+            'unemployment_rate': data['unemployment_rate'],
+            'education_attainment': data['pct_college_educated'],
+            'age_structure': data['median_age'],
+            'policy_intensity': data['policy_spending_per_capita'],
+            'existing_programs': data['baseline_program_participation']
+        })
+
+        # Add interaction terms
+        features['income_education'] = features['income_median'] * features['education_attainment']
+        features['policy_population'] = features['policy_intensity'] * features['population']
+
+        return features
+
+    def train_outcome_models(self, outcomes):
+        """Train separate models for different policy outcomes"""
+        features = self.prepare_features(self.baseline_data)
+
+        for outcome in outcomes:
+            y = self.baseline_data[outcome]
+            model = RandomForestRegressor(n_estimators=100, random_state=42)
+
+            # Cross-validation for model selection
+            cv_scores = cross_val_score(model, features, y, cv=5, scoring='r2')
+            print(f"{outcome} model R²: {cv_scores.mean():.3f} (+/- {cv_scores.std() * 2:.3f})")
+
+            model.fit(features, y)
+            self.models[outcome] = model
+
+    def generate_forecasts(self, forecast_scenarios, time_horizon=10):
+        """Generate forecasts under different policy scenarios"""
+        forecasts = {}
+
+        for scenario_name, scenario_data in forecast_scenarios.items():
+            scenario_forecasts = {}
+
+            for year in range(1, time_horizon + 1):
+                year_features = self.prepare_features(scenario_data[year])
+                year_predictions = {}
+
+                for outcome, model in self.models.items():
+                    prediction = model.predict(year_features)
+
+                    # Add uncertainty bands using bootstrap
+                    bootstrap_predictions = []
+                    for _ in range(100):
+                        bootstrap_sample = np.random.choice(
+                            len(year_features), len(year_features), replace=True
+                        )
+                        bootstrap_pred = model.predict(year_features.iloc[bootstrap_sample])
+                        bootstrap_predictions.append(bootstrap_pred.mean())
+
+                    year_predictions[outcome] = {
+                        'point_estimate': prediction.mean(),
+                        'confidence_interval': np.percentile(bootstrap_predictions, [2.5, 97.5]),
+                        'standard_error': np.std(bootstrap_predictions)
+                    }
+
+                scenario_forecasts[f'year_{year}'] = year_predictions
+
+            forecasts[scenario_name] = scenario_forecasts
+
+        return forecasts
+
+    def cost_benefit_analysis(self, forecasts, cost_data):
+        """Perform cost-benefit analysis across scenarios"""
+        results = {}
+        discount_rate = 0.03
+
+        for scenario, forecast_data in forecasts.items():
+            benefits = []
+            costs = []
+
+            for year_key, outcomes in forecast_data.items():
+                year = int(year_key.split('_')[1])
+
+                # Calculate annual benefits (monetized outcomes)
+                annual_benefits = (
+                    outcomes['health_outcomes']['point_estimate'] * 50000 +  # Value of statistical life year
+                    outcomes['educational_attainment']['point_estimate'] * 15000 +  # Earnings premium
+                    outcomes['employment_rate']['point_estimate'] * 25000  # Employment value
+                )
+
+                annual_costs = cost_data[scenario][year - 1]
+
+                # Discount to present value
+                pv_benefits = annual_benefits / (1 + discount_rate) ** year
+                pv_costs = annual_costs / (1 + discount_rate) ** year
+
+                benefits.append(pv_benefits)
+                costs.append(pv_costs)
+
+            results[scenario] = {
+                'total_benefits': sum(benefits),
+                'total_costs': sum(costs),
+                'net_benefits': sum(benefits) - sum(costs),
+                'benefit_cost_ratio': sum(benefits) / sum(costs),
+                'internal_rate_of_return': self.calculate_irr(benefits, costs)
+            }
+
+        return results

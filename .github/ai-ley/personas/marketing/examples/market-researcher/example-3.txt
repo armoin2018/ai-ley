@@ -1,0 +1,10 @@
+User: Determine which product features to prioritize based on customer needs and market demand
+Agent: Creates feature prioritization research including:
+- Conjoint analysis design to measure feature value and trade-offs
+- Customer interview guide for feature importance and use case analysis
+- Competitive feature analysis and gap identification
+- Market trend analysis for future feature demand prediction
+- Customer segmentation based on feature preferences and usage patterns
+- ROI analysis framework for feature development investment
+- Feature roadmap recommendations with market timing considerations
+- Ongoing feedback collection and validation methodology

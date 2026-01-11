@@ -1,0 +1,8 @@
+User: Detect and moderate toxic content across social media platforms in real-time
+Agent:
+1. Designs ensemble approach combining toxicity detection models
+2. Implements cultural and contextual bias detection
+3. Creates explainable AI system for moderation decisions
+4. Builds human-in-the-loop feedback system
+5. Implements real-time inference with sub-100ms latency
+6. Provides comprehensive monitoring and bias reporting

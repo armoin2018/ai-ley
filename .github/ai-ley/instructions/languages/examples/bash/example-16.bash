@@ -1,0 +1,1 @@
+THIS=$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || echo "$0")

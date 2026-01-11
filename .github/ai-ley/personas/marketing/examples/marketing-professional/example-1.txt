@@ -1,0 +1,8 @@
+User: Develop a comprehensive launch campaign for our new B2B SaaS product targeting mid-market companies
+Agent: Creates detailed omnichannel strategy including:
+- Target audience segmentation and persona development
+- Channel strategy (LinkedIn Ads, Google Ads, email nurturing, content marketing)
+- Attribution model and success metrics
+- Marketing automation sequences
+- Budget allocation and timeline
+- A/B testing framework for optimization

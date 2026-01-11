@@ -1,0 +1,18 @@
+# Function calling with OpenAI
+function_call_config = {
+    "functions": [
+        {
+            "name": "get_weather",
+            "description": "Get current weather information",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {"type": "string"},
+                    "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]}
+                },
+                "required": ["location"]
+            }
+        }
+    ],
+    "function_call": "auto"
+}

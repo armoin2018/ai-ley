@@ -1,0 +1,10 @@
+// Batch multiple read operations
+async function batchReadOperations(contract: ethers.Contract, addresses: string[]) {
+  const promises = addresses.map(address => contract.balanceOf(address));
+  const balances = await Promise.all(promises);
+  
+  return addresses.map((address, index) => ({
+    address,
+    balance: ethers.formatEther(balances[index])
+  }));
+}

@@ -1,0 +1,312 @@
+// Advanced Pattern Implementations
+
+// 1. Category for NSString Validation
+// NSString+Validation.h
+#import <Foundation/Foundation.h>
+
+@interface NSString (Validation)
+
+- (BOOL)isValidEmail;
+- (BOOL)isValidPhoneNumber;
+- (BOOL)isValidURL;
+- (NSString *)trimmedString;
+- (BOOL)containsOnlyNumbers;
+
+@end
+
+// NSString+Validation.m
+#import "NSString+Validation.h"
+
+@implementation NSString (Validation)
+
+- (BOOL)isValidEmail {
+    NSString *emailRegex = @"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}";
+    NSPredicate *emailTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", emailRegex];
+    return [emailTest evaluateWithObject:self];
+}
+
+- (BOOL)isValidPhoneNumber {
+    NSString *phoneRegex = @"^\\d{3}-\\d{3}-\\d{4}$";
+    NSPredicate *phoneTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", phoneRegex];
+    return [phoneTest evaluateWithObject:self];
+}
+
+- (BOOL)isValidURL {
+    NSURL *url = [NSURL URLWithString:self];
+    return url != nil && url.scheme != nil && url.host != nil;
+}
+
+- (NSString *)trimmedString {
+    return [self stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+}
+
+- (BOOL)containsOnlyNumbers {
+    NSCharacterSet *nonNumbers = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
+    NSRange range = [self rangeOfCharacterFromSet:nonNumbers];
+    return range.location == NSNotFound;
+}
+
+@end
+
+// 2. Protocol-based Observer Pattern
+// Observable.h
+#import <Foundation/Foundation.h>
+
+@protocol Observer <NSObject>
+- (void)notifyWithObject:(id)object;
+@end
+
+@protocol Observable <NSObject>
+- (void)addObserver:(id<Observer>)observer;
+- (void)removeObserver:(id<Observer>)observer;
+- (void)notifyObservers:(id)object;
+@end
+
+// ObservableObject.h
+#import <Foundation/Foundation.h>
+#import "Observable.h"
+
+@interface ObservableObject : NSObject <Observable>
+
+@property (nonatomic, strong, readonly) NSMutableSet<id<Observer>> *observers;
+
+@end
+
+// ObservableObject.m
+#import "ObservableObject.h"
+
+@interface ObservableObject ()
+@property (nonatomic, strong) NSMutableSet<id<Observer>> *observers;
+@end
+
+@implementation ObservableObject
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _observers = [NSMutableSet set];
+    }
+    return self;
+}
+
+- (void)addObserver:(id<Observer>)observer {
+    [self.observers addObject:observer];
+}
+
+- (void)removeObserver:(id<Observer>)observer {
+    [self.observers removeObject:observer];
+}
+
+- (void)notifyObservers:(id)object {
+    for (id<Observer> observer in self.observers) {
+        [observer notifyWithObject:object];
+    }
+}
+
+@end
+
+// 3. Singleton with Thread Safety
+// ConfigurationManager.h
+#import <Foundation/Foundation.h>
+
+@interface ConfigurationManager : NSObject
+
+@property (nonatomic, strong, readonly) NSDictionary *configuration;
+
++ (instancetype)sharedManager;
+- (void)loadConfigurationFromFile:(NSString *)filePath;
+- (id)valueForKey:(NSString *)key;
+- (void)setValue:(id)value forKey:(NSString *)key;
+
+@end
+
+// ConfigurationManager.m
+#import "ConfigurationManager.h"
+
+@interface ConfigurationManager ()
+@property (nonatomic, strong) NSMutableDictionary *mutableConfiguration;
+@property (nonatomic, strong) dispatch_queue_t configurationQueue;
+@end
+
+@implementation ConfigurationManager
+
++ (instancetype)sharedManager {
+    static ConfigurationManager *sharedInstance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[ConfigurationManager alloc] init];
+    });
+    return sharedInstance;
+}
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _mutableConfiguration = [NSMutableDictionary dictionary];
+        _configurationQueue = dispatch_queue_create("com.app.configuration", DISPATCH_QUEUE_CONCURRENT);
+    }
+    return self;
+}
+
+- (NSDictionary *)configuration {
+    __block NSDictionary *config = nil;
+    dispatch_sync(self.configurationQueue, ^{
+        config = [self.mutableConfiguration copy];
+    });
+    return config;
+}
+
+- (void)loadConfigurationFromFile:(NSString *)filePath {
+    NSData *data = [NSData dataWithContentsOfFile:filePath];
+    if (data) {
+        NSError *error = nil;
+        NSDictionary *config = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+        
+        if (!error && config) {
+            dispatch_barrier_async(self.configurationQueue, ^{
+                [self.mutableConfiguration setDictionary:config];
+            });
+        }
+    }
+}
+
+- (id)valueForKey:(NSString *)key {
+    __block id value = nil;
+    dispatch_sync(self.configurationQueue, ^{
+        value = self.mutableConfiguration[key];
+    });
+    return value;
+}
+
+- (void)setValue:(id)value forKey:(NSString *)key {
+    dispatch_barrier_async(self.configurationQueue, ^{
+        if (value) {
+            self.mutableConfiguration[key] = value;
+        } else {
+            [self.mutableConfiguration removeObjectForKey:key];
+        }
+    });
+}
+
+@end
+
+// 4. Block-based Callback Pattern
+// AsyncOperationManager.h
+#import <Foundation/Foundation.h>
+
+typedef void(^CompletionBlock)(BOOL success, NSError * _Nullable error);
+typedef void(^ProgressBlock)(float progress);
+typedef void(^DataCompletionBlock)(NSData * _Nullable data, NSError * _Nullable error);
+
+@interface AsyncOperationManager : NSObject
+
++ (instancetype)sharedManager;
+
+- (void)performAsyncOperationWithProgress:(ProgressBlock)progressBlock 
+                               completion:(CompletionBlock)completionBlock;
+
+- (void)downloadDataFromURL:(NSURL *)URL 
+                   progress:(ProgressBlock)progressBlock 
+                 completion:(DataCompletionBlock)completionBlock;
+
+- (void)performBatchOperations:(NSArray *)operations 
+                    completion:(CompletionBlock)completionBlock;
+
+@end
+
+// AsyncOperationManager.m
+#import "AsyncOperationManager.h"
+
+@implementation AsyncOperationManager
+
++ (instancetype)sharedManager {
+    static AsyncOperationManager *sharedInstance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[AsyncOperationManager alloc] init];
+    });
+    return sharedInstance;
+}
+
+- (void)performAsyncOperationWithProgress:(ProgressBlock)progressBlock 
+                               completion:(CompletionBlock)completionBlock {
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        // Simulate long-running operation
+        for (int i = 0; i <= 100; i += 10) {
+            usleep(100000); // Sleep for 0.1 seconds
+            
+            if (progressBlock) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    progressBlock(i / 100.0f);
+                });
+            }
+        }
+        
+        // Complete operation
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completionBlock) {
+                completionBlock(YES, nil);
+            }
+        });
+    });
+}
+
+- (void)downloadDataFromURL:(NSURL *)URL 
+                   progress:(ProgressBlock)progressBlock 
+                 completion:(DataCompletionBlock)completionBlock {
+    
+    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
+    
+    NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:URL 
+                                                        completionHandler:^(NSURL *location, NSURLResponse *response, NSError *error) {
+        if (error) {
+            if (completionBlock) {
+                completionBlock(nil, error);
+            }
+            return;
+        }
+        
+        NSData *data = [NSData dataWithContentsOfURL:location];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completionBlock) {
+                completionBlock(data, nil);
+            }
+        });
+    }];
+    
+    [downloadTask resume];
+}
+
+- (void)performBatchOperations:(NSArray *)operations 
+                    completion:(CompletionBlock)completionBlock {
+    
+    dispatch_group_t group = dispatch_group_create();
+    __block BOOL allSuccessful = YES;
+    __block NSError *firstError = nil;
+    
+    for (void (^operation)(CompletionBlock) in operations) {
+        dispatch_group_enter(group);
+        
+        operation(^(BOOL success, NSError *error) {
+            if (!success) {
+                allSuccessful = NO;
+                if (!firstError) {
+                    firstError = error;
+                }
+            }
+            dispatch_group_leave(group);
+        });
+    }
+    
+    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+        if (completionBlock) {
+            completionBlock(allSuccessful, firstError);
+        }
+    });
+}
+
+@end

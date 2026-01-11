@@ -1,0 +1,22 @@
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "vercel:dev": "vercel dev",
+    "vercel:build": "vercel build",
+    "vercel:deploy": "vercel --prod",
+    "vercel:logs": "vercel logs",
+    "type-check": "tsc --noEmit",
+    "analyze": "ANALYZE=true npm run build"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

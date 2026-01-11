@@ -1,0 +1,40 @@
+// ✅ Focused interfaces
+interface EventEmitter<T extends Record<string, any>> {
+  on<K extends keyof T>(event: K, listener: (data: T[K]) => void): void;
+  emit<K extends keyof T>(event: K, data: T[K]): void;
+  off<K extends keyof T>(event: K, listener: (data: T[K]) => void): void;
+}
+
+interface UserEvents {
+  userCreated: User;
+  userUpdated: { user: User; changes: Partial<User> };
+  userDeleted: { userId: UserId };
+}
+
+// ✅ Composable interfaces
+interface Timestamped {
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface Identifiable {
+  id: string;
+}
+
+interface AuditableEntity extends Identifiable, Timestamped {
+  createdBy: UserId;
+  updatedBy: UserId;
+}
+
+// ✅ Function interfaces
+interface AuthMiddleware {
+  (req: Request, res: Response, next: NextFunction): Promise<void>;
+}
+
+interface Validator<T> {
+  (input: unknown): input is T;
+}
+
+interface AsyncHandler<T, R> {
+  (input: T): Promise<R>;
+}

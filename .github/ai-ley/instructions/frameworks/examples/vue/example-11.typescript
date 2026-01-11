@@ -1,0 +1,33 @@
+// tests/components/UserCard.test.ts
+import { mount } from '@vue/test-utils';
+import UserCard from '@/components/UserCard.vue';
+
+describe('UserCard', () => {
+  const mockUser = {
+    id: 1,
+    name: 'John Doe',
+    email: 'john@example.com',
+    avatar: '/avatar.jpg',
+  };
+
+  it('renders user information correctly', () => {
+    const wrapper = mount(UserCard, {
+      props: { user: mockUser },
+    });
+
+    expect(wrapper.text()).toContain('John Doe');
+    expect(wrapper.text()).toContain('john@example.com');
+    expect(wrapper.find('img').attributes('src')).toBe('/avatar.jpg');
+  });
+
+  it('emits edit event when button is clicked', async () => {
+    const wrapper = mount(UserCard, {
+      props: { user: mockUser },
+    });
+
+    await wrapper.find('button').trigger('click');
+
+    expect(wrapper.emitted('edit')).toBeTruthy();
+    expect(wrapper.emitted('edit')?.[0]).toEqual([mockUser]);
+  });
+});

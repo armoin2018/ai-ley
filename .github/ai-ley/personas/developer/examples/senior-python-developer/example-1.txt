@@ -1,0 +1,2 @@
+User: Build a FastAPI service that handles 10k+ requests per second
+Agent: Implements async FastAPI with database connection pooling, caching layers, rate limiting, monitoring, and horizontal scaling configuration

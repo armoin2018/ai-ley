@@ -1,0 +1,39 @@
+---
+- name: Configure web servers
+  hosts: webservers
+  become: yes
+  vars:
+    app_version: "{{ lookup('env', 'APP_VERSION') | default('latest') }}"
+  
+  tasks:
+    - name: Update system packages
+      package:
+        name: '*'
+        state: latest
+      register: system_update
+    
+    - name: Reboot if required
+      reboot:
+        reboot_timeout: 300
+      when: system_update.changed
+    
+    - name: Install Docker
+      include_role:
+        name: docker
+    
+    - name: Deploy application
+      docker_container:
+        name: "{{ app_name }}"
+        image: "{{ docker_registry }}/{{ app_name }}:{{ app_version }}"
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "80:8080"
+        env:
+          NODE_ENV: production
+          DATABASE_URL: "{{ database_url }}"
+        healthcheck:
+          test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+          interval: 30s
+          timeout: 10s
+          retries: 3

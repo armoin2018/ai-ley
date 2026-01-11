@@ -1,0 +1,59 @@
+<!-- Effective use of utility classes -->
+<div
+  class="d-flex flex-column flex-md-row justify-content-between align-items-center p-4 mb-4 bg-light rounded"
+>
+  <div class="mb-3 mb-md-0">
+    <h4 class="mb-1 text-primary">Dashboard Header</h4>
+    <p class="mb-0 text-muted">Welcome back to your dashboard</p>
+  </div>
+  <div class="d-flex gap-2">
+    <button class="btn btn-outline-primary btn-sm">Settings</button>
+    <button class="btn btn-primary btn-sm">New Project</button>
+  </div>
+</div>
+
+<!-- Responsive image with utilities -->
+<figure class="text-center">
+  <img
+    src="image.jpg"
+    class="img-fluid rounded shadow-sm"
+    alt="Responsive image"
+    style="max-height: 400px;"
+  />
+  <figcaption class="figure-caption mt-2 text-muted">Image caption with proper styling</figcaption>
+</figure>
+
+<!-- Complex layout with utilities -->
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-transparent border-bottom-0 pb-0">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">Main Content</h5>
+          <div class="dropdown">
+            <button class="btn btn-link p-0" data-bs-toggle="dropdown">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">Edit</a></li>
+              <li><a class="dropdown-item" href="#">Share</a></li>
+              <li><hr class="dropdown-divider" /></li>
+              <li><a class="dropdown-item text-danger" href="#">Delete</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="card-text">Main content area with proper spacing and typography.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h6 class="card-title">Sidebar</h6>
+        <p class="card-text small text-muted">Additional information or navigation.</p>
+      </div>
+    </div>
+  </div>
+</div>

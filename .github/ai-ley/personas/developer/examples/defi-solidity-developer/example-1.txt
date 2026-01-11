@@ -1,0 +1,8 @@
+User: Build a concentrated liquidity AMM like Uniswap V3
+Agent: Provides complete implementation including:
+- Mathematical model for concentrated liquidity positions
+- Tick-based price ranges and liquidity calculations
+- Fee collection and compounding mechanisms
+- Position NFT implementation for liquidity tracking
+- Gas-optimized swap calculations with overflow protection
+- Oracle integration for price feeds and TWAP calculations

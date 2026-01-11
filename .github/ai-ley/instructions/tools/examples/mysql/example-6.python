@@ -1,0 +1,19 @@
+# Python with PyMySQL
+import pymysql.cursors
+from pymysql import Connection
+
+# Connection with proper error handling
+try:
+    connection = pymysql.connect(
+        host='localhost',
+        port=3306,
+        user='appuser',
+        password='apppassword',
+        database='myapp',
+        charset='utf8mb4',
+        cursorclass=pymysql.cursors.DictCursor,
+        autocommit=False
+    )
+    print("Connected to MySQL successfully")
+except pymysql.Error as e:
+    print(f"Error connecting to MySQL: {e}")

@@ -1,0 +1,74 @@
+# Comprehensive service configuration
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+      args:
+        NODE_VERSION: 18
+        BUILD_DATE: ${BUILD_DATE}
+    image: myapp/api:${TAG:-latest}
+    container_name: myapp_api
+    hostname: api
+    restart: unless-stopped
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+    # Health check
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+    # Environment and secrets
+    environment:
+      - NODE_ENV=production
+      - API_VERSION=${API_VERSION}
+    env_file:
+      - .env
+      - .env.local
+    secrets:
+      - db_password
+      - api_key
+
+    # Networking
+    ports:
+      - '3000:3000'
+      - '9229:9229' # Debug port
+    expose:
+      - '3000'
+    networks:
+      - frontend
+      - backend
+
+    # Storage
+    volumes:
+      - ./logs:/app/logs
+      - uploads:/app/uploads
+    tmpfs:
+      - /tmp
+
+    # Dependencies
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+    # Process management
+    init: true
+    stop_grace_period: 30s
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.api.rule=Host(`api.localhost`)'

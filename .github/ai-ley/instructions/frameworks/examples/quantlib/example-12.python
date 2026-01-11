@@ -1,0 +1,17 @@
+# Robust calibration with multiple attempts
+def robust_calibration(model, helpers, method='LevenbergMarquardt'):
+    optimization_methods = [
+        ql.LevenbergMarquardt(),
+        ql.Simplex(0.01),
+        ql.BFGS()
+    ]
+    
+    for opt_method in optimization_methods:
+        try:
+            model.calibrate(helpers, opt_method, ql.EndCriteria(1000, 100, 1e-8, 1e-8, 1e-8))
+            if model.endCriteria() == ql.EndCriteria.None:
+                return True
+        except Exception:
+            continue
+    
+    return False

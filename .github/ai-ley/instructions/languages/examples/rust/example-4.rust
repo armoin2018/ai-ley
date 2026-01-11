@@ -1,0 +1,12 @@
+let result = lines.join("");
+
+// For more complex operations
+let result: String = lines
+    .iter()
+    .map(|line| line.trim())
+    .collect::<Vec<_>>()
+    .join("\n");
+
+// Or using itertools
+use itertools::Itertools;
+let result = lines.iter().join("\n");

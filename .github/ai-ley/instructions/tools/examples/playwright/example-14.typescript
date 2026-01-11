@@ -1,0 +1,58 @@
+// tests/auth/login.spec.ts
+import { test, expect } from '@playwright/test'
+
+test.describe('Authentication', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/login')
+  })
+
+  test('successful login redirects to dashboard', async ({ page }) => {
+    await page.fill('[data-testid="email"]', 'user@example.com')
+    await page.fill('[data-testid="password"]', 'password123')
+    await page.click('[data-testid="login-button"]')
+
+    await expect(page).toHaveURL('/dashboard')
+    await expect(page.locator('[data-testid="user-menu"]')).toBeVisible()
+  })
+
+  test('invalid credentials show error', async ({ page }) => {
+    await page.fill('[data-testid="email"]', 'invalid@example.com')
+    await page.fill('[data-testid="password"]', 'wrongpassword')
+    await page.click('[data-testid="login-button"]')
+
+    await expect(page.locator('[data-testid="error-message"]')).toContainText('Invalid credentials')
+    await expect(page).toHaveURL('/login')
+  })
+
+  test('remember me functionality', async ({ page, context }) => {
+    await page.check('[data-testid="remember-me"]')
+    await page.fill('[data-testid="email"]', 'user@example.com')
+    await page.fill('[data-testid="password"]', 'password123')
+    await page.click('[data-testid="login-button"]')
+
+    // Verify persistent storage
+    const cookies = await context.cookies()
+    expect(cookies.find(c => c.name === 'remember_token')).toBeTruthy()
+  })
+})
+
+// Global authentication setup
+// global-setup.ts
+import { chromium, FullConfig } from '@playwright/test'
+
+async function globalSetup(config: FullConfig) {
+  const browser = await chromium.launch()
+  const page = await browser.newPage()
+
+  // Authenticate once globally
+  await page.goto('http://localhost:3000/login')
+  await page.fill('[data-testid="email"]', 'test@example.com')
+  await page.fill('[data-testid="password"]', 'password123')
+  await page.click('[data-testid="login-button"]')
+
+  // Save authentication state
+  await page.context().storageState({ path: 'storage-state.json' })
+  await browser.close()
+}
+
+export default globalSetup

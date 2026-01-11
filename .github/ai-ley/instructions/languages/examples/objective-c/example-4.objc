@@ -1,0 +1,110 @@
+// Memory management best practices
+
+// 1. Proper use of weak references to avoid retain cycles
+@interface ViewControllerWithDelegate : UIViewController
+
+@property (nonatomic, weak) id<SomeDelegate> delegate; // Use weak for delegates
+
+@end
+
+// 2. Autorelease pool optimization
+- (void)processLargeDataSet:(NSArray *)dataSet {
+    for (id item in dataSet) {
+        @autoreleasepool {
+            // Process item - autorelease pool will clean up temporary objects
+            [self processItem:item];
+        }
+    }
+}
+
+// 3. Lazy loading properties
+@interface DataProcessor : NSObject
+@property (nonatomic, strong) NSMutableArray *cachedResults;
+@end
+
+@implementation DataProcessor
+
+- (NSMutableArray *)cachedResults {
+    if (!_cachedResults) {
+        _cachedResults = [[NSMutableArray alloc] init];
+    }
+    return _cachedResults;
+}
+
+@end
+
+// 4. Efficient string operations
+- (NSString *)processStringsEfficiently:(NSArray<NSString *> *)strings {
+    // Use NSMutableString for multiple concatenations
+    NSMutableString *result = [NSMutableString string];
+    
+    for (NSString *string in strings) {
+        [result appendString:string];
+        [result appendString:@" "];
+    }
+    
+    return [result copy]; // Return immutable copy
+}
+
+// 5. Background queue processing
+- (void)performHeavyComputationWithCompletion:(void(^)(id result))completion {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        // Heavy computation on background queue
+        id result = [self performComplexCalculation];
+        
+        // Return to main queue for UI updates
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completion(result);
+        });
+    });
+}
+
+// 6. Core Foundation bridging
+- (void)workWithCoreFoundationTypes {
+    // Bridge from Core Foundation to Objective-C
+    CFStringRef cfString = CFStringCreateWithCString(NULL, "Hello", kCFStringEncodingUTF8);
+    NSString *nsString = (__bridge NSString *)cfString;
+    
+    // Use the string
+    NSLog(@"%@", nsString);
+    
+    // Clean up Core Foundation object
+    CFRelease(cfString);
+}
+
+// 7. KVO implementation
+@interface ObservableModel : NSObject
+@property (nonatomic, strong) NSString *observedProperty;
+@end
+
+@implementation ObservableModel
+
++ (NSSet<NSString *> *)keyPathsForValuesAffectingComputedProperty {
+    return [NSSet setWithObjects:@"observedProperty", nil];
+}
+
+- (NSString *)computedProperty {
+    return [self.observedProperty uppercaseString];
+}
+
+@end
+
+// KVO Observer
+@interface Observer : NSObject
+@end
+
+@implementation Observer
+
+- (void)observeValueForKeyPath:(NSString *)keyPath 
+                      ofObject:(id)object 
+                        change:(NSDictionary<NSKeyValueChangeKey,id> *)change 
+                       context:(void *)context {
+    
+    if ([keyPath isEqualToString:@"observedProperty"]) {
+        NSLog(@"Property changed: %@", change[NSKeyValueChangeNewKey]);
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
+}
+
+@end

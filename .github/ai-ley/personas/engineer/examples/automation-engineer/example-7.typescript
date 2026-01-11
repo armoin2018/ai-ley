@@ -1,0 +1,33 @@
+// tests/e2e/user-journey.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('User Registration Journey', () => {
+  test('should complete user registration successfully', async ({ page }) => {
+    // Navigation
+    await page.goto('/register');
+    
+    // Form filling with data generation
+    const userData = {
+      email: `test-${Date.now()}@example.com`,
+      password: 'SecurePass123!',
+      firstName: 'Test',
+      lastName: 'User'
+    };
+    
+    await page.fill('[data-testid="email-input"]', userData.email);
+    await page.fill('[data-testid="password-input"]', userData.password);
+    await page.fill('[data-testid="first-name-input"]', userData.firstName);
+    await page.fill('[data-testid="last-name-input"]', userData.lastName);
+    
+    // Submit form
+    await page.click('[data-testid="register-button"]');
+    
+    // Verify success
+    await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
+    await expect(page).toHaveURL('/dashboard');
+    
+    // Verify user data
+    const welcomeText = page.locator('[data-testid="welcome-message"]');
+    await expect(welcomeText).toContainText(userData.firstName);
+  });
+});

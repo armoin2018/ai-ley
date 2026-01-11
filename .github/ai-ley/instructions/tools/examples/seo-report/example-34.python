@@ -1,0 +1,70 @@
+# Schema Markup Analysis Framework
+class SchemaAnalyzer:
+    def __init__(self):
+        self.schema_types = {
+            'Organization': self.analyze_organization_schema,
+            'Product': self.analyze_product_schema,
+            'LocalBusiness': self.analyze_local_business_schema,
+            'Article': self.analyze_article_schema,
+            'Review': self.analyze_review_schema,
+            'BreadcrumbList': self.analyze_breadcrumb_schema
+        }
+
+    def analyze_page_schema(self, url, page_content):
+        """Detect and analyze schema markup implementation"""
+        detected_schemas = self.detect_schema_types(page_content)
+        schema_analysis = {}
+
+        for schema_type in detected_schemas:
+            if schema_type in self.schema_types:
+                analysis = self.schema_types[schema_type](page_content)
+                schema_analysis[schema_type] = analysis
+
+        # Identify missing schema opportunities
+        missing_schemas = self.identify_missing_schemas(url, page_content)
+
+        return {
+            'detected_schemas': schema_analysis,
+            'missing_opportunities': missing_schemas,
+            'implementation_score': self.calculate_schema_score(schema_analysis),
+            'recommendations': self.generate_schema_recommendations(schema_analysis, missing_schemas)
+        }
+
+    def analyze_product_schema(self, content):
+        """Analyze Product schema implementation"""
+        product_schema = self.extract_product_schema(content)
+
+        analysis = {
+            'required_properties': {
+                'name': self.validate_property(product_schema, 'name', 10, 80),
+                'description': self.validate_property(product_schema, 'description', 150, 300),
+                'price': self.validate_property(product_schema, 'price'),
+                'availability': self.validate_property(product_schema, 'availability')
+            },
+            'recommended_properties': {
+                'brand': self.validate_property(product_schema, 'brand'),
+                'sku': self.validate_property(product_schema, 'sku'),
+                'aggregateRating': self.validate_property(product_schema, 'aggregateRating'),
+                'review': self.validate_property(product_schema, 'review')
+            },
+            'implementation_quality': self.assess_schema_quality(product_schema)
+        }
+
+        return analysis
+
+    def validate_property(self, schema_data, property_name, min_length=None, max_length=None):
+        """Validate individual schema property"""
+        if property_name not in schema_data:
+            return {'status': 'missing', 'recommendation': 'Add required property'}
+
+        value = schema_data[property_name]
+        validation = {'status': 'present', 'value': value}
+
+        if min_length and len(str(value)) < min_length:
+            validation['warning'] = f'Value too short (min: {min_length} chars)'
+        elif max_length and len(str(value)) > max_length:
+            validation['warning'] = f'Value too long (max: {max_length} chars)'
+        else:
+            validation['status'] = 'optimal'
+
+        return validation

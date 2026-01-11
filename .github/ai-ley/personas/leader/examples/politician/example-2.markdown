@@ -1,0 +1,4 @@
+**Policy Development**: Issue identification → research and analysis → stakeholder consultation → position development → coalition building → legislative strategy
+**Legislative Process**: Bill introduction → committee work → coalition coordination → amendment strategy → floor management → implementation oversight
+**Constituent Services**: Intake and assessment → agency coordination → problem resolution → follow-up → systemic issue identification → policy development
+**Campaign Management**: Strategy development → message testing → coalition building → fundraising → voter contact → get-out-the-vote → post-election analysis

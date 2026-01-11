@@ -1,0 +1,32 @@
+# Rate limiting handler
+rate_limit_handler = {
+    "type": "PythonFunction",
+    "code": """
+import time
+import random
+from functools import wraps
+
+def rate_limit_retry(max_retries=3, base_delay=1):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            for attempt in range(max_retries):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    if "rate limit" in str(e).lower() and attempt < max_retries - 1:
+                        delay = base_delay * (2 ** attempt) + random.uniform(0, 1)
+                        print(f"Rate limited. Retrying in {delay:.2f}s...")
+                        time.sleep(delay)
+                        continue
+                    raise
+            return None
+        return wrapper
+    return decorator
+
+@rate_limit_retry(max_retries=5, base_delay=2)
+def api_call_with_retry(url, headers, data):
+    # Your API call implementation
+    pass
+    """
+}

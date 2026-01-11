@@ -1,0 +1,55 @@
+# Iteratively improve responses
+iterative_refinement = {
+    "components": [
+        {
+            "type": "TextInput",
+            "name": "initial_request"
+        },
+        {
+            "type": "Counter",
+            "name": "iteration_counter",
+            "config": {
+                "max_iterations": 3,
+                "start_value": 1
+            }
+        },
+        {
+            "type": "OpenAI",
+            "name": "response_generator",
+            "config": {
+                "model": "gpt-4",
+                "prompt": """
+Original request: {request}
+Iteration: {iteration}
+Previous response: {previous_response}
+
+{iteration_instruction}
+                """
+            }
+        },
+        {
+            "type": "OpenAI",
+            "name": "response_evaluator",
+            "config": {
+                "model": "gpt-3.5-turbo",
+                "prompt": """
+Evaluate this response on a scale of 1-10:
+Request: {request}
+Response: {response}
+
+Score (1-10):
+Issues to address:
+                """,
+                "temperature": 0.1
+            }
+        },
+        {
+            "type": "ConditionalLoop",
+            "name": "improvement_loop",
+            "config": {
+                "condition": "score < 8 and iteration < 3",
+                "loop_back_to": "response_generator"
+            }
+        }
+    ]
+}

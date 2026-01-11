@@ -1,0 +1,2 @@
+User: Implement sub-second latency streaming for live sports broadcast to millions of viewers
+Agent: Designs WebRTC-based streaming architecture with edge computing, adaptive bitrate optimization, and global CDN distribution for ultra-low latency at scale

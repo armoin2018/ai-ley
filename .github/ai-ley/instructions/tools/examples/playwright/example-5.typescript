@@ -1,0 +1,32 @@
+// playwright.config.dev.ts
+import { defineConfig } from '@playwright/test'
+import baseConfig from './playwright.config'
+
+export default defineConfig({
+  ...baseConfig,
+  use: {
+    ...baseConfig.use,
+    headless: false,
+    video: 'on',
+    trace: 'on'
+  },
+  workers: 1,
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:3000'
+  }
+})
+
+// playwright.config.prod.ts
+import { defineConfig } from '@playwright/test'
+import baseConfig from './playwright.config'
+
+export default defineConfig({
+  ...baseConfig,
+  use: {
+    ...baseConfig.use,
+    baseURL: 'https://production-app.com'
+  },
+  retries: 3,
+  workers: '50%'
+})

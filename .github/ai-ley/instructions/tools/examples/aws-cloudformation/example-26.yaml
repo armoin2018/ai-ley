@@ -1,0 +1,382 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Cost-Optimized and Performance-Tuned Infrastructure'
+
+Parameters:
+  Environment:
+    Type: String
+    AllowedValues: [dev, staging, production]
+    Default: dev
+
+Mappings:
+  EnvironmentConfig:
+    dev:
+      InstanceType: t3.micro
+      MinCapacity: 1
+      MaxCapacity: 2
+      DesiredCapacity: 1
+      StorageType: gp3
+      EnableBackup: false
+      MonitoringLevel: basic
+    staging:
+      InstanceType: t3.small
+      MinCapacity: 2
+      MaxCapacity: 4
+      DesiredCapacity: 2
+      StorageType: gp3
+      EnableBackup: true
+      MonitoringLevel: detailed
+    production:
+      InstanceType: c5.large
+      MinCapacity: 3
+      MaxCapacity: 10
+      DesiredCapacity: 3
+      StorageType: io1
+      EnableBackup: true
+      MonitoringLevel: enhanced
+
+Resources:
+  # Cost-optimized Auto Scaling Group
+  CostOptimizedAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: !Sub 'cost-optimized-asg-${Environment}'
+      LaunchTemplate:
+        LaunchTemplateId: !Ref CostOptimizedLaunchTemplate
+        Version: !GetAtt CostOptimizedLaunchTemplate.LatestVersionNumber
+      MinSize: !FindInMap [EnvironmentConfig, !Ref Environment, MinCapacity]
+      MaxSize: !FindInMap [EnvironmentConfig, !Ref Environment, MaxCapacity]
+      DesiredCapacity: !FindInMap [EnvironmentConfig, !Ref Environment, DesiredCapacity]
+      VPCZoneIdentifier:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 300
+      DefaultCooldown: 300
+      TargetGroupARNs:
+        - !Ref ApplicationTargetGroup
+      Tags:
+        - Key: Name
+          Value: !Sub 'CostOptimized-${Environment}'
+          PropagateAtLaunch: true
+        - Key: Environment
+          Value: !Ref Environment
+          PropagateAtLaunch: true
+
+  CostOptimizedLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: !Sub 'cost-optimized-template-${Environment}'
+      LaunchTemplateData:
+        ImageId: ami-0abcdef1234567890 # Update with latest Amazon Linux 2 AMI
+        InstanceType: !FindInMap [EnvironmentConfig, !Ref Environment, InstanceType]
+        KeyName: !Ref KeyPairName
+        SecurityGroupIds:
+          - !Ref ApplicationSecurityGroup
+        IamInstanceProfile:
+          Arn: !GetAtt InstanceProfile.Arn
+        BlockDeviceMappings:
+          - DeviceName: /dev/xvda
+            Ebs:
+              VolumeType: !FindInMap [EnvironmentConfig, !Ref Environment, StorageType]
+              VolumeSize: 20
+              Encrypted: true
+              DeleteOnTermination: true
+        Monitoring:
+          Enabled: !If
+            - IsProduction
+            - true
+            - false
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            yum update -y
+
+            # Install CloudWatch agent for cost monitoring
+            yum install -y amazon-cloudwatch-agent
+
+            # Configure CloudWatch agent
+            cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json << 'EOF'
+            {
+              "metrics": {
+                "namespace": "Enterprise/CostOptimization",
+                "metrics_collected": {
+                  "cpu": {
+                    "measurement": ["cpu_usage_idle", "cpu_usage_iowait", "cpu_usage_user", "cpu_usage_system"],
+                    "metrics_collection_interval": 60
+                  },
+                  "disk": {
+                    "measurement": ["used_percent"],
+                    "metrics_collection_interval": 60,
+                    "resources": ["*"]
+                  },
+                  "mem": {
+                    "measurement": ["mem_used_percent"],
+                    "metrics_collection_interval": 60
+                  }
+                }
+              }
+            }
+            EOF
+
+            # Start CloudWatch agent
+            /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+              -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json -s
+
+            # Install application
+            yum install -y httpd
+            systemctl start httpd
+            systemctl enable httpd
+
+            # Create simple monitoring page
+            cat > /var/www/html/health.html << 'EOF'
+            <!DOCTYPE html>
+            <html>
+            <head><title>Health Check</title></head>
+            <body>
+              <h1>Service Health: OK</h1>
+              <p>Environment: ${Environment}</p>
+              <p>Instance: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)</p>
+              <p>Timestamp: $(date)</p>
+            </body>
+            </html>
+            EOF
+
+  # Cost optimization with Spot Fleet
+  SpotFleetRequest:
+    Type: AWS::EC2::SpotFleet
+    Condition: IsNotProduction
+    Properties:
+      SpotFleetRequestConfig:
+        IamFleetRole: !GetAtt SpotFleetRole.Arn
+        AllocationStrategy: diversified
+        TargetCapacity: 2
+        SpotPrice: '0.05'
+        LaunchSpecifications:
+          - ImageId: ami-0abcdef1234567890
+            InstanceType: t3.small
+            KeyName: !Ref KeyPairName
+            SecurityGroups:
+              - GroupId: !Ref ApplicationSecurityGroup
+            SubnetId: !Ref PrivateSubnet1
+            UserData:
+              Fn::Base64: !Sub |
+                #!/bin/bash
+                yum update -y
+                yum install -y httpd
+                systemctl start httpd
+                systemctl enable httpd
+                echo "<h1>Spot Instance - Cost Optimized</h1>" > /var/www/html/index.html
+          - ImageId: ami-0abcdef1234567890
+            InstanceType: t3.medium
+            KeyName: !Ref KeyPairName
+            SecurityGroups:
+              - GroupId: !Ref ApplicationSecurityGroup
+            SubnetId: !Ref PrivateSubnet2
+
+  # Reserved Instance recommendations
+  ReservedInstancesRecommendations:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub 'ri-recommendations-${Environment}'
+      Description: Trigger RI recommendations analysis
+      ScheduleExpression: 'rate(30 days)'
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt CostOptimizationFunction.Arn
+          Id: CostOptimizationTarget
+
+  CostOptimizationFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'cost-optimization-${Environment}'
+      Runtime: python3.9
+      Handler: index.handler
+      Timeout: 300
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          from datetime import datetime, timedelta
+
+          ce = boto3.client('ce')  # Cost Explorer
+          sns = boto3.client('sns')
+
+          def handler(event, context):
+              """Generate cost optimization recommendations"""
+              
+              try:
+                  # Get cost and usage data
+                  end_date = datetime.now().strftime('%Y-%m-%d')
+                  start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+                  
+                  response = ce.get_cost_and_usage(
+                      TimePeriod={
+                          'Start': start_date,
+                          'End': end_date
+                      },
+                      Granularity='MONTHLY',
+                      Metrics=['BlendedCost', 'UsageQuantity'],
+                      GroupBy=[
+                          {'Type': 'DIMENSION', 'Key': 'SERVICE'},
+                          {'Type': 'DIMENSION', 'Key': 'INSTANCE_TYPE'}
+                      ]
+                  )
+                  
+                  # Analyze costs and generate recommendations
+                  recommendations = analyze_costs(response)
+                  
+                  # Get Reserved Instance recommendations
+                  ri_recommendations = ce.get_reservation_recommendations(
+                      Service='Amazon Elastic Compute Cloud - Compute'
+                  )
+                  
+                  # Generate report
+                  report = generate_cost_report(recommendations, ri_recommendations)
+                  
+                  # Send report via SNS
+                  # sns.publish(
+                  #     TopicArn='arn:aws:sns:region:account:cost-optimization-alerts',
+                  #     Subject=f'Cost Optimization Report - {os.environ["ENVIRONMENT"]}',
+                  #     Message=report
+                  # )
+                  
+                  return {
+                      'statusCode': 200,
+                      'body': json.dumps({
+                          'message': 'Cost optimization analysis completed',
+                          'recommendations': len(recommendations)
+                      })
+                  }
+                  
+              except Exception as e:
+                  print(f'Error: {str(e)}')
+                  return {
+                      'statusCode': 500,
+                      'body': json.dumps({'error': str(e)})
+                  }
+
+          def analyze_costs(cost_data):
+              """Analyze cost data and generate recommendations"""
+              
+              recommendations = []
+              
+              for result in cost_data['ResultsByTime']:
+                  for group in result['Groups']:
+                      service = group['Keys'][0]
+                      instance_type = group['Keys'][1] if len(group['Keys']) > 1 else 'N/A'
+                      cost = float(group['Metrics']['BlendedCost']['Amount'])
+                      
+                      # Generate recommendations based on cost patterns
+                      if cost > 100 and 'EC2' in service:
+                          recommendations.append({
+                              'service': service,
+                              'instance_type': instance_type,
+                              'current_cost': cost,
+                              'recommendation': 'Consider Reserved Instances for cost savings',
+                              'potential_savings': cost * 0.3  # Estimate 30% savings
+                          })
+              
+              return recommendations
+
+          def generate_cost_report(recommendations, ri_recommendations):
+              """Generate formatted cost optimization report"""
+              
+              report = f"Cost Optimization Report - {datetime.now().strftime('%Y-%m-%d')}\n\n"
+              
+              if recommendations:
+                  report += "=== COST ANALYSIS ===\n"
+                  for rec in recommendations:
+                      report += f"Service: {rec['service']}\n"
+                      report += f"Instance Type: {rec['instance_type']}\n"
+                      report += f"Current Monthly Cost: ${rec['current_cost']:.2f}\n"
+                      report += f"Recommendation: {rec['recommendation']}\n"
+                      report += f"Potential Monthly Savings: ${rec['potential_savings']:.2f}\n\n"
+              
+              if ri_recommendations.get('Recommendations'):
+                  report += "=== RESERVED INSTANCE RECOMMENDATIONS ===\n"
+                  for ri in ri_recommendations['Recommendations']:
+                      details = ri['RecommendationDetails']
+                      report += f"Instance Type: {details['InstanceDetails']['EC2InstanceDetails']['InstanceType']}\n"
+                      report += f"Estimated Monthly Savings: ${details['EstimatedMonthlySavingsAmount']:.2f}\n"
+                      report += f"Estimated Monthly On-Demand Cost: ${details['EstimatedMonthlyOnDemandCost']:.2f}\n\n"
+              
+              return report
+      Role: !GetAtt CostOptimizationRole.Arn
+
+  CostOptimizationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: CostExplorerAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ce:GetCostAndUsage
+                  - ce:GetReservationRecommendations
+                  - ce:GetUsageReport
+                Resource: '*'
+
+  # Cost budgets and alerts
+  CostBudget:
+    Type: AWS::Budgets::Budget
+    Properties:
+      Budget:
+        BudgetName: !Sub 'enterprise-budget-${Environment}'
+        BudgetLimit:
+          Amount: !If
+            - IsProduction
+            - 1000
+            - !If [IsStaging, 500, 100]
+          Unit: USD
+        TimeUnit: MONTHLY
+        BudgetType: COST
+        CostFilters:
+          TagKey:
+            - Environment
+          TagValue:
+            - !Ref Environment
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 80
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref CostAlertEmail
+        - Notification:
+            NotificationType: FORECASTED
+            ComparisonOperator: GREATER_THAN
+            Threshold: 100
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref CostAlertEmail
+
+Conditions:
+  IsProduction: !Equals [!Ref Environment, production]
+  IsStaging: !Equals [!Ref Environment, staging]
+  IsNotProduction: !Not [!Equals [!Ref Environment, production]]
+
+Outputs:
+  CostOptimizationDashboard:
+    Description: URL to cost optimization dashboard
+    Value: !Sub 'https://${AWS::Region}.console.aws.amazon.com/billing/home#/budgets'
+
+  AutoScalingGroupName:
+    Description: Name of the Auto Scaling Group
+    Value: !Ref CostOptimizedAutoScalingGroup
+    Export:
+      Name: !Sub '${AWS::StackName}-ASG'

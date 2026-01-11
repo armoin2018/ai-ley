@@ -1,0 +1,305 @@
+# enterprise-docker-compose.yml - Comprehensive security architecture
+version: '3.8'
+
+# Enterprise network topology with security segmentation
+networks:
+  # Frontend DMZ network
+  frontend-dmz:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.1.0/24
+          gateway: 172.20.1.1
+    driver_opts:
+      com.docker.network.bridge.name: frontend-dmz
+      com.docker.network.bridge.enable_icc: 'false'
+      com.docker.network.bridge.enable_ip_masquerade: 'true'
+    labels:
+      - security.zone=dmz
+      - compliance.pci-dss=true
+      - monitoring.enabled=true
+
+  # Application tier network
+  app-tier:
+    driver: bridge
+    internal: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.2.0/24
+          gateway: 172.20.2.1
+    driver_opts:
+      com.docker.network.bridge.name: app-tier
+      com.docker.network.bridge.enable_icc: 'true'
+    labels:
+      - security.zone=application
+      - compliance.soc2=true
+
+  # Database tier network (most secure)
+  db-tier:
+    driver: bridge
+    internal: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.3.0/24
+          gateway: 172.20.3.1
+    driver_opts:
+      com.docker.network.bridge.name: db-tier
+      com.docker.network.bridge.enable_icc: 'false'
+    labels:
+      - security.zone=database
+      - compliance.pci-dss=true
+      - encryption.required=true
+
+  # Monitoring network
+  monitoring:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.4.0/24
+    labels:
+      - security.zone=monitoring
+      - access.restricted=true
+
+# Enterprise secrets management
+secrets:
+  db_root_password:
+    external: true
+    name: mysql_root_password
+
+  app_jwt_secret:
+    external: true
+    name: application_jwt_secret
+
+  ssl_certificate:
+    external: true
+    name: enterprise_ssl_cert
+
+  ssl_private_key:
+    external: true
+    name: enterprise_ssl_key
+
+  api_encryption_key:
+    external: true
+    name: api_encryption_key
+
+  oauth_client_secret:
+    external: true
+    name: oauth_client_secret
+
+# Enterprise configuration management
+configs:
+  nginx_security_config:
+    external: true
+    name: nginx_security_headers
+
+  app_security_config:
+    external: true
+    name: application_security_policy
+
+  database_security_config:
+    external: true
+    name: mysql_security_configuration
+
+  monitoring_config:
+    external: true
+    name: prometheus_scrape_config
+
+services:
+  # Enterprise reverse proxy with security hardening
+  reverse-proxy:
+    image: nginx:1.25-alpine
+    container_name: enterprise-proxy
+    restart: always
+    ports:
+      - '80:80'
+      - '443:443'
+    networks:
+      - frontend-dmz
+      - app-tier
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - /var/log/nginx:/var/log/nginx
+    secrets:
+      - source: ssl_certificate
+        target: /etc/nginx/ssl/cert.pem
+        mode: 0444
+      - source: ssl_private_key
+        target: /etc/nginx/ssl/key.pem
+        mode: 0400
+    configs:
+      - source: nginx_security_config
+        target: /etc/nginx/conf.d/security.conf
+    environment:
+      - NGINX_WORKER_PROCESSES=auto
+      - NGINX_WORKER_CONNECTIONS=1024
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:nginx_profile
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx:noexec,nosuid,size=100m
+      - /var/run:noexec,nosuid,size=100m
+    user: '101:101'
+    cap_drop:
+      - ALL
+    cap_add:
+      - CAP_NET_BIND_SERVICE
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - traefik.enable=false
+      - security.scan=true
+      - backup.exclude=true
+      - monitoring.scrape=true
+
+  # Enterprise web application with security hardening
+  web-app:
+    build:
+      context: ./web-app
+      dockerfile: Dockerfile.security
+      args:
+        - BUILD_DATE=${BUILD_DATE}
+        - VCS_REF=${VCS_REF}
+        - VERSION=${VERSION}
+    image: enterprise/web-app:${VERSION:-latest}
+    container_name: enterprise-web-app
+    restart: always
+    networks:
+      - app-tier
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    secrets:
+      - source: app_jwt_secret
+        target: /run/secrets/jwt_secret
+        mode: 0400
+      - source: api_encryption_key
+        target: /run/secrets/encryption_key
+        mode: 0400
+    configs:
+      - source: app_security_config
+        target: /app/config/security.yaml
+    environment:
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+      - ENABLE_METRICS=true
+      - CORS_ORIGIN=https://app.enterprise.local
+      - SESSION_SECURE=true
+      - COOKIE_SECURE=true
+      - HSTS_ENABLED=true
+      - CSP_ENABLED=true
+    security_opt:
+      - no-new-privileges:true
+      - seccomp:./security/seccomp-app.json
+      - apparmor:app_profile
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=500m
+      - /app/logs:noexec,nosuid,size=1g
+    user: '1000:1000'
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    labels:
+      - security.scan=true
+      - backup.include=logs
+      - monitoring.scrape=true
+      - compliance.soc2=true
+
+  # Enterprise database with encryption and security
+  database:
+    image: mysql:8.0
+    container_name: enterprise-database
+    restart: always
+    networks:
+      - db-tier
+    secrets:
+      - source: db_root_password
+        target: /run/secrets/mysql_root_password
+        mode: 0400
+    configs:
+      - source: database_security_config
+        target: /etc/mysql/conf.d/security.cnf
+    environment:
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password
+      - MYSQL_DATABASE=enterprise_db
+      - MYSQL_USER=app_user
+      - MYSQL_PASSWORD_FILE=/run/secrets/mysql_root_password
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+    security_opt:
+      - no-new-privileges:true
+      - seccomp:./security/seccomp-mysql.json
+    volumes:
+      - database_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d:ro
+      - database_logs:/var/log/mysql
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    labels:
+      - security.scan=true
+      - backup.include=data
+      - monitoring.scrape=true
+      - compliance.pci-dss=true
+      - encryption.enabled=true
+
+# Enterprise volume management with encryption
+volumes:
+  database_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/enterprise/data/mysql
+    labels:
+      - backup.schedule=daily
+      - encryption.required=true
+
+  database_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/enterprise/logs/mysql
+    labels:
+      - retention.days=30
+      - backup.exclude=true

@@ -1,0 +1,2 @@
+User: Connect LangChain agent to external APIs and databases
+Agent: Builds custom tools, implements proper authentication, error handling, and result processing

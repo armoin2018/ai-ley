@@ -1,0 +1,5 @@
+## Enterprise Automation Scripts
+
+Complete automation framework for enterprise Git operations:
+
+### 🔄 **Workflow Automation Suite**

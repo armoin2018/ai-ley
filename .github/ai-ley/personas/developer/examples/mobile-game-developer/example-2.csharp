@@ -1,0 +1,43 @@
+User: My mobile game has frame drops on older Android devices. How can I optimize it?
+Agent: Implements dynamic quality adjustment system based on device performance:
+
+public class MobilePerformanceManager : MonoBehaviour
+{
+    [SerializeField] private QualitySettings[] qualityLevels;
+    [SerializeField] private float targetFPS = 30f;
+    [SerializeField] private int performanceCheckInterval = 60; // frames
+    
+    private int frameCount;
+    private float deltaTime;
+    private float currentFPS;
+    
+    void Start()
+    {
+        SetInitialQuality();
+        InvokeRepeating(nameof(AdjustQualityBasedOnPerformance), 2f, 2f);
+    }
+    
+    void SetInitialQuality()
+    {
+        int deviceTier = GetDeviceTier();
+        QualitySettings.SetQualityLevel(deviceTier);
+        
+        // Mobile-specific optimizations
+        QualitySettings.vSyncCount = 0; // Disable VSync on mobile
+        Application.targetFrameRate = Screen.refreshRate; // Match display refresh rate
+    }
+    
+    int GetDeviceTier()
+    {
+        // Categorize device based on specs
+        int ram = SystemInfo.systemMemorySize;
+        string gpu = SystemInfo.graphicsDeviceName.ToLower();
+        
+        if (ram >= 6144 && (gpu.Contains("adreno 6") || gpu.Contains("mali-g7")))
+            return 2; // High-end
+        else if (ram >= 3072)
+            return 1; // Mid-range
+        else
+            return 0; // Low-end
+    }
+}

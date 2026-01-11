@@ -1,0 +1,8 @@
+- Build with Buildah in rootless mode; push to registry with short‑lived tokens
+- Run smoke tests in containers; sign images; deploy via Quadlet units
+- Multi-architecture builds with security scanning and image signing
+- Automated vulnerability assessment and compliance validation
+
+## Troubleshooting
+
+### Enterprise Diagnostics

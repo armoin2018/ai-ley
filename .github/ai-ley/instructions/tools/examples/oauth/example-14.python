@@ -1,0 +1,8 @@
+def validate_oauth_state(received_state, expected_state):
+    """Validate OAuth state parameter to prevent CSRF."""
+    if not received_state or not expected_state:
+        return False
+
+    # Use constant-time comparison to prevent timing attacks
+    import hmac
+    return hmac.compare_digest(received_state, expected_state)

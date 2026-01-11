@@ -1,0 +1,60 @@
+// contracts/PriceConsumer.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
+contract PriceConsumer {
+    AggregatorV3Interface internal priceFeed;
+
+    /**
+     * Network: Ethereum Mainnet
+     * Aggregator: ETH/USD
+     * Address: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419
+     */
+    constructor() {
+        priceFeed = AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
+    }
+
+    /**
+     * Returns the latest price with decimals
+     */
+    function getLatestPrice() public view returns (int256, uint8) {
+        (
+            uint80 roundID,
+            int256 price,
+            uint256 startedAt,
+            uint256 timeStamp,
+            uint80 answeredInRound
+        ) = priceFeed.latestRoundData();
+        
+        uint8 decimals = priceFeed.decimals();
+        return (price, decimals);
+    }
+
+    /**
+     * Returns formatted price in USD (18 decimals)
+     */
+    function getFormattedPrice() public view returns (uint256) {
+        (int256 price, uint8 decimals) = getLatestPrice();
+        require(price > 0, "Invalid price");
+        
+        // Convert to 18 decimals
+        return uint256(price) * (10 ** (18 - decimals));
+    }
+
+    /**
+     * Get historical price data
+     */
+    function getHistoricalPrice(uint80 _roundId) public view returns (int256, uint256) {
+        (
+            uint80 roundID,
+            int256 price,
+            uint256 startedAt,
+            uint256 timeStamp,
+            uint80 answeredInRound
+        ) = priceFeed.getRoundData(_roundId);
+        
+        return (price, timeStamp);
+    }
+}

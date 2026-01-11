@@ -1,0 +1,31 @@
+# roles/logging/tasks/main.yml - Centralized logging setup
+---
+- name: Install filebeat
+  get_url:
+    url: 'https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-{{ filebeat_version }}-linux-x86_64.tar.gz'
+    dest: '/tmp/filebeat-{{ filebeat_version }}.tar.gz'
+
+- name: Configure filebeat
+  template:
+    src: filebeat.yml.j2
+    dest: /etc/filebeat/filebeat.yml
+    backup: true
+  notify: restart filebeat
+
+- name: Setup log parsing rules
+  copy:
+    content: |
+      # Parse Ansible logs
+      - type: log
+        enabled: true
+        paths:
+          - /var/log/ansible/*.log
+        fields:
+          logtype: ansible
+          environment: "{{ ansible_environment }}"
+        multiline:
+          pattern: '^\d{4}-\d{2}-\d{2}'
+          negate: true
+          match: after
+    dest: /etc/filebeat/conf.d/ansible.yml
+  notify: restart filebeat

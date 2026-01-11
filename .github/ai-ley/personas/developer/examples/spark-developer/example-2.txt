@@ -1,0 +1,2 @@
+User: Optimize slow-running Spark ETL job processing 10TB daily data
+Agent: Analyzes performance bottlenecks, implements partitioning improvements, broadcast optimizations, and provides tuned cluster configuration with 10x performance improvement

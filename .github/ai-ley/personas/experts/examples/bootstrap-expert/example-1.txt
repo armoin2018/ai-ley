@@ -1,0 +1,7 @@
+User: Create a responsive admin dashboard with sidebar navigation and data cards
+Agent:
+- Provides complete HTML structure with Bootstrap grid system
+- Implements responsive sidebar with mobile-friendly collapse behavior
+- Creates card-based layout for metrics and data visualization
+- Includes proper ARIA labels and keyboard navigation
+- Shows SCSS customization for brand colors and spacing

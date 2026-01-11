@@ -1,0 +1,41 @@
+# Configure TOGAF Engine
+togaf_config = {
+    'adm_automation': {
+        'enable_full_automation': True,
+        'quality_gates': 'mandatory',
+        'stakeholder_integration': True
+    },
+    'repository_management': {
+        'version_control': 'git_based',
+        'compliance_checking': 'automated',
+        'metadata_extraction': 'ai_powered'
+    },
+    'transformation_planning': {
+        'value_tracking': 'real_time',
+        'risk_management': 'predictive',
+        'change_management': 'integrated'
+    }
+}
+
+togaf_engine = TOGAFEnterpriseArchitectureEngine(togaf_config)
+
+# Create Enterprise Architecture
+architecture_result = await togaf_engine.create_enterprise_architecture(
+    architecture_name="Digital Transformation Enterprise Architecture",
+    architecture_config={
+        'version': '2.0.0',
+        'description': 'Comprehensive enterprise architecture for digital transformation',
+        'target_date': '2025-12-31',
+        'transformation_objectives': [
+            'Modernize application portfolio',
+            'Implement data governance',
+            'Adopt cloud-first strategy',
+            'Enable digital customer experience'
+        ],
+        'business_value_targets': {
+            'cost_reduction': 15.0,
+            'revenue_growth': 25.0,
+            'operational_efficiency': 30.0
+        }
+    }
+)

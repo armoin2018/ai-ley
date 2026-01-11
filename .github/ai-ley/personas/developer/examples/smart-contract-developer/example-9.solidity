@@ -1,0 +1,52 @@
+// contracts/CrossChainProtocol.sol
+import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
+
+contract CrossChainProtocol is NonblockingLzApp {
+    uint16 public constant PT_SEND_TOKENS = 1;
+
+    mapping(uint16 => mapping(bytes => uint256)) public failedMessages;
+    mapping(address => uint256) public balances;
+
+    event ReceiveFromChain(uint16 _srcChainId, bytes _srcAddress, uint256 _amount);
+
+    constructor(address _lzEndpoint) NonblockingLzApp(_lzEndpoint) {}
+
+    function sendTokensToChain(
+        uint16 _dstChainId,
+        bytes memory _toAddress,
+        uint256 _amount,
+        address payable _refundAddress,
+        address _zroPaymentAddress,
+        bytes memory _adapterParams
+    ) public payable {
+        require(balances[msg.sender] >= _amount, "Insufficient balance");
+
+        balances[msg.sender] -= _amount;
+
+        bytes memory payload = abi.encode(PT_SEND_TOKENS, _amount);
+
+        _lzSend(
+            _dstChainId,
+            _toAddress,
+            payload,
+            _refundAddress,
+            _zroPaymentAddress,
+            _adapterParams
+        );
+    }
+
+    function _nonblockingLzReceive(
+        uint16 _srcChainId,
+        bytes memory _srcAddress,
+        uint64 _nonce,
+        bytes memory _payload
+    ) internal override {
+        (uint16 packetType, uint256 amount) = abi.decode(_payload, (uint16, uint256));
+
+        if (packetType == PT_SEND_TOKENS) {
+            address toAddress = address(uint160(bytes20(_srcAddress)));
+            balances[toAddress] += amount;
+            emit ReceiveFromChain(_srcChainId, _srcAddress, amount);
+        }
+    }
+}

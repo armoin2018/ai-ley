@@ -1,0 +1,99 @@
+# stacks/globals/enterprise-baseline.yaml - Enterprise baseline configuration
+vars:
+  # Organization configuration
+  organization:
+    name: 'enterprise-corp'
+    domain: 'enterprise.com'
+    business_unit: 'platform-engineering'
+    cost_center: 'engineering'
+
+  # Compliance and governance
+  compliance:
+    frameworks:
+      - 'SOC2-Type2'
+      - 'PCI-DSS-3.2.1'
+      - 'HIPAA'
+      - 'NIST-800-53'
+      - 'CIS-AWS-Foundations-1.4'
+    data_classification: 'confidential'
+    data_retention_days: 2557 # 7 years
+    backup_retention_days: 90
+
+  # Security baseline
+  security:
+    encryption:
+      enabled: true
+      algorithm: 'AES-256'
+      key_rotation_days: 90
+    network:
+      zero_trust: true
+      network_segmentation: true
+      dmz_enabled: true
+    monitoring:
+      siem_enabled: true
+      ids_enabled: true
+      threat_intelligence: true
+
+  # Tagging strategy
+  tags:
+    common:
+      Organization: '{{ .vars.organization.name }}'
+      Environment: '{{ .vars.environment }}'
+      Tenant: '{{ .vars.tenant }}'
+      Stage: '{{ .vars.stage }}'
+      CostCenter: '{{ .vars.organization.cost_center }}'
+      ManagedBy: 'atmos-terraform'
+      Compliance: '{{ .vars.compliance.frameworks | join "," }}'
+      DataClassification: '{{ .vars.compliance.data_classification }}'
+      BackupPolicy: 'required'
+      MonitoringEnabled: 'true'
+
+  # Network configuration
+  networking:
+    vpc:
+      enable_dns_hostnames: true
+      enable_dns_support: true
+      enable_flow_logs: true
+      flow_logs_retention: 30
+    subnets:
+      public_subnet_suffix: 'public'
+      private_subnet_suffix: 'private'
+      database_subnet_suffix: 'database'
+
+  # Monitoring and observability
+  monitoring:
+    cloudtrail:
+      enabled: true
+      multi_region: true
+      include_global_services: true
+      enable_log_file_validation: true
+    cloudwatch:
+      log_retention_days: 90
+      metrics_retention_days: 15
+      detailed_monitoring: true
+    prometheus:
+      enabled: true
+      retention_days: 15
+      scrape_interval: '30s'
+    grafana:
+      enabled: true
+      admin_user: 'admin'
+
+  # Backup and disaster recovery
+  backup:
+    enabled: true
+    schedule: 'cron(0 2 * * ? *)' # Daily at 2 AM
+    retention_days: 30
+    cross_region_backup: true
+    point_in_time_recovery: true
+
+  # Cost management
+  cost_management:
+    budgets:
+      enabled: true
+      alert_thresholds: [80, 90, 100]
+      contact_emails: ['finance@enterprise.com', 'engineering@enterprise.com']
+    resource_optimization:
+      right_sizing: true
+      unused_resource_detection: true
+      scheduled_scaling: true

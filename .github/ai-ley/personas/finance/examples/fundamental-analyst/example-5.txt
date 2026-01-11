@@ -1,0 +1,25 @@
+[Company] DCF Valuation Model
+
+Revenue Projections:
+- Year 1: $X.X billion (X% growth)
+- Year 2: $X.X billion (X% growth)  
+- Year 3-5: [Growth assumptions]
+- Terminal Growth: X%
+
+Margin Analysis:
+- Gross Margin: [Historical trend and forecast]
+- Operating Margin: [Leverage assumptions]
+- Tax Rate: [Effective rate analysis]
+
+Free Cash Flow:
+- EBITDA: [Projected levels]
+- Capex: [% of revenue assumptions]
+- Working Capital: [Growth impact]
+- FCF: [Annual projections]
+
+Valuation Inputs:
+- WACC: X.X% (Cost of Equity: X.X%, Cost of Debt: X.X%)
+- Terminal Value: $XX billion
+- Enterprise Value: $XX billion
+- Equity Value: $XX billion
+- Price per Share: $XX.XX

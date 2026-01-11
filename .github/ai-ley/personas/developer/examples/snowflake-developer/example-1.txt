@@ -1,0 +1,2 @@
+User: Design Snowflake data warehouse for multi-tenant SaaS analytics platform
+Agent: Implements comprehensive architecture with secure data sharing, multi-cluster warehouses, cost optimization, performance tuning, and governance framework

@@ -1,0 +1,232 @@
+# Content Analysis Framework
+class ContentAnalyzer:
+    def __init__(self, focus_keywords=None):
+        self.focus_keywords = focus_keywords or []
+        self.content_metrics = {}
+
+    def analyze_page_content(self, url, content):
+        """Comprehensive content analysis"""
+        analysis = {
+            'word_count': self.count_words(content),
+            'readability_score': self.calculate_readability(content),
+            'keyword_density': self.analyze_keyword_density(content),
+            'header_structure': self.analyze_headers(content),
+            'internal_links': self.analyze_internal_links(content),
+            'content_quality': self.assess_content_quality(content)
+        }
+
+        # Generate content recommendations
+        recommendations = self.generate_content_recommendations(analysis)
+        return analysis, recommendations
+
+    def analyze_keyword_density(self, content):
+        """Analyze keyword usage and density"""
+        keyword_analysis = {}
+
+        for keyword in self.focus_keywords:
+            occurrences = content.lower().count(keyword.lower())
+            total_words = len(content.split())
+            density = (occurrences / total_words) * 100 if total_words > 0 else 0
+
+            keyword_analysis[keyword] = {
+                'occurrences': occurrences,
+                'density_percentage': round(density, 2),
+                'recommendation': self.get_keyword_recommendation(density),
+                'optimal_range': '1-3%'
+            }
+
+        return keyword_analysis
+
+    def get_keyword_recommendation(self, density):
+        """Provide keyword density recommendations"""
+        if density < 0.5:
+            return 'increase_usage'
+        elif density <= 3.0:
+            return 'optimal'
+        elif density <= 5.0:
+            return 'reduce_slightly'
+        else:
+            return 'keyword_stuffing_risk'
+
+    def generate_content_rewording_recommendations(self, content, keywords, page_url):
+        """Generate AI-powered content rewording recommendations for SEO optimization"""
+        recommendations = {
+            'page_url': page_url,
+            'seo_improvements': [],
+            'readability_improvements': [],
+            'keyword_integration': [],
+            'semantic_enhancements': [],
+            'overall_priority': 'medium'
+        }
+
+        # Analyze title tag and meta description
+        title = self.extract_title(content)
+        meta_desc = self.extract_meta_description(content)
+        h1 = self.extract_h1(content)
+
+        # 1. Title Tag Rewording
+        if title:
+            title_analysis = self.analyze_title_seo_value(title, keywords)
+            if title_analysis['needs_improvement']:
+                recommendations['seo_improvements'].append({
+                    'element': 'title_tag',
+                    'current': title,
+                    'issue': title_analysis['issue'],
+                    'suggested_rewrite': self.suggest_title_rewrite(title, keywords),
+                    'priority': 'high',
+                    'expected_impact': 'Improved CTR in search results (5-15% increase)',
+                    'seo_value': 'High - Title is primary ranking signal'
+                })
+
+        # 2. Meta Description Rewording
+        if meta_desc:
+            meta_analysis = self.analyze_meta_description_seo_value(meta_desc, keywords)
+            if meta_analysis['needs_improvement']:
+                recommendations['seo_improvements'].append({
+                    'element': 'meta_description',
+                    'current': meta_desc,
+                    'issue': meta_analysis['issue'],
+                    'suggested_rewrite': self.suggest_meta_description_rewrite(meta_desc, keywords),
+                    'priority': 'high',
+                    'expected_impact': 'Improved SERP CTR (10-20% increase)',
+                    'seo_value': 'High - Directly affects click-through rate'
+                })
+
+        # 3. H1 Heading Rewording
+        if h1:
+            h1_analysis = self.analyze_h1_seo_value(h1, keywords)
+            if h1_analysis['needs_improvement']:
+                recommendations['seo_improvements'].append({
+                    'element': 'h1_heading',
+                    'current': h1,
+                    'issue': h1_analysis['issue'],
+                    'suggested_rewrite': self.suggest_h1_rewrite(h1, keywords),
+                    'priority': 'medium',
+                    'expected_impact': 'Improved topical relevance signal',
+                    'seo_value': 'Medium - Secondary ranking factor'
+                })
+
+        # 4. Body Content Semantic Improvements
+        content_text = self.extract_body_text(content)
+        semantic_issues = self.analyze_semantic_seo_gaps(content_text, keywords)
+
+        for issue in semantic_issues:
+            recommendations['semantic_enhancements'].append({
+                'section': issue['section'],
+                'current_text': issue['excerpt'],
+                'issue': issue['problem'],
+                'suggested_rewrite': issue['improved_version'],
+                'semantic_keywords_added': issue['keywords_integrated'],
+                'priority': issue['priority'],
+                'expected_impact': issue['impact'],
+                'seo_value': 'Medium - Improves semantic relevance and entity recognition'
+            })
+
+        # 5. Readability Enhancements (affects dwell time/engagement signals)
+        readability_score = self.calculate_readability(content_text)
+        if readability_score < 60:  # Flesch Reading Ease score
+            complex_sentences = self.identify_complex_sentences(content_text)
+            for sentence in complex_sentences[:5]:  # Top 5 most complex
+                recommendations['readability_improvements'].append({
+                    'current_sentence': sentence['text'],
+                    'issue': 'High complexity - difficult to read',
+                    'suggested_rewrite': self.simplify_sentence(sentence['text']),
+                    'readability_improvement': f"{sentence['score']} → {self.calculate_sentence_readability(self.simplify_sentence(sentence['text']))}",
+                    'priority': 'low',
+                    'expected_impact': 'Improved user engagement and dwell time',
+                    'seo_value': 'Low-Medium - Indirect ranking benefit through user signals'
+                })
+
+        # 6. Keyword Integration Opportunities
+        keyword_gaps = self.identify_keyword_integration_opportunities(content_text, keywords)
+        for gap in keyword_gaps:
+            recommendations['keyword_integration'].append({
+                'keyword': gap['keyword'],
+                'current_paragraph': gap['paragraph_excerpt'],
+                'issue': f"Keyword '{gap['keyword']}' missing from relevant section",
+                'suggested_rewrite': gap['paragraph_with_keyword'],
+                'integration_method': gap['method'],  # 'natural_insertion', 'sentence_restructure', 'new_sentence'
+                'priority': 'medium',
+                'expected_impact': 'Improved keyword relevance scoring',
+                'seo_value': 'Medium - Strengthens topical relevance'
+            })
+
+        # Calculate overall priority based on issues found
+        high_priority_count = sum(1 for cat in ['seo_improvements', 'keyword_integration']
+                                   for item in recommendations[cat] if item['priority'] == 'high')
+
+        if high_priority_count >= 3:
+            recommendations['overall_priority'] = 'critical'
+        elif high_priority_count >= 1:
+            recommendations['overall_priority'] = 'high'
+
+        # Add summary statistics
+        recommendations['summary'] = {
+            'total_improvements': sum(len(recommendations[cat]) for cat in
+                                     ['seo_improvements', 'readability_improvements',
+                                      'keyword_integration', 'semantic_enhancements']),
+            'high_priority_items': high_priority_count,
+            'estimated_seo_impact': self.estimate_overall_seo_impact(recommendations),
+            'implementation_effort': self.estimate_implementation_effort(recommendations)
+        }
+
+        return recommendations
+
+    def suggest_title_rewrite(self, current_title, keywords):
+        """Generate improved title with primary keyword and compelling copy"""
+        primary_keyword = keywords[0] if keywords else ''
+
+        # Example rewrites (AI agent should customize based on content)
+        rewrites = []
+
+        # Pattern 1: Keyword + Benefit + Brand
+        if primary_keyword:
+            rewrites.append(f"{primary_keyword} - Complete Guide | [Brand Name]")
+            rewrites.append(f"Best {primary_keyword}: Expert Tips & Strategies")
+            rewrites.append(f"How to Master {primary_keyword} in [Year]")
+
+        # Return most relevant rewrite
+        return rewrites[0] if rewrites else current_title
+
+    def suggest_meta_description_rewrite(self, current_desc, keywords):
+        """Generate improved meta description with keywords and CTA"""
+        primary_keyword = keywords[0] if keywords else ''
+
+        # Example rewrite with keyword, value prop, and CTA
+        return f"Discover expert {primary_keyword} strategies that drive results. Learn proven techniques, avoid common mistakes, and boost your success. Get started today!"
+
+    def analyze_semantic_seo_gaps(self, content, keywords):
+        """Identify content sections lacking semantic keyword coverage"""
+        gaps = []
+
+        # Split content into paragraphs
+        paragraphs = content.split('\n\n')
+
+        for idx, paragraph in enumerate(paragraphs):
+            # Check if paragraph lacks any primary/secondary keywords
+            has_keywords = any(kw.lower() in paragraph.lower() for kw in keywords)
+
+            if not has_keywords and len(paragraph.split()) > 30:  # Significant paragraph
+                gaps.append({
+                    'section': f'Paragraph {idx + 1}',
+                    'excerpt': paragraph[:200] + '...' if len(paragraph) > 200 else paragraph,
+                    'problem': 'No target keywords present in significant content section',
+                    'improved_version': self.inject_keywords_naturally(paragraph, keywords[0]),
+                    'keywords_integrated': [keywords[0]],
+                    'priority': 'medium',
+                    'impact': 'Improved semantic relevance for target keywords'
+                })
+
+        return gaps[:10]  # Limit to top 10 opportunities
+
+    def inject_keywords_naturally(self, paragraph, keyword):
+        """Inject keyword into paragraph while maintaining natural flow"""
+        sentences = paragraph.split('. ')
+
+        # Find best insertion point (usually second or third sentence)
+        insertion_point = min(1, len(sentences) - 1)
+
+        # Example natural injection
+        sentences[insertion_point] = f"When considering {keyword}, {sentences[insertion_point][0].lower()}{sentences[insertion_point][1:]}"
+
+        return '. '.join(sentences)

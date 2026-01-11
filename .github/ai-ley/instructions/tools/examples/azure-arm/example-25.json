@@ -1,0 +1,6 @@
+{
+  "variables": {
+    "storageAccountName": "[concat('storage', uniqueString(resourceGroup().id))]",
+    "webAppName": "[concat(parameters('appNamePrefix'), '-', uniqueString(resourceGroup().id))]"
+  }
+}

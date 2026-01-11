@@ -1,0 +1,19 @@
+// tests/routes/users.test.ts
+import { expect, test } from '@playwright/test';
+
+test('users page displays user list', async ({ page }) => {
+  await page.goto('/users');
+  
+  await expect(page.locator('h1')).toHaveText('Users');
+  await expect(page.locator('.user-card')).toHaveCount.greaterThan(0);
+});
+
+test('user card edit functionality', async ({ page }) => {
+  await page.goto('/users');
+  
+  const firstUserCard = page.locator('.user-card').first();
+  await firstUserCard.locator('button:text("Edit")').click();
+  
+  // Verify edit modal or navigation occurred
+  await expect(page).toHaveURL(/.*\/users\/\d+\/edit/);
+});

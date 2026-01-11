@@ -1,0 +1,4 @@
+F.07          # Currency Revaluation
+F.05          # Automatic Clearing
+FAGLL03       # General Ledger Reports
+S_ALR_87012172 # Financial Statement

@@ -1,0 +1,31 @@
+# docker-compose.dev.yml - Development optimized
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      target: development
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next # Next.js cache
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true # File watching in containers
+    command: npm run dev
+    stdin_open: true # Interactive mode
+    tty: true # Allocate TTY
+
+  test:
+    build:
+      context: .
+      target: test
+    volumes:
+      - .:/app
+    environment:
+      - NODE_ENV=test
+    command: npm run test:watch
+    profiles:
+      - testing
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up

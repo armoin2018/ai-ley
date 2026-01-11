@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+
+contract AdvancedToken is ERC20, Ownable, Pausable {
+    mapping(address => bool) public blacklisted;
+    uint256 public constant MAX_SUPPLY = 1_000_000_000 * 10**18;
+    
+    event Blacklisted(address indexed account);
+    event Unblacklisted(address indexed account);
+    
+    constructor() ERC20("AdvancedToken", "ADV") {}
+    
+    function mint(address to, uint256 amount) external onlyOwner {
+        require(totalSupply() + amount <= MAX_SUPPLY, "Exceeds max supply");
+        _mint(to, amount);
+    }
+    
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual override {
+        super._beforeTokenTransfer(from, to, amount);
+        require(!paused(), "Token transfers paused");
+        require(!blacklisted[from] && !blacklisted[to], "Blacklisted address");
+    }
+}

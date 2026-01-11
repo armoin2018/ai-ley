@@ -1,0 +1,8 @@
+- Redirect container logs to journald/json‑file; aggregate with Fluent Bit/Vector
+- Healthchecks in images; systemd Restart=on‑failure; add metrics endpoints where applicable
+- Enterprise monitoring with Prometheus metrics and centralized logging
+- Automated health checks and performance monitoring
+
+## CI/CD
+
+### Enterprise Pipeline Integration

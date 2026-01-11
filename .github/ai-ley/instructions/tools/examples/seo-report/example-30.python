@@ -1,0 +1,62 @@
+# Technical SEO Crawling Framework
+class SEOCrawler:
+    def __init__(self, url, max_pages=100):
+        self.base_url = url
+        self.max_pages = max_pages
+        self.crawled_pages = []
+        self.technical_issues = []
+
+    def analyze_page_elements(self, page_url):
+        """Extract and analyze key page elements"""
+        elements = {
+            'title': self.extract_title(page_url),
+            'meta_description': self.extract_meta_description(page_url),
+            'headers': self.extract_headers(page_url),
+            'images': self.analyze_images(page_url),
+            'links': self.analyze_links(page_url),
+            'schema': self.detect_schema_markup(page_url)
+        }
+
+        # Validate element sizes
+        issues = self.validate_element_sizes(elements)
+        return elements, issues
+
+    def validate_element_sizes(self, elements):
+        """Validate meta elements against size guidelines"""
+        issues = []
+
+        # Title validation
+        title_length = len(elements['title'])
+        if title_length > 60:
+            issues.append({
+                'type': 'title_too_long',
+                'current_length': title_length,
+                'recommended_max': 60,
+                'priority': 'high'
+            })
+        elif title_length < 30:
+            issues.append({
+                'type': 'title_too_short',
+                'current_length': title_length,
+                'recommended_min': 30,
+                'priority': 'medium'
+            })
+
+        # Meta description validation
+        if elements['meta_description']:
+            desc_length = len(elements['meta_description'])
+            if desc_length > 160:
+                issues.append({
+                    'type': 'meta_description_too_long',
+                    'current_length': desc_length,
+                    'recommended_max': 160,
+                    'priority': 'high'
+                })
+        else:
+            issues.append({
+                'type': 'missing_meta_description',
+                'priority': 'high',
+                'impact': 'Reduced SERP click-through rates'
+            })
+
+        return issues

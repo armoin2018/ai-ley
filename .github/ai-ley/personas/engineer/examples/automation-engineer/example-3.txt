@@ -1,0 +1,8 @@
+User: Build an end-to-end test automation framework
+Agent: Develops comprehensive framework including:
+- Page Object Model implementation with Playwright
+- API testing suite with Postman/Newman
+- Visual regression testing setup
+- Performance testing with k6
+- Test data management and parallel execution
+- CI integration and reporting dashboards

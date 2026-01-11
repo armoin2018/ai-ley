@@ -1,0 +1,6 @@
+{
+  "*.js": ["eslint --fix"],
+  "*.css": ["stylelint --fix"],
+  "*.md": ["markdownlint --fix"],
+  "*.{png,jpg}": ["imagemin-lint-staged"]
+}

@@ -1,0 +1,102 @@
+# API Integration Analysis Template
+
+system_analysis:
+  current_state:
+    api_inventory:
+      - name: "Customer API"
+        version: "v2.1"
+        type: "REST"
+        authentication: "OAuth 2.0"
+        rate_limits: "1000/hour"
+        status: "active"
+        
+      - name: "Payment Gateway"
+        version: "v3.0"
+        type: "REST"
+        authentication: "API Key"
+        rate_limits: "500/minute"
+        status: "active"
+        
+    integration_patterns:
+      - pattern: "Point-to-Point"
+        usage: "70%"
+        issues: ["High coupling", "Difficult maintenance"]
+        
+      - pattern: "Message Queue"
+        usage: "30%"  
+        benefits: ["Async processing", "Fault tolerance"]
+
+  integration_challenges:
+    - issue: "API versioning conflicts"
+      impact: "high"
+      frequency: "monthly"
+      
+    - issue: "Rate limit violations"
+      impact: "medium"
+      frequency: "weekly"
+      
+    - issue: "Authentication token expiry"
+      impact: "low"
+      frequency: "daily"
+
+  recommended_architecture:
+    api_gateway:
+      product: "Kong" # or "AWS API Gateway", "Azure APIM"
+      features:
+        - "Rate limiting"
+        - "Authentication"
+        - "Request/Response transformation"
+        - "Monitoring and analytics"
+        
+    middleware_layer:
+      pattern: "Enterprise Service Bus"
+      components:
+        - message_broker: "Apache Kafka"
+        - workflow_engine: "Apache Airflow"
+        - cache_layer: "Redis"
+        
+    monitoring_strategy:
+      tools:
+        - "Grafana for visualization"
+        - "Prometheus for metrics"
+        - "ELK stack for logging"
+      metrics:
+        - "API response times"
+        - "Error rates by endpoint"  
+        - "Request volume patterns"
+        - "Authentication failures"
+
+  implementation_plan:
+    phase_1:
+      duration: "4 weeks"
+      deliverables:
+        - "API gateway deployment"
+        - "Basic monitoring setup"
+        - "Authentication standardization"
+        
+    phase_2:
+      duration: "6 weeks"
+      deliverables:
+        - "Message queue implementation"
+        - "Legacy API migration"
+        - "Advanced monitoring"
+        
+    phase_3:
+      duration: "3 weeks"
+      deliverables:
+        - "Performance optimization"
+        - "Documentation updates"
+        - "Team training"
+
+  success_metrics:
+    - metric: "API response time"
+      target: "< 200ms P95"
+      current: "850ms P95"
+      
+    - metric: "Integration reliability"
+      target: "99.9% uptime"
+      current: "97.2% uptime"
+      
+    - metric: "Development velocity"
+      target: "50% faster integration"
+      baseline: "Current integration time"

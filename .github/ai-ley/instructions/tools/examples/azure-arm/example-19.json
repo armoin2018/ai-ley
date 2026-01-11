@@ -1,0 +1,83 @@
+{
+  "variables": {
+    "regions": [
+      {
+        "name": "eastus",
+        "isPrimary": true,
+        "deploymentTier": "full"
+      },
+      {
+        "name": "westus2",
+        "isPrimary": false,
+        "deploymentTier": "minimal"
+      },
+      {
+        "name": "westeurope",
+        "isPrimary": false,
+        "deploymentTier": "disaster-recovery"
+      }
+    ],
+    "networkConfigurations": [
+      {
+        "name": "frontend",
+        "addressSpace": "10.0.1.0/24",
+        "publicAccess": true,
+        "securityLevel": "standard"
+      },
+      {
+        "name": "backend",
+        "addressSpace": "10.0.2.0/24",
+        "publicAccess": false,
+        "securityLevel": "enhanced"
+      },
+      {
+        "name": "data",
+        "addressSpace": "10.0.3.0/24",
+        "publicAccess": false,
+        "securityLevel": "maximum"
+      }
+    ]
+  },
+  "resources": [
+    {
+      "copy": {
+        "name": "regionalDeployments",
+        "count": "[length(variables('regions'))]",
+        "mode": "parallel"
+      },
+      "condition": "[or(variables('regions')[copyIndex()].isPrimary, parameters('enableMultiRegion'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "name": "[concat('regionalDeployment-', variables('regions')[copyIndex()].name)]",
+      "resourceGroup": "[concat(parameters('enterprisePrefix'), '-', parameters('environment'), '-', variables('regions')[copyIndex()].name, '-rg')]",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {},
+          "variables": {},
+          "resources": [
+            {
+              "copy": {
+                "name": "subnetLoop",
+                "count": "[length(variables('networkConfigurations'))]"
+              },
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2023-09-01",
+              "name": "[concat(variables('namingConvention').vnet, '/', variables('networkConfigurations')[copyIndex('subnetLoop')].name)]",
+              "properties": {
+                "addressPrefix": "[variables('networkConfigurations')[copyIndex('subnetLoop')].addressSpace]",
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Disabled",
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('networkConfigurations')[copyIndex('subnetLoop')].name, '-nsg'))]"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

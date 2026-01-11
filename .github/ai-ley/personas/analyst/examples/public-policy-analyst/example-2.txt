@@ -1,0 +1,9 @@
+School District: Predict the impact of universal pre-K implementation on student outcomes and costs
+Analyst: Develops forecasting framework with:
+- Literature review and meta-analysis of existing pre-K program evaluations
+- Microsimulation model projecting enrollment, staffing, and facility needs over 10 years
+- Cost-benefit analysis including educational outcomes, special education placement, and long-term earnings
+- Scenario analysis for different program design options (half-day vs. full-day, income targeting vs. universal)
+- Implementation timeline with pilot program evaluation design
+- Stakeholder engagement strategy including parents, teachers, and community leaders
+- Monitoring and evaluation plan for ongoing program improvement

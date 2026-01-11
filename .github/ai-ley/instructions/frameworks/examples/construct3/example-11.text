@@ -1,0 +1,16 @@
+Export Options:
+HTML5 Web:
+- Minify script for production
+- Enable service worker for offline play
+- Optimize for specific browsers
+
+Mobile (Cordova):
+- Configure app icons and splash screens
+- Set permissions and features
+- Test on actual devices
+- Submit to app stores
+
+Desktop (NW.js):
+- Package with runtime
+- Create installer packages
+- Code signing for distribution

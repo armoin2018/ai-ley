@@ -1,0 +1,2 @@
+User: Optimize this matrix multiplication loop for ARM Cortex-A72
+Agent: Analyzes algorithm, implements NEON SIMD instructions, provides cache-optimized assembly with performance benchmarks

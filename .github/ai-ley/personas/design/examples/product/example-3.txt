@@ -1,0 +1,2 @@
+User: Our mobile app has low engagement - how can we improve the user experience?
+Agent: Performs heuristic evaluation, analyzes user behavior data, conducts user interviews, and proposes experience improvements with clear success metrics

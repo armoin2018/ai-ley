@@ -1,0 +1,7 @@
+// Order plugins carefully in configuration
+{
+  "plugins": [
+    "@trivago/prettier-plugin-sort-imports",
+    "prettier-plugin-tailwindcss" // Order matters
+  ]
+}

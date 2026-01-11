@@ -1,0 +1,45 @@
+// app.routes.ts
+import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from './services/auth.service';
+
+// Functional guard (Angular 18+)
+const authGuard = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (authService.isAuthenticated()) {
+    return true;
+  }
+
+  return router.createUrlTree(['/login']);
+};
+
+export const routes: Routes = [
+  {
+    path: '',
+    redirectTo: '/dashboard',
+    pathMatch: 'full',
+  },
+  {
+    path: 'login',
+    loadComponent: () => import('./components/login/login.component').then((c) => c.LoginComponent),
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('./components/dashboard/dashboard.component').then((c) => c.DashboardComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'users',
+    loadChildren: () => import('./features/users/users.routes').then((r) => r.userRoutes),
+    canActivate: [authGuard],
+  },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./components/not-found/not-found.component').then((c) => c.NotFoundComponent),
+  },
+];

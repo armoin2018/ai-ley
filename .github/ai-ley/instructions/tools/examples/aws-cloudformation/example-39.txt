@@ -1,0 +1,4 @@
+#### Issue 3: Circular Dependencies
+
+**Problem**: Resources have circular dependencies preventing stack creation
+**Solution**: Use DependsOn attribute or redesign resource relationships

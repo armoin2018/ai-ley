@@ -1,0 +1,65 @@
+// Example microservice design with clear boundaries
+// User Service
+export class UserMicroservice {
+  private eventBus: EventBus;
+  private userRepository: UserRepository;
+  
+  constructor(eventBus: EventBus, userRepository: UserRepository) {
+    this.eventBus = eventBus;
+    this.userRepository = userRepository;
+  }
+  
+  async createUser(userData: CreateUserData): Promise<User> {
+    // Validate user data
+    this.validateUserData(userData);
+    
+    // Create user
+    const user = await this.userRepository.create(userData);
+    
+    // Publish user created event
+    await this.eventBus.publish(new UserCreatedEvent(user));
+    
+    return user;
+  }
+  
+  private validateUserData(userData: CreateUserData): void {
+    if (!userData.email || !this.isValidEmail(userData.email)) {
+      throw new ValidationError('Valid email is required');
+    }
+  }
+}
+
+// Order Service (separate microservice)
+export class OrderMicroservice {
+  private eventBus: EventBus;
+  private orderRepository: OrderRepository;
+  
+  constructor(eventBus: EventBus, orderRepository: OrderRepository) {
+    this.eventBus = eventBus;
+    this.orderRepository = orderRepository;
+    
+    // Subscribe to user events
+    this.eventBus.subscribe(UserCreatedEvent, this.handleUserCreated.bind(this));
+  }
+  
+  private async handleUserCreated(event: UserCreatedEvent): Promise<void> {
+    // Initialize user's order history
+    await this.orderRepository.initializeUserOrderHistory(event.user.id);
+  }
+  
+  async createOrder(orderData: CreateOrderData): Promise<Order> {
+    // Verify user exists (cross-service validation)
+    const userExists = await this.verifyUserExists(orderData.userId);
+    if (!userExists) {
+      throw new BusinessError('User does not exist');
+    }
+    
+    // Create order
+    const order = await this.orderRepository.create(orderData);
+    
+    // Publish order created event
+    await this.eventBus.publish(new OrderCreatedEvent(order));
+    
+    return order;
+  }
+}

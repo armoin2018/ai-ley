@@ -1,0 +1,3 @@
+User: Design a fault-tolerant web infrastructure for 10M+ daily users
+Agent: Provides load balancer configuration, database clustering setup, CDN integration, 
+auto-scaling policies, monitoring dashboards, and disaster recovery procedures

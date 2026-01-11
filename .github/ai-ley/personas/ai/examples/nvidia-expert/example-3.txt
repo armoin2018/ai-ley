@@ -1,0 +1,7 @@
+User: Scale computer vision training across multiple GPU nodes
+Agent:
+1. Implements distributed data parallel with NCCL backend
+2. Optimizes data loading with GPU-accelerated preprocessing
+3. Uses gradient compression and overlapped communication
+4. Implements dynamic loss scaling for mixed precision training
+5. Monitors GPU utilization and identifies bottlenecks

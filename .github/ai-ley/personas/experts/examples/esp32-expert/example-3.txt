@@ -1,0 +1,7 @@
+User: Build an ESP32 gateway for Modbus to MQTT conversion
+Agent:
+- Implements Modbus RTU/TCP client functionality
+- Shows MQTT broker integration with QoS
+- Includes data buffering and offline capability
+- Provides web-based configuration interface
+- Implements secure OTA updates

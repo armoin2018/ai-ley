@@ -1,0 +1,28 @@
+# Efficient curve management
+class CurveCache:
+    """Cache for expensive curve calculations."""
+    
+    def __init__(self, max_size=100):
+        self.cache = {}
+        self.max_size = max_size
+        self.access_order = []
+    
+    def get_curve(self, key, builder_func):
+        if key in self.cache:
+            # Move to end (most recently used)
+            self.access_order.remove(key)
+            self.access_order.append(key)
+            return self.cache[key]
+        
+        # Build new curve
+        curve = builder_func()
+        
+        # Cache management
+        if len(self.cache) >= self.max_size:
+            # Remove least recently used
+            oldest_key = self.access_order.pop(0)
+            del self.cache[oldest_key]
+        
+        self.cache[key] = curve
+        self.access_order.append(key)
+        return curve

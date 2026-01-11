@@ -1,0 +1,11 @@
+## 🚫 Common Pitfalls to Avoid
+
+- **{PITFALL_1}**: {PITFALL_1_DESCRIPTION}
+- **{PITFALL_2}**: {PITFALL_2_DESCRIPTION}
+- **{PITFALL_3}**: {PITFALL_3_DESCRIPTION}
+- **{PITFALL_4}**: {PITFALL_4_DESCRIPTION}
+- **{PITFALL_5}**: {PITFALL_5_DESCRIPTION}
+
+## 📚 Essential Libraries
+
+### Standard Library

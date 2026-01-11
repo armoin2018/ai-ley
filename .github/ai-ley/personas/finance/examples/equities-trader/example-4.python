@@ -1,0 +1,128 @@
+# TWAP (Time-Weighted Average Price) Algorithm Implementation
+import numpy as np
+import pandas as pd
+from datetime import datetime, timedelta
+import time
+
+class TWAPAlgorithm:
+    def __init__(self, symbol, total_quantity, duration_minutes, participation_rate=0.20):
+        self.symbol = symbol
+        self.total_quantity = total_quantity
+        self.duration_minutes = duration_minutes
+        self.participation_rate = participation_rate
+        self.executed_quantity = 0
+        self.remaining_quantity = total_quantity
+        self.start_time = None
+        self.orders = []
+        
+    def calculate_slice_size(self, market_volume, time_remaining_pct):
+        """Calculate optimal slice size based on market conditions"""
+        # Base slice size on time remaining
+        base_slice = self.remaining_quantity * (1 / (self.duration_minutes * time_remaining_pct))
+        
+        # Adjust for market volume and participation rate
+        volume_adjusted_slice = min(base_slice, market_volume * self.participation_rate)
+        
+        # Minimum and maximum slice constraints
+        min_slice = max(100, self.total_quantity * 0.01)  # At least 1% or 100 shares
+        max_slice = self.total_quantity * 0.1  # Maximum 10% per slice
+        
+        return max(min_slice, min(max_slice, volume_adjusted_slice))
+    
+    def get_market_data(self):
+        """Get real-time market data for execution decisions"""
+        # This would interface with market data feed
+        return {
+            'bid': 150.25,
+            'ask': 150.27,
+            'last_price': 150.26,
+            'volume_1min': 5000,
+            'avg_volume_10min': 4500,
+            'volatility': 0.25
+        }
+    
+    def place_order(self, quantity, order_type='LIMIT', price=None, venue='SMART'):
+        """Place order with specified parameters"""
+        market_data = self.get_market_data()
+        
+        if order_type == 'LIMIT' and price is None:
+            # Use midpoint for limit orders
+            price = (market_data['bid'] + market_data['ask']) / 2
+            
+        order = {
+            'timestamp': datetime.now(),
+            'symbol': self.symbol,
+            'quantity': quantity,
+            'order_type': order_type,
+            'price': price,
+            'venue': venue,
+            'status': 'PENDING'
+        }
+        
+        self.orders.append(order)
+        return order
+    
+    def execute_twap(self):
+        """Main execution loop for TWAP algorithm"""
+        self.start_time = datetime.now()
+        end_time = self.start_time + timedelta(minutes=self.duration_minutes)
+        
+        while datetime.now() < end_time and self.remaining_quantity > 0:
+            current_time = datetime.now()
+            elapsed_pct = (current_time - self.start_time).total_seconds() / (self.duration_minutes * 60)
+            remaining_pct = 1 - elapsed_pct
+            
+            market_data = self.get_market_data()
+            slice_size = self.calculate_slice_size(market_data['volume_1min'], remaining_pct)
+            slice_size = min(slice_size, self.remaining_quantity)
+            
+            if slice_size > 0:
+                order = self.place_order(slice_size, 'LIMIT')
+                print(f"Placed order: {slice_size} shares at {order['price']}")
+                
+                # Simulate order execution (in practice, this would monitor fill status)
+                time.sleep(30)  # Wait 30 seconds between slices
+                
+                # Update quantities (assuming full fill for simulation)
+                self.executed_quantity += slice_size
+                self.remaining_quantity -= slice_size
+        
+        return self.orders
+
+# VWAP (Volume-Weighted Average Price) Algorithm
+class VWAPAlgorithm:
+    def __init__(self, symbol, total_quantity, historical_volume_profile):
+        self.symbol = symbol
+        self.total_quantity = total_quantity
+        self.volume_profile = historical_volume_profile  # Hourly volume distribution
+        self.executed_quantity = 0
+        
+    def calculate_target_schedule(self):
+        """Calculate execution schedule based on historical volume profile"""
+        total_volume = sum(self.volume_profile.values())
+        schedule = {}
+        
+        for hour, volume in self.volume_profile.items():
+            volume_pct = volume / total_volume
+            target_quantity = int(self.total_quantity * volume_pct)
+            schedule[hour] = target_quantity
+            
+        return schedule
+    
+    def execute_vwap(self):
+        """Execute orders following volume profile"""
+        schedule = self.calculate_target_schedule()
+        
+        for hour, target_qty in schedule.items():
+            if target_qty > 0 and self.executed_quantity < self.total_quantity:
+                remaining_qty = min(target_qty, self.total_quantity - self.executed_quantity)
+                # Execute in smaller slices within the hour
+                slices = max(1, remaining_qty // 1000)  # 1000 share slices
+                
+                for slice_num in range(slices):
+                    slice_qty = remaining_qty // slices
+                    if slice_num == slices - 1:  # Last slice gets remainder
+                        slice_qty = remaining_qty - (slice_qty * (slices - 1))
+                    
+                    self.place_slice_order(slice_qty)
+                    self.executed_quantity += slice_qty

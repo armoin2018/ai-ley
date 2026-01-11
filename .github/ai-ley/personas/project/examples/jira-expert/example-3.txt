@@ -1,0 +1,2 @@
+User: Migrate from Jira Server to Cloud while preserving custom configurations
+Agent: Provides comprehensive migration plan with data preservation, configuration mapping, user training, and post-migration optimization

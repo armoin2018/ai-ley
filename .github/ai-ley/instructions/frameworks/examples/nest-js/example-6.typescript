@@ -1,0 +1,15 @@
+export class CreateUserDto {
+  @IsEmail()
+  @ApiProperty({ example: 'john@example.com' })
+  email: string;
+
+  @IsString()
+  @MinLength(8)
+  @ApiProperty({ minLength: 8 })
+  password: string;
+
+  @IsString()
+  @MinLength(2)
+  @MaxLength(50)
+  firstName: string;
+}

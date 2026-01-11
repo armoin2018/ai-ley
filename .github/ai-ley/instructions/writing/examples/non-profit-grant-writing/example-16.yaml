@@ -1,0 +1,21 @@
+# Grant Management Workflow
+grant_pipeline:
+  - stage: research
+    tools: [foundation_directory, guidestar, funder_websites]
+    outputs: [prospect_list, alignment_matrix, approach_strategy]
+
+  - stage: preparation
+    tools: [logic_model_template, budget_calculator, timeline_tool]
+    outputs: [program_design, financial_plan, implementation_schedule]
+
+  - stage: writing
+    tools: [collaborative_editor, citation_manager, template_library]
+    outputs: [draft_proposal, supporting_documents, review_package]
+
+  - stage: submission
+    tools: [submission_platform, tracking_system, calendar_integration]
+    outputs: [submitted_application, follow_up_schedule, reporting_calendar]
+
+  - stage: relationship_management
+    tools: [crm_system, communication_tracker, impact_dashboard]
+    outputs: [funder_updates, relationship_notes, outcome_reports]

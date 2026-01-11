@@ -1,0 +1,13 @@
+### Security Best Practices
+
+- Store sensitive data in encrypted remote state
+- Use IAM roles instead of access keys when possible
+- Implement least privilege access principles
+- Enable resource-level encryption
+
+## Common Use Cases
+
+### Multi-Tier Web Application
+
+**Scenario**: Deploy a complete web application infrastructure
+**Implementation**:

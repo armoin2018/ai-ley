@@ -1,0 +1,116 @@
+// utils/MaterialManager.ts - Material creation and management
+import * as THREE from 'three';
+
+export class MaterialManager {
+    private materials: Map<string, THREE.Material> = new Map();
+    private textures: Map<string, THREE.Texture> = new Map();
+
+    public createPBRMaterial(options: {
+        name: string;
+        color?: number;
+        metalness?: number;
+        roughness?: number;
+        normalMap?: string;
+        roughnessMap?: string;
+        metalnessMap?: string;
+        emissiveMap?: string;
+    }): THREE.MeshStandardMaterial {
+        const material = new THREE.MeshStandardMaterial({
+            color: options.color || 0xffffff,
+            metalness: options.metalness || 0,
+            roughness: options.roughness || 1
+        });
+
+        // Load and assign texture maps
+        if (options.normalMap) {
+            material.normalMap = this.getTexture(options.normalMap);
+        }
+        if (options.roughnessMap) {
+            material.roughnessMap = this.getTexture(options.roughnessMap);
+        }
+        if (options.metalnessMap) {
+            material.metalnessMap = this.getTexture(options.metalnessMap);
+        }
+        if (options.emissiveMap) {
+            material.emissiveMap = this.getTexture(options.emissiveMap);
+        }
+
+        this.materials.set(options.name, material);
+        return material;
+    }
+
+    public createCustomShaderMaterial(options: {
+        name: string;
+        vertexShader: string;
+        fragmentShader: string;
+        uniforms?: Record<string, THREE.IUniform>;
+    }): THREE.ShaderMaterial {
+        const material = new THREE.ShaderMaterial({
+            vertexShader: options.vertexShader,
+            fragmentShader: options.fragmentShader,
+            uniforms: options.uniforms || {}
+        });
+
+        this.materials.set(options.name, material);
+        return material;
+    }
+
+    private getTexture(path: string): THREE.Texture {
+        if (this.textures.has(path)) {
+            return this.textures.get(path)!;
+        }
+
+        const loader = new THREE.TextureLoader();
+        const texture = loader.load(path);
+        this.textures.set(path, texture);
+        return texture;
+    }
+
+    public getMaterial(name: string): THREE.Material | undefined {
+        return this.materials.get(name);
+    }
+
+    public dispose(): void {
+        this.materials.forEach(material => material.dispose());
+        this.textures.forEach(texture => texture.dispose());
+        this.materials.clear();
+        this.textures.clear();
+    }
+}
+
+// Example custom shaders
+export const WaveShader = {
+    vertexShader: `
+        uniform float uTime;
+        uniform float uAmplitude;
+        uniform float uFrequency;
+        
+        varying vec2 vUv;
+        varying float vWave;
+        
+        void main() {
+            vUv = uv;
+            
+            vec3 pos = position;
+            float wave = sin(pos.x * uFrequency + uTime) * uAmplitude;
+            pos.y += wave;
+            vWave = wave;
+            
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+        }
+    `,
+    fragmentShader: `
+        uniform vec3 uColor1;
+        uniform vec3 uColor2;
+        
+        varying vec2 vUv;
+        varying float vWave;
+        
+        void main() {
+            float mixStrength = (vWave + 1.0) * 0.5;
+            vec3 color = mix(uColor1, uColor2, mixStrength);
+            
+            gl_FragColor = vec4(color, 1.0);
+        }
+    `
+};

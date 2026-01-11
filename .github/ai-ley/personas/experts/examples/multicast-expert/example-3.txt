@@ -1,0 +1,2 @@
+User: Optimize multicast collection of telemetry data from 10000+ IoT devices
+Agent: Implements efficient multicast aggregation strategy with bandwidth optimization, data deduplication, and scalable collection architecture for large-scale IoT deployments

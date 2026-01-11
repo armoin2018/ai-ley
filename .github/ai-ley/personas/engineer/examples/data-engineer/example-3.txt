@@ -1,0 +1,2 @@
+User: Create feature engineering pipeline for machine learning models
+Agent: Builds feature store with online/offline serving, implements data validation, and creates automated retraining pipelines

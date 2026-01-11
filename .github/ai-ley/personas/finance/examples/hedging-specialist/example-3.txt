@@ -1,0 +1,8 @@
+User: Hedge interest rate exposure on $200M floating rate debt with 5-year maturity
+Agent: Designs interest rate hedging solution including:
+- Interest rate swap structure analysis
+- Duration matching and convexity considerations
+- Basis risk assessment between swap rate and debt rate
+- Credit risk evaluation and collateral requirements
+- IFRS 9 hedge accounting qualification
+- Stress testing under different rate scenarios

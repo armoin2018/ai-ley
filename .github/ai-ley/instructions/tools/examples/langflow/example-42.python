@@ -1,0 +1,79 @@
+# Multi-tier support system with escalation
+support_flow = {
+    "components": [
+        {
+            "type": "TextInput",
+            "name": "customer_inquiry",
+            "config": {
+                "placeholder": "Describe your issue..."
+            }
+        },
+        {
+            "type": "OpenAI",
+            "name": "intent_classifier",
+            "config": {
+                "model": "gpt-3.5-turbo",
+                "prompt": """
+Classify this customer inquiry into one of these categories:
+1. TECHNICAL_ISSUE - Technical problems or bugs
+2. BILLING - Payment, subscription, or billing questions
+3. FEATURE_REQUEST - Requests for new features
+4. GENERAL_QUESTION - General product questions
+5. URGENT - Critical issues requiring immediate attention
+
+Also rate urgency (1-5) and complexity (1-5).
+
+Inquiry: {inquiry}
+
+Classification:
+Category:
+Urgency:
+Complexity:
+Reason:
+                """,
+                "temperature": 0.1
+            }
+        },
+        {
+            "type": "ConditionalRouter",
+            "name": "ticket_router",
+            "config": {
+                "routes": {
+                    "URGENT": "escalation_flow",
+                    "TECHNICAL_ISSUE": "technical_support_flow",
+                    "BILLING": "billing_flow",
+                    "FEATURE_REQUEST": "product_team_flow",
+                    "GENERAL_QUESTION": "knowledge_base_search"
+                }
+            }
+        },
+        {
+            "type": "VectorStore",
+            "name": "knowledge_base_search",
+            "config": {
+                "vector_store": "pinecone",
+                "index_name": "support_kb",
+                "top_k": 3
+            }
+        },
+        {
+            "type": "OpenAI",
+            "name": "knowledge_response",
+            "config": {
+                "model": "gpt-4",
+                "prompt": """
+Based on the knowledge base search results, provide a helpful response to the customer inquiry.
+
+Customer Question: {inquiry}
+
+Relevant Knowledge Base Articles:
+{kb_results}
+
+Provide a clear, helpful response. If the knowledge base doesn't contain sufficient information, suggest contacting a human agent.
+
+Response:
+                """
+            }
+        }
+    ]
+}

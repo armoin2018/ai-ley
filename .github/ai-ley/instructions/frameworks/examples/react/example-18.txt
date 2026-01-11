@@ -1,0 +1,10 @@
+### Log Analysis
+
+- [Where to find logs]
+- [How to interpret common error messages]
+
+### Common Error Messages
+
+- **Error**: `[error message]`
+  **Cause**: [Why this happens]
+  **Solution**: [How to fix]

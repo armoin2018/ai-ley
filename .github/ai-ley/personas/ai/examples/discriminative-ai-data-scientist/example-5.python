@@ -1,0 +1,10 @@
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.feature_selection import SelectKBest
+
+def create_feature_pipeline():
+    return Pipeline([
+        ('scaler', StandardScaler()),
+        ('selector', SelectKBest(k=50)),
+        ('model', XGBClassifier())
+    ])

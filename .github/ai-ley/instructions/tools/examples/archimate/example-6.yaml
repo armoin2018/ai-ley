@@ -1,0 +1,18 @@
+# View categories by stakeholder
+executive_views:
+  - business_model_canvas
+  - capability_map
+  - value_stream_view
+  - strategy_view
+
+architect_views:
+  - layered_view
+  - service_realization_view
+  - application_cooperation_view
+  - technology_view
+
+project_manager_views:
+  - implementation_migration_view
+  - project_view
+  - plateau_view
+  - gap_analysis_view

@@ -1,0 +1,317 @@
+# Advanced SQL Injection Prevention with Query Analysis
+import re
+import ast
+import sqlite3
+import psycopg2
+from sqlalchemy import text, create_engine
+from sqlalchemy.orm import sessionmaker
+from typing import Dict, List, Any, Optional
+import logging
+
+class SQLInjectionDefense:
+    """Advanced SQL injection prevention with multiple defense layers"""
+
+    def __init__(self, config):
+        self.config = config
+        self.query_patterns = self._load_malicious_patterns()
+        self.whitelist_patterns = self._load_whitelist_patterns()
+        self.logger = logging.getLogger('sql_security')
+
+    def _load_malicious_patterns(self):
+        """Load known SQL injection patterns"""
+        return [
+            r"(\b(union|select|insert|update|delete|drop|create|alter|exec|execute)\b)",
+            r"(--|#|/\*|\*/)",
+            r"(\b(or|and)\s+\w*\s*(=|<|>|!=|<>)\s*\w*)",
+            r"(\b(or|and)\s+\d+\s*(=|<|>|!=|<>)\s*\d+)",
+            r"(\'+\s*(or|and)\s+\'+)",
+            r"(\%27|\%22|\%2d|\%2f|\%2a)",
+            r"(\bwaitfor\s+delay\b)",
+            r"(\bsleep\s*\()",
+            r"(\bbenchmark\s*\()",
+        ]
+
+    def _load_whitelist_patterns(self):
+        """Load allowed query patterns"""
+        return [
+            r"^SELECT\s+[\w\s,\*]+\s+FROM\s+\w+(\s+WHERE\s+[\w\s=\?\$\d]+)?(\s+ORDER\s+BY\s+\w+)?(\s+LIMIT\s+\d+)?$",
+            r"^INSERT\s+INTO\s+\w+\s*\([\w\s,]+\)\s+VALUES\s*\([\?\s,]+\)$",
+            r"^UPDATE\s+\w+\s+SET\s+[\w\s=\?,]+(\s+WHERE\s+[\w\s=\?\$\d]+)?$",
+            r"^DELETE\s+FROM\s+\w+(\s+WHERE\s+[\w\s=\?\$\d]+)?$"
+        ]
+
+    def validate_query(self, query: str, parameters: List[Any] = None) -> Dict[str, Any]:
+        """Comprehensive query validation"""
+        result = {
+            'is_safe': True,
+            'risk_score': 0,
+            'issues': [],
+            'sanitized_query': query
+        }
+
+        # Normalize query for analysis
+        normalized_query = self._normalize_query(query)
+
+        # Check for malicious patterns
+        malicious_score = self._check_malicious_patterns(normalized_query)
+        result['risk_score'] += malicious_score
+
+        # Validate against whitelist
+        whitelist_score = self._check_whitelist_patterns(normalized_query)
+        if whitelist_score == 0:
+            result['risk_score'] += 50
+            result['issues'].append('Query does not match approved patterns')
+
+        # Check parameter binding
+        param_score = self._check_parameter_binding(query, parameters)
+        result['risk_score'] += param_score
+
+        # Analyze query complexity
+        complexity_score = self._analyze_query_complexity(normalized_query)
+        result['risk_score'] += complexity_score
+
+        # Determine safety
+        if result['risk_score'] > self.config.get('max_risk_score', 75):
+            result['is_safe'] = False
+            result['issues'].append(f"Risk score too high: {result['risk_score']}")
+
+        # Log security analysis
+        self._log_query_analysis(query, result)
+
+        return result
+
+    def _normalize_query(self, query: str) -> str:
+        """Normalize query for consistent analysis"""
+        # Remove extra whitespace
+        normalized = re.sub(r'\s+', ' ', query.strip())
+
+        # Convert to uppercase for pattern matching
+        normalized = normalized.upper()
+
+        # Remove comments
+        normalized = re.sub(r'--.*$', '', normalized, flags=re.MULTILINE)
+        normalized = re.sub(r'/\*.*?\*/', '', normalized, flags=re.DOTALL)
+
+        return normalized
+
+    def _check_malicious_patterns(self, query: str) -> int:
+        """Check for known injection patterns"""
+        risk_score = 0
+
+        for pattern in self.query_patterns:
+            matches = re.findall(pattern, query, re.IGNORECASE)
+            if matches:
+                risk_score += len(matches) * 25
+                self.logger.warning(f"Malicious pattern detected: {pattern}")
+
+        return min(risk_score, 100)
+
+    def _check_whitelist_patterns(self, query: str) -> int:
+        """Check if query matches approved patterns"""
+        for pattern in self.whitelist_patterns:
+            if re.match(pattern, query, re.IGNORECASE):
+                return 100  # Full score for matching whitelist
+
+        return 0
+
+    def _check_parameter_binding(self, query: str, parameters: List[Any]) -> int:
+        """Validate proper parameter binding"""
+        risk_score = 0
+
+        # Count placeholders
+        placeholder_count = len(re.findall(r'\?|\$\d+|\%s', query))
+        param_count = len(parameters) if parameters else 0
+
+        if placeholder_count != param_count:
+            risk_score += 30
+            self.logger.warning(f"Parameter count mismatch: {placeholder_count} vs {param_count}")
+
+        # Check for string concatenation indicators
+        if re.search(r'\+|\|\||CONCAT', query, re.IGNORECASE):
+            risk_score += 40
+            self.logger.warning("String concatenation detected in query")
+
+        return risk_score
+
+    def _analyze_query_complexity(self, query: str) -> int:
+        """Analyze query complexity and potential risks"""
+        risk_score = 0
+
+        # Check for multiple statements
+        statement_count = len(query.split(';'))
+        if statement_count > 2:  # Allow for one trailing semicolon
+            risk_score += (statement_count - 1) * 20
+
+        # Check for nested queries
+        nested_count = len(re.findall(r'\(.*?SELECT.*?\)', query, re.IGNORECASE))
+        risk_score += nested_count * 10
+
+        # Check for dangerous functions
+        dangerous_functions = ['LOAD_FILE', 'INTO OUTFILE', 'INTO DUMPFILE', 'SYSTEM']
+        for func in dangerous_functions:
+            if func in query:
+                risk_score += 50
+
+        return risk_score
+
+class NoSQLInjectionDefense:
+    """MongoDB and NoSQL injection prevention"""
+
+    def __init__(self):
+        self.dangerous_operators = [
+            '$where', '$regex', '$ne', '$gt', '$gte', '$lt', '$lte',
+            '$in', '$nin', '$size', '$exists', '$type', '$mod'
+        ]
+        self.logger = logging.getLogger('nosql_security')
+
+    def validate_query(self, query: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate NoSQL query for injection attempts"""
+        result = {
+            'is_safe': True,
+            'issues': [],
+            'sanitized_query': query.copy()
+        }
+
+        # Recursively check query structure
+        self._check_query_structure(query, result, path="")
+
+        return result
+
+    def _check_query_structure(self, obj: Any, result: Dict[str, Any], path: str):
+        """Recursively check query structure for injection patterns"""
+        if isinstance(obj, dict):
+            for key, value in obj.items():
+                current_path = f"{path}.{key}" if path else key
+
+                # Check for dangerous operators
+                if key in self.dangerous_operators:
+                    if key == '$where' and isinstance(value, str):
+                        # JavaScript injection in $where
+                        if self._contains_js_injection(value):
+                            result['is_safe'] = False
+                            result['issues'].append(f"JavaScript injection in {current_path}")
+
+                    elif key == '$regex' and isinstance(value, str):
+                        # ReDoS attacks
+                        if self._is_dangerous_regex(value):
+                            result['is_safe'] = False
+                            result['issues'].append(f"Dangerous regex in {current_path}")
+
+                # Recursively check nested structures
+                self._check_query_structure(value, result, current_path)
+
+        elif isinstance(obj, list):
+            for i, item in enumerate(obj):
+                current_path = f"{path}[{i}]"
+                self._check_query_structure(item, result, current_path)
+
+    def _contains_js_injection(self, js_code: str) -> bool:
+        """Check for JavaScript injection patterns"""
+        dangerous_patterns = [
+            r'function\s*\(',
+            r'eval\s*\(',
+            r'setTimeout\s*\(',
+            r'setInterval\s*\(',
+            r'new\s+Function',
+            r'constructor\s*\.',
+            r'prototype\s*\.',
+            r'__proto__',
+            r'global\s*\.',
+            r'process\s*\.',
+            r'require\s*\('
+        ]
+
+        for pattern in dangerous_patterns:
+            if re.search(pattern, js_code, re.IGNORECASE):
+                return True
+
+        return False
+
+    def _is_dangerous_regex(self, regex_pattern: str) -> bool:
+        """Check for ReDoS (Regular Expression Denial of Service) patterns"""
+        # Check for nested quantifiers
+        if re.search(r'\([^)]*\+[^)]*\)\+', regex_pattern):
+            return True
+
+        if re.search(r'\([^)]*\*[^)]*\)\*', regex_pattern):
+            return True
+
+        # Check for alternation with overlapping patterns
+        if re.search(r'\([^|]*\|[^|]*\)\+', regex_pattern):
+            return True
+
+        return False
+
+class LDAPInjectionDefense:
+    """LDAP injection prevention"""
+
+    def __init__(self):
+        self.dangerous_chars = ['*', '(', ')', '\\', '\x00', '/', '#']
+        self.escape_map = {
+            '*': '\\2a',
+            '(': '\\28',
+            ')': '\\29',
+            '\\': '\\5c',
+            '\x00': '\\00',
+            '/': '\\2f'
+        }
+
+    def sanitize_filter(self, ldap_filter: str) -> str:
+        """Sanitize LDAP filter to prevent injection"""
+        sanitized = ldap_filter
+
+        # Escape special characters
+        for char, escape_seq in self.escape_map.items():
+            sanitized = sanitized.replace(char, escape_seq)
+
+        return sanitized
+
+    def validate_dn(self, dn: str) -> bool:
+        """Validate Distinguished Name format"""
+        # Basic DN validation
+        dn_pattern = r'^([a-zA-Z][a-zA-Z0-9-]*=[^,=]+,?)*$'
+        return re.match(dn_pattern, dn) is not None
+
+class XMLInjectionDefense:
+    """XML/XPath injection prevention"""
+
+    def __init__(self):
+        self.dangerous_patterns = [
+            r'<\s*script',
+            r'javascript:',
+            r'vbscript:',
+            r'onload\s*=',
+            r'onerror\s*=',
+            r'<\s*iframe',
+            r'<\s*object',
+            r'<\s*embed',
+            r'<\s*meta',
+            r'<!ENTITY',
+            r'<!DOCTYPE',
+            r'SYSTEM\s+["\']'
+        ]
+
+    def validate_xml_content(self, xml_content: str) -> Dict[str, Any]:
+        """Validate XML content for injection attempts"""
+        result = {
+            'is_safe': True,
+            'issues': []
+        }
+
+        for pattern in self.dangerous_patterns:
+            if re.search(pattern, xml_content, re.IGNORECASE):
+                result['is_safe'] = False
+                result['issues'].append(f"Dangerous XML pattern detected: {pattern}")
+
+        return result
+
+    def sanitize_xpath_input(self, xpath_input: str) -> str:
+        """Sanitize XPath input to prevent injection"""
+        # Remove or escape dangerous characters
+        dangerous_chars = ["'", '"', '/', '\\', '(', ')', '[', ']']
+
+        sanitized = xpath_input
+        for char in dangerous_chars:
+            sanitized = sanitized.replace(char, f"\\{char}")
+
+        return sanitized

@@ -1,0 +1,10 @@
+.git/                   # Git repository data
+├── hooks/              # Git hooks
+├── objects/            # Git objects
+├── refs/               # References
+└── config              # Local configuration
+
+# Git configuration files
+.gitignore              # Files to ignore
+.gitattributes          # Path-specific settings
+.gitmessage             # Commit message template

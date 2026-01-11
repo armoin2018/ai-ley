@@ -1,0 +1,2 @@
+User: Implement a real-time interrupt handler for motor control on STM32
+Agent: Designs interrupt service routine with precise timing, includes register configuration and context preservation

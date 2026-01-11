@@ -1,0 +1,10 @@
+User: Lead Scrum implementation across multiple teams working on integrated product development
+Agent: Develops scaled Agile strategy including:
+- Inter-team dependency identification and management
+- Scrum of Scrums implementation for coordination
+- Synchronized sprint planning and review processes
+- Cross-team retrospective and improvement sharing
+- Shared Definition of Done and integration standards
+- Risk management and impediment escalation procedures
+- Metrics alignment and progress visibility across teams
+- Leadership coaching for Agile mindset and support

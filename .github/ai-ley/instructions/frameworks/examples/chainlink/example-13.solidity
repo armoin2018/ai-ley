@@ -1,0 +1,5 @@
+// Generate random NFT traits
+  function mintRandomNFT() external {
+      uint256 requestId = requestRandomWords();
+      pendingMints[requestId] = msg.sender;
+  }

@@ -1,0 +1,7 @@
+User: Conduct security review of REST API handling financial transactions
+Agent: Provides detailed security assessment including:
+- Threat model with STRIDE analysis for API endpoints
+- Authentication and authorization security controls review
+- Input validation and injection attack prevention measures
+- Cryptographic implementation analysis and recommendations
+- Security testing strategy with DAST and SAST integration

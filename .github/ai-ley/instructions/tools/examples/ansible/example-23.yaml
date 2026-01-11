@@ -1,0 +1,105 @@
+# molecule/default/molecule.yml - Comprehensive testing configuration
+---
+dependency:
+  name: galaxy
+  options:
+    requirements-file: requirements.yml
+
+driver:
+  name: docker
+
+platforms:
+  - name: ubuntu-20-04
+    image: ubuntu:20.04
+    pre_build_image: false
+    dockerfile: ../common/Dockerfile.j2
+    capabilities:
+      - SYS_ADMIN
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    command: /lib/systemd/systemd
+
+  - name: rhel-8
+    image: registry.redhat.io/ubi8/ubi:latest
+    pre_build_image: false
+    dockerfile: ../common/Dockerfile.j2
+    capabilities:
+      - SYS_ADMIN
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    command: /usr/sbin/init
+
+provisioner:
+  name: ansible
+  inventory:
+    host_vars:
+      ubuntu-20-04:
+        ansible_python_interpreter: /usr/bin/python3
+      rhel-8:
+        ansible_python_interpreter: /usr/bin/python3
+  config_options:
+    defaults:
+      callback_whitelist: profile_tasks,timer,yaml
+      stdout_callback: yaml
+    ssh_connection:
+      pipelining: true
+
+verifier:
+  name: ansible
+
+scenario:
+  test_sequence:
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - side_effect
+    - verify
+    - cleanup
+    - destroy
+
+# molecule/default/tests/test_default.py - Python test validation
+import os
+import pytest
+import testinfra.utils.ansible_runner
+
+testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
+    os.environ['MOLECULE_INVENTORY_FILE']).get_hosts('all')
+
+@pytest.mark.parametrize('service', [
+    'prometheus-node-exporter',
+    'filebeat',
+    'fail2ban'
+])
+def test_services_running(host, service):
+    service = host.service(service)
+    assert service.is_running
+    assert service.is_enabled
+
+@pytest.mark.parametrize('port', [
+    9100,  # Node exporter
+    22,    # SSH
+])
+def test_ports_listening(host, port):
+    assert host.socket(f"tcp://0.0.0.0:{port}").is_listening
+
+def test_security_hardening(host):
+    # Test SSH configuration
+    ssh_config = host.file('/etc/ssh/sshd_config')
+    assert ssh_config.contains('PermitRootLogin no')
+    assert ssh_config.contains('PasswordAuthentication no')
+
+    # Test firewall status
+    assert host.run('ufw status').rc == 0
+
+    # Test audit daemon
+    assert host.service('auditd').is_running
+
+def test_compliance_tools_installed(host):
+    packages = ['aide', 'rkhunter', 'lynis', 'clamav']
+    for package in packages:
+        assert host.package(package).is_installed

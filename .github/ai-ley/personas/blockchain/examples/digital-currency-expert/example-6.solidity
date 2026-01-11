@@ -1,0 +1,173 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+
+/**
+ * @title Central Bank Digital Currency (CBDC)
+ * @dev Template implementation for a CBDC with regulatory features
+ */
+contract CBDC is ERC20, AccessControl, Pausable {
+    bytes32 public constant CENTRAL_BANK_ROLE = keccak256("CENTRAL_BANK_ROLE");
+    bytes32 public constant COMPLIANCE_ROLE = keccak256("COMPLIANCE_ROLE");
+    bytes32 public constant BANK_ROLE = keccak256("BANK_ROLE");
+    
+    struct Account {
+        bool isVerified;
+        bool isFrozen;
+        uint256 dailyLimit;
+        uint256 dailySpent;
+        uint256 lastTransactionDate;
+        string kycLevel; // "basic", "enhanced", "premium"
+    }
+    
+    mapping(address => Account) public accounts;
+    mapping(bytes32 => bool) public blacklistedTransactions;
+    
+    uint256 public maxSupply;
+    uint256 public dailyMintLimit;
+    uint256 public lastMintDate;
+    uint256 public dailyMinted;
+    
+    bool public transfersEnabled = true;
+    bool public programmableMoney = true;
+    
+    event AccountVerified(address indexed account, string kycLevel);
+    event AccountFrozen(address indexed account, string reason);
+    event TransactionBlacklisted(bytes32 indexed txHash, string reason);
+    event MonetaryPolicyUpdate(uint256 newSupply, uint256 oldSupply);
+    
+    modifier onlyVerifiedAccount(address account) {
+        require(accounts[account].isVerified, "Account not verified");
+        require(!accounts[account].isFrozen, "Account frozen");
+        _;
+    }
+    
+    modifier withinDailyLimit(address account, uint256 amount) {
+        Account storage acc = accounts[account];
+        
+        // Reset daily counter if new day
+        if (block.timestamp / 1 days != acc.lastTransactionDate / 1 days) {
+            acc.dailySpent = 0;
+        }
+        
+        require(acc.dailySpent + amount <= acc.dailyLimit, "Daily limit exceeded");
+        _;
+    }
+    
+    constructor(
+        string memory name,
+        string memory symbol,
+        uint256 _maxSupply
+    ) ERC20(name, symbol) {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(CENTRAL_BANK_ROLE, msg.sender);
+        _grantRole(COMPLIANCE_ROLE, msg.sender);
+        
+        maxSupply = _maxSupply;
+        dailyMintLimit = _maxSupply / 365; // Conservative daily limit
+        lastMintDate = block.timestamp;
+    }
+    
+    function verifyAccount(
+        address account,
+        string calldata kycLevel,
+        uint256 dailyLimit
+    ) external onlyRole(COMPLIANCE_ROLE) {
+        accounts[account] = Account({
+            isVerified: true,
+            isFrozen: false,
+            dailyLimit: dailyLimit,
+            dailySpent: 0,
+            lastTransactionDate: block.timestamp,
+            kycLevel: kycLevel
+        });
+        
+        emit AccountVerified(account, kycLevel);
+    }
+    
+    function freezeAccount(address account, string calldata reason) 
+        external 
+        onlyRole(COMPLIANCE_ROLE) 
+    {
+        accounts[account].isFrozen = true;
+        emit AccountFrozen(account, reason);
+    }
+    
+    function mintCurrency(address to, uint256 amount) 
+        external 
+        onlyRole(CENTRAL_BANK_ROLE) 
+        whenNotPaused 
+    {
+        // Reset daily counter if new day
+        if (block.timestamp / 1 days != lastMintDate / 1 days) {
+            dailyMinted = 0;
+            lastMintDate = block.timestamp;
+        }
+        
+        require(totalSupply() + amount <= maxSupply, "Max supply exceeded");
+        require(dailyMinted + amount <= dailyMintLimit, "Daily mint limit exceeded");
+        
+        dailyMinted += amount;
+        _mint(to, amount);
+        
+        emit MonetaryPolicyUpdate(totalSupply(), totalSupply() - amount);
+    }
+    
+    function transfer(address to, uint256 amount) 
+        public 
+        virtual 
+        override 
+        onlyVerifiedAccount(msg.sender)
+        onlyVerifiedAccount(to)
+        withinDailyLimit(msg.sender, amount)
+        whenNotPaused
+        returns (bool) 
+    {
+        require(transfersEnabled, "Transfers disabled");
+        
+        // Update daily spending
+        accounts[msg.sender].dailySpent += amount;
+        accounts[msg.sender].lastTransactionDate = block.timestamp;
+        
+        return super.transfer(to, amount);
+    }
+    
+    function programmableTransfer(
+        address to,
+        uint256 amount,
+        bytes calldata data
+    ) external onlyVerifiedAccount(msg.sender) returns (bool) {
+        require(programmableMoney, "Programmable money disabled");
+        
+        bool success = transfer(to, amount);
+        
+        if (success && to.code.length > 0) {
+            // Call recipient contract with data
+            (bool callSuccess,) = to.call(data);
+            require(callSuccess, "Programmable call failed");
+        }
+        
+        return success;
+    }
+    
+    function updateMonetaryPolicy(uint256 newMaxSupply, uint256 newDailyLimit) 
+        external 
+        onlyRole(CENTRAL_BANK_ROLE) 
+    {
+        require(newMaxSupply >= totalSupply(), "Cannot reduce below current supply");
+        
+        maxSupply = newMaxSupply;
+        dailyMintLimit = newDailyLimit;
+    }
+    
+    function emergencyPause() external onlyRole(COMPLIANCE_ROLE) {
+        _pause();
+    }
+    
+    function emergencyUnpause() external onlyRole(CENTRAL_BANK_ROLE) {
+        _unpause();
+    }
+}

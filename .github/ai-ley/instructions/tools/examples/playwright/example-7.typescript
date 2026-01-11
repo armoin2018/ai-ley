@@ -1,0 +1,52 @@
+import { test, expect } from '@playwright/test'
+
+test.describe('Browser automation examples', () => {
+  test('navigation and interaction', async ({ page }) => {
+    // Navigate to page
+    await page.goto('https://example.com')
+
+    // Fill form fields
+    await page.fill('#search-input', 'playwright testing')
+    await page.selectOption('#category', 'documentation')
+    await page.check('#include-archived')
+
+    // Click buttons and links
+    await page.click('button[type="submit"]')
+    await page.click('text=Advanced Search')
+
+    // Handle dialogs
+    page.on('dialog', dialog => dialog.accept())
+    await page.click('#delete-button')
+
+    // Wait for navigation
+    await page.waitForURL('**/search-results')
+
+    // Verify page content
+    await expect(page).toHaveTitle(/Search Results/)
+    await expect(page.locator('.result-item')).toHaveCount(10)
+  })
+
+  test('advanced interactions', async ({ page }) => {
+    await page.goto('/interactive-demo')
+
+    // Hover effects
+    await page.hover('.tooltip-trigger')
+    await expect(page.locator('.tooltip')).toBeVisible()
+
+    // Drag and drop
+    await page.dragAndDrop('#source-element', '#target-element')
+
+    // File uploads
+    await page.setInputFiles('#file-upload', 'test-files/sample.pdf')
+
+    // Keyboard interactions
+    await page.press('#text-editor', 'Control+A')
+    await page.keyboard.type('New content')
+
+    // Mouse interactions
+    await page.mouse.move(100, 100)
+    await page.mouse.down()
+    await page.mouse.move(200, 200)
+    await page.mouse.up()
+  })
+})

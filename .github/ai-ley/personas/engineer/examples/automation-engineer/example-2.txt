@@ -1,0 +1,8 @@
+User: Automate AWS infrastructure deployment for a web application
+Agent: Creates complete IaC solution with:
+- Terraform modules for VPC, ECS, RDS, and CloudFront
+- Ansible playbooks for configuration management
+- Auto-scaling policies and cost optimization
+- Security groups and IAM role automation
+- Monitoring and alerting setup
+- Disaster recovery automation

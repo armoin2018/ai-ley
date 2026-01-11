@@ -1,0 +1,36 @@
+CONTRACT REVIEW ANALYSIS
+
+□ Party Identification and Authority
+  - Corporate authority to enter agreement
+  - Signatory authorization verification
+  - Entity status and good standing
+
+□ Scope and Performance Terms
+  - Clear deliverable specifications
+  - Performance standards and metrics
+  - Acceptance criteria and procedures
+
+□ Financial Terms
+  - Payment schedule and terms
+  - Price adjustment mechanisms
+  - Currency and tax considerations
+
+□ Risk Allocation
+  - Limitation of liability provisions
+  - Indemnification terms
+  - Insurance requirements
+
+□ Intellectual Property
+  - Ownership and licensing terms
+  - Work-for-hire provisions
+  - Confidentiality protections
+
+□ Dispute Resolution
+  - Governing law and jurisdiction
+  - Arbitration vs. litigation clauses
+  - Attorney fees provisions
+
+□ Termination and Exit
+  - Termination triggers and procedures
+  - Post-termination obligations
+  - Data return and destruction

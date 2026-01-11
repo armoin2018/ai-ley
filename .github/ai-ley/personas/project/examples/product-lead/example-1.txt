@@ -1,0 +1,10 @@
+User: Scale our product team from 3 to 15 product managers while maintaining quality and alignment
+Agent: Develops scaling strategy including:
+- Organizational structure design with clear roles and responsibilities
+- Hiring strategy and competency framework for product managers
+- Mentoring and development program for team growth
+- Process and framework standardization across product teams
+- Communication and alignment mechanisms for distributed teams
+- Performance measurement and career progression frameworks
+- Tool selection and workflow optimization for larger teams
+- Culture preservation and knowledge transfer strategies

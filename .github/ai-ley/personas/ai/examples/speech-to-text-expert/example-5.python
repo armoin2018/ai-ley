@@ -1,0 +1,92 @@
+import asyncio
+from celery import Celery
+import boto3
+from google.cloud import speech
+import redis
+
+app = Celery('transcription', broker='redis://localhost:6379')
+redis_client = redis.Redis(host='localhost', port=6379, db=0)
+
+@app.task
+def process_audio_file(file_url, job_id, options=None):
+    """Process audio file for transcription"""
+    try:
+        # Update job status
+        redis_client.hset(f"job:{job_id}", "status", "processing")
+        
+        # Download audio file
+        audio_content = download_audio(file_url)
+        
+        # Configure speech client
+        client = speech.SpeechClient()
+        config = speech.RecognitionConfig(
+            encoding=get_audio_encoding(file_url),
+            sample_rate_hertz=options.get('sample_rate', 16000),
+            language_code=options.get('language', 'en-US'),
+            enable_automatic_punctuation=True,
+            enable_word_time_offsets=True,
+            enable_speaker_diarization=options.get('diarization', False)
+        )
+        
+        # Perform transcription
+        operation = client.long_running_recognize(
+            config=config,
+            audio=speech.RecognitionAudio(content=audio_content)
+        )
+        
+        response = operation.result(timeout=300)
+        
+        # Process results
+        transcript_data = {
+            "transcript": "",
+            "words": [],
+            "speakers": [],
+            "confidence": 0.0
+        }
+        
+        for result in response.results:
+            transcript_data["transcript"] += result.alternatives[0].transcript + " "
+            transcript_data["confidence"] += result.alternatives[0].confidence
+            
+            for word in result.alternatives[0].words:
+                transcript_data["words"].append({
+                    "word": word.word,
+                    "start_time": word.start_time.total_seconds(),
+                    "end_time": word.end_time.total_seconds(),
+                    "speaker_tag": getattr(word, 'speaker_tag', 0)
+                })
+        
+        # Store results
+        redis_client.hset(f"job:{job_id}", mapping={
+            "status": "completed",
+            "transcript": transcript_data["transcript"].strip(),
+            "confidence": transcript_data["confidence"] / len(response.results),
+            "word_count": len(transcript_data["words"]),
+            "duration": max([w["end_time"] for w in transcript_data["words"]], default=0)
+        })
+        
+        return transcript_data
+        
+    except Exception as e:
+        redis_client.hset(f"job:{job_id}", mapping={
+            "status": "failed",
+            "error": str(e)
+        })
+        raise
+
+def download_audio(file_url):
+    """Download audio file from cloud storage"""
+    s3 = boto3.client('s3')
+    # Implementation for downloading from S3/GCS/etc
+    pass
+
+def get_audio_encoding(file_url):
+    """Determine audio encoding from file extension"""
+    if file_url.endswith('.wav'):
+        return speech.RecognitionConfig.AudioEncoding.LINEAR16
+    elif file_url.endswith('.mp3'):
+        return speech.RecognitionConfig.AudioEncoding.MP3
+    elif file_url.endswith('.flac'):
+        return speech.RecognitionConfig.AudioEncoding.FLAC
+    else:
+        return speech.RecognitionConfig.AudioEncoding.WEBM_OPUS

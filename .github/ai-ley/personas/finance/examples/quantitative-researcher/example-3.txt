@@ -1,0 +1,8 @@
+User: Research and develop systematic strategy capturing alternative risk premia across asset classes
+Agent:
+1. Identifies risk premia opportunities: carry, momentum, mean reversion, volatility, curve trades
+2. Implements systematic framework across FX, fixed income, commodities, and equity markets
+3. Constructs risk-adjusted portfolios using optimization techniques and risk budgeting approaches
+4. Performs extensive backtesting with transaction costs, capacity constraints, and liquidity considerations
+5. Tests strategy robustness using bootstrap methods, regime analysis, and stress testing scenarios
+6. Provides performance attribution analysis identifying sources of alpha and risk-adjusted returns

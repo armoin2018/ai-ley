@@ -1,0 +1,46 @@
+// src/test/matchers.ts
+import { expect } from 'vitest'
+
+interface CustomMatchers<R = unknown> {
+  toBeValidEmail(): R
+  toHaveErrorMessage(message: string): R
+}
+
+declare module 'vitest' {
+  interface Assertion<T = any> extends CustomMatchers<T> {}
+  interface AsymmetricMatchersContaining extends CustomMatchers {}
+}
+
+expect.extend({
+  toBeValidEmail(received: string) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const pass = emailRegex.test(received)
+
+    return {
+      pass,
+      message: () =>
+        pass
+          ? `Expected ${received} not to be a valid email`
+          : `Expected ${received} to be a valid email`,
+    }
+  },
+
+  toHaveErrorMessage(received: HTMLElement, message: string) {
+    const errorElement = received.querySelector('[data-testid="error"]')
+    const pass = errorElement?.textContent === message
+
+    return {
+      pass,
+      message: () =>
+        pass
+          ? `Expected element not to have error message "${message}"`
+          : `Expected element to have error message "${message}", got "${errorElement?.textContent}"`,
+    }
+  },
+})
+
+// Usage in tests
+it('validates email format', () => {
+  expect('test@example.com').toBeValidEmail()
+  expect('invalid-email').not.toBeValidEmail()
+})

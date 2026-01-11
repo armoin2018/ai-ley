@@ -1,0 +1,204 @@
+// Complete MVC implementation example
+
+// Model
+@interface UserModel : NSObject
+
+@property (nonatomic, strong) NSString *userID;
+@property (nonatomic, strong) NSString *username;
+@property (nonatomic, strong) NSString *email;
+@property (nonatomic, strong) NSDate *createdDate;
+
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary;
+- (NSDictionary *)toDictionary;
+- (BOOL)isValid;
+
+@end
+
+@implementation UserModel
+
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
+    self = [super init];
+    if (self) {
+        _userID = dictionary[@"id"];
+        _username = dictionary[@"username"];
+        _email = dictionary[@"email"];
+        
+        NSString *dateString = dictionary[@"created_date"];
+        if (dateString) {
+            NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+            formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss'Z'";
+            _createdDate = [formatter dateFromString:dateString];
+        }
+    }
+    return self;
+}
+
+- (NSDictionary *)toDictionary {
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+    
+    if (self.userID) dict[@"id"] = self.userID;
+    if (self.username) dict[@"username"] = self.username;
+    if (self.email) dict[@"email"] = self.email;
+    
+    if (self.createdDate) {
+        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+        formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss'Z'";
+        dict[@"created_date"] = [formatter stringFromDate:self.createdDate];
+    }
+    
+    return [dict copy];
+}
+
+- (BOOL)isValid {
+    return self.userID.length > 0 && 
+           self.username.length > 0 && 
+           [self.email isValidEmail];
+}
+
+@end
+
+// View
+@interface UserTableViewCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UILabel *usernameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *emailLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *avatarImageView;
+
+- (void)configureWithUser:(UserModel *)user;
+
+@end
+
+@implementation UserTableViewCell
+
+- (void)configureWithUser:(UserModel *)user {
+    self.usernameLabel.text = user.username;
+    self.emailLabel.text = user.email;
+    
+    // Load avatar image asynchronously
+    [self loadAvatarForUser:user];
+}
+
+- (void)loadAvatarForUser:(UserModel *)user {
+    // Placeholder image
+    self.avatarImageView.image = [UIImage imageNamed:@"placeholder_avatar"];
+    
+    // Load actual avatar in background
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSURL *avatarURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://api.example.com/avatars/%@", user.userID]];
+        NSData *imageData = [NSData dataWithContentsOfURL:avatarURL];
+        
+        if (imageData) {
+            UIImage *avatarImage = [UIImage imageWithData:imageData];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.avatarImageView.image = avatarImage;
+            });
+        }
+    });
+}
+
+@end
+
+// Controller
+@interface UserListViewController : UITableViewController
+
+@property (nonatomic, strong) NSMutableArray<UserModel *> *users;
+@property (nonatomic, strong) UIRefreshControl *refreshController;
+
+- (void)loadUsers;
+- (void)refreshUsers;
+
+@end
+
+@implementation UserListViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.title = @"Users";
+    self.users = [NSMutableArray array];
+    
+    [self setupRefreshControl];
+    [self loadUsers];
+}
+
+- (void)setupRefreshControl {
+    self.refreshController = [[UIRefreshControl alloc] init];
+    [self.refreshController addTarget:self 
+                               action:@selector(refreshUsers) 
+                     forControlEvents:UIControlEventValueChanged];
+    self.tableView.refreshControl = self.refreshController;
+}
+
+- (void)loadUsers {
+    [self showLoadingIndicator];
+    
+    [[APIClient sharedClient] GET:@"/users" parameters:nil completion:^(NSData *data, NSURLResponse *response, NSError *error) {
+        [self hideLoadingIndicator];
+        
+        if (error) {
+            [self showErrorAlert:error];
+            return;
+        }
+        
+        NSError *jsonError = nil;
+        NSDictionary *jsonResponse = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
+        
+        if (jsonError) {
+            [self showErrorAlert:jsonError];
+            return;
+        }
+        
+        NSArray *userDictionaries = jsonResponse[@"users"];
+        NSMutableArray *newUsers = [NSMutableArray array];
+        
+        for (NSDictionary *userDict in userDictionaries) {
+            UserModel *user = [[UserModel alloc] initWithDictionary:userDict];
+            if ([user isValid]) {
+                [newUsers addObject:user];
+            }
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.users = newUsers;
+            [self.tableView reloadData];
+        });
+    }];
+}
+
+- (void)refreshUsers {
+    [self loadUsers];
+    [self.refreshController endRefreshing];
+}
+
+#pragma mark - UITableViewDataSource
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.users.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UserTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"UserCell" forIndexPath:indexPath];
+    
+    UserModel *user = self.users[indexPath.row];
+    [cell configureWithUser:user];
+    
+    return cell;
+}
+
+#pragma mark - UITableViewDelegate
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    UserModel *selectedUser = self.users[indexPath.row];
+    
+    // Navigate to user detail
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    UserDetailViewController *detailVC = [storyboard instantiateViewControllerWithIdentifier:@"UserDetailViewController"];
+    detailVC.user = selectedUser;
+    
+    [self.navigationController pushViewController:detailVC animated:YES];
+}
+
+@end

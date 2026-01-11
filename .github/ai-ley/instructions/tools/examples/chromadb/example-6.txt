@@ -1,0 +1,4 @@
+### Issue 2: Embedding Model Selection
+
+**Problem**: Choosing the right embedding model for your use case
+**Solution**: Evaluate different models based on your domain and requirements

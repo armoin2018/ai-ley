@@ -1,0 +1,14 @@
+my-dapp/
+├── contracts/              # Solidity smart contracts
+│   ├── Migrations.sol      # Migration tracking contract
+│   └── MyContract.sol      # Your custom contracts
+├── migrations/             # Deployment scripts
+│   ├── 1_initial_migration.js
+│   └── 2_deploy_contracts.js
+├── test/                   # Test files
+│   ├── TestMyContract.sol  # Solidity tests
+│   └── mycontract.js       # JavaScript tests
+├── build/                  # Compiled contract artifacts (auto-generated)
+│   └── contracts/
+├── truffle-config.js       # Main configuration file
+└── package.json           # Node.js dependencies

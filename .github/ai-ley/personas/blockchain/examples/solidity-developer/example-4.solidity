@@ -1,0 +1,46 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
+contract ModernToken is ERC20, ERC20Permit, AccessControl {
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
+    
+    uint256 public immutable cap;
+    
+    // Custom errors for gas efficiency
+    error ExceedsCap(uint256 amount, uint256 cap);
+    error InsufficientBalance(address account, uint256 balance, uint256 amount);
+    
+    event Mint(address indexed to, uint256 amount);
+    event Burn(address indexed from, uint256 amount);
+    
+    constructor(
+        string memory name,
+        string memory symbol,
+        uint256 _cap,
+        address admin
+    ) ERC20(name, symbol) ERC20Permit(name) {
+        cap = _cap;
+        _grantRole(DEFAULT_ADMIN_ROLE, admin);
+    }
+    
+    function mint(address to, uint256 amount) external onlyRole(MINTER_ROLE) {
+        if (totalSupply() + amount > cap) {
+            revert ExceedsCap(amount, cap);
+        }
+        _mint(to, amount);
+        emit Mint(to, amount);
+    }
+    
+    function burn(address from, uint256 amount) external onlyRole(BURNER_ROLE) {
+        if (balanceOf(from) < amount) {
+            revert InsufficientBalance(from, balanceOf(from), amount);
+        }
+        _burn(from, amount);
+        emit Burn(from, amount);
+    }
+}

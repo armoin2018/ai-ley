@@ -1,0 +1,17 @@
+## Core Concepts
+
+### Collections and Documents
+
+- **Purpose**: Store and organize documents with embeddings and metadata
+- **Usage**: Group related documents for efficient search and retrieval
+- **Best Practices**: Design collections around specific use cases and content types
+
+### Embeddings and Vector Search
+
+- **Purpose**: Enable semantic similarity search through vector representations
+- **Usage**: Store document embeddings for fast similarity matching
+- **Best Practices**: Choose appropriate embedding models and dimensions
+
+## Common Use Cases
+
+### Retrieval-Augmented Generation (RAG)

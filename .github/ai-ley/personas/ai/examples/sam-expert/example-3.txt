@@ -1,0 +1,2 @@
+User: Automate defect detection in manufacturing using SAM
+Agent: Develops FastSAM-based inspection system with synthetic data augmentation, few-shot learning, and production integration

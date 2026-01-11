@@ -1,0 +1,164 @@
+# .github/workflows/security-pipeline.yml
+name: OWASP Security Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 2 * * *' # Daily security scan
+
+env:
+  SECURITY_SCAN_ENABLED: true
+  OWASP_ZAP_ENABLED: true
+  DEPENDENCY_CHECK_ENABLED: true
+  SONAR_ENABLED: true
+
+jobs:
+  security-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up security tools
+        run: |
+          # Install security analysis tools
+          wget -O zap.tar.gz https://github.com/zaproxy/zaproxy/releases/download/v2.13.0/ZAP_2_13_0_unix.sh
+          chmod +x zap.tar.gz
+
+          # Install dependency check
+          curl -L https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip -o dependency-check.zip
+          unzip dependency-check.zip
+
+      - name: Static Application Security Testing (SAST)
+        run: |
+          # Run SonarQube security analysis
+          sonar-scanner \
+            -Dsonar.projectKey=security-scan \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.qualitygate.wait=true
+
+      - name: Dependency vulnerability scan
+        run: |
+          ./dependency-check/bin/dependency-check.sh \
+            --project "Security Scan" \
+            --scan . \
+            --format ALL \
+            --out ./dependency-check-report \
+            --enableRetired \
+            --enableExperimental
+
+      - name: Container security scan
+        run: |
+          # Scan container images for vulnerabilities
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            -v $PWD:/tmp/app \
+            aquasec/trivy:latest \
+            image --format json \
+            --output /tmp/app/trivy-report.json \
+            ${{ github.repository }}:latest
+
+      - name: Dynamic Application Security Testing (DAST)
+        if: github.event_name == 'schedule'
+        run: |
+          # Start application for DAST scanning
+          docker-compose -f docker-compose.test.yml up -d
+
+          # Wait for application to be ready
+          sleep 30
+
+          # Run OWASP ZAP scan
+          docker run -t owasp/zap2docker-stable zap-baseline.py \
+            -t http://host.docker.internal:3000 \
+            -J zap-report.json \
+            -r zap-report.html
+
+      - name: Security compliance check
+        run: |
+          # Run custom ASVS compliance tests
+          python scripts/asvs-compliance-check.py \
+            --level 3 \
+            --output compliance-report.json
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-reports
+          path: |
+            dependency-check-report/
+            trivy-report.json
+            zap-report.*
+            compliance-report.json
+
+      - name: Security notification
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#security-alerts'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          message: 'Security scan failed! Check the reports for vulnerabilities.'
+
+  penetration-testing:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup penetration testing environment
+        run: |
+          # Install penetration testing tools
+          sudo apt-get update
+          sudo apt-get install -y nmap nikto sqlmap
+
+          # Setup custom security tests
+          pip install -r requirements-security.txt
+
+      - name: Network security scan
+        run: |
+          # Network reconnaissance
+          nmap -sV -sC -O target-host > nmap-scan.txt
+
+          # Web application scan
+          nikto -h http://target-host -output nikto-scan.txt
+
+      - name: SQL injection testing
+        run: |
+          # Automated SQL injection testing
+          sqlmap -u "http://target-host/api/login" \
+            --data="username=admin&password=admin" \
+            --batch \
+            --output-dir=sqlmap-results
+
+      - name: Custom security tests
+        run: |
+          # Run custom OWASP Top 10 tests
+          python scripts/owasp-top10-tests.py \
+            --target http://target-host \
+            --output pentest-report.json
+
+      - name: Generate penetration test report
+        run: |
+          python scripts/generate-pentest-report.py \
+            --input-dir . \
+            --output pentest-final-report.pdf
+
+      - name: Upload penetration test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: penetration-test-reports
+          path: |
+            nmap-scan.txt
+            nikto-scan.txt
+            sqlmap-results/
+            pentest-report.json
+            pentest-final-report.pdf

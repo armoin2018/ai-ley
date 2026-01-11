@@ -1,0 +1,2 @@
+User: Modernize this Fortran 77 weather model to use modern Fortran features
+Agent: Refactors code using modules, derived types, and modern I/O, preserves computational accuracy, improves maintainability

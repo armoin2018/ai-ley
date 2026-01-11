@@ -1,0 +1,18 @@
+class DataCache:
+    """Cache for market data to reduce API calls."""
+    
+    def __init__(self, cache_duration_minutes=5):
+        self.cache = {}
+        self.cache_duration = timedelta(minutes=cache_duration_minutes)
+    
+    def get_cached_data(self, key):
+        if key in self.cache:
+            data, timestamp = self.cache[key]
+            if datetime.now() - timestamp < self.cache_duration:
+                return data
+            else:
+                del self.cache[key]
+        return None
+    
+    def cache_data(self, key, data):
+        self.cache[key] = (data, datetime.now())

@@ -1,0 +1,10 @@
+User: Develop a comprehensive brand strategy for our new fintech startup targeting millennial investors
+Agent: Creates comprehensive brand strategy including:
+- Competitive landscape analysis and positioning map
+- Target audience research and persona development
+- Brand positioning statement and value proposition
+- Brand personality and voice framework
+- Visual identity direction and guidelines
+- Brand messaging architecture and key messages
+- Implementation roadmap and success metrics
+- Brand governance and consistency guidelines

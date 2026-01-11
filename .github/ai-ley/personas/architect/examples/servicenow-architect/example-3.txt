@@ -1,0 +1,8 @@
+User: Build custom HR service delivery application on ServiceNow platform
+Agent: Provides custom application architecture including:
+- Data model design with custom tables and relationships
+- Service Portal design with responsive UI and mobile optimization
+- Workflow automation with approval chains and SLA management
+- Integration with HRIS systems using REST APIs and transform maps
+- Security model with role-based access and data protection
+- Testing strategy with automated testing and deployment processes

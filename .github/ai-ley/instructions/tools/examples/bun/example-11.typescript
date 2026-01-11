@@ -1,0 +1,57 @@
+// File system operations
+import { file, write } from "bun";
+
+// Read file
+const contents = await file("./package.json").text();
+const data = await file("./data.json").json();
+const buffer = await file("./image.png").arrayBuffer();
+
+// Write file
+await write("output.txt", "Hello, Bun!");
+await write("data.json", { key: "value" });
+
+// Streaming
+const stream = file("large-file.txt").stream();
+
+// HTTP Server (Bun.serve)
+const server = Bun.serve({
+  port: 3000,
+  fetch(req) {
+    const url = new URL(req.url);
+
+    if (url.pathname === "/") {
+      return new Response("Hello, Bun!");
+    }
+
+    if (url.pathname === "/api/data") {
+      return Response.json({ message: "API response" });
+    }
+
+    return new Response("Not Found", { status: 404 });
+  },
+});
+
+console.log(`Server running on http://localhost:${server.port}`);
+
+// WebSocket support
+const server = Bun.serve({
+  port: 3000,
+  websocket: {
+    message(ws, message) {
+      console.log("Received:", message);
+      ws.send(`Echo: ${message}`);
+    },
+    open(ws) {
+      console.log("WebSocket connected");
+    },
+    close(ws, code, message) {
+      console.log("WebSocket disconnected");
+    },
+  },
+  fetch(req, server) {
+    if (server.upgrade(req)) {
+      return; // WebSocket upgrade
+    }
+    return new Response("Upgrade failed", { status: 500 });
+  },
+});

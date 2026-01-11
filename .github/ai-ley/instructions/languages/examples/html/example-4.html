@@ -1,0 +1,45 @@
+<!-- Responsive Images -->
+<picture>
+  <source media="(max-width: 768px)" 
+          srcset="/assets/images/hero-mobile.webp 1x, 
+                  /assets/images/hero-mobile@2x.webp 2x"
+          type="image/webp">
+  <source media="(max-width: 768px)" 
+          srcset="/assets/images/hero-mobile.jpg 1x, 
+                  /assets/images/hero-mobile@2x.jpg 2x"
+          type="image/jpeg">
+  <source media="(min-width: 769px)" 
+          srcset="/assets/images/hero-desktop.webp 1x, 
+                  /assets/images/hero-desktop@2x.webp 2x"
+          type="image/webp">
+  <img src="/assets/images/hero-desktop.jpg" 
+       srcset="/assets/images/hero-desktop.jpg 1x, 
+               /assets/images/hero-desktop@2x.jpg 2x"
+       alt="Descriptive text about the hero image content"
+       loading="lazy"
+       width="1200" 
+       height="600">
+</picture>
+
+<!-- Video with Accessibility -->
+<video controls 
+       width="800" 
+       height="450" 
+       poster="/assets/images/video-poster.jpg"
+       aria-labelledby="video-title"
+       aria-describedby="video-description">
+  <source src="/assets/videos/example.mp4" type="video/mp4">
+  <source src="/assets/videos/example.webm" type="video/webm">
+  <track kind="captions" 
+         src="/assets/captions/example-en.vtt" 
+         srclang="en" 
+         label="English captions">
+  <track kind="subtitles" 
+         src="/assets/subtitles/example-es.vtt" 
+         srclang="es" 
+         label="Spanish subtitles">
+  <p>Your browser doesn't support HTML video. 
+     <a href="/assets/videos/example.mp4">Download the video</a> instead.</p>
+</video>
+<h3 id="video-title">Video Title</h3>
+<p id="video-description">Brief description of video content for screen readers</p>

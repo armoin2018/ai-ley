@@ -1,0 +1,7 @@
+User: Migrate legacy XML data to modern JSON format with validation
+Agent:
+- Analyzes XML structure and creates equivalent JSON schema
+- Implements transformation pipeline with validation
+- Provides data quality checks and error reporting
+- Shows incremental migration strategy
+- Includes rollback and recovery procedures

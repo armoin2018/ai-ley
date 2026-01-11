@@ -1,0 +1,73 @@
+# admiral-multicluster.yaml - Service mesh federation across clusters
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: multicluster-primary
+spec:
+  values:
+    global:
+      meshID: enterprise-mesh
+      network: primary-network
+      multiCluster:
+        clusterName: production-primary
+    pilot:
+      env:
+        ADMIRAL_SYNC_NAMESPACES: 'production,staging'
+        PILOT_ENABLE_CROSS_CLUSTER_WORKLOAD_ENTRY: true
+        PILOT_SCOPE_GATEWAY_TO_NAMESPACE: true
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: cross-cluster-gateway
+  namespace: istio-system
+spec:
+  selector:
+    istio: eastwestgateway
+  servers:
+    - port:
+        number: 15021
+        name: status-port
+        protocol: HTTP
+      hosts:
+        - '*'
+    - port:
+        number: 15443
+        name: tls
+        protocol: TLS
+      tls:
+        mode: ISTIO_MUTUAL
+      hosts:
+        - '*.local'
+---
+# Admiral configuration for multi-cluster service discovery
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: admiral-config
+  namespace: admiral
+data:
+  config.yaml: |
+    admiral:
+      metrics:
+        enabled: true
+        port: 15020
+      profile: default
+      logLevel: "info"
+      hostnameSuffix: "global"
+      syncNamespaces: ["production", "staging"]
+      cacheRefreshDuration: 5m
+      clusterRegistriesNamespace: "admiral"
+      dependencyNamespaceLabels:
+        - "identity"
+      workloadIdentityKey: "identity"
+      globalTrafficPolicy:
+        policy:
+          - dns_prefix: "production"
+            match:
+              - uri:
+                  prefix: "/api/v1"
+            route:
+              - destination:
+                  host: "api-service.production.global"
+                weight: 100

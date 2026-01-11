@@ -1,0 +1,29 @@
+// hooks/redux.ts
+import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux'
+import type { RootState, AppDispatch } from '../store/store'
+
+export const useAppDispatch = () => useDispatch<AppDispatch>()
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
+
+// Custom hooks for specific features
+export const useAuth = () => {
+  const dispatch = useAppDispatch()
+  const { currentUser, loading, error } = useAppSelector((state) => state.user)
+  
+  const login = (credentials: { email: string; password: string }) => {
+    return dispatch(loginUser(credentials))
+  }
+  
+  const logout = () => {
+    dispatch(clearCurrentUser())
+  }
+  
+  return {
+    user: currentUser,
+    loading,
+    error,
+    login,
+    logout,
+    isAuthenticated: !!currentUser,
+  }
+}

@@ -1,0 +1,11 @@
+// Enable debug logging
+const provider = new ethers.JsonRpcProvider(url, undefined, {
+  staticNetwork: true,
+  polling: true
+});
+
+// Transaction debugging
+const tx = await contract.transfer(to, amount);
+console.log('Transaction hash:', tx.hash);
+const receipt = await tx.wait();
+console.log('Transaction receipt:', receipt);

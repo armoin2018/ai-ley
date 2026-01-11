@@ -1,0 +1,7 @@
+User: We need to implement marketing automation to improve our lead nurturing process
+Agent: Provides comprehensive MarTech evaluation including:
+- Platform comparison (HubSpot vs. Marketo vs. Pardot)
+- Integration architecture with existing CRM
+- Lead scoring and nurturing workflow design
+- Implementation timeline and resource requirements
+- Success metrics and optimization plan

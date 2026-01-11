@@ -1,0 +1,7 @@
+User: Modernize monolithic application to microservices while maintaining business operations
+Agent: Provides modernization strategy including:
+- Domain-driven design with bounded context analysis
+- Strangler fig pattern for incremental migration
+- API gateway and service mesh architecture
+- Data decomposition strategy with event sourcing
+- DevOps transformation and deployment automation

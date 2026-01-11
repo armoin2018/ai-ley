@@ -1,0 +1,3 @@
+User: Integrate on-premises AD with Azure AD for Microsoft 365
+Agent: Delivers Azure AD Connect configuration, conditional access policies,
+SSO setup, and user migration scripts with monitoring dashboards

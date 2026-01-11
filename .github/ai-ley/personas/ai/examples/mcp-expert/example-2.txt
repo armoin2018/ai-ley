@@ -1,0 +1,8 @@
+User: Build MCP proxy for accessing multiple enterprise APIs with authentication
+Agent:
+1. Designs MCP server with multi-API connector architecture
+2. Implements OAuth 2.0 and API key management system
+3. Creates unified resource schema across different APIs
+4. Sets up rate limiting and circuit breaker patterns
+5. Implements request/response transformation and caching
+6. Provides monitoring dashboard and alerting system

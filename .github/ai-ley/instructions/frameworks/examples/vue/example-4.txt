@@ -1,0 +1,17 @@
+vue-app/
+├── src/
+│   ├── components/          # Reusable components
+│   │   ├── ui/             # Basic UI components
+│   │   └── feature/        # Feature-specific components
+│   ├── views/              # Page-level components
+│   ├── composables/        # Composition API logic
+│   ├── stores/             # Pinia state management
+│   ├── router/             # Vue Router configuration
+│   ├── assets/             # Static assets
+│   ├── types/              # TypeScript type definitions
+│   ├── utils/              # Utility functions
+│   ├── App.vue            # Root component
+│   └── main.ts            # Application entry point
+├── public/                 # Static files
+├── tests/                  # Test files
+└── vite.config.ts         # Vite configuration

@@ -1,0 +1,38 @@
+# Security validation checklist for CloudFormation templates
+
+SecurityValidation:
+  Encryption:
+    - '✓ All S3 buckets have encryption enabled'
+    - '✓ RDS instances use encrypted storage'
+    - '✓ EBS volumes are encrypted'
+    - '✓ Lambda environment variables encrypted'
+    - '✓ SNS topics use KMS encryption'
+    - '✓ SQS queues encrypted at rest'
+
+  AccessControl:
+    - '✓ IAM roles follow least privilege principle'
+    - '✓ S3 buckets block public access'
+    - '✓ Security groups have specific port ranges'
+    - '✓ NACLs provide additional network security'
+    - '✓ Resource policies are restrictive'
+
+  Monitoring:
+    - '✓ CloudTrail logging enabled'
+    - '✓ VPC Flow Logs configured'
+    - '✓ GuardDuty threat detection enabled'
+    - '✓ Config compliance monitoring active'
+    - '✓ Security Hub findings aggregated'
+
+  Compliance:
+    - '✓ Data retention policies implemented'
+    - '✓ Audit logging captures all required events'
+    - '✓ Backup and disaster recovery configured'
+    - '✓ Incident response procedures documented'
+    - '✓ Regular security assessments scheduled'
+
+# Security testing commands
+security_tests:
+  cfn_nag: 'cfn_nag_scan --input-path templates/'
+  checkov: 'checkov -f templates/ --framework cloudformation'
+  prowler: 'prowler -M json -f prowler-results.json'
+  aws_config: 'aws configservice get-compliance-by-config-rule'

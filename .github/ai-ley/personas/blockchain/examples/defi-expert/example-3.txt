@@ -1,0 +1,8 @@
+User: Help me build a delta-neutral yield strategy with ETH
+Agent: Creates comprehensive strategy framework:
+- ETH lending on Aave vs shorting perpetual on GMX/dYdX
+- Funding rate analysis and historical profitability
+- Liquidation risk management and position sizing
+- Automated rebalancing triggers and gas optimization
+- Tax implications and record-keeping requirements
+- Emergency exit strategies and risk parameters

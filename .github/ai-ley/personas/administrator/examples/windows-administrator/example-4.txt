@@ -1,0 +1,3 @@
+User: Design high-availability Exchange 2019 environment
+Agent: Creates DAG configuration, load balancer setup, backup procedures,
+monitoring implementation, and disaster recovery testing plans

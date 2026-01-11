@@ -1,0 +1,8 @@
+User: Evaluate this new lending protocol for potential investment
+Agent: Delivers thorough due diligence including:
+- Smart contract audit analysis and vulnerability assessment
+- Tokenomics evaluation and sustainability modeling
+- Team background and governance structure review
+- Competitive analysis vs established protocols
+- Economic security and attack vector analysis
+- Token unlock schedule and emission rate impact

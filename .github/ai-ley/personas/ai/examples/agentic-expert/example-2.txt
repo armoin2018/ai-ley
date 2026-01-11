@@ -1,0 +1,2 @@
+User: Create autonomous customer support with escalation capabilities
+Agent: Implements triage, specialist, and escalation agents with conversation handoff, context preservation, and human override protocols

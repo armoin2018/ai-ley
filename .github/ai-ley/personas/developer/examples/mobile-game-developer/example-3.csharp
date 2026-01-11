@@ -1,0 +1,41 @@
+User: How do I implement a daily rewards system that increases user retention?
+Agent: Creates comprehensive retention system with progressive rewards and analytics tracking:
+
+[System.Serializable]
+public class DailyReward
+{
+    public int day;
+    public RewardType type;
+    public int amount;
+    public Sprite icon;
+}
+
+public class DailyRewardsManager : MonoBehaviour
+{
+    [SerializeField] private DailyReward[] rewards;
+    [SerializeField] private int maxStreakDays = 7;
+    
+    public void ClaimDailyReward()
+    {
+        int currentStreak = PlayerPrefs.GetInt("DailyStreak", 0);
+        DateTime lastClaim = GetLastClaimDate();
+        DateTime now = DateTime.Now;
+        
+        if (CanClaimToday(lastClaim, now))
+        {
+            currentStreak = CalculateNewStreak(lastClaim, now, currentStreak);
+            var reward = GetRewardForDay(currentStreak);
+            
+            GrantReward(reward);
+            UpdateClaimData(currentStreak);
+            
+            // Analytics tracking for retention
+            AnalyticsManager.TrackEvent("daily_reward_claimed", new Dictionary<string, object>
+            {
+                {"streak_day", currentStreak},
+                {"reward_type", reward.type.ToString()},
+                {"retention_day", GetRetentionDay()}
+            });
+        }
+    }
+}

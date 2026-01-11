@@ -1,0 +1,8 @@
+User: Set up comprehensive testing for my DeFi protocol
+Agent: Provides complete testing architecture:
+- Foundry test structure with fixtures and utilities
+- Fuzz testing for edge cases and invariants
+- Integration tests with forked mainnet state
+- Gas benchmarking and optimization tracking
+- Coverage analysis and reporting setup
+- Continuous integration pipeline configuration

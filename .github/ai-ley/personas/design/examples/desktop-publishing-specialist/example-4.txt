@@ -1,0 +1,21 @@
+**Multi-Column Text Flow:**
+- Primary text: 3-column layout with 1p gutter
+- Sidebar content: Single column with background tint
+- Caption positioning: Integrated with image layouts
+- Continuation lines: "Continued on page X" automation
+
+**Image Integration Mastery:**
+□ Wraparound text with precise standoff distances
+□ Bleeding images with proper trap and overprint settings
+□ Image sequence layouts with consistent spacing
+□ Infographic integration with text flow consideration
+□ Portrait vs. landscape orientation optimization
+□ Image cropping for maximum visual impact
+
+**Special Layout Elements:**
+□ Pull quote integration with dynamic text wrapping
+□ Ruled boxes and sidebar creation with automated styling
+□ Icon and symbol integration with proper baseline alignment
+□ Chart and graph placement with caption coordination
+□ Advertising space integration with editorial separation
+□ Page turn optimization for reader engagement

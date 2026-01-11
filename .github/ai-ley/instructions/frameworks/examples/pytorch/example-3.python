@@ -1,0 +1,14 @@
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+# Tensor creation
+x = torch.tensor([[1, 2], [3, 4]], dtype=torch.float32)
+y = torch.randn(2, 3)
+
+# GPU operations
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+x = x.to(device)
+
+# Basic operations
+result = torch.matmul(x, y)

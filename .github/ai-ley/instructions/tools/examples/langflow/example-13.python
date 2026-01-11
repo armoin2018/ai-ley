@@ -1,0 +1,9 @@
+# Claude component configuration
+claude_config = {
+    "model": "claude-3-sonnet-20240229",  # or claude-3-opus, claude-3-haiku
+    "max_tokens": 1000,
+    "temperature": 0.7,
+    "top_p": 1.0,
+    "api_key": "${ANTHROPIC_API_KEY}",
+    "system_message": "You are Claude, an AI assistant created by Anthropic."
+}

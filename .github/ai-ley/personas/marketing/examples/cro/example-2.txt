@@ -1,0 +1,10 @@
+User: Improve conversion rates on our PPC landing pages for lead generation
+Agent: Creates landing page optimization strategy including:
+- Current performance baseline and competitor analysis
+- Value proposition and messaging optimization testing
+- Call-to-action placement, design, and copy testing
+- Form optimization and lead capture improvement
+- Social proof and trust signal implementation
+- Page speed and mobile optimization
+- Traffic source and audience segmentation analysis
+- Testing roadmap with prioritized experiments

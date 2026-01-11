@@ -1,0 +1,92 @@
+// Comprehensive component testing with React Testing Library
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { DataComponent } from './DataComponent';
+import { server } from '../mocks/server';
+
+// Mock handlers
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
+// Test wrapper with providers
+const createWrapper = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  });
+  
+  return ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
+  );
+};
+
+describe('DataComponent', () => {
+  it('should render loading state initially', () => {
+    render(<DataComponent id="test-id" />, { wrapper: createWrapper() });
+    
+    expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
+  });
+  
+  it('should display data after loading', async () => {
+    render(<DataComponent id="test-id" />, { wrapper: createWrapper() });
+    
+    await waitFor(() => {
+      expect(screen.getByText('TEST DATA')).toBeInTheDocument();
+    });
+  });
+  
+  it('should handle input changes and call onUpdate', async () => {
+    const mockOnUpdate = jest.fn();
+    render(
+      <DataComponent id="test-id" onUpdate={mockOnUpdate} />,
+      { wrapper: createWrapper() }
+    );
+    
+    await waitFor(() => {
+      expect(screen.getByText('TEST DATA')).toBeInTheDocument();
+    });
+    
+    const input = screen.getByLabelText(/update data item name/i);
+    fireEvent.change(input, { target: { value: 'new value' } });
+    
+    expect(mockOnUpdate).toHaveBeenCalledWith('new value');
+  });
+  
+  it('should display error state when fetch fails', async () => {
+    // Mock error response
+    server.use(
+      rest.get('/api/data/error-id', (req, res, ctx) => {
+        return res(ctx.status(500), ctx.json({ error: 'Server error' }));
+      })
+    );
+    
+    render(<DataComponent id="error-id" />, { wrapper: createWrapper() });
+    
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+      expect(screen.getByText(/error loading data/i)).toBeInTheDocument();
+    });
+  });
+  
+  it('should be accessible', async () => {
+    render(<DataComponent id="test-id" />, { wrapper: createWrapper() });
+    
+    await waitFor(() => {
+      expect(screen.getByText('TEST DATA')).toBeInTheDocument();
+    });
+    
+    // Check for proper ARIA labels
+    expect(screen.getByLabelText(/update data item name/i)).toBeInTheDocument();
+    
+    // Check keyboard navigation
+    const input = screen.getByLabelText(/update data item name/i);
+    input.focus();
+    expect(input).toHaveFocus();
+  });
+});

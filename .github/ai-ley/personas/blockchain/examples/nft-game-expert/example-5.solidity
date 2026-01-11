@@ -1,0 +1,151 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+
+contract GameToken is ERC20, AccessControl, Pausable {
+    bytes32 public constant GAME_ROLE = keccak256("GAME_ROLE");
+    bytes32 public constant TREASURY_ROLE = keccak256("TREASURY_ROLE");
+    
+    uint256 public constant MAX_SUPPLY = 1_000_000_000 * 10**18; // 1B tokens
+    uint256 public dailyMintLimit = 100_000 * 10**18; // 100k daily limit
+    uint256 public lastMintReset;
+    uint256 public dailyMinted;
+    
+    // Anti-farming mechanics
+    mapping(address => uint256) public lastRewardTime;
+    mapping(address => uint256) public dailyRewards;
+    uint256 public constant MIN_REWARD_INTERVAL = 1 hours;
+    uint256 public constant MAX_DAILY_REWARDS = 100 * 10**18; // 100 tokens per day per user
+    
+    // Staking and burning
+    mapping(address => uint256) public stakedBalances;
+    mapping(address => uint256) public stakeTimestamps;
+    uint256 public totalStaked;
+    uint256 public stakingAPR = 1200; // 12% APR
+    
+    event TokensRewarded(address indexed player, uint256 amount, string reason);
+    event TokensStaked(address indexed user, uint256 amount);
+    event TokensUnstaked(address indexed user, uint256 amount, uint256 rewards);
+    event TokensBurned(uint256 amount, string reason);
+    
+    constructor() ERC20("GameToken", "GAME") {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(GAME_ROLE, msg.sender);
+        _grantRole(TREASURY_ROLE, msg.sender);
+        
+        // Mint initial supply to treasury (40% of max supply)
+        _mint(msg.sender, 400_000_000 * 10**18);
+        lastMintReset = block.timestamp;
+    }
+    
+    function rewardPlayer(
+        address player,
+        uint256 amount,
+        string calldata reason
+    ) external onlyRole(GAME_ROLE) whenNotPaused {
+        require(player != address(0), "Invalid player");
+        require(amount > 0, "Invalid amount");
+        
+        // Reset daily counters if needed
+        if (block.timestamp >= lastMintReset + 1 days) {
+            dailyMinted = 0;
+            lastMintReset = block.timestamp;
+        }
+        
+        // Reset player daily rewards if needed
+        if (block.timestamp >= lastRewardTime[player] + 1 days) {
+            dailyRewards[player] = 0;
+        }
+        
+        // Anti-farming checks
+        require(
+            block.timestamp >= lastRewardTime[player] + MIN_REWARD_INTERVAL,
+            "Reward too frequent"
+        );
+        require(
+            dailyRewards[player] + amount <= MAX_DAILY_REWARDS,
+            "Daily reward limit exceeded"
+        );
+        require(
+            dailyMinted + amount <= dailyMintLimit,
+            "Daily mint limit exceeded"
+        );
+        require(
+            totalSupply() + amount <= MAX_SUPPLY,
+            "Max supply exceeded"
+        );
+        
+        dailyRewards[player] += amount;
+        dailyMinted += amount;
+        lastRewardTime[player] = block.timestamp;
+        
+        _mint(player, amount);
+        emit TokensRewarded(player, amount, reason);
+    }
+    
+    function stakeTokens(uint256 amount) external whenNotPaused {
+        require(amount > 0, "Invalid amount");
+        require(balanceOf(msg.sender) >= amount, "Insufficient balance");
+        
+        // Claim existing rewards
+        if (stakedBalances[msg.sender] > 0) {
+            _claimStakingRewards();
+        }
+        
+        _transfer(msg.sender, address(this), amount);
+        stakedBalances[msg.sender] += amount;
+        stakeTimestamps[msg.sender] = block.timestamp;
+        totalStaked += amount;
+        
+        emit TokensStaked(msg.sender, amount);
+    }
+    
+    function unstakeTokens(uint256 amount) external {
+        require(stakedBalances[msg.sender] >= amount, "Insufficient staked balance");
+        
+        uint256 rewards = _claimStakingRewards();
+        
+        stakedBalances[msg.sender] -= amount;
+        totalStaked -= amount;
+        
+        _transfer(address(this), msg.sender, amount);
+        
+        emit TokensUnstaked(msg.sender, amount, rewards);
+    }
+    
+    function _claimStakingRewards() internal returns (uint256) {
+        uint256 staked = stakedBalances[msg.sender];
+        if (staked == 0) return 0;
+        
+        uint256 timeDiff = block.timestamp - stakeTimestamps[msg.sender];
+        uint256 rewards = (staked * stakingAPR * timeDiff) / (365 days * 10000);
+        
+        if (rewards > 0 && totalSupply() + rewards <= MAX_SUPPLY) {
+            _mint(msg.sender, rewards);
+            stakeTimestamps[msg.sender] = block.timestamp;
+        }
+        
+        return rewards;
+    }
+    
+    function burnForUpgrade(uint256 amount, string calldata reason) 
+        external 
+    {
+        require(amount > 0, "Invalid amount");
+        require(balanceOf(msg.sender) >= amount, "Insufficient balance");
+        
+        _burn(msg.sender, amount);
+        emit TokensBurned(amount, reason);
+    }
+    
+    function getStakingRewards(address user) external view returns (uint256) {
+        uint256 staked = stakedBalances[user];
+        if (staked == 0) return 0;
+        
+        uint256 timeDiff = block.timestamp - stakeTimestamps[user];
+        return (staked * stakingAPR * timeDiff) / (365 days * 10000);
+    }
+}

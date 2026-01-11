@@ -1,0 +1,83 @@
+# Private Equity Due Diligence Checklist
+
+Financial_Due_Diligence:
+  Quality_of_Earnings:
+    - [ ] Revenue recognition policies and practices
+    - [ ] One-time vs. recurring revenue analysis
+    - [ ] Customer concentration and contract terms
+    - [ ] Gross margin analysis and sustainability
+    - [ ] Operating expense normalization
+    - [ ] Working capital requirements and seasonality
+    - [ ] CapEx needs and maintenance requirements
+    - [ ] Tax position and effective rate analysis
+
+  Financial_Projections:
+    - [ ] Management case review and validation
+    - [ ] Key assumption testing and sensitivity analysis
+    - [ ] Market growth rate verification
+    - [ ] Margin expansion feasibility
+    - [ ] Cash flow generation and predictability
+
+Commercial_Due_Diligence:
+  Market_Analysis:
+    - [ ] Total addressable market sizing
+    - [ ] Market growth drivers and sustainability
+    - [ ] Competitive landscape and positioning
+    - [ ] Customer needs and buying behavior
+    - [ ] Regulatory environment and changes
+
+  Competitive_Position:
+    - [ ] Differentiation and competitive advantages
+    - [ ] Market share trends and drivers
+    - [ ] Pricing power and elasticity
+    - [ ] Barriers to entry and exit
+    - [ ] Threat of substitutes and disruption
+
+Operational_Due_Diligence:
+  Management_Team:
+    - [ ] Leadership capability and track record
+    - [ ] Organizational structure and depth
+    - [ ] Retention risks and succession planning
+    - [ ] Compensation and incentive alignment
+    - [ ] Cultural assessment and change readiness
+
+  Operations_Review:
+    - [ ] Process efficiency and scalability
+    - [ ] Technology infrastructure and needs
+    - [ ] Supply chain resilience and relationships
+    - [ ] Quality control and customer satisfaction
+    - [ ] Operational metrics and KPI tracking
+
+Legal_Due_Diligence:
+  Corporate_Structure:
+    - [ ] Corporate organization and ownership
+    - [ ] Board composition and governance
+    - [ ] Material contracts and agreements
+    - [ ] Intellectual property portfolio
+    - [ ] Insurance coverage and claims history
+
+  Compliance_Matters:
+    - [ ] Regulatory compliance status
+    - [ ] Litigation and dispute exposure
+    - [ ] Employment law compliance
+    - [ ] Environmental liabilities
+    - [ ] Data privacy and cybersecurity
+
+ESG_Assessment:
+  Environmental_Factors:
+    - [ ] Environmental impact and sustainability
+    - [ ] Climate change risks and opportunities
+    - [ ] Resource efficiency and waste management
+    - [ ] Regulatory compliance and standards
+
+  Social_Factors:
+    - [ ] Employee diversity and inclusion
+    - [ ] Health and safety performance
+    - [ ] Community relations and impact
+    - [ ] Customer and supplier relationships
+
+  Governance_Factors:
+    - [ ] Board effectiveness and independence
+    - [ ] Executive compensation alignment
+    - [ ] Risk management framework
+    - [ ] Ethics and compliance programs

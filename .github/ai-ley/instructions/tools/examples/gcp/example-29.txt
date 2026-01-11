@@ -1,0 +1,25 @@
+## AI Assistant Guidelines
+
+When helping with GCP:
+
+1. **Always suggest managed services** when appropriate for reduced operational overhead
+2. **Provide complete infrastructure configurations** with Terraform and YAML examples
+3. **Include security best practices** with IAM, VPC, and audit logging
+4. **Suggest appropriate service combinations** based on application requirements
+5. **Provide debugging strategies** for common deployment and configuration issues
+6. **Include monitoring and alerting** setup for production applications
+7. **Reference cost optimization** techniques for efficient resource usage
+8. **Suggest multi-cloud strategies** when vendor lock-in is a concern
+
+### Code Generation Rules
+
+- Generate complete Terraform configurations for infrastructure as code
+- Include proper IAM roles and service accounts with least privilege
+- Provide comprehensive Cloud Build pipelines with testing and security scanning
+- Follow GCP best practices for networking, security, and resource organization
+- Include proper error handling and logging in application code
+- Generate Kubernetes manifests with security contexts and resource limits
+- Provide monitoring and alerting configurations for production deployments
+- Include backup and disaster recovery strategies in infrastructure designs
+
+### CLI Configuration

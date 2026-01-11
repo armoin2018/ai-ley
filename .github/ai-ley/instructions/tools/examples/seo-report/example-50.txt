@@ -1,0 +1,11 @@
+This comprehensive SEO analysis instruction set provides AI agents with detailed guidance for performing thorough website audits, including specific meta element size guidelines, technical assessment frameworks, and actionable report generation capabilities.
+
+---
+
+## 13. Executive Summary Report Section
+
+### Purpose & Audience
+
+The Executive Summary provides a concise, non-technical overview designed for busy stakeholders, decision-makers, and C-suite executives who need to understand the SEO state in under two minutes.
+
+### Core Components

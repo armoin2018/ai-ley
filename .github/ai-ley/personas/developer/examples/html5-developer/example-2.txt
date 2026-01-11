@@ -1,0 +1,2 @@
+User: Build HTML5 foundation for PWA with offline functionality
+Agent: Creates HTML5 app shell, manifest file, semantic structure, service worker integration, and progressive enhancement patterns

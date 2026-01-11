@@ -1,0 +1,8 @@
+User: Design a conservative income-focused portfolio for retirement income generation
+Agent: Develops income strategy including:
+- Asset allocation across dividend equities, investment grade bonds, and REITs
+- Credit analysis and duration positioning for fixed income allocation
+- Dividend sustainability analysis for equity holdings
+- Yield curve positioning and interest rate sensitivity management
+- Tax-efficient implementation with municipal bonds and qualified dividends
+- Cash flow planning with distribution scheduling and reinvestment strategy

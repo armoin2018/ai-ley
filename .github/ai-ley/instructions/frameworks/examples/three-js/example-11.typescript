@@ -1,0 +1,86 @@
+// server/3d-api.ts - Server-side 3D operations
+import express from 'express';
+import * as THREE from 'three';
+import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter';
+
+const router = express.Router();
+
+// Generate and export 3D models
+router.post('/generate-model', async (req, res) => {
+    try {
+        const { type, parameters } = req.body;
+        
+        let geometry: THREE.BufferGeometry;
+        
+        switch (type) {
+            case 'box':
+                geometry = new THREE.BoxGeometry(
+                    parameters.width || 1,
+                    parameters.height || 1,
+                    parameters.depth || 1
+                );
+                break;
+            case 'sphere':
+                geometry = new THREE.SphereGeometry(
+                    parameters.radius || 1,
+                    parameters.widthSegments || 32,
+                    parameters.heightSegments || 32
+                );
+                break;
+            default:
+                return res.status(400).json({ error: 'Invalid geometry type' });
+        }
+        
+        const material = new THREE.MeshStandardMaterial({
+            color: parameters.color || 0xffffff
+        });
+        
+        const mesh = new THREE.Mesh(geometry, material);
+        const scene = new THREE.Scene();
+        scene.add(mesh);
+        
+        // Export as GLTF
+        const exporter = new GLTFExporter();
+        const gltf = await new Promise((resolve, reject) => {
+            exporter.parse(scene, resolve, { binary: false }, reject);
+        });
+        
+        res.json({ model: gltf });
+    } catch (error) {
+        console.error('Error generating model:', error);
+        res.status(500).json({ error: 'Failed to generate model' });
+    }
+});
+
+// Optimize models
+router.post('/optimize-model', async (req, res) => {
+    try {
+        const { modelData, optimizations } = req.body;
+        
+        // Load model from data
+        const loader = new THREE.ObjectLoader();
+        const scene = loader.parse(modelData);
+        
+        // Apply optimizations
+        if (optimizations.reducePoly) {
+            scene.traverse((child) => {
+                if (child instanceof THREE.Mesh) {
+                    // Implement polygon reduction
+                    // This would require additional libraries like three-mesh-simplifier
+                }
+            });
+        }
+        
+        if (optimizations.mergeGeometries) {
+            // Merge geometries for better performance
+            // Implementation would depend on specific requirements
+        }
+        
+        res.json({ optimizedModel: scene.toJSON() });
+    } catch (error) {
+        console.error('Error optimizing model:', error);
+        res.status(500).json({ error: 'Failed to optimize model' });
+    }
+});
+
+export default router;

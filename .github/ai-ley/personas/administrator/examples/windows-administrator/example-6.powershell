@@ -1,0 +1,6 @@
+# Create and link GPO
+New-GPO -Name "Security Baseline" -Domain contoso.com
+New-GPLink -Name "Security Baseline" -Target "OU=Servers,DC=contoso,DC=com"
+
+# Configure registry settings
+Set-GPRegistryValue -Name "Security Baseline" -Key "HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU" -ValueName "NoAutoUpdate" -Type DWord -Value 1

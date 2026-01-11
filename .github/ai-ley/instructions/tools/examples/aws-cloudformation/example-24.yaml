@@ -1,0 +1,530 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Enterprise CI/CD Pipeline for CloudFormation Deployments'
+
+Parameters:
+  GitHubOwner:
+    Type: String
+    Description: GitHub repository owner
+  GitHubRepo:
+    Type: String
+    Description: GitHub repository name
+  GitHubBranch:
+    Type: String
+    Default: main
+    Description: GitHub branch to monitor
+  GitHubToken:
+    Type: String
+    NoEcho: true
+    Description: GitHub personal access token
+
+Resources:
+  # CodePipeline for multi-environment deployment
+  InfrastructurePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: !Sub 'enterprise-infrastructure-pipeline'
+      RoleArn: !GetAtt CodePipelineRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref PipelineArtifactsBucket
+        EncryptionKey:
+          Id: !Ref PipelineKMSKey
+          Type: KMS
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: SourceAction
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Provider: GitHub
+                Version: '1'
+              Configuration:
+                Owner: !Ref GitHubOwner
+                Repo: !Ref GitHubRepo
+                Branch: !Ref GitHubBranch
+                OAuthToken: !Ref GitHubToken
+                PollForSourceChanges: false
+              OutputArtifacts:
+                - Name: SourceOutput
+
+        - Name: Validate
+          Actions:
+            - Name: ValidateTemplates
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref ValidationProject
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: ValidatedTemplates
+
+        - Name: SecurityScan
+          Actions:
+            - Name: SecurityAnalysis
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref SecurityScanProject
+              InputArtifacts:
+                - Name: ValidatedTemplates
+              OutputArtifacts:
+                - Name: SecurityApprovedTemplates
+
+        - Name: DeployDev
+          Actions:
+            - Name: CreateChangeSet
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              Configuration:
+                ActionMode: CHANGE_SET_REPLACE
+                StackName: enterprise-infrastructure-dev
+                ChangeSetName: pipeline-changeset
+                TemplatePath: SecurityApprovedTemplates::infrastructure/main.yaml
+                ParameterOverrides: |
+                  {
+                    "Environment": "dev",
+                    "EnableDetailedMonitoring": "false",
+                    "RetentionPeriod": "30"
+                  }
+                Capabilities: CAPABILITY_IAM,CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+                RoleArn: !GetAtt CloudFormationRole.Arn
+              InputArtifacts:
+                - Name: SecurityApprovedTemplates
+              Region: !Ref 'AWS::Region'
+              RunOrder: 1
+
+            - Name: ExecuteChangeSet
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              Configuration:
+                ActionMode: CHANGE_SET_EXECUTE
+                StackName: enterprise-infrastructure-dev
+                ChangeSetName: pipeline-changeset
+              Region: !Ref 'AWS::Region'
+              RunOrder: 2
+
+        - Name: IntegrationTests
+          Actions:
+            - Name: RunTests
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref IntegrationTestProject
+                EnvironmentVariables: '[{"name":"STACK_NAME","value":"enterprise-infrastructure-dev"}]'
+              InputArtifacts:
+                - Name: SecurityApprovedTemplates
+
+        - Name: ApprovalForProduction
+          Actions:
+            - Name: ManualApproval
+              ActionTypeId:
+                Category: Approval
+                Owner: AWS
+                Provider: Manual
+                Version: '1'
+              Configuration:
+                CustomData: 'Please review the dev deployment and approve for production'
+                ExternalEntityLink: !Sub 'https://${AWS::Region}.console.aws.amazon.com/cloudformation/home?region=${AWS::Region}#/stacks?filteringStatus=active&filteringText=enterprise-infrastructure-dev'
+
+        - Name: DeployProduction
+          Actions:
+            - Name: CreateChangeSet
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              Configuration:
+                ActionMode: CHANGE_SET_REPLACE
+                StackName: enterprise-infrastructure-production
+                ChangeSetName: pipeline-changeset
+                TemplatePath: SecurityApprovedTemplates::infrastructure/main.yaml
+                ParameterOverrides: |
+                  {
+                    "Environment": "production",
+                    "EnableDetailedMonitoring": "true",
+                    "RetentionPeriod": "365"
+                  }
+                Capabilities: CAPABILITY_IAM,CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+                RoleArn: !GetAtt CloudFormationRole.Arn
+              InputArtifacts:
+                - Name: SecurityApprovedTemplates
+              Region: !Ref 'AWS::Region'
+              RunOrder: 1
+
+            - Name: ExecuteChangeSet
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              Configuration:
+                ActionMode: CHANGE_SET_EXECUTE
+                StackName: enterprise-infrastructure-production
+                ChangeSetName: pipeline-changeset
+              Region: !Ref 'AWS::Region'
+              RunOrder: 2
+
+  # Validation CodeBuild project
+  ValidationProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: enterprise-template-validation
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+        EnvironmentVariables:
+          - Name: AWS_DEFAULT_REGION
+            Value: !Ref 'AWS::Region'
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            install:
+              runtime-versions:
+                python: 3.8
+              commands:
+                - pip install cfn-lint checkov
+                - npm install -g cfn-nag
+            pre_build:
+              commands:
+                - echo "Starting template validation..."
+            build:
+              commands:
+                - echo "Validating CloudFormation templates with AWS CLI"
+                - find . -name "*.yaml" -o -name "*.yml" | xargs -I {} aws cloudformation validate-template --template-body file://{}
+                - echo "Linting templates with cfn-lint"
+                - cfn-lint **/*.yaml **/*.yml
+                - echo "Security analysis with cfn-nag"
+                - cfn_nag_scan --input-path .
+                - echo "Compliance analysis with checkov"
+                - checkov -f . --framework cloudformation
+            post_build:
+              commands:
+                - echo "Template validation completed successfully"
+          artifacts:
+            files:
+              - '**/*'
+
+  # Security scanning CodeBuild project
+  SecurityScanProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: enterprise-security-scan
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            install:
+              runtime-versions:
+                python: 3.8
+              commands:
+                - pip install prowler checkov bandit safety
+            pre_build:
+              commands:
+                - echo "Starting security analysis..."
+            build:
+              commands:
+                - echo "Running Prowler security checks"
+                - prowler -M json -o prowler-results.json
+                - echo "Running Checkov compliance checks"
+                - checkov -f . --framework cloudformation --output json --output-file checkov-results.json
+                - echo "Analyzing for secrets and sensitive data"
+                - find . -name "*.yaml" -o -name "*.yml" | xargs grep -l -i -E "(password|secret|key|token)" || true
+            post_build:
+              commands:
+                - echo "Security scan completed"
+                - echo "Uploading security reports to S3"
+                - aws s3 cp prowler-results.json s3://${CODEBUILD_SOURCE_REPO_URL##*/}/security-reports/prowler/
+                - aws s3 cp checkov-results.json s3://${CODEBUILD_SOURCE_REPO_URL##*/}/security-reports/checkov/
+          artifacts:
+            files:
+              - '**/*'
+            secondary-artifacts:
+              security-reports:
+                files:
+                  - prowler-results.json
+                  - checkov-results.json
+
+  # Integration testing project
+  IntegrationTestProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: enterprise-integration-tests
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            install:
+              runtime-versions:
+                python: 3.8
+              commands:
+                - pip install boto3 pytest requests
+            pre_build:
+              commands:
+                - echo "Preparing integration tests..."
+            build:
+              commands:
+                - echo "Running infrastructure tests"
+                - python -m pytest tests/integration/ -v
+                - echo "Testing stack outputs and resources"
+                - aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs'
+                - echo "Validating resource creation"
+                - python tests/validate_resources.py --stack-name $STACK_NAME
+            post_build:
+              commands:
+                - echo "Integration tests completed"
+
+  # S3 bucket for pipeline artifacts
+  PipelineArtifactsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'enterprise-pipeline-artifacts-${AWS::AccountId}-${AWS::Region}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !Ref PipelineKMSKey
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldArtifacts
+            Status: Enabled
+            ExpirationInDays: 90
+            NoncurrentVersionExpirationInDays: 7
+
+  # KMS key for pipeline encryption
+  PipelineKMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: KMS Key for CodePipeline artifacts encryption
+      KeyPolicy:
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+          - Sid: Allow CodePipeline
+            Effect: Allow
+            Principal:
+              Service:
+                - codepipeline.amazonaws.com
+                - codebuild.amazonaws.com
+                - s3.amazonaws.com
+            Action:
+              - kms:Decrypt
+              - kms:Encrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:CreateGrant
+              - kms:DescribeKey
+            Resource: '*'
+
+  # IAM roles for pipeline
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: PipelineExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetBucketVersioning
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:PutObject
+                Resource:
+                  - !Sub '${PipelineArtifactsBucket}/*'
+                  - !GetAtt PipelineArtifactsBucket.Arn
+              - Effect: Allow
+                Action:
+                  - codebuild:BatchGetBuilds
+                  - codebuild:StartBuild
+                Resource:
+                  - !GetAtt ValidationProject.Arn
+                  - !GetAtt SecurityScanProject.Arn
+                  - !GetAtt IntegrationTestProject.Arn
+              - Effect: Allow
+                Action:
+                  - cloudformation:CreateStack
+                  - cloudformation:DeleteStack
+                  - cloudformation:DescribeStacks
+                  - cloudformation:UpdateStack
+                  - cloudformation:CreateChangeSet
+                  - cloudformation:DeleteChangeSet
+                  - cloudformation:DescribeChangeSet
+                  - cloudformation:ExecuteChangeSet
+                  - cloudformation:SetStackPolicy
+                  - cloudformation:ValidateTemplate
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - iam:PassRole
+                Resource: !GetAtt CloudFormationRole.Arn
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:Encrypt
+                  - kms:GenerateDataKey
+                Resource: !GetAtt PipelineKMSKey.Arn
+
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CodeBuildExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*'
+              - Effect: Allow
+                Action:
+                  - s3:GetBucketVersioning
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:PutObject
+                Resource:
+                  - !Sub '${PipelineArtifactsBucket}/*'
+                  - !GetAtt PipelineArtifactsBucket.Arn
+              - Effect: Allow
+                Action:
+                  - cloudformation:ValidateTemplate
+                  - cloudformation:DescribeStacks
+                  - cloudformation:DescribeStackResources
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:Encrypt
+                  - kms:GenerateDataKey
+                Resource: !GetAtt PipelineKMSKey.Arn
+
+  CloudFormationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudformation.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/PowerUserAccess
+      Policies:
+        - PolicyName: CloudFormationDeploymentPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - iam:CreateRole
+                  - iam:DeleteRole
+                  - iam:AttachRolePolicy
+                  - iam:DetachRolePolicy
+                  - iam:PutRolePolicy
+                  - iam:DeleteRolePolicy
+                  - iam:GetRole
+                  - iam:GetRolePolicy
+                  - iam:PassRole
+                  - iam:CreateInstanceProfile
+                  - iam:DeleteInstanceProfile
+                  - iam:AddRoleToInstanceProfile
+                  - iam:RemoveRoleFromInstanceProfile
+                Resource: '*'
+
+  # GitHub webhook for automatic triggers
+  GitHubWebhook:
+    Type: AWS::CodePipeline::Webhook
+    Properties:
+      Name: enterprise-infrastructure-webhook
+      TargetPipeline: !Ref InfrastructurePipeline
+      TargetAction: SourceAction
+      TargetPipelineVersion: !GetAtt InfrastructurePipeline.Version
+      RegisterWithThirdParty: true
+      Authentication: GITHUB_HMAC
+      AuthenticationConfiguration:
+        SecretToken: !Ref GitHubToken
+      Filters:
+        - JsonPath: $.ref
+          MatchEquals: !Sub 'refs/heads/${GitHubBranch}'
+
+Outputs:
+  PipelineName:
+    Description: Name of the CodePipeline
+    Value: !Ref InfrastructurePipeline
+
+  PipelineUrl:
+    Description: URL of the CodePipeline
+    Value: !Sub 'https://console.aws.amazon.com/codesuite/codepipeline/pipelines/${InfrastructurePipeline}/view'
+
+  ArtifactsBucket:
+    Description: S3 bucket for pipeline artifacts
+    Value: !Ref PipelineArtifactsBucket

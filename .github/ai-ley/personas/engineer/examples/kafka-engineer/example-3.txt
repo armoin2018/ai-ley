@@ -1,0 +1,8 @@
+User: Optimize Kafka cluster performance for high-volume trading data
+Agent: Provides detailed optimization strategy:
+- Cluster sizing and partition distribution analysis
+- Producer/consumer configuration tuning
+- Network and disk I/O optimization
+- JVM tuning and garbage collection optimization
+- Monitoring setup with custom dashboards
+- Capacity planning and auto-scaling strategies

@@ -1,0 +1,1 @@
+source /path/to/script.sh

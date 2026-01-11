@@ -1,0 +1,2 @@
+User: Create an interactive web map showing real estate properties with search filters
+Agent: Implements Leaflet-based solution with PostGIS backend, property clustering, popup displays, and spatial search functionality using appropriate coordinate systems

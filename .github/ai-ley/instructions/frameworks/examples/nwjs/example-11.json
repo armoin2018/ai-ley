@@ -1,0 +1,45 @@
+{
+  "name": "my-nwjs-app",
+  "version": "1.0.0",
+  "main": "src/index.html",
+  "node-remote": ["http://localhost:*"],
+  "webkit": {
+    "plugin": true,
+    "java": false,
+    "page-cache": false
+  },
+  "window": {
+    "title": "My NW.js Application",
+    "icon": "assets/icon.png",
+    "width": 1200,
+    "height": 800,
+    "min_width": 800,
+    "min_height": 600,
+    "position": "center",
+    "resizable": true,
+    "always_on_top": false,
+    "fullscreen": false,
+    "kiosk": false,
+    "frame": true,
+    "show": true,
+    "show_in_taskbar": true,
+    "transparent": false
+  },
+  "chromium-args": [
+    "--disable-features=TranslateUI",
+    "--disable-pinch",
+    "--overscroll-history-navigation=0"
+  ],
+  "crash_report_url": "https://your-crash-report-server.com",
+  "user-agent": "MyApp/%ver",
+  "node-main": "src/background.js",
+  "bg-script": "src/background.js",
+  "debug": false,
+  "scripts": {
+    "start": "nw .",
+    "dev": "nw . --debug",
+    "build": "nwbuild -p win32,win64,osx64,linux32,linux64 -v 0.75.0 .",
+    "test": "jest",
+    "test:e2e": "playwright test"
+  }
+}

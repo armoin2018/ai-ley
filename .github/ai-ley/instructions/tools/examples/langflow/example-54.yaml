@@ -1,0 +1,13 @@
+# Debug connection configuration
+debug_connections:
+  validation_rules:
+    - source_output_exists: true
+    - target_input_compatible: true
+    - data_type_matching: true
+    - circular_dependency_check: true
+
+  common_fixes:
+    - check_component_outputs: 'Verify component produces expected output'
+    - validate_input_types: 'Ensure input types match component requirements'
+    - review_flow_logic: 'Check for logical errors in flow design'
+    - test_components_individually: 'Isolate and test each component'

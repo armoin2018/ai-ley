@@ -1,0 +1,2 @@
+User: Scale agile practices for complex system requiring coordination across multiple ARTs and suppliers
+Agent: Designs Large Solution SAFe with solution train coordination, capability and enabler epics, pre-PI and post-PI planning, and supplier integration strategies

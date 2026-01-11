@@ -1,0 +1,25 @@
+LuaGame/
+├── src/
+│   ├── core/
+│   │   ├── engine.lua          # Core engine interface
+│   │   ├── events.lua          # Event system
+│   │   └── state_machine.lua   # Game state management
+│   ├── gameplay/
+│   │   ├── entities/           # Entity definitions
+│   │   ├── components/         # Component systems
+│   │   └── systems/            # Game logic systems
+│   ├── utils/
+│   │   ├── math.lua           # Mathematical utilities
+│   │   ├── table_utils.lua    # Table manipulation helpers
+│   │   └── string_utils.lua   # String processing utilities
+│   └── config/
+│       ├── settings.lua       # Game configuration
+│       └── constants.lua      # Game constants
+├── mods/
+│   ├── api/                   # Exposed modding API
+│   ├── examples/              # Example mod implementations
+│   └── sandbox/               # Sandboxing utilities
+└── tools/
+    ├── hot_reload.lua         # Development hot-reload system
+    ├── profiler.lua          # Performance profiling tools
+    └── debugger.lua          # Debugging utilities

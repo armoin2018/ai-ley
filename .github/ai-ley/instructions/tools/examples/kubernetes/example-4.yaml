@@ -1,0 +1,67 @@
+# pod-security-standards.yaml - Enterprise pod security enforcement
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: secure-workloads
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+    security.company.com/tier: high-security
+---
+# OPA Gatekeeper constraint template for security validation
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: k8srequiredsecuritycontext
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sRequiredSecurityContext
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            runAsNonRoot:
+              type: boolean
+            requiredCapabilities:
+              type: array
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8srequiredsecuritycontext
+
+        violation[{"msg": msg}] {
+            container := input.review.object.spec.containers[_]
+            not container.securityContext.runAsNonRoot
+            msg := "Containers must run as non-root user"
+        }
+
+        violation[{"msg": msg}] {
+            container := input.review.object.spec.containers[_]
+            container.securityContext.privileged
+            msg := "Privileged containers are not allowed"
+        }
+
+        violation[{"msg": msg}] {
+            container := input.review.object.spec.containers[_]
+            container.securityContext.allowPrivilegeEscalation
+            msg := "Privilege escalation is not allowed"
+        }
+---
+# Gatekeeper constraint implementation
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredSecurityContext
+metadata:
+  name: must-have-security-context
+spec:
+  match:
+    kinds:
+      - apiGroups: ['apps']
+        kinds: ['Deployment']
+    excludedNamespaces: ['kube-system', 'kube-public']
+  parameters:
+    runAsNonRoot: true

@@ -1,0 +1,32 @@
+integration_architecture:
+  api_gateway:
+    tool: "Kong Enterprise"
+    features:
+      - rate_limiting
+      - authentication
+      - transformation
+      - analytics
+      
+  message_broker:
+    primary: "Apache Kafka"
+    backup: "RabbitMQ"
+    patterns:
+      - publish_subscribe
+      - request_response
+      - event_streaming
+      
+  data_integration:
+    etl_tool: "Informatica PowerCenter"
+    real_time: "Apache Kafka Connect"
+    batch_processing: "Apache Spark"
+    
+  monitoring:
+    observability: "Datadog"
+    logging: "ELK Stack"
+    tracing: "Jaeger"
+    
+security:
+  identity_provider: "Okta"
+  api_security: "OAuth 2.0 + JWT"
+  data_encryption: "TLS 1.3 in transit, AES-256 at rest"
+  network_security: "Zero Trust with microsegmentation"

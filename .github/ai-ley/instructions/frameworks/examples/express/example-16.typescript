@@ -1,0 +1,133 @@
+// src/tests/controllers/auth.controller.test.ts
+import request from 'supertest';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import mongoose from 'mongoose';
+import app from '../../app';
+import { User } from '../../models/user.model';
+
+describe('Auth Controller Integration Tests', () => {
+  let mongoServer: MongoMemoryServer;
+
+  beforeAll(async () => {
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
+    await mongoose.connect(mongoUri);
+  });
+
+  afterAll(async () => {
+    await mongoose.disconnect();
+    await mongoServer.stop();
+  });
+
+  beforeEach(async () => {
+    await User.deleteMany({});
+  });
+
+  describe('POST /api/auth/register', () => {
+    const validUserData = {
+      email: 'test@example.com',
+      password: 'Test123!@#',
+      firstName: 'John',
+      lastName: 'Doe',
+    };
+
+    it('should register a new user successfully', async () => {
+      const response = await request(app)
+        .post('/api/auth/register')
+        .send(validUserData)
+        .expect(201);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.user.email).toBe(validUserData.email);
+      expect(response.body.data.user.password).toBeUndefined(); // Password should not be returned
+      expect(response.body.data.token).toBeDefined();
+
+      // Verify user was created in database
+      const userInDb = await User.findOne({ email: validUserData.email });
+      expect(userInDb).toBeTruthy();
+      expect(userInDb!.firstName).toBe(validUserData.firstName);
+    });
+
+    it('should return 400 for invalid email format', async () => {
+      const invalidData = { ...validUserData, email: 'invalid-email' };
+
+      const response = await request(app)
+        .post('/api/auth/register')
+        .send(invalidData)
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.errors).toContain('Invalid email format');
+    });
+
+    it('should return 400 for weak password', async () => {
+      const weakPasswordData = { ...validUserData, password: '123' };
+
+      const response = await request(app)
+        .post('/api/auth/register')
+        .send(weakPasswordData)
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.errors).toContain('Password must be at least 8 characters');
+    });
+
+    it('should return 409 for duplicate email', async () => {
+      // First registration
+      await request(app)
+        .post('/api/auth/register')
+        .send(validUserData)
+        .expect(201);
+
+      // Second registration with same email
+      const response = await request(app)
+        .post('/api/auth/register')
+        .send(validUserData)
+        .expect(409);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toContain('User with this email already exists');
+    });
+  });
+
+  describe('POST /api/auth/login', () => {
+    beforeEach(async () => {
+      // Create a test user
+      await request(app)
+        .post('/api/auth/register')
+        .send({
+          email: 'logintest@example.com',
+          password: 'Test123!@#',
+          firstName: 'Login',
+          lastName: 'Test',
+        });
+    });
+
+    it('should login with valid credentials', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'logintest@example.com',
+          password: 'Test123!@#',
+        })
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.token).toBeDefined();
+      expect(response.body.data.user.email).toBe('logintest@example.com');
+    });
+
+    it('should return 401 for invalid credentials', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'logintest@example.com',
+          password: 'wrongpassword',
+        })
+        .expect(401);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toContain('Invalid credentials');
+    });
+  });
+});

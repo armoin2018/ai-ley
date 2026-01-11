@@ -1,0 +1,52 @@
+from langchain.vectorstores import Chroma
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.chains import RetrievalQA
+from langchain.llms import OpenAI
+from langchain.document_loaders import PyPDFLoader
+
+# Document processing and indexing
+def build_rag_system(document_path: str):
+    # Load and split documents
+    loader = PyPDFLoader(document_path)
+    documents = loader.load()
+
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000,
+        chunk_overlap=200,
+        separators=["\n\n", "\n", " ", ""]
+    )
+    splits = text_splitter.split_documents(documents)
+
+    # Create vector store
+    embeddings = OpenAIEmbeddings()
+    vectorstore = Chroma.from_documents(
+        documents=splits,
+        embedding=embeddings,
+        persist_directory="./chroma_db"
+    )
+
+    # Build retrieval chain
+    llm = OpenAI(temperature=0)
+    qa_chain = RetrievalQA.from_chain_type(
+        llm=llm,
+        chain_type="stuff",
+        retriever=vectorstore.as_retriever(
+            search_kwargs={"k": 4}
+        ),
+        return_source_documents=True
+    )
+
+    return qa_chain
+
+# Usage with streaming and error handling
+async def query_rag_system(qa_chain, question: str):
+    try:
+        result = await qa_chain.arun(question)
+        return {
+            "answer": result["result"],
+            "sources": [doc.metadata for doc in result["source_documents"]]
+        }
+    except Exception as e:
+        logger.error(f"RAG query failed: {e}")
+        return {"error": "Failed to process query", "details": str(e)}

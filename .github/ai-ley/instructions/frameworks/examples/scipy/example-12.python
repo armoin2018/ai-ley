@@ -1,0 +1,8 @@
+# Check condition number
+cond_num = np.linalg.cond(A)
+if cond_num > 1e12:
+    # Add regularization
+    A_reg = A + np.eye(A.shape[0]) * 1e-10
+    x = linalg.solve(A_reg, b)
+else:
+    x = linalg.solve(A, b)

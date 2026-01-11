@@ -1,0 +1,218 @@
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections;
+
+public class GameManager : MonoBehaviour
+{
+    public static GameManager Instance { get; private set; }
+    
+    [Header("Game Settings")]
+    [SerializeField] private int playerLives = 3;
+    [SerializeField] private float levelTransitionDelay = 2f;
+    
+    [Header("UI References")]
+    [SerializeField] private GameObject pauseMenuUI;
+    [SerializeField] private GameObject gameOverUI;
+    
+    // Game state
+    public enum GameState
+    {
+        Menu,
+        Playing,
+        Paused,
+        GameOver,
+        Loading
+    }
+    
+    [SerializeField] private GameState currentState = GameState.Menu;
+    
+    // Events for game state changes
+    public System.Action<GameState> OnGameStateChanged;
+    public System.Action<int> OnLivesChanged;
+    public System.Action OnGameOver;
+    
+    // Properties
+    public GameState CurrentState => currentState;
+    public int PlayerLives => playerLives;
+    
+    void Awake()
+    {
+        // Singleton pattern
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+    }
+    
+    void Start()
+    {
+        // Initialize game state
+        ChangeGameState(GameState.Menu);
+    }
+    
+    void Update()
+    {
+        HandleInput();
+    }
+    
+    private void HandleInput()
+    {
+        // Pause/Resume game
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (currentState == GameState.Playing)
+            {
+                PauseGame();
+            }
+            else if (currentState == GameState.Paused)
+            {
+                ResumeGame();
+            }
+        }
+    }
+    
+    public void ChangeGameState(GameState newState)
+    {
+        if (currentState == newState) return;
+        
+        GameState previousState = currentState;
+        currentState = newState;
+        
+        // Handle state transitions
+        switch (newState)
+        {
+            case GameState.Playing:
+                Time.timeScale = 1f;
+                if (pauseMenuUI != null) pauseMenuUI.SetActive(false);
+                break;
+                
+            case GameState.Paused:
+                Time.timeScale = 0f;
+                if (pauseMenuUI != null) pauseMenuUI.SetActive(true);
+                break;
+                
+            case GameState.GameOver:
+                Time.timeScale = 1f;
+                if (gameOverUI != null) gameOverUI.SetActive(true);
+                OnGameOver?.Invoke();
+                break;
+                
+            case GameState.Loading:
+                Time.timeScale = 1f;
+                break;
+        }
+        
+        OnGameStateChanged?.Invoke(newState);
+        Debug.Log($"Game state changed from {previousState} to {newState}");
+    }
+    
+    public void StartGame()
+    {
+        ChangeGameState(GameState.Loading);
+        LoadScene("GameLevel1");
+    }
+    
+    public void PauseGame()
+    {
+        ChangeGameState(GameState.Paused);
+    }
+    
+    public void ResumeGame()
+    {
+        ChangeGameState(GameState.Playing);
+    }
+    
+    public void RestartGame()
+    {
+        playerLives = 3;
+        ChangeGameState(GameState.Loading);
+        LoadScene(SceneManager.GetActiveScene().name);
+    }
+    
+    public void LoadNextLevel()
+    {
+        StartCoroutine(LoadNextLevelCoroutine());
+    }
+    
+    private IEnumerator LoadNextLevelCoroutine()
+    {
+        ChangeGameState(GameState.Loading);
+        
+        yield return new WaitForSeconds(levelTransitionDelay);
+        
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        int nextSceneIndex = currentSceneIndex + 1;
+        
+        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+        {
+            LoadScene(nextSceneIndex);
+        }
+        else
+        {
+            // Game completed
+            LoadScene("GameComplete");
+        }
+    }
+    
+    public void LoadScene(string sceneName)
+    {
+        StartCoroutine(LoadSceneAsync(sceneName));
+    }
+    
+    public void LoadScene(int sceneIndex)
+    {
+        StartCoroutine(LoadSceneAsync(sceneIndex));
+    }
+    
+    private IEnumerator LoadSceneAsync(string sceneName)
+    {
+        AsyncOperation operation = SceneManager.LoadSceneAsync(sceneName);
+        
+        while (!operation.isDone)
+        {
+            // Update loading progress if needed
+            float progress = Mathf.Clamp01(operation.progress / 0.9f);
+            yield return null;
+        }
+        
+        ChangeGameState(GameState.Playing);
+    }
+    
+    private IEnumerator LoadSceneAsync(int sceneIndex)
+    {
+        AsyncOperation operation = SceneManager.LoadSceneAsync(sceneIndex);
+        
+        while (!operation.isDone)
+        {
+            yield return null;
+        }
+        
+        ChangeGameState(GameState.Playing);
+    }
+    
+    public void LoseLife()
+    {
+        playerLives--;
+        OnLivesChanged?.Invoke(playerLives);
+        
+        if (playerLives <= 0)
+        {
+            ChangeGameState(GameState.GameOver);
+        }
+    }
+    
+    public void QuitGame()
+    {
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            Application.Quit();
+        #endif
+    }
+}

@@ -1,0 +1,40 @@
+enterprise-tauri-app/
+├── src-tauri/
+│   ├── src/
+│   │   ├── main.rs
+│   │   ├── commands/        # Organized command modules
+│   │   │   ├── mod.rs
+│   │   │   ├── file_ops.rs
+│   │   │   ├── system_info.rs
+│   │   │   └── database.rs
+│   │   ├── services/        # Business logic services
+│   │   │   ├── mod.rs
+│   │   │   ├── auth.rs
+│   │   │   ├── storage.rs
+│   │   │   └── network.rs
+│   │   ├── models/          # Data models
+│   │   │   ├── mod.rs
+│   │   │   ├── user.rs
+│   │   │   └── settings.rs
+│   │   ├── utils/           # Utility modules
+│   │   │   ├── mod.rs
+│   │   │   ├── crypto.rs
+│   │   │   └── logger.rs
+│   │   └── errors.rs        # Custom error types
+│   ├── migrations/          # Database migrations
+│   ├── templates/           # Code generation templates
+│   └── tests/               # Rust tests
+├── src/                     # Frontend (TypeScript/React)
+│   ├── components/
+│   │   ├── ui/              # Reusable UI components
+│   │   ├── forms/           # Form components
+│   │   └── layout/          # Layout components
+│   ├── hooks/               # Custom React hooks
+│   ├── services/            # Frontend services
+│   ├── stores/              # State management
+│   ├── types/               # TypeScript types
+│   ├── utils/               # Frontend utilities
+│   └── __tests__/           # Frontend tests
+├── docs/                    # Documentation
+├── scripts/                 # Build and utility scripts
+└── .github/                 # GitHub workflows

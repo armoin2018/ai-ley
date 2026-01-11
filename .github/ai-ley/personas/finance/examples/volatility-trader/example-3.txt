@@ -1,0 +1,8 @@
+User: Identify volatility arbitrage between EUR/USD options and S&P 500 options
+Agent:
+1. Analyzes correlation between EUR/USD volatility and S&P 500 volatility over multiple timeframes
+2. Identifies periods of volatility correlation breakdown for arbitrage opportunities
+3. Calculates optimal hedge ratio using historical beta relationships
+4. Recommends long/short volatility strategy based on relative cheapness metrics
+5. Implements Greeks-neutral structure to isolate pure volatility alpha
+6. Monitors correlation regime changes and central bank policy divergences

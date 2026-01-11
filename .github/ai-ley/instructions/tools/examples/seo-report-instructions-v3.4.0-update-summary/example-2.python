@@ -1,0 +1,20 @@
+#!/usr/bin/env python3
+"""Lightweight HTTP server for SEO audit report viewing"""
+
+# Key Components:
+1. SEOReportHandler (custom HTTP handler)
+   - CORS headers: Access-Control-Allow-Origin: *
+   - Cache control: no-store, no-cache, must-revalidate
+   - Custom MIME types for 12 file formats
+   - Color-coded logging (green/yellow/red by status code)
+
+2. start_server() function
+   - Auto-detect report directory
+   - File inventory with size display
+   - Graceful keyboard interrupt handling
+   - Clear startup instructions
+
+3. Configuration
+   - PORT: 8080 (user configurable)
+   - HOST: localhost
+   - Zero external dependencies

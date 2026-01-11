@@ -1,0 +1,351 @@
+# Enterprise PlantUML CI/CD Integration
+import os
+import subprocess
+import asyncio
+from pathlib import Path
+from typing import Dict, List, Any
+import yaml
+import json
+from dataclasses import dataclass
+import logging
+
+@dataclass
+class DiagramConfig:
+    source_path: str
+    output_formats: List[str]  # ['svg', 'png', 'pdf']
+    theme: str
+    validation_enabled: bool
+    optimize_output: bool
+    enterprise_branding: bool
+
+class EnterprisePlantUMLProcessor:
+    """
+    Enterprise PlantUML Processing Pipeline
+    Handles diagram generation, validation, optimization, and deployment
+    """
+
+    def __init__(self, config_path: str):
+        self.config = self._load_configuration(config_path)
+        self.logger = logging.getLogger(__name__)
+        self.plantuml_jar = self.config.get('plantuml_jar_path', './plantuml.jar')
+        self.enterprise_themes = self._load_enterprise_themes()
+
+    async def process_diagrams_pipeline(self, source_directory: str) -> Dict[str, Any]:
+        """Complete enterprise diagram processing pipeline"""
+        self.logger.info(f"Starting diagram processing pipeline for: {source_directory}")
+
+        # Discover diagram files
+        diagram_files = self._discover_diagram_files(source_directory)
+
+        # Validate diagrams
+        validation_results = await self._validate_diagrams(diagram_files)
+
+        # Process valid diagrams
+        processing_results = []
+        for diagram_file in diagram_files:
+            if validation_results[diagram_file]['valid']:
+                result = await self._process_single_diagram(diagram_file)
+                processing_results.append(result)
+
+        # Generate index and documentation
+        documentation = await self._generate_diagram_documentation(processing_results)
+
+        # Deploy to documentation systems
+        deployment_results = await self._deploy_diagrams(processing_results, documentation)
+
+        return {
+            'summary': {
+                'total_diagrams': len(diagram_files),
+                'processed_successfully': len(processing_results),
+                'validation_results': validation_results,
+                'deployment_status': deployment_results
+            },
+            'diagrams': processing_results,
+            'documentation': documentation
+        }
+
+    async def _process_single_diagram(self, diagram_file: str) -> Dict[str, Any]:
+        """Process single PlantUML diagram with enterprise features"""
+        self.logger.info(f"Processing diagram: {diagram_file}")
+
+        # Load and enhance diagram
+        enhanced_diagram = await self._enhance_diagram_with_enterprise_features(diagram_file)
+
+        # Generate outputs in multiple formats
+        output_files = {}
+        for format_type in ['svg', 'png', 'pdf']:
+            output_file = await self._generate_diagram_output(enhanced_diagram, format_type)
+            if self.config.get('optimize_output', True):
+                output_file = await self._optimize_output_file(output_file, format_type)
+            output_files[format_type] = output_file
+
+        # Generate metadata
+        metadata = self._extract_diagram_metadata(enhanced_diagram)
+
+        # Calculate quality metrics
+        quality_metrics = self._calculate_diagram_quality(enhanced_diagram)
+
+        return {
+            'source_file': diagram_file,
+            'enhanced_source': enhanced_diagram,
+            'output_files': output_files,
+            'metadata': metadata,
+            'quality_metrics': quality_metrics,
+            'processing_time': time.time() - start_time
+        }
+
+    async def _enhance_diagram_with_enterprise_features(self, diagram_file: str) -> str:
+        """Enhance PlantUML diagram with enterprise themes and features"""
+
+        with open(diagram_file, 'r') as f:
+            original_content = f.read()
+
+        enhanced_content = original_content
+
+        # Add enterprise theme if not present
+        if '!theme' not in enhanced_content:
+            enterprise_theme = self.config.get('default_theme', 'enterprise-blue')
+            enhanced_content = f"!theme {enterprise_theme}\n{enhanced_content}"
+
+        # Add enterprise includes
+        enterprise_includes = [
+            "!include enterprise-styles.puml",
+            "!include security-patterns.puml",
+            "!include cloud-icons.puml"
+        ]
+
+        for include in enterprise_includes:
+            if include not in enhanced_content:
+                enhanced_content = f"{include}\n{enhanced_content}"
+
+        # Add enterprise branding
+        if self.config.get('enterprise_branding', True):
+            branding_footer = self._generate_enterprise_branding()
+            enhanced_content += f"\n{branding_footer}"
+
+        # Add metadata annotations
+        metadata_annotations = self._generate_metadata_annotations(diagram_file)
+        enhanced_content = f"{metadata_annotations}\n{enhanced_content}"
+
+        # Optimize diagram structure
+        enhanced_content = self._optimize_diagram_structure(enhanced_content)
+
+        # Add security and compliance annotations
+        if self.config.get('compliance_annotations', True):
+            compliance_annotations = self._generate_compliance_annotations()
+            enhanced_content += f"\n{compliance_annotations}"
+
+        return enhanced_content
+
+    def _generate_metadata_annotations(self, diagram_file: str) -> str:
+        """Generate metadata annotations for diagram"""
+        file_path = Path(diagram_file)
+
+        metadata = {
+            'title': file_path.stem.replace('-', ' ').replace('_', ' ').title(),
+            'version': self.config.get('diagram_version', '1.0'),
+            'author': self.config.get('author', 'Enterprise Architecture Team'),
+            'created': datetime.now().strftime('%Y-%m-%d'),
+            'last_modified': datetime.fromtimestamp(file_path.stat().st_mtime).strftime('%Y-%m-%d'),
+            'classification': self.config.get('default_classification', 'Internal Use Only')
+        }
+
+        return f"""
+' Enterprise Diagram Metadata
+' Title: {metadata['title']}
+' Version: {metadata['version']}
+' Author: {metadata['author']}
+' Created: {metadata['created']}
+' Last Modified: {metadata['last_modified']}
+' Classification: {metadata['classification']}
+"""
+
+    async def _generate_diagram_output(self, diagram_content: str, format_type: str) -> str:
+        """Generate diagram output in specified format"""
+
+        # Create temporary input file
+        temp_input = f"/tmp/diagram_input_{int(time.time())}.puml"
+        with open(temp_input, 'w') as f:
+            f.write(diagram_content)
+
+        # Determine output format flag
+        format_flags = {
+            'svg': '-tsvg',
+            'png': '-tpng',
+            'pdf': '-tpdf',
+            'eps': '-teps',
+            'latex': '-tlatex'
+        }
+
+        format_flag = format_flags.get(format_type, '-tsvg')
+        output_file = f"/tmp/diagram_output_{int(time.time())}.{format_type}"
+
+        # Execute PlantUML
+        cmd = [
+            'java', '-jar', self.plantuml_jar,
+            format_flag,
+            '-charset', 'UTF-8',
+            '-o', os.path.dirname(output_file),
+            temp_input
+        ]
+
+        try:
+            result = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout, stderr = await result.communicate()
+
+            if result.returncode == 0:
+                # Move generated file to expected location
+                generated_files = list(Path(os.path.dirname(output_file)).glob(f"diagram_input_*.{format_type}"))
+                if generated_files:
+                    generated_files[0].rename(output_file)
+                return output_file
+            else:
+                self.logger.error(f"PlantUML generation failed: {stderr.decode()}")
+                return None
+
+        except Exception as e:
+            self.logger.error(f"Error generating diagram: {e}")
+            return None
+        finally:
+            # Cleanup temp input file
+            if os.path.exists(temp_input):
+                os.remove(temp_input)
+
+class EnterpriseThemeManager:
+    """Enterprise theme management for PlantUML diagrams"""
+
+    def __init__(self):
+        self.themes = self._initialize_enterprise_themes()
+
+    def _initialize_enterprise_themes(self) -> Dict[str, str]:
+        """Initialize enterprise theme definitions"""
+        return {
+            'enterprise-blue': self._create_enterprise_blue_theme(),
+            'enterprise-dark': self._create_enterprise_dark_theme(),
+            'security-focused': self._create_security_theme(),
+            'cloud-native': self._create_cloud_native_theme(),
+            'executive-summary': self._create_executive_theme()
+        }
+
+    def _create_enterprise_blue_theme(self) -> str:
+        """Create enterprise blue theme"""
+        return """
+' Enterprise Blue Theme
+!define ENTERPRISE_BLUE_PRIMARY #0066CC
+!define ENTERPRISE_BLUE_SECONDARY #4A90E2
+!define ENTERPRISE_BLUE_ACCENT #E6F2FF
+!define ENTERPRISE_GRAY_DARK #333333
+!define ENTERPRISE_GRAY_LIGHT #F5F5F5
+
+skinparam backgroundColor ENTERPRISE_BLUE_ACCENT
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 12
+
+' Actor styling
+skinparam actor {
+    BackgroundColor ENTERPRISE_BLUE_PRIMARY
+    BorderColor ENTERPRISE_BLUE_SECONDARY
+    FontColor White
+    FontStyle bold
+}
+
+' Package styling
+skinparam package {
+    BackgroundColor ENTERPRISE_BLUE_ACCENT
+    BorderColor ENTERPRISE_BLUE_PRIMARY
+    FontColor ENTERPRISE_GRAY_DARK
+    FontStyle bold
+}
+
+' Class styling
+skinparam class {
+    BackgroundColor White
+    BorderColor ENTERPRISE_BLUE_PRIMARY
+    FontColor ENTERPRISE_GRAY_DARK
+    HeaderBackgroundColor ENTERPRISE_BLUE_SECONDARY
+    HeaderFontColor White
+}
+
+' Database styling
+skinparam database {
+    BackgroundColor ENTERPRISE_BLUE_SECONDARY
+    BorderColor ENTERPRISE_BLUE_PRIMARY
+    FontColor White
+}
+
+' Queue styling
+skinparam queue {
+    BackgroundColor #FFA500
+    BorderColor #FF8C00
+    FontColor White
+}
+
+' Note styling
+skinparam note {
+    BackgroundColor #FFFACD
+    BorderColor ENTERPRISE_BLUE_PRIMARY
+    FontColor ENTERPRISE_GRAY_DARK
+}
+
+' Arrow styling
+skinparam arrow {
+    Color ENTERPRISE_BLUE_PRIMARY
+    FontColor ENTERPRISE_GRAY_DARK
+}
+"""
+
+    def _create_security_theme(self) -> str:
+        """Create security-focused theme"""
+        return """
+' Security-Focused Theme
+!define SECURITY_RED #DC143C
+!define SECURITY_ORANGE #FF4500
+!define SECURITY_GREEN #228B22
+!define SECURITY_GRAY #696969
+
+skinparam backgroundColor #F8F8FF
+
+' Critical security components
+skinparam component {
+    BackgroundColor<<Security>> SECURITY_RED
+    BorderColor<<Security>> #8B0000
+    FontColor<<Security>> White
+    FontStyle<<Security>> bold
+}
+
+' Authentication components
+skinparam component {
+    BackgroundColor<<Auth>> SECURITY_ORANGE
+    BorderColor<<Auth>> #FF6347
+    FontColor<<Auth>> White
+}
+
+' Validated/Safe components
+skinparam component {
+    BackgroundColor<<Safe>> SECURITY_GREEN
+    BorderColor<<Safe>> #006400
+    FontColor<<Safe>> White
+}
+
+' Database security
+skinparam database {
+    BackgroundColor<<Encrypted>> SECURITY_GREEN
+    BorderColor<<Encrypted>> #006400
+    FontColor<<Encrypted>> White
+}
+
+' Security boundaries
+skinparam rectangle {
+    BackgroundColor<<TrustBoundary>> #FFE4E1
+    BorderColor<<TrustBoundary>> SECURITY_RED
+    BorderStyle<<TrustBoundary>> dashed
+}
+"""
+
+### **📋 Enterprise Configuration Management**
+
+#### **PlantUML Platform Configuration**

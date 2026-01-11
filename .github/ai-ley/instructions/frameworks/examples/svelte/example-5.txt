@@ -1,0 +1,16 @@
+src/lib/components/
+├── ui/                      # Basic UI components
+│   ├── Button.svelte
+│   ├── Input.svelte
+│   └── Modal.svelte
+├── layout/                  # Layout components
+│   ├── Header.svelte
+│   ├── Sidebar.svelte
+│   └── Footer.svelte
+├── features/                # Feature-specific components
+│   ├── UserProfile.svelte
+│   ├── ProductCard.svelte
+│   └── SearchForm.svelte
+└── forms/                   # Form components
+    ├── ContactForm.svelte
+    └── LoginForm.svelte

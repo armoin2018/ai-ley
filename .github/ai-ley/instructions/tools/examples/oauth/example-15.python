@@ -1,0 +1,25 @@
+import logging
+
+class SecureTokenStorage:
+    """Secure token storage for OAuth applications."""
+
+    def __init__(self):
+        self.tokens = {}
+
+    def store_token(self, user_id, token_data):
+        """Store token with encryption."""
+        # In production, use proper encryption and secure storage
+        self.tokens[user_id] = token_data
+
+        # Log without exposing token values
+        logging.info(f"Token stored for user {user_id}")
+
+    def get_token(self, user_id):
+        """Retrieve token securely."""
+        return self.tokens.get(user_id)
+
+    def remove_token(self, user_id):
+        """Remove token securely."""
+        if user_id in self.tokens:
+            del self.tokens[user_id]
+            logging.info(f"Token removed for user {user_id}")

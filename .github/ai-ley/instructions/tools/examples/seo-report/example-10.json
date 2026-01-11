@@ -1,0 +1,63 @@
+{
+  "url": "https://example.com/about",
+  "title": "About Us - Example Company",
+  "title_length": 28,
+  "meta_description": "Learn about Example Company...",
+  "meta_description_length": 142,
+  "canonical_url": "https://example.com/about",
+  "headings": {
+    "h1": ["About Our Company"],
+    "h2": ["Our Mission", "Our Team", "Our Values"],
+    "h3": ["Leadership", "Awards & Recognition"],
+    "h4": [],
+    "h5": [],
+    "h6": []
+  },
+  "word_count": 847,
+  "text_content": "First 5000 characters of visible text...",
+  "internal_links": [
+    {
+      "url": "https://example.com/contact",
+      "text": "Contact Us",
+      "title": "Get in touch"
+    }
+  ],
+  "internal_link_count": 23,
+  "external_links": [
+    {
+      "url": "https://industry-authority.com",
+      "text": "Industry Source",
+      "title": ""
+    }
+  ],
+  "external_link_count": 5,
+  "images": [
+    {
+      "src": "/images/team-photo.jpg",
+      "alt": "Our leadership team",
+      "title": "",
+      "width": "800",
+      "height": "600"
+    }
+  ],
+  "image_count": 12,
+  "images_without_alt": 2,
+  "open_graph": {
+    "title": "About Us - Example Company",
+    "description": "Learn about...",
+    "image": "https://example.com/og-image.jpg"
+  },
+  "twitter_card": {
+    "card": "summary_large_image",
+    "title": "About Us",
+    "description": "..."
+  },
+  "schema_markup": [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Example Company"
+    }
+  ],
+  "crawled_at": "2025-10-03T19:45:23.123456"
+}

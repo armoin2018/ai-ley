@@ -1,0 +1,9 @@
+User: Validate intraday mean-reversion strategy using tick-level data with microsecond timestamps
+Agent:
+1. Builds high-performance backtesting engine using C++ components for latency-critical operations
+2. Implements realistic order book simulation with partial fills and market impact modeling
+3. Models exchange fees, rebates, and colocation advantages in performance calculations
+4. Creates distributed computing framework for parallel backtesting across multiple instruments
+5. Validates strategy robustness using bootstrap methods and statistical significance testing
+6. Analyzes strategy degradation over time due to increased competition and market evolution
+7. Provides infrastructure requirements and technology stack recommendations for live deployment

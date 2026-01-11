@@ -1,0 +1,308 @@
+# Enterprise CloudFormation Template Header Standard
+AWSTemplateFormatVersion: '2010-09-09'
+Transform:
+  - AWS::Serverless-2016-10-31 # If using SAM
+  - AWS::LanguageExtensions # If using language extensions
+  - EnterpriseStandardization # Custom transform
+
+Description: |
+  Enterprise [Component Name] Stack
+
+  Purpose: [Brief description of what this template creates]
+  Owner: [Team/Department responsible]
+  Compliance: [SOC2|PCI-DSS|HIPAA|CIS|NIST]
+  Last Updated: [Date]
+
+  Dependencies: [List of prerequisite stacks or resources]
+  Outputs: [List of key outputs provided]
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: 'Environment Configuration'
+        Parameters:
+          - Environment
+          - Project
+          - Owner
+      - Label:
+          default: 'Security Configuration'
+        Parameters:
+          - EnableEncryption
+          - KMSKeyId
+          - SecurityContactEmail
+      - Label:
+          default: 'Compliance Configuration'
+        Parameters:
+          - ComplianceFramework
+          - DataClassification
+          - RetentionPeriod
+    ParameterLabels:
+      Environment:
+        default: 'Deployment Environment'
+      EnableEncryption:
+        default: 'Enable Encryption at Rest'
+
+  AWS::CloudFormation::Designer:
+    ApplicationArchitecture: |
+      [ASCII diagram or description of architecture]
+
+  EnterpriseStandards:
+    Version: '2.0'
+    ApprovedBy: 'Architecture Review Board'
+    SecurityReview: '2024-01-15'
+    ComplianceReview: '2024-01-15'
+
+Parameters:
+  # Standard enterprise parameters
+  Environment:
+    Type: String
+    AllowedValues: [dev, staging, production]
+    Default: dev
+    Description: Deployment environment
+
+  Project:
+    Type: String
+    Description: Project name for resource tagging
+    AllowedPattern: '^[a-zA-Z0-9-_]+$'
+    ConstraintDescription: Must contain only alphanumeric characters, hyphens, and underscores
+
+  Owner:
+    Type: String
+    Description: Team or individual responsible for this stack
+    Default: Platform Engineering
+
+  CostCenter:
+    Type: String
+    Description: Cost center for billing allocation
+    Default: 'Engineering'
+
+  DataClassification:
+    Type: String
+    AllowedValues: [public, internal, confidential, restricted]
+    Default: internal
+    Description: Data classification level
+
+  ComplianceFramework:
+    Type: String
+    AllowedValues: [SOC2, PCI-DSS, HIPAA, CIS, NIST, None]
+    Default: SOC2
+    Description: Compliance framework requirements
+
+  EnableEncryption:
+    Type: String
+    AllowedValues: [true, false]
+    Default: true
+    Description: Enable encryption at rest and in transit
+
+  EnableDetailedMonitoring:
+    Type: String
+    AllowedValues: [true, false]
+    Default: false
+    Description: Enable detailed CloudWatch monitoring
+
+  EnableBackup:
+    Type: String
+    AllowedValues: [true, false]
+    Default: true
+    Description: Enable automated backups
+
+  RetentionPeriod:
+    Type: Number
+    Default: 90
+    MinValue: 30
+    MaxValue: 2555
+    Description: Data retention period in days
+
+  SecurityContactEmail:
+    Type: String
+    Description: Email for security notifications
+    AllowedPattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+    ConstraintDescription: Must be a valid email address
+
+Mappings:
+  # Environment-specific configurations
+  EnvironmentConfig:
+    dev:
+      InstanceSize: small
+      MinCapacity: 1
+      MaxCapacity: 2
+      BackupEnabled: false
+      MonitoringLevel: basic
+      LogRetention: 30
+    staging:
+      InstanceSize: medium
+      MinCapacity: 2
+      MaxCapacity: 4
+      BackupEnabled: true
+      MonitoringLevel: detailed
+      LogRetention: 90
+    production:
+      InstanceSize: large
+      MinCapacity: 3
+      MaxCapacity: 10
+      BackupEnabled: true
+      MonitoringLevel: enhanced
+      LogRetention: 365
+
+  # Compliance-specific configurations
+  ComplianceConfig:
+    SOC2:
+      EncryptionRequired: true
+      AuditLogging: true
+      RetentionYears: 7
+      BackupRequired: true
+    PCI-DSS:
+      EncryptionRequired: true
+      AuditLogging: true
+      RetentionYears: 1
+      NetworkSegmentation: true
+    HIPAA:
+      EncryptionRequired: true
+      AuditLogging: true
+      RetentionYears: 6
+      AccessLogging: true
+    CIS:
+      EncryptionRequired: true
+      AuditLogging: true
+      SecurityHardening: true
+    NIST:
+      EncryptionRequired: true
+      AuditLogging: true
+      IncidentResponse: true
+
+Conditions:
+  # Standard enterprise conditions
+  IsProduction: !Equals [!Ref Environment, production]
+  IsNotDev: !Not [!Equals [!Ref Environment, dev]]
+  EnableEncryptionCondition: !Equals [!Ref EnableEncryption, true]
+  EnableDetailedMonitoringCondition: !Equals [!Ref EnableDetailedMonitoring, true]
+  EnableBackupCondition: !Equals [!Ref EnableBackup, true]
+  ComplianceRequired: !Not [!Equals [!Ref ComplianceFramework, None]]
+  SOC2Compliance: !Equals [!Ref ComplianceFramework, SOC2]
+  PCIDSSCompliance: !Equals [!Ref ComplianceFramework, PCI-DSS]
+  HIPAACompliance: !Equals [!Ref ComplianceFramework, HIPAA]
+
+Resources:
+  # All resources must include enterprise standard tags
+  # Example resource with standard tagging
+  ExampleResource:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${Project}-${Environment}-example-${AWS::AccountId}'
+      # Encryption enabled by default for compliance
+      BucketEncryption: !If
+        - EnableEncryptionCondition
+        - ServerSideEncryptionConfiguration:
+            - ServerSideEncryptionByDefault:
+                SSEAlgorithm: aws:kms
+                KMSMasterKeyID: !Ref EnterpriseKMSKey
+        - !Ref 'AWS::NoValue'
+      # Standard enterprise tags
+      Tags:
+        - Key: Name
+          Value: !Sub '${Project}-${Environment}-example'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Project
+          Value: !Ref Project
+        - Key: Owner
+          Value: !Ref Owner
+        - Key: CostCenter
+          Value: !Ref CostCenter
+        - Key: DataClassification
+          Value: !Ref DataClassification
+        - Key: ComplianceFramework
+          Value: !Ref ComplianceFramework
+        - Key: ManagedBy
+          Value: CloudFormation
+        - Key: StackName
+          Value: !Ref 'AWS::StackName'
+        - Key: StackId
+          Value: !Ref 'AWS::StackId'
+        - Key: Region
+          Value: !Ref 'AWS::Region'
+        - Key: CreatedDate
+          Value: !Sub '${AWS::Timestamp}'
+        - Key: EnableEncryption
+          Value: !Ref EnableEncryption
+        - Key: BackupEnabled
+          Value: !Ref EnableBackup
+
+  # Enterprise KMS key for encryption
+  EnterpriseKMSKey:
+    Type: AWS::KMS::Key
+    Condition: EnableEncryptionCondition
+    Properties:
+      Description: !Sub 'Enterprise KMS Key for ${Project} ${Environment}'
+      KeyPolicy:
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+          - Sid: Allow CloudFormation Service
+            Effect: Allow
+            Principal:
+              Service: cloudformation.amazonaws.com
+            Action:
+              - kms:Decrypt
+              - kms:Encrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:CreateGrant
+              - kms:DescribeKey
+            Resource: '*'
+      KeyUsage: ENCRYPT_DECRYPT
+      KeySpec: SYMMETRIC_DEFAULT
+      MultiRegion: !If [IsProduction, true, false]
+      KeyRotationEnabled: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${Project}-${Environment}-key'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Project
+          Value: !Ref Project
+
+Outputs:
+  # Standard enterprise outputs
+  StackName:
+    Description: Name of this CloudFormation stack
+    Value: !Ref 'AWS::StackName'
+    Export:
+      Name: !Sub '${AWS::StackName}-StackName'
+
+  StackId:
+    Description: ID of this CloudFormation stack
+    Value: !Ref 'AWS::StackId'
+    Export:
+      Name: !Sub '${AWS::StackName}-StackId'
+
+  Environment:
+    Description: Deployment environment
+    Value: !Ref Environment
+    Export:
+      Name: !Sub '${AWS::StackName}-Environment'
+
+  Project:
+    Description: Project name
+    Value: !Ref Project
+    Export:
+      Name: !Sub '${AWS::StackName}-Project'
+
+  KMSKeyId:
+    Condition: EnableEncryptionCondition
+    Description: Enterprise KMS Key ID
+    Value: !Ref EnterpriseKMSKey
+    Export:
+      Name: !Sub '${AWS::StackName}-KMSKeyId'
+
+  KMSKeyArn:
+    Condition: EnableEncryptionCondition
+    Description: Enterprise KMS Key ARN
+    Value: !GetAtt EnterpriseKMSKey.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-KMSKeyArn'

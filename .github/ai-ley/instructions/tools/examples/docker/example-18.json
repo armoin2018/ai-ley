@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "docker:build": "docker build -t myapp:latest .",
+    "docker:build:dev": "docker build --target development -t myapp:dev .",
+    "docker:run": "docker run -p 3000:3000 myapp:latest",
+    "docker:run:dev": "docker run -p 3000:3000 -v $(pwd):/app myapp:dev",
+    "docker:compose:up": "docker compose up -d",
+    "docker:compose:down": "docker compose down",
+    "docker:compose:logs": "docker compose logs -f",
+    "docker:compose:build": "docker compose build",
+    "docker:clean": "docker system prune -f",
+    "docker:clean:all": "docker system prune -a -f",
+    "docker:scan": "docker scan myapp:latest",
+    "dev:start": "docker compose -f docker-compose.yml -f docker-compose.override.yml up",
+    "prod:start": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d"
+  }
+}

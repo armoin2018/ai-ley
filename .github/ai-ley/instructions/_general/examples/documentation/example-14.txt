@@ -1,0 +1,26 @@
+---
+
+# User Guide (Level 2 - Detailed)
+
+Comprehensive guide for regular users.
+
+## Configuration
+Detailed configuration options and examples.
+
+## Advanced Features
+Step-by-step tutorials for complex use cases.
+
+---
+
+# Developer Guide (Level 3 - Expert)
+
+In-depth technical documentation for contributors and advanced users.
+
+## Architecture Overview
+System design and component interactions.
+
+## API Reference
+Complete technical reference with all parameters.
+
+## Contributing
+Development setup and contribution guidelines.

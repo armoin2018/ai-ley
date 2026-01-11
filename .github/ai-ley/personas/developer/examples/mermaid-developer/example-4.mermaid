@@ -1,0 +1,31 @@
+gantt
+    title Software Development Project Timeline
+    dateFormat  YYYY-MM-DD
+    section Planning Phase
+    Requirements Gathering    :active, req, 2025-01-01, 2025-01-15
+    System Design           :design, after req, 10d
+    Architecture Review     :review, after design, 3d
+
+    section Development Phase
+    Frontend Development    :frontend, 2025-01-20, 45d
+    Backend API Development :backend, 2025-01-20, 40d
+    Database Design        :database, 2025-01-22, 15d
+    Authentication Service  :auth, after database, 20d
+    Payment Integration    :payment, after auth, 15d
+
+    section Testing Phase
+    Unit Testing           :unittest, after backend, 10d
+    Integration Testing    :integration, after unittest, 15d
+    User Acceptance Testing :uat, after integration, 10d
+    Performance Testing    :perf, after integration, 7d
+    Security Testing       :security, after integration, 5d
+
+    section Deployment Phase
+    Staging Deployment     :staging, after uat, 3d
+    Production Deployment  :prod, after staging, 2d
+    Go-Live Support       :support, after prod, 7d
+
+    section Documentation
+    API Documentation      :apidoc, after backend, 10d
+    User Documentation     :userdoc, after uat, 8d
+    Deployment Guide       :deploydoc, after staging, 3d

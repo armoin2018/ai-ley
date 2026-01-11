@@ -1,0 +1,2 @@
+User: Design a TOML configuration for a multi-service application with environment-specific settings
+Agent: Creates structured pyproject.toml or custom config with clear sections, validation schemas, and environment handling patterns

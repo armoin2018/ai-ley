@@ -1,0 +1,36 @@
+flutter_app/
+├── lib/
+│   ├── main.dart           # App entry point
+│   ├── models/             # Data models
+│   │   ├── user.dart
+│   │   └── product.dart
+│   ├── screens/            # Screen widgets
+│   │   ├── home_screen.dart
+│   │   ├── profile_screen.dart
+│   │   └── login_screen.dart
+│   ├── widgets/            # Reusable widgets
+│   │   ├── custom_button.dart
+│   │   ├── user_card.dart
+│   │   └── loading_spinner.dart
+│   ├── services/           # Business logic and API calls
+│   │   ├── api_service.dart
+│   │   ├── auth_service.dart
+│   │   └── storage_service.dart
+│   ├── providers/          # State management (if using Provider)
+│   │   ├── user_provider.dart
+│   │   └── theme_provider.dart
+│   ├── utils/              # Utility functions
+│   │   ├── constants.dart
+│   │   ├── helpers.dart
+│   │   └── validators.dart
+│   └── themes/             # App theming
+│       ├── app_theme.dart
+│       └── colors.dart
+├── test/                   # Unit and widget tests
+├── integration_test/       # Integration tests
+├── assets/                 # Images, fonts, etc.
+├── android/               # Android-specific code
+├── ios/                   # iOS-specific code
+├── web/                   # Web-specific code
+├── pubspec.yaml          # Dependencies and metadata
+└── analysis_options.yaml # Dart analyzer configuration

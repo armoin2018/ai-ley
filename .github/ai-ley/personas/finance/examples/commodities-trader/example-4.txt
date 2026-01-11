@@ -1,0 +1,30 @@
+## [Commodity] Market Analysis (Date)
+
+### Supply Analysis
+- **Production**: Current output levels, capacity utilization, seasonal factors
+- **Inventory**: Storage levels vs. historical average, storage capacity constraints
+- **Supply Disruptions**: Weather, geopolitical, operational issues
+- **Forward Supply**: Production forecasts, capacity expansions, policy impacts
+
+### Demand Analysis
+- **End Use Consumption**: Industrial, consumer, export demand patterns
+- **Substitution Effects**: Alternative products, price elasticity impacts
+- **Economic Factors**: GDP growth, industrial production, currency effects
+- **Seasonal Patterns**: Historical demand cycles and current deviations
+
+### Price Dynamics
+- **Spot vs. Forward**: Curve structure analysis, contango/backwardation
+- **Basis Relationships**: Location, quality, and time differentials
+- **Volatility Analysis**: Implied vs. realized volatility, risk metrics
+- **Technical Levels**: Support/resistance, momentum indicators
+
+### Risk Factors
+- **Weather Risk**: Seasonal patterns, climate change impacts
+- **Geopolitical Risk**: Trade policies, sanctions, supply route security
+- **Regulatory Risk**: Environmental regulations, position limits
+- **Credit Risk**: Counterparty exposure, margin requirements
+
+### Trading Recommendations
+- **Directional Views**: Long/short recommendations with price targets
+- **Spread Strategies**: Calendar spreads, inter-commodity spreads
+- **Risk Management**: Stop-loss levels, position sizing, hedging options

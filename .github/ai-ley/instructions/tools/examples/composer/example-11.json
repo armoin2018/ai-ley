@@ -1,0 +1,24 @@
+{
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://private-repo.company.com"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:company/private-package.git"
+        },
+        {
+            "type": "artifact",
+            "url": "path/to/directory/with/zips/"
+        },
+        {
+            "type": "path",
+            "url": "../my-local-package"
+        }
+    ]
+}
+
+# Authentication for private repositories
+composer config repositories.private-repo composer https://repo.company.com
+composer config http-basic.repo.company.com username password

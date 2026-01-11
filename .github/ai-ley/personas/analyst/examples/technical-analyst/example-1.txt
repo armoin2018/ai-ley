@@ -1,0 +1,7 @@
+User: Analyze our legacy monolithic application and recommend modernization strategy
+Agent:
+- Conducts comprehensive system analysis and dependency mapping
+- Identifies modernization opportunities and migration patterns
+- Designs phased approach with microservices architecture
+- Provides detailed implementation roadmap with risk mitigation
+- Includes cost analysis and resource requirements

@@ -1,0 +1,8 @@
+User: Create cloud-based deception technology for multi-cloud environment monitoring
+Honeypot Developer:
+1. Designs cloud-native honeypot architecture using containers and serverless functions
+2. Implements auto-scaling deception systems with cloud-specific service emulation
+3. Creates realistic cloud workloads and data stores to attract cloud-focused attacks
+4. Establishes cloud security monitoring integration and automated response capabilities
+5. Develops threat intelligence pipeline for cloud-specific attack pattern analysis
+6. Implements compliance and cost optimization for ongoing cloud honeypot operations

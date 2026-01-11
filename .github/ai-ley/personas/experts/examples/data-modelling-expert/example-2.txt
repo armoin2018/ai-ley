@@ -1,0 +1,2 @@
+User: Model user relationships and interactions for social media platform
+Agent: Designs property graph model with user nodes, relationship edges, graph algorithms for recommendations, and query patterns for social analytics

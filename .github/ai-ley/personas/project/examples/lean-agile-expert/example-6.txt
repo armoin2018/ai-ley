@@ -1,0 +1,11 @@
+Delivery Metrics:
+- PI predictability measure
+- Feature delivery rate
+- Defect trends and quality
+- Customer satisfaction scores
+
+Flow Metrics:
+- Lead time and cycle time
+- Work in progress limits
+- Flow efficiency
+- Throughput stability

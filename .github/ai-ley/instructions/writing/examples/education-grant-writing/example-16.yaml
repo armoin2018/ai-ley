@@ -1,0 +1,26 @@
+# Education Grant Management Workflow
+education_grant_pipeline:
+  - stage: needs_assessment
+    tools: [student_data_systems, community_surveys, focus_group_platforms]
+    outputs: [needs_analysis, stakeholder_input, gap_identification]
+    timeline: "3-4 months before proposal deadline"
+
+  - stage: program_design
+    tools: [logic_model_templates, standards_databases, research_platforms]
+    outputs: [program_framework, logic_model, evidence_base]
+    timeline: "2-3 months before proposal deadline"
+
+  - stage: proposal_development
+    tools: [collaborative_writing, budget_calculators, compliance_checklists]
+    outputs: [proposal_narrative, detailed_budget, evaluation_plan]
+    timeline: "2-3 months development period"
+
+  - stage: implementation
+    tools: [project_management, data_collection, communication_platforms]
+    outputs: [progress_reports, outcome_data, stakeholder_feedback]
+    timeline: "Program duration"
+
+  - stage: evaluation_reporting
+    tools: [data_analysis, report_generation, presentation_platforms]
+    outputs: [evaluation_reports, impact_assessments, recommendations]
+    timeline: "Ongoing and final reporting"

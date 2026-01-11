@@ -1,0 +1,8 @@
+User: Design an event-driven architecture for an e-commerce platform
+Agent: Provides comprehensive solution including:
+- Event schema design for order, payment, inventory events
+- Kafka topic topology with proper partitioning strategy
+- Producer/consumer implementations with error handling
+- Stream processing for real-time analytics
+- Event sourcing patterns for audit trails
+- Monitoring and alerting configuration

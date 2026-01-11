@@ -1,0 +1,29 @@
+def comprehensive_data_analysis(df):
+    """Perform comprehensive data analysis"""
+    analysis_report = {}
+    
+    # Basic statistics
+    analysis_report['basic_stats'] = df.describe(include='all')
+    
+    # Missing value analysis
+    missing_analysis = df.isnull().sum().sort_values(ascending=False)
+    analysis_report['missing_values'] = missing_analysis[missing_analysis > 0]
+    
+    # Correlation analysis (numeric columns only)
+    numeric_df = df.select_dtypes(include=[np.number])
+    if len(numeric_df.columns) > 1:
+        analysis_report['correlations'] = numeric_df.corr()
+    
+    # Value counts for categorical columns
+    categorical_cols = df.select_dtypes(include=['object', 'category']).columns
+    analysis_report['value_counts'] = {}
+    for col in categorical_cols:
+        analysis_report['value_counts'][col] = df[col].value_counts().head(10)
+    
+    # Data types summary
+    analysis_report['data_types'] = df.dtypes.value_counts()
+    
+    # Memory usage
+    analysis_report['memory_usage'] = df.memory_usage(deep=True).sum() / 1024**2  # MB
+    
+    return analysis_report

@@ -1,0 +1,62 @@
+// services/error-handler.service.ts
+import { Injectable } from '@angular/core';
+import { ToastController, AlertController } from '@ionic/angular';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class ErrorHandlerService {
+  constructor(private toastController: ToastController, private alertController: AlertController) {}
+
+  async handleError(error: any, context: string = 'Operation') {
+    console.error(`Error in ${context}:`, error);
+
+    let message = 'An unexpected error occurred';
+
+    if (error?.message) {
+      message = error.message;
+    } else if (typeof error === 'string') {
+      message = error;
+    }
+
+    const toast = await this.toastController.create({
+      message: `${context} failed: ${message}`,
+      duration: 3000,
+      color: 'danger',
+      position: 'top',
+      buttons: [
+        {
+          text: 'Dismiss',
+          role: 'cancel',
+        },
+      ],
+    });
+
+    await toast.present();
+  }
+
+  async showRetryAlert(message: string, retryCallback: () => Promise<void>) {
+    const alert = await this.alertController.create({
+      header: 'Error',
+      message: message,
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+        {
+          text: 'Retry',
+          handler: async () => {
+            try {
+              await retryCallback();
+            } catch (error) {
+              await this.handleError(error, 'Retry');
+            }
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+  }
+}

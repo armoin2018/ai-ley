@@ -1,0 +1,60 @@
+using LinearAlgebra, BenchmarkTools, StaticArrays
+
+# Type-stable, high-performance matrix operations
+function efficient_matrix_multiply!(C::AbstractMatrix{T}, A::AbstractMatrix{T}, B::AbstractMatrix{T}) where T
+    @assert size(A, 2) == size(B, 1)
+    @assert size(C) == (size(A, 1), size(B, 2))
+    
+    fill!(C, zero(T))
+    
+    @inbounds @simd for k in 1:size(A, 2)
+        for j in 1:size(B, 2)
+            for i in 1:size(A, 1)
+                C[i, j] += A[i, k] * B[k, j]
+            end
+        end
+    end
+    return C
+end
+
+# Using StaticArrays for small, fixed-size computations
+function transform_point(point::SVector{3, T}, rotation::SMatrix{3, 3, T}, translation::SVector{3, T}) where T
+    return rotation * point + translation
+end
+
+# Example with automatic differentiation
+using ForwardDiff
+
+function rosenbrock(x)
+    return (1.0 - x[1])^2 + 100.0 * (x[2] - x[1]^2)^2
+end
+
+function optimize_rosenbrock()
+    x0 = [0.0, 0.0]
+    
+    # Compute gradient automatically
+    grad = x -> ForwardDiff.gradient(rosenbrock, x)
+    
+    # Simple gradient descent
+    x = copy(x0)
+    α = 0.001
+    
+    for i in 1:10000
+        g = grad(x)
+        x .-= α .* g
+        
+        if norm(g) < 1e-6
+            println("Converged after $i iterations")
+            break
+        end
+    end
+    
+    return x, rosenbrock(x)
+end
+
+# Benchmark the performance
+@benchmark efficient_matrix_multiply!(C, A, B) setup=(
+    A = randn(100, 50); 
+    B = randn(50, 80); 
+    C = Matrix{Float64}(undef, 100, 80)
+)

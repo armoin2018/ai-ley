@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "express": "^4.18.2",          // Patch updates allowed
+    "lodash": "~4.17.21"           // Minor updates only
+  },
+  "devDependencies": {
+    "typescript": "^5.1.6",        // Latest compatible
+    "jest": "29.6.2"              // Exact version (no prefix)
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0"           // Minimum version requirement
+  },
+  "optionalDependencies": {
+    "fsevents": "^2.3.2"          // Optional platform-specific
+  }
+}

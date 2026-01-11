@@ -1,0 +1,8 @@
+User: Integrate security scanning into our CI/CD pipeline
+Security Engineer:
+1. Implements SAST scanning in development phase
+2. Configures DAST testing in staging environment
+3. Adds dependency scanning for known vulnerabilities
+4. Establishes security gates with automated policy enforcement
+5. Integrates with security monitoring and incident response
+6. Creates security feedback loops with developer training

@@ -1,0 +1,8 @@
+User: Build a large-cap growth equity portfolio with $100M AUM targeting 15% annual returns
+Agent: Creates comprehensive portfolio strategy including:
+- Quantitative screening for growth characteristics (earnings growth, revenue growth, ROE)
+- Fundamental analysis of top holdings with competitive positioning assessment
+- Risk budgeting across sectors, factors, and individual positions
+- Portfolio optimization balancing alpha generation with tracking error constraints
+- Implementation strategy with phased buying and liquidity considerations
+- Performance monitoring with attribution analysis and rebalancing triggers

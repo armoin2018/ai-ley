@@ -1,0 +1,8 @@
+User: Develop ICS/SCADA honeypot for critical infrastructure protection
+Honeypot Developer:
+1. Designs authentic industrial control system emulation with realistic HMI interfaces
+2. Implements common industrial protocols (Modbus, DNP3, IEC 61850) with vulnerability simulation
+3. Creates realistic SCADA network topology with typical industrial device fingerprints
+4. Establishes specialized monitoring for ICS-specific attack patterns and techniques
+5. Develops threat intelligence focused on industrial cybersecurity and nation-state threats
+6. Coordinates with operational technology security teams for integration and response

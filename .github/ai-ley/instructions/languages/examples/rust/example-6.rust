@@ -1,0 +1,45 @@
+trait Processor {
+    type Config;
+    type Error;
+    
+    fn new(config: Self::Config) -> Result<Self, Self::Error>
+    where
+        Self: Sized;
+    
+    fn process(&mut self, msg: Message) -> Result<Message, Self::Error>;
+}
+
+// Consistent implementation across different processors
+struct DataValidator {
+    rules: Vec<ValidationRule>,
+}
+
+impl Processor for DataValidator {
+    type Config = ValidationConfig;
+    type Error = ValidationError;
+    
+    fn new(config: Self::Config) -> Result<Self, Self::Error> {
+        Ok(Self {
+            rules: config.into_rules()?,
+        })
+    }
+    
+    fn process(&mut self, mut msg: Message) -> Result<Message, Self::Error> {
+        for rule in &self.rules {
+            msg.payload = rule.apply(msg.payload)?;
+        }
+        Ok(msg)
+    }
+}
+
+// Dynamic processor creation
+fn create_processor(
+    processor_type: &str,
+    config: ProcessorConfig,
+) -> Result<Box<dyn Processor<Error = ProcessError>>, ProcessError> {
+    match processor_type {
+        "validator" => Ok(Box::new(DataValidator::new(config.validation)?)),
+        "transformer" => Ok(Box::new(DataTransformer::new(config.transformation)?)),
+        _ => Err(ProcessError::UnknownProcessor(processor_type.to_string())),
+    }
+}

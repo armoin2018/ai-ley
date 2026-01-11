@@ -1,0 +1,7 @@
+User: Enable business users to create their own reports while maintaining data governance
+Agent:
+- Designs self-service BI architecture with appropriate guardrails
+- Creates semantic layer with business-friendly field names
+- Implements row-level security and access controls
+- Provides training materials and best practices documentation
+- Sets up monitoring and usage analytics for the BI platform

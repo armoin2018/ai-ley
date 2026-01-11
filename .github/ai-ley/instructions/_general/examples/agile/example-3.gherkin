@@ -1,0 +1,21 @@
+#  Good: Well-structured user story
+Feature: User Authentication
+  As a registered user
+  I want to log into my account
+  So that I can access my personal dashboard
+
+  Background:
+    Given I am on the login page
+
+  Scenario: Successful login
+    Given I have a valid account
+    When I enter my correct email and password
+    And I click the "Sign In" button
+    Then I should be redirected to my dashboard
+    And I should see a welcome message
+
+  Scenario: Invalid credentials
+    When I enter an incorrect email or password
+    And I click the "Sign In" button
+    Then I should see an error message
+    And I should remain on the login page

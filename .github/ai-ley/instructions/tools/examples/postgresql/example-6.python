@@ -1,0 +1,12 @@
+# 2. Application-level connection pooling
+from sqlalchemy import create_engine
+from sqlalchemy.pool import QueuePool
+
+engine = create_engine(
+    'postgresql://user:pass@localhost:5432/myapp',
+    poolclass=QueuePool,
+    pool_size=20,
+    max_overflow=30,
+    pool_pre_ping=True,
+    pool_recycle=3600  # Recycle connections every hour
+)

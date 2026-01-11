@@ -1,0 +1,46 @@
+{
+  "title": "Trigger Shell Commands and Automation",
+  "rules": [
+    {
+      "description": "Hyper + D → Toggle Dark Mode via shell command",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "d",
+            "modifiers": {
+              "mandatory": ["left_shift", "left_control", "left_option", "left_command"]
+            }
+          },
+          "to": [
+            {
+              "shell_command": "osascript -e 'tell app \"System Events\" to tell appearance preferences to set dark mode to not dark mode'"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Hyper + M → Toggle Mute with notification",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "m",
+            "modifiers": {
+              "mandatory": ["left_shift", "left_control", "left_option", "left_command"]
+            }
+          },
+          "to": [
+            {
+              "shell_command": "osascript -e 'set volume with output muted'"
+            },
+            {
+              "shell_command": "osascript -e 'display notification \"Microphone Muted\" with title \"Karabiner\"'"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

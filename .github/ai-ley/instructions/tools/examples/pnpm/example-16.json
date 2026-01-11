@@ -1,0 +1,8 @@
+{
+  "name": "@company/frontend",
+  "dependencies": {
+    "@company/ui": "workspace:*",
+    "@company/utils": "workspace:^1.0.0",
+    "@company/shared": "workspace:~"
+  }
+}

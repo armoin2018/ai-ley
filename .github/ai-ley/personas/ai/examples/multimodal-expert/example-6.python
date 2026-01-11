@@ -1,0 +1,35 @@
+import torch
+from torch.utils.data import Dataset, DataLoader
+from PIL import Image
+import librosa
+
+class MultimodalDataset(Dataset):
+    def __init__(self, data_list, image_transform=None, audio_sr=16000):
+        self.data_list = data_list
+        self.image_transform = image_transform
+        self.audio_sr = audio_sr
+        
+    def __len__(self):
+        return len(self.data_list)
+        
+    def __getitem__(self, idx):
+        item = self.data_list[idx]
+        
+        # Load and process image
+        image = Image.open(item['image_path']).convert('RGB')
+        if self.image_transform:
+            image = self.image_transform(image)
+            
+        # Load and process audio
+        audio, _ = librosa.load(item['audio_path'], sr=self.audio_sr)
+        audio = torch.tensor(audio, dtype=torch.float32)
+        
+        # Process text
+        text = item['text']
+        
+        return {
+            'image': image,
+            'audio': audio,
+            'text': text,
+            'label': item.get('label', None)
+        }

@@ -1,0 +1,293 @@
+from enum import Enum
+import asyncio
+from datetime import datetime, timedelta
+import hashlib
+
+class KYCLevel(Enum):
+    UNVERIFIED = 0
+    BASIC = 1
+    ENHANCED = 2
+    INSTITUTIONAL = 3
+
+class RiskLevel(Enum):
+    LOW = 1
+    MEDIUM = 2
+    HIGH = 3
+    CRITICAL = 4
+
+@dataclass
+class ComplianceRule:
+    rule_id: str
+    description: str
+    countries_applicable: List[str]
+    kyc_level_required: KYCLevel
+    transaction_limits: Dict[str, Decimal]
+    monitoring_required: bool
+
+class ComplianceManager:
+    def __init__(self):
+        self.kyc_processor = KYCProcessor()
+        self.aml_monitor = AMLMonitor()
+        self.sanctions_screener = SanctionsScreener()
+        self.compliance_rules = self.load_compliance_rules()
+
+    def load_compliance_rules(self) -> List[ComplianceRule]:
+        """Load jurisdiction-specific compliance rules"""
+
+        rules = [
+            ComplianceRule(
+                rule_id="US_FINRA",
+                description="US FINRA compliance requirements",
+                countries_applicable=["US"],
+                kyc_level_required=KYCLevel.ENHANCED,
+                transaction_limits={
+                    'daily_limit': Decimal('50000'),
+                    'monthly_limit': Decimal('500000')
+                },
+                monitoring_required=True
+            ),
+            ComplianceRule(
+                rule_id="EU_MICA",
+                description="EU Markets in Crypto-Assets regulation",
+                countries_applicable=["EU"],
+                kyc_level_required=KYCLevel.BASIC,
+                transaction_limits={
+                    'daily_limit': Decimal('15000'),
+                    'monthly_limit': Decimal('150000')
+                },
+                monitoring_required=True
+            ),
+            ComplianceRule(
+                rule_id="SINGAPORE_MAS",
+                description="Singapore Monetary Authority requirements",
+                countries_applicable=["SG"],
+                kyc_level_required=KYCLevel.ENHANCED,
+                transaction_limits={
+                    'daily_limit': Decimal('200000'),
+                    'monthly_limit': Decimal('2000000')
+                },
+                monitoring_required=True
+            )
+        ]
+
+        return rules
+
+    async def process_user_onboarding(self, user_data: Dict) -> Dict[str, any]:
+        """Complete user onboarding with compliance checks"""
+
+        onboarding_result = {
+            'user_id': user_data['user_id'],
+            'kyc_status': 'pending',
+            'compliance_status': 'pending',
+            'approved_limits': {},
+            'restrictions': []
+        }
+
+        # Step 1: Basic information validation
+        basic_validation = await self.validate_basic_information(user_data)
+        if not basic_validation['valid']:
+            onboarding_result['kyc_status'] = 'rejected'
+            onboarding_result['rejection_reason'] = basic_validation['reason']
+            return onboarding_result
+
+        # Step 2: Sanctions screening
+        sanctions_result = await self.sanctions_screener.screen_user(user_data)
+        if sanctions_result['is_sanctioned']:
+            onboarding_result['kyc_status'] = 'rejected'
+            onboarding_result['rejection_reason'] = 'Sanctions list match'
+            return onboarding_result
+
+        # Step 3: KYC processing
+        kyc_result = await self.kyc_processor.process_kyc(user_data)
+        onboarding_result['kyc_status'] = kyc_result['status']
+        onboarding_result['kyc_level'] = kyc_result['level']
+
+        # Step 4: Apply compliance rules
+        applicable_rules = self.get_applicable_rules(user_data['country'])
+        compliance_result = await self.apply_compliance_rules(user_data, applicable_rules)
+
+        onboarding_result['approved_limits'] = compliance_result['limits']
+        onboarding_result['restrictions'] = compliance_result['restrictions']
+        onboarding_result['compliance_status'] = 'approved'
+
+        return onboarding_result
+
+    async def validate_basic_information(self, user_data: Dict) -> Dict[str, any]:
+        """Validate basic user information"""
+
+        required_fields = ['email', 'full_name', 'date_of_birth', 'country', 'address']
+
+        for field in required_fields:
+            if field not in user_data or not user_data[field]:
+                return {'valid': False, 'reason': f'Missing required field: {field}'}
+
+        # Age verification (must be 18+)
+        birth_date = datetime.strptime(user_data['date_of_birth'], '%Y-%m-%d')
+        age = (datetime.now() - birth_date).days / 365.25
+
+        if age < 18:
+            return {'valid': False, 'reason': 'User must be 18 years or older'}
+
+        # Email format validation
+        if '@' not in user_data['email'] or '.' not in user_data['email']:
+            return {'valid': False, 'reason': 'Invalid email format'}
+
+        return {'valid': True}
+
+    def get_applicable_rules(self, country: str) -> List[ComplianceRule]:
+        """Get compliance rules applicable to user's country"""
+
+        applicable_rules = []
+
+        for rule in self.compliance_rules:
+            if country in rule.countries_applicable or 'ALL' in rule.countries_applicable:
+                applicable_rules.append(rule)
+
+        return applicable_rules
+
+    async def apply_compliance_rules(self, user_data: Dict, rules: List[ComplianceRule]) -> Dict[str, any]:
+        """Apply compliance rules and determine user limits"""
+
+        result = {
+            'limits': {},
+            'restrictions': []
+        }
+
+        # Find most restrictive limits
+        daily_limits = []
+        monthly_limits = []
+
+        for rule in rules:
+            daily_limits.append(rule.transaction_limits.get('daily_limit', Decimal('1000000')))
+            monthly_limits.append(rule.transaction_limits.get('monthly_limit', Decimal('10000000')))
+
+        result['limits'] = {
+            'daily_limit': min(daily_limits) if daily_limits else Decimal('1000000'),
+            'monthly_limit': min(monthly_limits) if monthly_limits else Decimal('10000000')
+        }
+
+        # Add jurisdiction-specific restrictions
+        for rule in rules:
+            if rule.rule_id == "US_FINRA":
+                result['restrictions'].append("Enhanced monitoring required")
+                result['restrictions'].append("Quarterly compliance reporting")
+            elif rule.rule_id == "EU_MICA":
+                result['restrictions'].append("EU data protection compliance")
+                result['restrictions'].append("Right to be forgotten provisions")
+
+        return result
+
+class AMLMonitor:
+    def __init__(self):
+        self.suspicious_patterns = self.load_suspicious_patterns()
+        self.monitoring_rules = self.load_monitoring_rules()
+
+    def load_suspicious_patterns(self) -> List[Dict]:
+        """Load suspicious activity patterns for monitoring"""
+
+        return [
+            {
+                'pattern_id': 'rapid_succession_trades',
+                'description': 'Multiple large trades in short timeframe',
+                'criteria': {
+                    'trade_count': 10,
+                    'timeframe_minutes': 5,
+                    'min_trade_value': 10000
+                },
+                'risk_score': 75
+            },
+            {
+                'pattern_id': 'round_number_trades',
+                'description': 'Frequent round number trading amounts',
+                'criteria': {
+                    'round_number_percentage': 0.8,
+                    'observation_period_days': 7
+                },
+                'risk_score': 60
+            },
+            {
+                'pattern_id': 'unusual_hours_trading',
+                'description': 'Trading during unusual hours for user timezone',
+                'criteria': {
+                    'unusual_hours': ['02:00', '03:00', '04:00', '05:00'],
+                    'frequency_threshold': 5
+                },
+                'risk_score': 45
+            }
+        ]
+
+    async def monitor_user_activity(self, user_id: str, activity_data: Dict) -> Dict[str, any]:
+        """Monitor user activity for suspicious patterns"""
+
+        monitoring_result = {
+            'user_id': user_id,
+            'risk_score': 0,
+            'alerts': [],
+            'recommendations': []
+        }
+
+        # Check against each suspicious pattern
+        for pattern in self.suspicious_patterns:
+            pattern_result = await self.check_pattern(user_id, activity_data, pattern)
+
+            if pattern_result['detected']:
+                monitoring_result['risk_score'] += pattern['risk_score']
+                monitoring_result['alerts'].append({
+                    'pattern_id': pattern['pattern_id'],
+                    'description': pattern['description'],
+                    'severity': self.calculate_severity(pattern['risk_score']),
+                    'detected_at': datetime.now().isoformat()
+                })
+
+        # Generate recommendations based on risk score
+        if monitoring_result['risk_score'] >= 100:
+            monitoring_result['recommendations'].append('Immediate account review required')
+            monitoring_result['recommendations'].append('Consider temporary trading suspension')
+        elif monitoring_result['risk_score'] >= 75:
+            monitoring_result['recommendations'].append('Enhanced monitoring for 30 days')
+            monitoring_result['recommendations'].append('Manual review of large transactions')
+        elif monitoring_result['risk_score'] >= 50:
+            monitoring_result['recommendations'].append('Increased automated monitoring')
+
+        return monitoring_result
+
+    async def check_pattern(self, user_id: str, activity_data: Dict, pattern: Dict) -> Dict[str, any]:
+        """Check if user activity matches suspicious pattern"""
+
+        pattern_id = pattern['pattern_id']
+        criteria = pattern['criteria']
+
+        if pattern_id == 'rapid_succession_trades':
+            recent_trades = activity_data.get('recent_trades', [])
+            large_trades = [t for t in recent_trades if t['value'] >= criteria['min_trade_value']]
+
+            if len(large_trades) >= criteria['trade_count']:
+                return {'detected': True, 'details': f'{len(large_trades)} large trades detected'}
+
+        elif pattern_id == 'round_number_trades':
+            recent_trades = activity_data.get('recent_trades', [])
+            round_number_trades = [t for t in recent_trades if self.is_round_number(t['amount'])]
+
+            if len(recent_trades) > 0:
+                round_percentage = len(round_number_trades) / len(recent_trades)
+                if round_percentage >= criteria['round_number_percentage']:
+                    return {'detected': True, 'details': f'{round_percentage:.2%} round number trades'}
+
+        return {'detected': False}
+
+    def is_round_number(self, amount: Decimal) -> bool:
+        """Check if amount is a round number"""
+        # Simple check for round numbers (ends in zeros)
+        str_amount = str(amount).rstrip('0').rstrip('.')
+        return len(str_amount) <= 3  # e.g., 100, 1000, 10000
+
+    def calculate_severity(self, risk_score: int) -> str:
+        """Calculate alert severity based on risk score"""
+        if risk_score >= 80:
+            return 'critical'
+        elif risk_score >= 60:
+            return 'high'
+        elif risk_score >= 40:
+            return 'medium'
+        else:
+            return 'low'

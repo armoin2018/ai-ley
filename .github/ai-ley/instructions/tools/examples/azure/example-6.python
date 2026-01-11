@@ -1,0 +1,2966 @@
+import asyncio
+import json
+import yaml
+from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional, Union, Tuple
+from dataclasses import dataclass, field
+from enum import Enum
+import logging
+import structlog
+from azure.identity import DefaultAzureCredential, ClientSecretCredential
+from azure.mgmt.resource import ResourceManagementClient
+from azure.mgmt.compute import ComputeManagementClient
+from azure.mgmt.network import NetworkManagementClient
+from azure.mgmt.storage import StorageManagementClient
+from azure.mgmt.sql import SqlManagementClient
+from azure.mgmt.keyvault import KeyVaultManagementClient
+from azure.mgmt.monitor import MonitorManagementClient
+from azure.mgmt.authorization import AuthorizationManagementClient
+from azure.core.exceptions import AzureError
+import concurrent.futures
+from pathlib import Path
+
+class AzureRegion(Enum):
+    """Azure regions for global deployment"""
+    EAST_US = "East US"
+    WEST_US_2 = "West US 2"
+    WEST_EUROPE = "West Europe"
+    SOUTHEAST_ASIA = "Southeast Asia"
+    AUSTRALIA_EAST = "Australia East"
+
+class DeploymentEnvironment(Enum):
+    """Deployment environments"""
+    DEVELOPMENT = "development"
+    STAGING = "staging"
+    PRODUCTION = "production"
+    DISASTER_RECOVERY = "disaster-recovery"
+
+class ComplianceFramework(Enum):
+    """Compliance frameworks"""
+    SOC2 = "SOC2"
+    HIPAA = "HIPAA"
+    PCI_DSS = "PCI-DSS"
+    GDPR = "GDPR"
+    ISO27001 = "ISO27001"
+
+class AzureServiceTier(Enum):
+    """Azure service tiers"""
+    BASIC = "Basic"
+    STANDARD = "Standard"
+    PREMIUM = "Premium"
+    PREMIUM_V2 = "PremiumV2"
+
+@dataclass
+class EnterpriseAzureConfig:
+    """Enterprise Azure configuration with multi-subscription and governance"""
+
+    # Subscription Configuration
+    tenant_id: str = ""
+    subscription_id: str = ""
+    client_id: str = ""
+    client_secret: str = ""
+
+    # Regional Configuration
+    primary_region: AzureRegion = AzureRegion.EAST_US
+    secondary_regions: List[AzureRegion] = field(default_factory=lambda: [AzureRegion.WEST_US_2])
+    disaster_recovery_region: AzureRegion = AzureRegion.WEST_EUROPE
+
+    # Environment Configuration
+    environment: DeploymentEnvironment = DeploymentEnvironment.PRODUCTION
+    application_name: str = "enterprise-application"
+    organization_name: str = "Enterprise Corp"
+
+    # Resource Group Strategy
+    resource_group_strategy: str = "environment_based"  # environment_based, application_based, workload_based
+
+    # Security Configuration
+    enable_defender: bool = True
+    enable_sentinel: bool = True
+    enable_key_vault: bool = True
+    enable_private_endpoints: bool = True
+    enable_network_watcher: bool = True
+
+    # Compliance Configuration
+    compliance_frameworks: List[ComplianceFramework] = field(default_factory=lambda: [
+        ComplianceFramework.SOC2, ComplianceFramework.GDPR
+    ])
+
+    # Monitoring Configuration
+    enable_application_insights: bool = True
+    enable_log_analytics: bool = True
+    enable_azure_monitor: bool = True
+
+    # Cost Management
+    enable_cost_management: bool = True
+    enable_budgets: bool = True
+    cost_optimization_level: str = "aggressive"
+
+    # Backup and DR
+    enable_backup: bool = True
+    backup_retention_days: int = 90
+    cross_region_backup: bool = True
+
+    # Infrastructure as Code
+    use_arm_templates: bool = True
+    use_bicep: bool = True
+    use_terraform: bool = True
+
+    # Custom Configuration
+    custom_tags: Dict[str, str] = field(default_factory=dict)
+    resource_naming_convention: str = "{org}-{app}-{env}-{service}-{region}"
+
+    def __post_init__(self):
+        """Initialize enterprise defaults"""
+        if not self.custom_tags:
+            self.custom_tags = {
+                "Organization": self.organization_name.lower().replace(" ", "-"),
+                "Environment": self.environment.value,
+                "Application": self.application_name,
+                "ManagedBy": "enterprise-platform-team",
+                "CostCenter": "engineering",
+                "Backup": "required" if self.enable_backup else "not-required",
+                "CreatedDate": datetime.now().isoformat()
+            }
+
+    def get_resource_name(self, service: str, resource_type: str = "") -> str:
+        """Generate standardized resource names"""
+        components = {
+            "org": self.organization_name.lower().replace(" ", "-")[:8],
+            "app": self.application_name.replace("-", "")[:12],
+            "env": self.environment.value[:4],
+            "service": service.replace("-", "")[:15],
+            "region": self.primary_region.value.lower().replace(" ", "")[:6]
+        }
+
+        name = self.resource_naming_convention.format(**components)
+        if resource_type:
+            name = f"{name}-{resource_type}"
+
+        return name[:63].lower()  # Azure resource name limit
+
+    def get_resource_group_name(self, workload: str = "") -> str:
+        """Generate resource group names based on strategy"""
+        if self.resource_group_strategy == "environment_based":
+            return f"rg-{self.organization_name.lower().replace(' ', '-')}-{self.environment.value}"
+        elif self.resource_group_strategy == "application_based":
+            return f"rg-{self.application_name}-{self.environment.value}"
+        elif self.resource_group_strategy == "workload_based" and workload:
+            return f"rg-{workload}-{self.environment.value}"
+        else:
+            return f"rg-{self.application_name}-{self.environment.value}"
+
+    def validate_configuration(self) -> List[str]:
+        """Validate enterprise configuration"""
+        errors = []
+
+        if not self.tenant_id:
+            errors.append("Azure Tenant ID is required for enterprise deployment")
+
+        if not self.subscription_id:
+            errors.append("Azure Subscription ID is required")
+
+        if not self.client_id or not self.client_secret:
+            errors.append("Service Principal credentials are required for automation")
+
+        return errors
+
+class EnterpriseAzurePlatform:
+    """Production-ready Azure platform management with enterprise features"""
+
+    def __init__(self, config: EnterpriseAzureConfig):
+        self.config = config
+        self.logger = structlog.get_logger("enterprise.azure")
+
+        # Azure management clients
+        self.credential = None
+        self.resource_client = None
+        self.compute_client = None
+        self.network_client = None
+        self.storage_client = None
+        self.sql_client = None
+        self.keyvault_client = None
+        self.monitor_client = None
+        self.auth_client = None
+
+        # Enterprise components
+        self.infrastructure_templates = {}
+        self.security_policies = {}
+        self.monitoring_dashboards = {}
+        self.cost_optimization_rules = {}
+
+        # Validate configuration
+        config_errors = self.config.validate_configuration()
+        if config_errors:
+            raise ValueError(f"Configuration errors: {'; '.join(config_errors)}")
+
+    async def __aenter__(self):
+        """Async context manager entry"""
+        await self.initialize()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        """Async context manager exit"""
+        await self.cleanup()
+
+    async def initialize(self) -> None:
+        """Initialize enterprise Azure platform"""
+        try:
+            # Initialize Azure credentials
+            await self._initialize_azure_credentials()
+
+            # Initialize Azure management clients
+            await self._initialize_azure_clients()
+
+            # Setup enterprise security
+            await self._setup_enterprise_security()
+
+            # Setup monitoring and alerting
+            await self._setup_enterprise_monitoring()
+
+            # Configure cost management
+            await self._setup_cost_management()
+
+            # Setup compliance and governance
+            await self._setup_compliance_governance()
+
+            self.logger.info(
+                "Enterprise Azure platform initialized",
+                organization=self.config.organization_name,
+                environment=self.config.environment.value,
+                subscription_id=self.config.subscription_id,
+                primary_region=self.config.primary_region.value
+            )
+
+        except Exception as e:
+            self.logger.error(f"Failed to initialize Azure platform: {e}")
+            raise
+
+    async def cleanup(self) -> None:
+        """Clean up resources"""
+        try:
+            # Close all clients
+            self.credential = None
+            self.resource_client = None
+            self.compute_client = None
+            self.network_client = None
+            self.storage_client = None
+
+            self.logger.info("Azure platform cleaned up successfully")
+
+        except Exception as e:
+            self.logger.error(f"Error during cleanup: {e}")
+
+    async def _initialize_azure_credentials(self) -> None:
+        """Initialize Azure credentials"""
+        try:
+            if self.config.client_id and self.config.client_secret:
+                # Use service principal authentication
+                self.credential = ClientSecretCredential(
+                    tenant_id=self.config.tenant_id,
+                    client_id=self.config.client_id,
+                    client_secret=self.config.client_secret
+                )
+            else:
+                # Use default credential chain
+                self.credential = DefaultAzureCredential()
+
+            self.logger.info("Azure credentials initialized")
+
+        except Exception as e:
+            self.logger.error(f"Failed to initialize Azure credentials: {e}")
+            raise
+
+    async def _initialize_azure_clients(self) -> None:
+        """Initialize Azure management clients"""
+        try:
+            subscription_id = self.config.subscription_id
+
+            # Initialize all Azure management clients
+            self.resource_client = ResourceManagementClient(self.credential, subscription_id)
+            self.compute_client = ComputeManagementClient(self.credential, subscription_id)
+            self.network_client = NetworkManagementClient(self.credential, subscription_id)
+            self.storage_client = StorageManagementClient(self.credential, subscription_id)
+            self.sql_client = SqlManagementClient(self.credential, subscription_id)
+            self.keyvault_client = KeyVaultManagementClient(self.credential, subscription_id)
+            self.monitor_client = MonitorManagementClient(self.credential, subscription_id)
+            self.auth_client = AuthorizationManagementClient(self.credential, subscription_id)
+
+            self.logger.info("Azure management clients initialized")
+
+        except Exception as e:
+            self.logger.error(f"Failed to initialize Azure clients: {e}")
+            raise
+
+    async def _setup_enterprise_security(self) -> None:
+        """Setup comprehensive enterprise security"""
+        try:
+            # Azure Defender Configuration
+            if self.config.enable_defender:
+                await self._setup_azure_defender()
+
+            # Azure Sentinel Configuration
+            if self.config.enable_sentinel:
+                await self._setup_azure_sentinel()
+
+            # Key Vault Configuration
+            if self.config.enable_key_vault:
+                await self._setup_key_vault()
+
+            # Private Endpoints Configuration
+            if self.config.enable_private_endpoints:
+                await self._setup_private_endpoints()
+
+            # Network Security Configuration
+            await self._setup_network_security()
+
+            self.logger.info("Enterprise security setup completed")
+
+    async def _setup_azure_defender(self) -> None:
+        """Setup Azure Defender for comprehensive security"""
+        try:
+            defender_config = {
+                "defender_for_servers": {
+                    "enabled": True,
+                    "tier": "Standard",
+                    "extensions": [
+                        "MicrosoftDefenderForServers",
+                        "VulnerabilityAssessment",
+                        "FilelessAttackDetection"
+                    ],
+                    "auto_provisioning": True
+                },
+                "defender_for_app_service": {
+                    "enabled": True,
+                    "tier": "Standard",
+                    "features": [
+                        "ThreatDetection",
+                        "VulnerabilityScanning",
+                        "ConfigurationAssessment"
+                    ]
+                },
+                "defender_for_storage": {
+                    "enabled": True,
+                    "tier": "Standard",
+                    "malware_scanning": True,
+                    "sensitive_data_discovery": True
+                },
+                "defender_for_sql": {
+                    "enabled": True,
+                    "tier": "Standard",
+                    "vulnerability_assessments": True,
+                    "advanced_threat_protection": True
+                },
+                "defender_for_kubernetes": {
+                    "enabled": True,
+                    "tier": "Standard",
+                    "runtime_protection": True,
+                    "policy_enforcement": True
+                },
+                "security_policies": [
+                    {
+                        "name": "Enterprise Security Baseline",
+                        "description": "Comprehensive security policy for enterprise workloads",
+                        "initiatives": [
+                            "Azure Security Benchmark",
+                            "PCI DSS 3.2.1",
+                            "ISO 27001:2013"
+                        ]
+                    }
+                ],
+                "alert_configurations": [
+                    {
+                        "name": "Critical Security Alerts",
+                        "severity": "High",
+                        "email_notifications": ["security@company.com"],
+                        "logic_app_integration": True
+                    },
+                    {
+                        "name": "Compliance Violations",
+                        "severity": "Medium",
+                        "email_notifications": ["compliance@company.com"],
+                        "automation_enabled": True
+                    }
+                ]
+            }
+
+            self.security_policies["azure_defender"] = defender_config
+            self.logger.info("Azure Defender configuration prepared")
+
+        except Exception as e:
+            self.logger.error(f"Failed to setup Azure Defender: {e}")
+
+    async def _setup_azure_sentinel(self) -> None:
+        """Setup Azure Sentinel for SIEM and SOAR"""
+        try:
+            sentinel_config = {
+                "workspace_configuration": {
+                    "name": f"{self.config.get_resource_name('sentinel', 'workspace')}",
+                    "resource_group": self.config.get_resource_group_name("security"),
+                    "location": self.config.primary_region.value,
+                    "retention_days": 90,
+                    "daily_quota_gb": 10
+                },
+                "data_connectors": [
+                    {
+                        "name": "AzureActiveDirectory",
+                        "enabled": True,
+                        "data_types": ["SigninLogs", "AuditLogs", "RiskyUsers", "RiskyUserHistoryLogs"]
+                    },
+                    {
+                        "name": "AzureSecurityCenter",
+                        "enabled": True,
+                        "data_types": ["Alerts", "Recommendations"]
+                    },
+                    {
+                        "name": "Office365",
+                        "enabled": True,
+                        "data_types": ["Exchange", "SharePoint", "Teams"]
+                    },
+                    {
+                        "name": "AzureActivity",
+                        "enabled": True,
+                        "subscription_id": self.config.subscription_id
+                    },
+                    {
+                        "name": "SecurityEvents",
+                        "enabled": True,
+                        "event_types": ["All", "Common", "Minimal"]
+                    }
+                ],
+                "analytics_rules": [
+                    {
+                        "name": "Suspicious Sign-in Activity",
+                        "description": "Detects unusual sign-in patterns and locations",
+                        "severity": "High",
+                        "query": """
+SigninLogs
+| where TimeGenerated > ago(1h)
+| where RiskLevelDuringSignIn == "high" or RiskLevelAggregated == "high"
+| summarize count() by UserPrincipalName, Location, IPAddress
+| where count_ > 5
+""",
+                        "frequency": "PT5M",
+                        "period": "PT1H",
+                        "tactics": ["InitialAccess", "CredentialAccess"]
+                    },
+                    {
+                        "name": "Azure Resource Modification",
+                        "description": "Detects unauthorized changes to critical Azure resources",
+                        "severity": "Medium",
+                        "query": """
+AzureActivity
+| where TimeGenerated > ago(1h)
+| where OperationName has "write" or OperationName has "delete"
+| where CategoryValue == "Administrative"
+| where ActivityStatus == "Succeeded"
+| summarize count() by Caller, ResourceGroup, OperationName
+""",
+                        "frequency": "PT15M",
+                        "period": "PT1H",
+                        "tactics": ["Impact", "DefenseEvasion"]
+                    }
+                ],
+                "automation_rules": [
+                    {
+                        "name": "Auto-Response to Critical Alerts",
+                        "description": "Automatically respond to critical security incidents",
+                        "trigger_conditions": {
+                            "severity": ["High"],
+                            "tactics": ["InitialAccess", "Exfiltration"]
+                        },
+                        "actions": [
+                            "CreateIncident",
+                            "SendEmailNotification",
+                            "RunPlaybook"
+                        ]
+                    }
+                ],
+                "workbooks": [
+                    {
+                        "name": "Security Operations Dashboard",
+                        "description": "Comprehensive security monitoring dashboard",
+                        "categories": ["Security", "Operations"]
+                    },
+                    {
+                        "name": "Threat Intelligence",
+                        "description": "Threat intelligence and IOC analysis",
+                        "categories": ["ThreatIntelligence"]
+                    }
+                ]
+            }
+
+            self.security_policies["azure_sentinel"] = sentinel_config
+            self.logger.info("Azure Sentinel configuration prepared")
+
+        except Exception as e:
+            self.logger.error(f"Failed to setup Azure Sentinel: {e}")
+
+    async def _setup_key_vault(self) -> None:
+        """Setup Azure Key Vault for secrets management"""
+        try:
+            keyvault_config = {
+                "key_vaults": [
+                    {
+                        "name": f"{self.config.get_resource_name('secrets', 'kv')}",
+                        "resource_group": self.config.get_resource_group_name("security"),
+                        "location": self.config.primary_region.value,
+                        "sku": "premium",
+                        "properties": {
+                            "tenant_id": self.config.tenant_id,
+                            "access_policies": [
+                                {
+                                    "tenant_id": self.config.tenant_id,
+                                    "object_id": self.config.client_id,
+                                    "permissions": {
+                                        "keys": ["get", "list", "create", "update", "delete"],
+                                        "secrets": ["get", "list", "set", "delete"],
+                                        "certificates": ["get", "list", "create", "update", "delete"]
+                                    }
+                                }
+                            ],
+                            "enable_disk_encryption": True,
+                            "enable_deployment": True,
+                            "enable_template_deployment": True,
+                            "enable_rbac_authorization": True,
+                            "enable_soft_delete": True,
+                            "soft_delete_retention_days": 90,
+                            "enable_purge_protection": True,
+                            "public_network_access": "Disabled"
+                        },
+                        "network_acls": {
+                            "bypass": "AzureServices",
+                            "default_action": "Deny",
+                            "ip_rules": [],
+                            "virtual_network_rules": []
+                        }
+                    }
+                ],
+                "managed_hsm": {
+                    "name": f"{self.config.get_resource_name('managed', 'hsm')}",
+                    "resource_group": self.config.get_resource_group_name("security"),
+                    "location": self.config.primary_region.value,
+                    "administrators": [self.config.client_id],
+                    "public_network_access": "Disabled",
+                    "network_acls": {
+                        "bypass": "AzureServices",
+                        "default_action": "Deny"
+                    }
+                },
+                "certificates": [
+                    {
+                        "name": "ssl-certificate",
+                        "certificate_policy": {
+                            "key_properties": {
+                                "exportable": True,
+                                "key_type": "RSA",
+                                "key_size": 2048,
+                                "reuse_key": False
+                            },
+                            "secret_properties": {
+                                "content_type": "application/x-pkcs12"
+                            },
+                            "x509_certificate_properties": {
+                                "subject": f"CN={self.config.application_name}.{self.config.organization_name.lower().replace(' ', '')}.com",
+                                "sans": [f"*.{self.config.application_name}.{self.config.organization_name.lower().replace(' ', '')}.com"],
+                                "key_usage": ["digital_signature", "key_encipherment"],
+                                "validity_months": 12
+                            },
+                            "issuer_parameters": {
+                                "name": "Self"
+                            }
+                        }
+                    }
+                ],
+                "secrets": [
+                    {
+                        "name": "database-connection-string",
+                        "value": "Server=tcp:${database_server}.database.windows.net,1433;Initial Catalog=${database_name};Persist Security Info=False;User ID=${database_user};Password=${database_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
+                        "content_type": "connection-string",
+                        "expires": (datetime.now() + timedelta(days=365)).isoformat()
+                    },
+                    {
+                        "name": "api-key",
+                        "value": "placeholder-api-key",
+                        "content_type": "api-key",
+                        "expires": (datetime.now() + timedelta(days=180)).isoformat()
+                    }
+                ]
+            }
+
+            self.security_policies["key_vault"] = keyvault_config
+            self.logger.info("Key Vault configuration prepared")
+
+        except Exception as e:
+            self.logger.error(f"Failed to setup Key Vault: {e}")
+
+    async def _setup_private_endpoints(self) -> None:
+        """Setup private endpoints for secure connectivity"""
+        try:
+            private_endpoints_config = {
+                "private_endpoints": [
+                    {
+                        "name": f"{self.config.get_resource_name('storage', 'pe')}",
+                        "resource_group": self.config.get_resource_group_name("network"),
+                        "location": self.config.primary_region.value,
+                        "subnet_id": "/subscriptions/{subscription_id}/resourceGroups/{rg}/providers/Microsoft.Network/virtualNetworks/{vnet}/subnets/private-endpoints",
+                        "private_link_service_connections": [
+                            {
+                                "name": "storage-connection",
+                                "private_link_service_id": "/subscriptions/{subscription_id}/resourceGroups/{rg}/providers/Microsoft.Storage/storageAccounts/{storage_account}",
+                                "group_ids": ["blob"]
+                            }
+                        ],
+                        "private_dns_zone_group": {
+                            "name": "storage-dns-zone-group",
+                            "private_dns_zone_configs": [
+                                {
+                                    "name": "blob-storage-config",
+                                    "private_dns_zone_id": "/subscriptions/{subscription_id}/resourceGroups/{rg}/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": f"{self.config.get_resource_name('sql', 'pe')}",
+                        "resource_group": self.config.get_resource_group_name("network"),
+                        "location": self.config.primary_region.value,
+                        "subnet_id": "/subscriptions/{subscription_id}/resourceGroups/{rg}/providers/Microsoft.Network/virtualNetworks/{vnet}/subnets/private-endpoints",
+                        "private_link_service_connections": [
+                            {
+                                "name": "sql-connection",
+                                "private_link_service_id": "/subscriptions/{subscription_id}/resourceGroups/{rg}/providers/Microsoft.Sql/servers/{sql_server}",
+                                "group_ids": ["sqlServer"]
+                            }
+                        ],
+                        "private_dns_zone_group": {
+                            "name": "sql-dns-zone-group",
+                            "private_dns_zone_configs": [
+                                {
+                                    "name": "sql-config",
+                                    "private_dns_zone_id": "/subscriptions/{subscription_id}/resourceGroups/{rg}/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": f"{self.config.get_resource_name('keyvault', 'pe')}",
+                        "resource_group": self.config.get_resource_group_name("network"),
+                        "location": self.config.primary_region.value,
+                        "subnet_id": "/subscriptions/{subscription_id}/resourceGroups/{rg}/providers/Microsoft.Network/virtualNetworks/{vnet}/subnets/private-endpoints",
+                        "private_link_service_connections": [
+                            {
+                                "name": "keyvault-connection",
+                                "private_link_service_id": "/subscriptions/{subscription_id}/resourceGroups/{rg}/providers/Microsoft.KeyVault/vaults/{key_vault}",
+                                "group_ids": ["vault"]
+                            }
+                        ],
+                        "private_dns_zone_group": {
+                            "name": "keyvault-dns-zone-group",
+                            "private_dns_zone_configs": [
+                                {
+                                    "name": "keyvault-config",
+                                    "private_dns_zone_id": "/subscriptions/{subscription_id}/resourceGroups/{rg}/providers/Microsoft.Network/privateDnsZones/privatelink.vaultcore.azure.net"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "private_dns_zones": [
+                    "privatelink.blob.core.windows.net",
+                    "privatelink.database.windows.net",
+                    "privatelink.vaultcore.azure.net",
+                    "privatelink.azurewebsites.net",
+                    "privatelink.azurecr.io"
+                ]
+            }
+
+            self.security_policies["private_endpoints"] = private_endpoints_config
+            self.logger.info("Private endpoints configuration prepared")
+
+        except Exception as e:
+            self.logger.error(f"Failed to setup private endpoints: {e}")
+
+### **🏗️ Enterprise Infrastructure Manager**
+
+class EnterpriseAzureInfrastructureManager:
+    """Advanced infrastructure management with ARM, Bicep, and Terraform"""
+
+    def __init__(self, azure_platform: EnterpriseAzurePlatform):
+        self.azure_platform = azure_platform
+        self.config = azure_platform.config
+        self.logger = structlog.get_logger("enterprise.azure.infrastructure")
+
+        # Infrastructure templates
+        self.arm_templates = {}
+        self.bicep_templates = {}
+        self.terraform_modules = {}
+
+    async def deploy_enterprise_infrastructure(self) -> Dict[str, Any]:
+        """Deploy complete enterprise infrastructure"""
+        try:
+            self.logger.info("Starting enterprise infrastructure deployment")
+
+            deployment_results = {}
+
+            # Deploy resource groups
+            rg_result = await self._deploy_resource_groups()
+            deployment_results["resource_groups"] = rg_result
+
+            # Deploy networking infrastructure
+            network_result = await self._deploy_networking_infrastructure()
+            deployment_results["networking"] = network_result
+
+            # Deploy security infrastructure
+            security_result = await self._deploy_security_infrastructure()
+            deployment_results["security"] = security_result
+
+            # Deploy compute infrastructure
+            compute_result = await self._deploy_compute_infrastructure()
+            deployment_results["compute"] = compute_result
+
+            # Deploy data infrastructure
+            data_result = await self._deploy_data_infrastructure()
+            deployment_results["data"] = data_result
+
+            # Deploy monitoring infrastructure
+            monitoring_result = await self._deploy_monitoring_infrastructure()
+            deployment_results["monitoring"] = monitoring_result
+
+            self.logger.info(
+                "Enterprise infrastructure deployment completed",
+                deployed_components=len(deployment_results),
+                success_count=sum(1 for r in deployment_results.values() if r.get("status") == "success")
+            )
+
+            return deployment_results
+
+    async def _deploy_resource_groups(self) -> Dict[str, Any]:
+        """Deploy enterprise resource groups"""
+        try:
+            resource_groups = [
+                {
+                    "name": self.config.get_resource_group_name("networking"),
+                    "location": self.config.primary_region.value,
+                    "purpose": "Networking resources including VNets, NSGs, and Load Balancers"
+                },
+                {
+                    "name": self.config.get_resource_group_name("compute"),
+                    "location": self.config.primary_region.value,
+                    "purpose": "Compute resources including VMs, VMSS, and AKS"
+                },
+                {
+                    "name": self.config.get_resource_group_name("data"),
+                    "location": self.config.primary_region.value,
+                    "purpose": "Data resources including SQL Database, Storage, and Cosmos DB"
+                },
+                {
+                    "name": self.config.get_resource_group_name("security"),
+                    "location": self.config.primary_region.value,
+                    "purpose": "Security resources including Key Vault and Security Center"
+                },
+                {
+                    "name": self.config.get_resource_group_name("monitoring"),
+                    "location": self.config.primary_region.value,
+                    "purpose": "Monitoring resources including Log Analytics and Application Insights"
+                }
+            ]
+
+            rg_template = {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                    "resourceGroups": {
+                        "type": "array",
+                        "defaultValue": resource_groups
+                    },
+                    "tags": {
+                        "type": "object",
+                        "defaultValue": self.config.custom_tags
+                    }
+                },
+                "resources": []
+            }
+
+            # Add resource group deployments
+            for i, rg in enumerate(resource_groups):
+                rg_template["resources"].append({
+                    "type": "Microsoft.Resources/resourceGroups",
+                    "apiVersion": "2021-04-01",
+                    "name": rg["name"],
+                    "location": rg["location"],
+                    "properties": {},
+                    "tags": {
+                        **self.config.custom_tags,
+                        "Purpose": rg["purpose"]
+                    }
+                })
+
+            self.arm_templates["resource_groups"] = rg_template
+
+            return {
+                "status": "success",
+                "template_name": "resource_groups",
+                "resource_groups_count": len(resource_groups),
+                "description": "Enterprise resource group structure"
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to create resource groups template: {e}")
+            return {
+                "status": "failed",
+                "error": str(e)
+            }
+
+    async def _deploy_networking_infrastructure(self) -> Dict[str, Any]:
+        """Deploy networking infrastructure with hub-spoke topology"""
+        try:
+            networking_template = {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                    "location": {
+                        "type": "string",
+                        "defaultValue": self.config.primary_region.value
+                    },
+                    "tags": {
+                        "type": "object",
+                        "defaultValue": self.config.custom_tags
+                    }
+                },
+                "variables": {
+                    "hubVnetName": f"{self.config.get_resource_name('hub', 'vnet')}",
+                    "spokeVnetName": f"{self.config.get_resource_name('spoke', 'vnet')}",
+                    "hubAddressPrefix": "10.0.0.0/16",
+                    "spokeAddressPrefix": "10.1.0.0/16"
+                },
+                "resources": [
+                    # Hub Virtual Network
+                    {
+                        "type": "Microsoft.Network/virtualNetworks",
+                        "apiVersion": "2021-05-01",
+                        "name": "[variables('hubVnetName')]",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "properties": {
+                            "addressSpace": {
+                                "addressPrefixes": ["[variables('hubAddressPrefix')]"]
+                            },
+                            "subnets": [
+                                {
+                                    "name": "GatewaySubnet",
+                                    "properties": {
+                                        "addressPrefix": "10.0.0.0/27"
+                                    }
+                                },
+                                {
+                                    "name": "AzureFirewallSubnet",
+                                    "properties": {
+                                        "addressPrefix": "10.0.0.32/26"
+                                    }
+                                },
+                                {
+                                    "name": "SharedServicesSubnet",
+                                    "properties": {
+                                        "addressPrefix": "10.0.1.0/24",
+                                        "networkSecurityGroup": {
+                                            "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('hubVnetName'), '-nsg'))]"
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "dependsOn": [
+                            "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('hubVnetName'), '-nsg'))]"
+                        ]
+                    },
+                    # Spoke Virtual Network
+                    {
+                        "type": "Microsoft.Network/virtualNetworks",
+                        "apiVersion": "2021-05-01",
+                        "name": "[variables('spokeVnetName')]",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "properties": {
+                            "addressSpace": {
+                                "addressPrefixes": ["[variables('spokeAddressPrefix')]"]
+                            },
+                            "subnets": [
+                                {
+                                    "name": "WebTierSubnet",
+                                    "properties": {
+                                        "addressPrefix": "10.1.1.0/24",
+                                        "networkSecurityGroup": {
+                                            "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'web-tier-nsg')]"
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "AppTierSubnet",
+                                    "properties": {
+                                        "addressPrefix": "10.1.2.0/24",
+                                        "networkSecurityGroup": {
+                                            "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'app-tier-nsg')]"
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "DataTierSubnet",
+                                    "properties": {
+                                        "addressPrefix": "10.1.3.0/24",
+                                        "networkSecurityGroup": {
+                                            "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'data-tier-nsg')]"
+                                        },
+                                        "serviceEndpoints": [
+                                            {
+                                                "service": "Microsoft.Sql"
+                                            },
+                                            {
+                                                "service": "Microsoft.Storage"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "PrivateEndpointsSubnet",
+                                    "properties": {
+                                        "addressPrefix": "10.1.4.0/24",
+                                        "privateEndpointNetworkPolicies": "Disabled"
+                                    }
+                                }
+                            ]
+                        },
+                        "dependsOn": [
+                            "[resourceId('Microsoft.Network/networkSecurityGroups', 'web-tier-nsg')]",
+                            "[resourceId('Microsoft.Network/networkSecurityGroups', 'app-tier-nsg')]",
+                            "[resourceId('Microsoft.Network/networkSecurityGroups', 'data-tier-nsg')]"
+                        ]
+                    },
+                    # Network Security Groups
+                    {
+                        "type": "Microsoft.Network/networkSecurityGroups",
+                        "apiVersion": "2021-05-01",
+                        "name": "web-tier-nsg",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "properties": {
+                            "securityRules": [
+                                {
+                                    "name": "Allow-HTTP",
+                                    "properties": {
+                                        "protocol": "Tcp",
+                                        "sourcePortRange": "*",
+                                        "destinationPortRange": "80",
+                                        "sourceAddressPrefix": "*",
+                                        "destinationAddressPrefix": "*",
+                                        "access": "Allow",
+                                        "priority": 100,
+                                        "direction": "Inbound"
+                                    }
+                                },
+                                {
+                                    "name": "Allow-HTTPS",
+                                    "properties": {
+                                        "protocol": "Tcp",
+                                        "sourcePortRange": "*",
+                                        "destinationPortRange": "443",
+                                        "sourceAddressPrefix": "*",
+                                        "destinationAddressPrefix": "*",
+                                        "access": "Allow",
+                                        "priority": 110,
+                                        "direction": "Inbound"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "Microsoft.Network/networkSecurityGroups",
+                        "apiVersion": "2021-05-01",
+                        "name": "app-tier-nsg",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "properties": {
+                            "securityRules": [
+                                {
+                                    "name": "Allow-App-Port",
+                                    "properties": {
+                                        "protocol": "Tcp",
+                                        "sourcePortRange": "*",
+                                        "destinationPortRange": "8080",
+                                        "sourceAddressPrefix": "10.1.1.0/24",
+                                        "destinationAddressPrefix": "*",
+                                        "access": "Allow",
+                                        "priority": 100,
+                                        "direction": "Inbound"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "Microsoft.Network/networkSecurityGroups",
+                        "apiVersion": "2021-05-01",
+                        "name": "data-tier-nsg",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "properties": {
+                            "securityRules": [
+                                {
+                                    "name": "Allow-SQL",
+                                    "properties": {
+                                        "protocol": "Tcp",
+                                        "sourcePortRange": "*",
+                                        "destinationPortRange": "1433",
+                                        "sourceAddressPrefix": "10.1.2.0/24",
+                                        "destinationAddressPrefix": "*",
+                                        "access": "Allow",
+                                        "priority": 100,
+                                        "direction": "Inbound"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    # VNet Peering Hub to Spoke
+                    {
+                        "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+                        "apiVersion": "2021-05-01",
+                        "name": "[concat(variables('hubVnetName'), '/hub-to-spoke')]",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.Network/virtualNetworks', variables('hubVnetName'))]",
+                            "[resourceId('Microsoft.Network/virtualNetworks', variables('spokeVnetName'))]"
+                        ],
+                        "properties": {
+                            "allowVirtualNetworkAccess": True,
+                            "allowForwardedTraffic": True,
+                            "allowGatewayTransit": True,
+                            "useRemoteGateways": False,
+                            "remoteVirtualNetwork": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('spokeVnetName'))]"
+                            }
+                        }
+                    },
+                    # VNet Peering Spoke to Hub
+                    {
+                        "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+                        "apiVersion": "2021-05-01",
+                        "name": "[concat(variables('spokeVnetName'), '/spoke-to-hub')]",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.Network/virtualNetworks', variables('hubVnetName'))]",
+                            "[resourceId('Microsoft.Network/virtualNetworks', variables('spokeVnetName'))]"
+                        ],
+                        "properties": {
+                            "allowVirtualNetworkAccess": True,
+                            "allowForwardedTraffic": True,
+                            "allowGatewayTransit": False,
+                            "useRemoteGateways": False,
+                            "remoteVirtualNetwork": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('hubVnetName'))]"
+                            }
+                        }
+                    },
+                    # Application Gateway
+                    {
+                        "type": "Microsoft.Network/applicationGateways",
+                        "apiVersion": "2021-05-01",
+                        "name": f"{self.config.get_resource_name('app', 'agw')}",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.Network/virtualNetworks', variables('spokeVnetName'))]",
+                            "[resourceId('Microsoft.Network/publicIPAddresses', concat(parameters('applicationGatewayName'), '-pip'))]"
+                        ],
+                        "properties": {
+                            "sku": {
+                                "name": "WAF_v2",
+                                "tier": "WAF_v2",
+                                "capacity": 2
+                            },
+                            "gatewayIPConfigurations": [
+                                {
+                                    "name": "appGwIpConfig",
+                                    "properties": {
+                                        "subnet": {
+                                            "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('spokeVnetName')), '/subnets/WebTierSubnet')]"
+                                        }
+                                    }
+                                }
+                            ],
+                            "frontendIPConfigurations": [
+                                {
+                                    "name": "appGwPublicFrontendIp",
+                                    "properties": {
+                                        "publicIPAddress": {
+                                            "id": f"[resourceId('Microsoft.Network/publicIPAddresses', '{self.config.get_resource_name('agw', 'pip')}')]"
+                                        }
+                                    }
+                                }
+                            ],
+                            "frontendPorts": [
+                                {
+                                    "name": "port_80",
+                                    "properties": {
+                                        "port": 80
+                                    }
+                                },
+                                {
+                                    "name": "port_443",
+                                    "properties": {
+                                        "port": 443
+                                    }
+                                }
+                            ],
+                            "backendAddressPools": [
+                                {
+                                    "name": "webServerPool",
+                                    "properties": {}
+                                }
+                            ],
+                            "backendHttpSettingsCollection": [
+                                {
+                                    "name": "appGwBackendHttpSettings",
+                                    "properties": {
+                                        "port": 80,
+                                        "protocol": "Http",
+                                        "cookieBasedAffinity": "Disabled"
+                                    }
+                                }
+                            ],
+                            "httpListeners": [
+                                {
+                                    "name": "appGwHttpListener",
+                                    "properties": {
+                                        "frontendIPConfiguration": {
+                                            "id": "[concat(variables('applicationGatewayID'), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                                        },
+                                        "frontendPort": {
+                                            "id": "[concat(variables('applicationGatewayID'), '/frontendPorts/port_80')]"
+                                        },
+                                        "protocol": "Http"
+                                    }
+                                }
+                            ],
+                            "requestRoutingRules": [
+                                {
+                                    "name": "rule1",
+                                    "properties": {
+                                        "ruleType": "Basic",
+                                        "httpListener": {
+                                            "id": "[concat(variables('applicationGatewayID'), '/httpListeners/appGwHttpListener')]"
+                                        },
+                                        "backendAddressPool": {
+                                            "id": "[concat(variables('applicationGatewayID'), '/backendAddressPools/webServerPool')]"
+                                        },
+                                        "backendHttpSettings": {
+                                            "id": "[concat(variables('applicationGatewayID'), '/backendHttpSettingsCollection/appGwBackendHttpSettings')]"
+                                        }
+                                    }
+                                }
+                            ],
+                            "webApplicationFirewallConfiguration": {
+                                "enabled": True,
+                                "firewallMode": "Prevention",
+                                "ruleSetType": "OWASP",
+                                "ruleSetVersion": "3.2"
+                            }
+                        }
+                    }
+                ],
+                "outputs": {
+                    "hubVnetId": {
+                        "type": "string",
+                        "value": "[resourceId('Microsoft.Network/virtualNetworks', variables('hubVnetName'))]"
+                    },
+                    "spokeVnetId": {
+                        "type": "string",
+                        "value": "[resourceId('Microsoft.Network/virtualNetworks', variables('spokeVnetName'))]"
+                    }
+                }
+            }
+
+            self.arm_templates["networking_infrastructure"] = networking_template
+
+            return {
+                "status": "success",
+                "template_name": "networking_infrastructure",
+                "resources": len(networking_template["resources"]),
+                "description": "Hub-spoke networking with Application Gateway and WAF"
+            }
+
+    async def _deploy_compute_infrastructure(self) -> Dict[str, Any]:
+        """Deploy compute resources including VMs, VMSS, and AKS"""
+        try:
+            compute_template = {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                    "location": {
+                        "type": "string",
+                        "defaultValue": self.config.primary_region.value
+                    },
+                    "adminUsername": {
+                        "type": "string",
+                        "defaultValue": "azureuser"
+                    },
+                    "sshKeyData": {
+                        "type": "string",
+                        "metadata": {
+                            "description": "SSH public key for VM access"
+                        }
+                    },
+                    "vmSize": {
+                        "type": "string",
+                        "defaultValue": "Standard_D2s_v3",
+                        "allowedValues": [
+                            "Standard_B2s",
+                            "Standard_D2s_v3",
+                            "Standard_D4s_v3",
+                            "Standard_E2s_v3"
+                        ]
+                    },
+                    "tags": {
+                        "type": "object",
+                        "defaultValue": self.config.custom_tags
+                    }
+                },
+                "variables": {
+                    "vmssName": f"{self.config.get_resource_name('web', 'vmss')}",
+                    "aksClusterName": f"{self.config.get_resource_name('app', 'aks')}",
+                    "jumpBoxName": f"{self.config.get_resource_name('jump', 'vm')}"
+                },
+                "resources": [
+                    # Virtual Machine Scale Set for Web Tier
+                    {
+                        "type": "Microsoft.Compute/virtualMachineScaleSets",
+                        "apiVersion": "2021-07-01",
+                        "name": "[variables('vmssName')]",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "sku": {
+                            "name": "[parameters('vmSize')]",
+                            "tier": "Standard",
+                            "capacity": 3
+                        },
+                        "properties": {
+                            "orchestrationMode": "Uniform",
+                            "upgradePolicy": {
+                                "mode": "Automatic",
+                                "automaticOSUpgradePolicy": {
+                                    "enableAutomaticOSUpgrade": True
+                                }
+                            },
+                            "virtualMachineProfile": {
+                                "storageProfile": {
+                                    "osDisk": {
+                                        "createOption": "FromImage",
+                                        "managedDisk": {
+                                            "storageAccountType": "Premium_LRS"
+                                        }
+                                    },
+                                    "imageReference": {
+                                        "publisher": "Canonical",
+                                        "offer": "0001-com-ubuntu-server-focal",
+                                        "sku": "20_04-lts-gen2",
+                                        "version": "latest"
+                                    }
+                                },
+                                "osProfile": {
+                                    "computerNamePrefix": "web",
+                                    "adminUsername": "[parameters('adminUsername')]",
+                                    "customData": "[base64(concat('#cloud-config\npackage_upgrade: true\npackages:\n  - nginx\n  - docker.io\nruncmd:\n  - systemctl enable nginx\n  - systemctl start nginx\n  - systemctl enable docker\n  - systemctl start docker\n  - usermod -aG docker ', parameters('adminUsername')))]",
+                                    "linuxConfiguration": {
+                                        "disablePasswordAuthentication": True,
+                                        "ssh": {
+                                            "publicKeys": [
+                                                {
+                                                    "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                                                    "keyData": "[parameters('sshKeyData')]"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                "networkProfile": {
+                                    "networkInterfaceConfigurations": [
+                                        {
+                                            "name": "webVMSS-nic",
+                                            "properties": {
+                                                "primary": True,
+                                                "ipConfigurations": [
+                                                    {
+                                                        "name": "webVMSS-ipconfig",
+                                                        "properties": {
+                                                            "subnet": {
+                                                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'spoke-vnet', 'WebTierSubnet')]"
+                                                            },
+                                                            "applicationGatewayBackendAddressPools": [
+                                                                {
+                                                                    "id": f"[resourceId('Microsoft.Network/applicationGateways/backendAddressPools', '{self.config.get_resource_name('app', 'agw')}', 'webServerPool')]"
+                                                                }
+                                                            ]
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                },
+                                "extensionProfile": {
+                                    "extensions": [
+                                        {
+                                            "name": "HealthExtension",
+                                            "properties": {
+                                                "publisher": "Microsoft.ManagedServices",
+                                                "type": "ApplicationHealthLinux",
+                                                "typeHandlerVersion": "1.0",
+                                                "autoUpgradeMinorVersion": True,
+                                                "settings": {
+                                                    "protocol": "http",
+                                                    "port": 80,
+                                                    "requestPath": "/health"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    # Azure Kubernetes Service (AKS) Cluster
+                    {
+                        "type": "Microsoft.ContainerService/managedClusters",
+                        "apiVersion": "2021-10-01",
+                        "name": "[variables('aksClusterName')]",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "identity": {
+                            "type": "SystemAssigned"
+                        },
+                        "properties": {
+                            "kubernetesVersion": "1.21.9",
+                            "dnsPrefix": "[concat(variables('aksClusterName'), '-dns')]",
+                            "agentPoolProfiles": [
+                                {
+                                    "name": "systempool",
+                                    "count": 3,
+                                    "vmSize": "Standard_D2s_v3",
+                                    "osType": "Linux",
+                                    "mode": "System",
+                                    "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'spoke-vnet', 'AppTierSubnet')]",
+                                    "enableAutoScaling": True,
+                                    "minCount": 1,
+                                    "maxCount": 10
+                                },
+                                {
+                                    "name": "userpool",
+                                    "count": 2,
+                                    "vmSize": "Standard_D4s_v3",
+                                    "osType": "Linux",
+                                    "mode": "User",
+                                    "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'spoke-vnet', 'AppTierSubnet')]",
+                                    "enableAutoScaling": True,
+                                    "minCount": 1,
+                                    "maxCount": 20
+                                }
+                            ],
+                            "networkProfile": {
+                                "networkPlugin": "azure",
+                                "serviceCidr": "172.16.0.0/16",
+                                "dnsServiceIP": "172.16.0.10",
+                                "dockerBridgeCidr": "172.17.0.1/16"
+                            },
+                            "apiServerAccessProfile": {
+                                "enablePrivateCluster": True,
+                                "privateDNSZone": "system"
+                            },
+                            "addonProfiles": {
+                                "azureKeyvaultSecretsProvider": {
+                                    "enabled": True,
+                                    "config": {
+                                        "enableSecretRotation": "true"
+                                    }
+                                },
+                                "azurepolicy": {
+                                    "enabled": True
+                                },
+                                "omsagent": {
+                                    "enabled": True,
+                                    "config": {
+                                        "logAnalyticsWorkspaceResourceID": f"[resourceId('Microsoft.OperationalInsights/workspaces', '{self.config.get_resource_name('central', 'log')}-analytics')]"
+                                    }
+                                }
+                            },
+                            "enableRBAC": True,
+                            "aadProfile": {
+                                "managed": True,
+                                "enableAzureRBAC": True
+                            }
+                        }
+                    },
+                    # Jump Box VM for Management
+                    {
+                        "type": "Microsoft.Compute/virtualMachines",
+                        "apiVersion": "2021-07-01",
+                        "name": "[variables('jumpBoxName')]",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('jumpBoxName'), '-nic'))]"
+                        ],
+                        "properties": {
+                            "hardwareProfile": {
+                                "vmSize": "Standard_B2s"
+                            },
+                            "osProfile": {
+                                "computerName": "[variables('jumpBoxName')]",
+                                "adminUsername": "[parameters('adminUsername')]",
+                                "customData": "[base64('#cloud-config\npackage_upgrade: true\npackages:\n  - azure-cli\n  - kubectl\n  - docker.io\n  - htop\n  - git\nruncmd:\n  - curl -sL https://aka.ms/InstallAzureCLIDeb | bash\n  - az aks install-cli')]",
+                                "linuxConfiguration": {
+                                    "disablePasswordAuthentication": True,
+                                    "ssh": {
+                                        "publicKeys": [
+                                            {
+                                                "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                                                "keyData": "[parameters('sshKeyData')]"
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            "storageProfile": {
+                                "imageReference": {
+                                    "publisher": "Canonical",
+                                    "offer": "0001-com-ubuntu-server-focal",
+                                    "sku": "20_04-lts-gen2",
+                                    "version": "latest"
+                                },
+                                "osDisk": {
+                                    "name": "[concat(variables('jumpBoxName'), '-osdisk')]",
+                                    "caching": "ReadWrite",
+                                    "createOption": "FromImage",
+                                    "managedDisk": {
+                                        "storageAccountType": "Standard_LRS"
+                                    }
+                                }
+                            },
+                            "networkProfile": {
+                                "networkInterfaces": [
+                                    {
+                                        "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('jumpBoxName'), '-nic'))]"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    # Network Interface for Jump Box
+                    {
+                        "type": "Microsoft.Network/networkInterfaces",
+                        "apiVersion": "2021-05-01",
+                        "name": "[concat(variables('jumpBoxName'), '-nic')]",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "properties": {
+                            "ipConfigurations": [
+                                {
+                                    "name": "ipconfig1",
+                                    "properties": {
+                                        "privateIPAllocationMethod": "Dynamic",
+                                        "subnet": {
+                                            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'hub-vnet', 'SharedServicesSubnet')]"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    # Auto Scaling Settings for VMSS
+                    {
+                        "type": "Microsoft.Insights/autoscalesettings",
+                        "apiVersion": "2015-04-01",
+                        "name": "[concat(variables('vmssName'), '-autoscale')]",
+                        "location": "[parameters('location')]",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.Compute/virtualMachineScaleSets', variables('vmssName'))]"
+                        ],
+                        "properties": {
+                            "name": "[concat(variables('vmssName'), '-autoscale')]",
+                            "targetResourceUri": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', variables('vmssName'))]",
+                            "enabled": True,
+                            "profiles": [
+                                {
+                                    "name": "Default",
+                                    "capacity": {
+                                        "minimum": "2",
+                                        "maximum": "10",
+                                        "default": "3"
+                                    },
+                                    "rules": [
+                                        {
+                                            "metricTrigger": {
+                                                "metricName": "Percentage CPU",
+                                                "metricResourceUri": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', variables('vmssName'))]",
+                                                "timeGrain": "PT1M",
+                                                "statistic": "Average",
+                                                "timeWindow": "PT5M",
+                                                "timeAggregation": "Average",
+                                                "operator": "GreaterThan",
+                                                "threshold": 70
+                                            },
+                                            "scaleAction": {
+                                                "direction": "Increase",
+                                                "type": "ChangeCount",
+                                                "value": "1",
+                                                "cooldown": "PT5M"
+                                            }
+                                        },
+                                        {
+                                            "metricTrigger": {
+                                                "metricName": "Percentage CPU",
+                                                "metricResourceUri": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', variables('vmssName'))]",
+                                                "timeGrain": "PT1M",
+                                                "statistic": "Average",
+                                                "timeWindow": "PT5M",
+                                                "timeAggregation": "Average",
+                                                "operator": "LessThan",
+                                                "threshold": 30
+                                            },
+                                            "scaleAction": {
+                                                "direction": "Decrease",
+                                                "type": "ChangeCount",
+                                                "value": "1",
+                                                "cooldown": "PT5M"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "outputs": {
+                    "vmssId": {
+                        "type": "string",
+                        "value": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', variables('vmssName'))]"
+                    },
+                    "aksClusterId": {
+                        "type": "string",
+                        "value": "[resourceId('Microsoft.ContainerService/managedClusters', variables('aksClusterName'))]"
+                    },
+                    "jumpBoxId": {
+                        "type": "string",
+                        "value": "[resourceId('Microsoft.Compute/virtualMachines', variables('jumpBoxName'))]"
+                    }
+                }
+            }
+
+            self.arm_templates["compute_infrastructure"] = compute_template
+
+            return {
+                "status": "success",
+                "template_name": "compute_infrastructure",
+                "resources": len(compute_template["resources"]),
+                "description": "Enterprise compute with VMSS, AKS, and Jump Box"
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to create compute template: {e}")
+            return {
+                "status": "failed",
+                "error": str(e)
+            }
+
+    async def _deploy_data_infrastructure(self) -> Dict[str, Any]:
+        """Deploy data tier including SQL Database, Storage, and Cosmos DB"""
+        try:
+            data_template = {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                    "location": {
+                        "type": "string",
+                        "defaultValue": self.config.primary_region.value
+                    },
+                    "sqlAdministratorLogin": {
+                        "type": "string",
+                        "defaultValue": "sqladmin"
+                    },
+                    "sqlAdministratorPassword": {
+                        "type": "securestring",
+                        "metadata": {
+                            "description": "SQL Server administrator password"
+                        }
+                    },
+                    "tags": {
+                        "type": "object",
+                        "defaultValue": self.config.custom_tags
+                    }
+                },
+                "variables": {
+                    "sqlServerName": f"{self.config.get_resource_name('enterprise', 'sql')}",
+                    "sqlDatabaseName": f"{self.config.get_resource_name('app', 'db')}",
+                    "storageAccountName": f"{self.config.get_resource_name('enterprise', 'st')}".replace('-', '').lower()[:24],
+                    "cosmosAccountName": f"{self.config.get_resource_name('enterprise', 'cosmos')}"
+                },
+                "resources": [
+                    # SQL Server
+                    {
+                        "type": "Microsoft.Sql/servers",
+                        "apiVersion": "2021-11-01",
+                        "name": "[variables('sqlServerName')]",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "properties": {
+                            "administratorLogin": "[parameters('sqlAdministratorLogin')]",
+                            "administratorLoginPassword": "[parameters('sqlAdministratorPassword')]",
+                            "version": "12.0",
+                            "minimalTlsVersion": "1.2",
+                            "publicNetworkAccess": "Disabled"
+                        }
+                    },
+                    # SQL Database
+                    {
+                        "type": "Microsoft.Sql/servers/databases",
+                        "apiVersion": "2021-11-01",
+                        "name": "[concat(variables('sqlServerName'), '/', variables('sqlDatabaseName'))]",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"
+                        ],
+                        "sku": {
+                            "name": "S2",
+                            "tier": "Standard",
+                            "capacity": 50
+                        },
+                        "properties": {
+                            "collation": "SQL_Latin1_General_CP1_CI_AS",
+                            "maxSizeBytes": 268435456000,
+                            "catalogCollation": "SQL_Latin1_General_CP1_CI_AS",
+                            "zoneRedundant": False,
+                            "readScale": "Disabled"
+                        }
+                    },
+                    # SQL Server Firewall Rule for Azure Services
+                    {
+                        "type": "Microsoft.Sql/servers/firewallRules",
+                        "apiVersion": "2021-11-01",
+                        "name": "[concat(variables('sqlServerName'), '/AllowAllWindowsAzureIps')]",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"
+                        ],
+                        "properties": {
+                            "startIpAddress": "0.0.0.0",
+                            "endIpAddress": "0.0.0.0"
+                        }
+                    },
+                    # SQL Private Endpoint
+                    {
+                        "type": "Microsoft.Network/privateEndpoints",
+                        "apiVersion": "2021-05-01",
+                        "name": "[concat(variables('sqlServerName'), '-pe')]",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"
+                        ],
+                        "properties": {
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'spoke-vnet', 'PrivateEndpointsSubnet')]"
+                            },
+                            "privateLinkServiceConnections": [
+                                {
+                                    "name": "[concat(variables('sqlServerName'), '-psc')]",
+                                    "properties": {
+                                        "privateLinkServiceId": "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]",
+                                        "groupIds": ["sqlServer"]
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    # Storage Account
+                    {
+                        "type": "Microsoft.Storage/storageAccounts",
+                        "apiVersion": "2021-09-01",
+                        "name": "[variables('storageAccountName')]",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "sku": {
+                            "name": "Standard_ZRS"
+                        },
+                        "kind": "StorageV2",
+                        "properties": {
+                            "defaultToOAuthAuthentication": False,
+                            "allowCrossTenantReplication": False,
+                            "minimumTlsVersion": "TLS1_2",
+                            "allowBlobPublicAccess": False,
+                            "allowSharedKeyAccess": True,
+                            "supportsHttpsTrafficOnly": True,
+                            "encryption": {
+                                "services": {
+                                    "file": {
+                                        "keyType": "Account",
+                                        "enabled": True
+                                    },
+                                    "blob": {
+                                        "keyType": "Account",
+                                        "enabled": True
+                                    }
+                                },
+                                "keySource": "Microsoft.Storage"
+                            },
+                            "accessTier": "Hot",
+                            "networkAcls": {
+                                "bypass": "AzureServices",
+                                "virtualNetworkRules": [
+                                    {
+                                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'spoke-vnet', 'DataTierSubnet')]",
+                                        "action": "Allow"
+                                    }
+                                ],
+                                "defaultAction": "Deny"
+                            }
+                        }
+                    },
+                    # Blob Services
+                    {
+                        "type": "Microsoft.Storage/storageAccounts/blobServices",
+                        "apiVersion": "2021-09-01",
+                        "name": "[concat(variables('storageAccountName'), '/default')]",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+                        ],
+                        "properties": {
+                            "changeFeed": {
+                                "enabled": True
+                            },
+                            "restorePolicy": {
+                                "enabled": True,
+                                "days": 30
+                            },
+                            "containerDeleteRetentionPolicy": {
+                                "enabled": True,
+                                "days": 30
+                            },
+                            "deleteRetentionPolicy": {
+                                "enabled": True,
+                                "days": 30
+                            },
+                            "versioning": {
+                                "enabled": True
+                            }
+                        }
+                    },
+                    # Blob Containers
+                    {
+                        "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+                        "apiVersion": "2021-09-01",
+                        "name": "[concat(variables('storageAccountName'), '/default/application-data')]",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccountName'), 'default')]"
+                        ],
+                        "properties": {
+                            "defaultEncryptionScope": "$account-encryption-key",
+                            "denyEncryptionScopeOverride": False,
+                            "publicAccess": "None"
+                        }
+                    },
+                    {
+                        "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+                        "apiVersion": "2021-09-01",
+                        "name": "[concat(variables('storageAccountName'), '/default/backup-data')]",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccountName'), 'default')]"
+                        ],
+                        "properties": {
+                            "defaultEncryptionScope": "$account-encryption-key",
+                            "denyEncryptionScopeOverride": False,
+                            "publicAccess": "None"
+                        }
+                    },
+                    # Cosmos DB Account
+                    {
+                        "type": "Microsoft.DocumentDB/databaseAccounts",
+                        "apiVersion": "2021-10-15",
+                        "name": "[variables('cosmosAccountName')]",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "kind": "GlobalDocumentDB",
+                        "properties": {
+                            "publicNetworkAccess": "Disabled",
+                            "enableAutomaticFailover": True,
+                            "enableMultipleWriteLocations": False,
+                            "isVirtualNetworkFilterEnabled": True,
+                            "virtualNetworkRules": [
+                                {
+                                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'spoke-vnet', 'DataTierSubnet')]",
+                                    "ignoreMissingVNetServiceEndpoint": False
+                                }
+                            ],
+                            "disableKeyBasedMetadataWriteAccess": False,
+                            "enableFreeTier": False,
+                            "enableAnalyticalStorage": True,
+                            "analyticalStorageConfiguration": {
+                                "schemaType": "WellDefined"
+                            },
+                            "databaseAccountOfferType": "Standard",
+                            "defaultIdentity": "FirstPartyIdentity",
+                            "networkAclBypass": "None",
+                            "disableLocalAuth": False,
+                            "consistencyPolicy": {
+                                "defaultConsistencyLevel": "Session",
+                                "maxIntervalInSeconds": 86400,
+                                "maxStalenessPrefix": 1000000
+                            },
+                            "locations": [
+                                {
+                                    "locationName": "[parameters('location')]",
+                                    "failoverPriority": 0,
+                                    "isZoneRedundant": False
+                                }
+                            ],
+                            "cors": [],
+                            "capabilities": [
+                                {
+                                    "name": "EnableServerless"
+                                }
+                            ],
+                            "ipRules": [],
+                            "backupPolicy": {
+                                "type": "Periodic",
+                                "periodicModeProperties": {
+                                    "backupIntervalInMinutes": 240,
+                                    "backupRetentionIntervalInHours": 8,
+                                    "backupStorageRedundancy": "Geo"
+                                }
+                            },
+                            "networkAclBypassResourceIds": []
+                        }
+                    },
+                    # Cosmos DB SQL Database
+                    {
+                        "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+                        "apiVersion": "2021-10-15",
+                        "name": "[concat(variables('cosmosAccountName'), '/ApplicationDB')]",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccountName'))]"
+                        ],
+                        "properties": {
+                            "resource": {
+                                "id": "ApplicationDB"
+                            }
+                        }
+                    },
+                    # Cosmos DB Container
+                    {
+                        "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+                        "apiVersion": "2021-10-15",
+                        "name": "[concat(variables('cosmosAccountName'), '/ApplicationDB/Users')]",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosAccountName'), 'ApplicationDB')]"
+                        ],
+                        "properties": {
+                            "resource": {
+                                "id": "Users",
+                                "indexingPolicy": {
+                                    "indexingMode": "consistent",
+                                    "automatic": True,
+                                    "includedPaths": [
+                                        {
+                                            "path": "/*"
+                                        }
+                                    ],
+                                    "excludedPaths": [
+                                        {
+                                            "path": "/\"_etag\"/?"
+                                        }
+                                    ]
+                                },
+                                "partitionKey": {
+                                    "paths": [
+                                        "/userId"
+                                    ],
+                                    "kind": "Hash"
+                                },
+                                "conflictResolutionPolicy": {
+                                    "mode": "LastWriterWins",
+                                    "conflictResolutionPath": "/_ts"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "outputs": {
+                    "sqlServerId": {
+                        "type": "string",
+                        "value": "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"
+                    },
+                    "sqlDatabaseId": {
+                        "type": "string",
+                        "value": "[resourceId('Microsoft.Sql/servers/databases', variables('sqlServerName'), variables('sqlDatabaseName'))]"
+                    },
+                    "storageAccountId": {
+                        "type": "string",
+                        "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+                    },
+                    "cosmosAccountId": {
+                        "type": "string",
+                        "value": "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccountName'))]"
+                    }
+                }
+            }
+
+            self.arm_templates["data_infrastructure"] = data_template
+
+            return {
+                "status": "success",
+                "template_name": "data_infrastructure",
+                "resources": len(data_template["resources"]),
+                "description": "Enterprise data tier with SQL Database, Storage, and Cosmos DB"
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to create data template: {e}")
+            return {
+                "status": "failed",
+                "error": str(e)
+            }
+
+    async def _deploy_monitoring_infrastructure(self) -> Dict[str, Any]:
+        """Deploy comprehensive monitoring and logging infrastructure"""
+        try:
+            monitoring_template = {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                    "location": {
+                        "type": "string",
+                        "defaultValue": self.config.primary_region.value
+                    },
+                    "tags": {
+                        "type": "object",
+                        "defaultValue": self.config.custom_tags
+                    }
+                },
+                "variables": {
+                    "logAnalyticsName": f"{self.config.get_resource_name('central', 'log')}-analytics",
+                    "appInsightsName": f"{self.config.get_resource_name('app', 'insights')}",
+                    "actionGroupName": f"{self.config.get_resource_name('alerts', 'ag')}",
+                    "workbookName": f"{self.config.get_resource_name('enterprise', 'workbook')}"
+                },
+                "resources": [
+                    # Log Analytics Workspace
+                    {
+                        "type": "Microsoft.OperationalInsights/workspaces",
+                        "apiVersion": "2021-12-01-preview",
+                        "name": "[variables('logAnalyticsName')]",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "properties": {
+                            "sku": {
+                                "name": "PerGB2018"
+                            },
+                            "retentionInDays": 90,
+                            "features": {
+                                "enableLogAccessUsingOnlyResourcePermissions": True
+                            },
+                            "workspaceCapping": {
+                                "dailyQuotaGb": -1
+                            },
+                            "publicNetworkAccessForIngestion": "Enabled",
+                            "publicNetworkAccessForQuery": "Enabled"
+                        }
+                    },
+                    # Application Insights
+                    {
+                        "type": "Microsoft.Insights/components",
+                        "apiVersion": "2020-02-02",
+                        "name": "[variables('appInsightsName')]",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "kind": "web",
+                        "properties": {
+                            "Application_Type": "web",
+                            "Request_Source": "rest",
+                            "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
+                        },
+                        "dependsOn": [
+                            "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
+                        ]
+                    },
+                    # Action Group for Alerts
+                    {
+                        "type": "Microsoft.Insights/actionGroups",
+                        "apiVersion": "2021-09-01",
+                        "name": "[variables('actionGroupName')]",
+                        "location": "Global",
+                        "tags": "[parameters('tags')]",
+                        "properties": {
+                            "groupShortName": "EnterpriseAG",
+                            "enabled": True,
+                            "emailReceivers": [
+                                {
+                                    "name": "AdminEmail",
+                                    "emailAddress": "admin@company.com",
+                                    "useCommonAlertSchema": True
+                                }
+                            ],
+                            "smsReceivers": [],
+                            "webhookReceivers": [],
+                            "armRoleReceivers": [
+                                {
+                                    "name": "Owner",
+                                    "roleId": "8e3af657-a8ff-443c-a75c-2fe8c4bcb635",
+                                    "useCommonAlertSchema": True
+                                }
+                            ],
+                            "azureAppPushReceivers": [],
+                            "itsmReceivers": [],
+                            "automationRunbookReceivers": [],
+                            "voiceReceivers": [],
+                            "logicAppReceivers": [],
+                            "azureFunctionReceivers": []
+                        }
+                    },
+                    # Metric Alert for High CPU
+                    {
+                        "type": "Microsoft.Insights/metricAlerts",
+                        "apiVersion": "2018-03-01",
+                        "name": "High CPU Alert",
+                        "location": "Global",
+                        "tags": "[parameters('tags')]",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.Insights/actionGroups', variables('actionGroupName'))]"
+                        ],
+                        "properties": {
+                            "description": "Alert when CPU usage is high",
+                            "severity": 2,
+                            "enabled": True,
+                            "scopes": [
+                                f"[resourceId('Microsoft.Compute/virtualMachineScaleSets', '{self.config.get_resource_name('web', 'vmss')}')]"
+                            ],
+                            "evaluationFrequency": "PT1M",
+                            "windowSize": "PT5M",
+                            "criteria": {
+                                "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+                                "allOf": [
+                                    {
+                                        "name": "1st criterion",
+                                        "metricName": "Percentage CPU",
+                                        "operator": "GreaterThan",
+                                        "threshold": 80,
+                                        "timeAggregation": "Average"
+                                    }
+                                ]
+                            },
+                            "actions": [
+                                {
+                                    "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', variables('actionGroupName'))]"
+                                }
+                            ]
+                        }
+                    },
+                    # Log Query Alert
+                    {
+                        "type": "Microsoft.Insights/scheduledQueryRules",
+                        "apiVersion": "2021-08-01",
+                        "name": "Failed Login Alert",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]",
+                            "[resourceId('Microsoft.Insights/actionGroups', variables('actionGroupName'))]"
+                        ],
+                        "properties": {
+                            "displayName": "Failed Login Alert",
+                            "description": "Alert on failed login attempts",
+                            "severity": 1,
+                            "enabled": True,
+                            "evaluationFrequency": "PT5M",
+                            "windowSize": "PT15M",
+                            "criteria": {
+                                "allOf": [
+                                    {
+                                        "query": "SecurityEvent | where EventID == 4625 | summarize count() by Computer | where count_ > 5",
+                                        "timeAggregation": "Count",
+                                        "operator": "GreaterThan",
+                                        "threshold": 0,
+                                        "failingPeriods": {
+                                            "numberOfEvaluationPeriods": 1,
+                                            "minFailingPeriodsToAlert": 1
+                                        }
+                                    }
+                                ]
+                            },
+                            "actions": {
+                                "actionGroups": [
+                                    "[resourceId('Microsoft.Insights/actionGroups', variables('actionGroupName'))]"
+                                ]
+                            }
+                        }
+                    },
+                    # Azure Workbook for Dashboard
+                    {
+                        "type": "Microsoft.Insights/workbooks",
+                        "apiVersion": "2021-08-01",
+                        "name": "[guid(variables('workbookName'))]",
+                        "location": "[parameters('location')]",
+                        "tags": "[parameters('tags')]",
+                        "kind": "shared",
+                        "properties": {
+                            "displayName": "Enterprise Monitoring Dashboard",
+                            "serializedData": "{\n  \"version\": \"Notebook/1.0\",\n  \"items\": [\n    {\n      \"type\": 1,\n      \"content\": {\n        \"json\": \"# Enterprise Monitoring Dashboard\\n\\nThis workbook provides comprehensive monitoring for your Azure infrastructure.\"\n      },\n      \"name\": \"text - 0\"\n    },\n    {\n      \"type\": 3,\n      \"content\": {\n        \"version\": \"KqlItem/1.0\",\n        \"query\": \"Perf\\n| where CounterName == \\\"% Processor Time\\\"\\n| summarize avg(CounterValue) by Computer, bin(TimeGenerated, 5m)\\n| render timechart\",\n        \"size\": 0,\n        \"title\": \"CPU Usage Trend\",\n        \"timeContext\": {\n          \"durationMs\": 3600000\n        },\n        \"queryType\": 0,\n        \"resourceType\": \"microsoft.operationalinsights/workspaces\"\n      },\n      \"name\": \"query - 1\"\n    }\n  ],\n  \"isLocked\": false,\n  \"fallbackResourceIds\": [\n    \"/subscriptions/{subscription-id}/resourcegroups/{resource-group}/providers/microsoft.operationalinsights/workspaces/{workspace-name}\"\n  ]\n}",
+                            "category": "workbook"
+                        }
+                    }
+                ],
+                "outputs": {
+                    "logAnalyticsWorkspaceId": {
+                        "type": "string",
+                        "value": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
+                    },
+                    "applicationInsightsId": {
+                        "type": "string",
+                        "value": "[resourceId('Microsoft.Insights/components', variables('appInsightsName'))]"
+                    },
+                    "actionGroupId": {
+                        "type": "string",
+                        "value": "[resourceId('Microsoft.Insights/actionGroups', variables('actionGroupName'))]"
+                    }
+                }
+            }
+
+            self.arm_templates["monitoring_infrastructure"] = monitoring_template
+
+            return {
+                "status": "success",
+                "template_name": "monitoring_infrastructure",
+                "resources": len(monitoring_template["resources"]),
+                "description": "Comprehensive monitoring with Log Analytics, Application Insights, and alerts"
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to create monitoring template: {e}")
+            return {
+                "status": "failed",
+                "error": str(e)
+            }
+
+class EnterpriseAzureCostManager:
+    """Advanced cost management and optimization for Azure enterprise environments"""
+
+    def __init__(self, config: EnterpriseAzureConfig):
+        self.config = config
+        self.logger = self._setup_logging()
+        self.cost_client = None
+        self.advisor_client = None
+
+    def _setup_logging(self) -> logging.Logger:
+        """Set up comprehensive logging"""
+        logger = logging.getLogger(f"azure_cost_manager_{self.config.subscription_id}")
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+        return logger
+
+    async def initialize_cost_management(self) -> Dict[str, Any]:
+        """Initialize cost management services"""
+        try:
+            # Initialize cost management client
+            credential = DefaultAzureCredential()
+
+            # Cost Management client for billing data
+            self.cost_client = CostManagementClient(
+                credential=credential,
+                subscription_id=self.config.subscription_id
+            )
+
+            # Advisor client for recommendations
+            self.advisor_client = AdvisorManagementClient(
+                credential=credential,
+                subscription_id=self.config.subscription_id
+            )
+
+            return {
+                "status": "initialized",
+                "services": ["cost_management", "advisor"],
+                "description": "Enterprise cost management services ready"
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to initialize cost management: {e}")
+            return {
+                "status": "failed",
+                "error": str(e)
+            }
+
+    async def setup_cost_budgets(self) -> Dict[str, Any]:
+        """Set up comprehensive cost budgets and alerts"""
+        try:
+            budgets = []
+
+            # Overall subscription budget
+            overall_budget = {
+                "name": f"{self.config.get_resource_name('overall', 'budget')}",
+                "amount": self.config.budget_limits.get("overall", 10000),
+                "time_grain": "Monthly",
+                "start_date": "2024-01-01",
+                "end_date": "2025-12-31",
+                "filters": {
+                    "resource_groups": [],
+                    "resources": [],
+                    "meters": [],
+                    "tags": {}
+                },
+                "notifications": [
+                    {
+                        "enabled": True,
+                        "operator": "GreaterThan",
+                        "threshold": 50,
+                        "contact_emails": ["admin@company.com"],
+                        "contact_groups": [],
+                        "contact_roles": ["Owner"]
+                    },
+                    {
+                        "enabled": True,
+                        "operator": "GreaterThan",
+                        "threshold": 80,
+                        "contact_emails": ["admin@company.com", "finance@company.com"],
+                        "contact_groups": [],
+                        "contact_roles": ["Owner", "Contributor"]
+                    },
+                    {
+                        "enabled": True,
+                        "operator": "GreaterThan",
+                        "threshold": 100,
+                        "contact_emails": ["admin@company.com", "finance@company.com", "ceo@company.com"],
+                        "contact_groups": [],
+                        "contact_roles": ["Owner", "Contributor"]
+                    }
+                ]
+            }
+            budgets.append(overall_budget)
+
+            # Resource group specific budgets
+            resource_groups = ["networking", "compute", "data", "security", "monitoring"]
+            for rg in resource_groups:
+                rg_budget = {
+                    "name": f"{self.config.get_resource_name(rg, 'budget')}",
+                    "amount": self.config.budget_limits.get(rg, 2000),
+                    "time_grain": "Monthly",
+                    "start_date": "2024-01-01",
+                    "end_date": "2025-12-31",
+                    "filters": {
+                        "resource_groups": [self.config.get_resource_group_name(rg)],
+                        "resources": [],
+                        "meters": [],
+                        "tags": {}
+                    },
+                    "notifications": [
+                        {
+                            "enabled": True,
+                            "operator": "GreaterThan",
+                            "threshold": 75,
+                            "contact_emails": ["admin@company.com"],
+                            "contact_groups": [],
+                            "contact_roles": ["Owner"]
+                        },
+                        {
+                            "enabled": True,
+                            "operator": "GreaterThan",
+                            "threshold": 90,
+                            "contact_emails": ["admin@company.com", "finance@company.com"],
+                            "contact_groups": [],
+                            "contact_roles": ["Owner", "Contributor"]
+                        }
+                    ]
+                }
+                budgets.append(rg_budget)
+
+            # Service specific budgets
+            services = {
+                "compute": ["Microsoft.Compute/virtualMachines", "Microsoft.Compute/virtualMachineScaleSets", "Microsoft.ContainerService/managedClusters"],
+                "storage": ["Microsoft.Storage/storageAccounts"],
+                "database": ["Microsoft.Sql/servers", "Microsoft.DocumentDB/databaseAccounts"],
+                "networking": ["Microsoft.Network/applicationGateways", "Microsoft.Network/loadBalancers", "Microsoft.Network/publicIPAddresses"]
+            }
+
+            for service_category, resource_types in services.items():
+                service_budget = {
+                    "name": f"{self.config.get_resource_name(service_category, 'service-budget')}",
+                    "amount": self.config.budget_limits.get(f"{service_category}_service", 3000),
+                    "time_grain": "Monthly",
+                    "start_date": "2024-01-01",
+                    "end_date": "2025-12-31",
+                    "filters": {
+                        "resource_groups": [],
+                        "resources": [],
+                        "meters": [],
+                        "tags": {},
+                        "resource_types": resource_types
+                    },
+                    "notifications": [
+                        {
+                            "enabled": True,
+                            "operator": "GreaterThan",
+                            "threshold": 80,
+                            "contact_emails": ["admin@company.com"],
+                            "contact_groups": [],
+                            "contact_roles": ["Owner"]
+                        }
+                    ]
+                }
+                budgets.append(service_budget)
+
+            return {
+                "status": "success",
+                "budgets_created": len(budgets),
+                "budget_names": [b["name"] for b in budgets],
+                "total_budget_amount": sum(b["amount"] for b in budgets),
+                "description": "Comprehensive cost budgets with multi-tier alerting"
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to setup cost budgets: {e}")
+            return {
+                "status": "failed",
+                "error": str(e)
+            }
+
+    async def setup_cost_optimization(self) -> Dict[str, Any]:
+        """Configure automated cost optimization policies"""
+        try:
+            optimization_policies = []
+
+            # VM Right-sizing Policy
+            vm_rightsizing = {
+                "name": "vm-rightsizing-policy",
+                "description": "Automatically right-size underutilized VMs",
+                "enabled": True,
+                "scope": f"/subscriptions/{self.config.subscription_id}",
+                "rules": [
+                    {
+                        "condition": "avg_cpu_utilization < 10% for 7 days",
+                        "action": "recommend_downgrade",
+                        "target_sku": "smaller_sku"
+                    },
+                    {
+                        "condition": "avg_cpu_utilization > 85% for 3 days",
+                        "action": "recommend_upgrade",
+                        "target_sku": "larger_sku"
+                    }
+                ],
+                "exclusions": [
+                    "critical-production-vms",
+                    "high-availability-vms"
+                ]
+            }
+            optimization_policies.append(vm_rightsizing)
+
+            # Storage Optimization Policy
+            storage_optimization = {
+                "name": "storage-optimization-policy",
+                "description": "Optimize storage costs through tiering and cleanup",
+                "enabled": True,
+                "scope": f"/subscriptions/{self.config.subscription_id}",
+                "rules": [
+                    {
+                        "condition": "blob_access_time > 30 days",
+                        "action": "move_to_cool_tier",
+                        "tier": "Cool"
+                    },
+                    {
+                        "condition": "blob_access_time > 90 days",
+                        "action": "move_to_archive_tier",
+                        "tier": "Archive"
+                    },
+                    {
+                        "condition": "blob_size < 128KB and access_time > 90 days",
+                        "action": "recommend_deletion",
+                        "approval_required": True
+                    }
+                ],
+                "lifecycle_policies": [
+                    {
+                        "name": "auto-tiering",
+                        "enabled": True,
+                        "filters": {
+                            "blob_types": ["blockBlob"],
+                            "prefix_match": ["logs/", "backups/"]
+                        },
+                        "actions": [
+                            {
+                                "base_blob": {
+                                    "tier_to_cool": {"days_after_modification_greater_than": 30},
+                                    "tier_to_archive": {"days_after_modification_greater_than": 90},
+                                    "delete": {"days_after_modification_greater_than": 365}
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+            optimization_policies.append(storage_optimization)
+
+            # Database Optimization Policy
+            database_optimization = {
+                "name": "database-optimization-policy",
+                "description": "Optimize database costs through scaling and resource adjustment",
+                "enabled": True,
+                "scope": f"/subscriptions/{self.config.subscription_id}",
+                "rules": [
+                    {
+                        "condition": "dtu_utilization < 20% for 7 days",
+                        "action": "recommend_scale_down",
+                        "resource_types": ["Microsoft.Sql/servers/databases"]
+                    },
+                    {
+                        "condition": "dtu_utilization > 80% for 2 days",
+                        "action": "recommend_scale_up",
+                        "resource_types": ["Microsoft.Sql/servers/databases"]
+                    },
+                    {
+                        "condition": "ru_utilization < 15% for 7 days",
+                        "action": "recommend_scale_down",
+                        "resource_types": ["Microsoft.DocumentDB/databaseAccounts"]
+                    }
+                ],
+                "auto_scaling": {
+                    "enabled": True,
+                    "min_scale": 100,
+                    "max_scale": 4000,
+                    "target_utilization": 70
+                }
+            }
+            optimization_policies.append(database_optimization)
+
+            # Reserved Instance Policy
+            reserved_instance_policy = {
+                "name": "reserved-instance-recommendation",
+                "description": "Analyze and recommend Reserved Instances for cost savings",
+                "enabled": True,
+                "scope": f"/subscriptions/{self.config.subscription_id}",
+                "analysis_period": "30 days",
+                "commitment_terms": ["1 year", "3 years"],
+                "resource_types": [
+                    "Microsoft.Compute/virtualMachines",
+                    "Microsoft.Sql/servers/databases",
+                    "Microsoft.DocumentDB/databaseAccounts"
+                ],
+                "minimum_usage_threshold": 70,
+                "minimum_savings_threshold": 15
+            }
+            optimization_policies.append(reserved_instance_policy)
+
+            # Unused Resource Cleanup Policy
+            cleanup_policy = {
+                "name": "unused-resource-cleanup",
+                "description": "Identify and recommend cleanup of unused resources",
+                "enabled": True,
+                "scope": f"/subscriptions/{self.config.subscription_id}",
+                "rules": [
+                    {
+                        "condition": "public_ip_not_associated and age > 7 days",
+                        "action": "recommend_deletion",
+                        "resource_type": "Microsoft.Network/publicIPAddresses"
+                    },
+                    {
+                        "condition": "disk_not_attached and age > 14 days",
+                        "action": "recommend_deletion",
+                        "resource_type": "Microsoft.Compute/disks"
+                    },
+                    {
+                        "condition": "network_interface_not_used and age > 7 days",
+                        "action": "recommend_deletion",
+                        "resource_type": "Microsoft.Network/networkInterfaces"
+                    },
+                    {
+                        "condition": "load_balancer_no_backend_pool and age > 7 days",
+                        "action": "recommend_deletion",
+                        "resource_type": "Microsoft.Network/loadBalancers"
+                    }
+                ],
+                "approval_workflow": {
+                    "enabled": True,
+                    "approvers": ["admin@company.com"],
+                    "auto_approve_after_days": 30
+                }
+            }
+            optimization_policies.append(cleanup_policy)
+
+            return {
+                "status": "success",
+                "policies_created": len(optimization_policies),
+                "policy_names": [p["name"] for p in optimization_policies],
+                "description": "Comprehensive cost optimization with automated policies"
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to setup cost optimization: {e}")
+            return {
+                "status": "failed",
+                "error": str(e)
+            }
+
+    async def generate_cost_reports(self) -> Dict[str, Any]:
+        """Generate comprehensive cost and usage reports"""
+        try:
+            reports = []
+
+            # Executive Summary Report
+            executive_report = {
+                "name": "executive-cost-summary",
+                "description": "High-level cost summary for executive review",
+                "frequency": "monthly",
+                "recipients": ["ceo@company.com", "cfo@company.com", "admin@company.com"],
+                "format": "pdf",
+                "sections": [
+                    {
+                        "title": "Cost Overview",
+                        "content": [
+                            "total_monthly_cost",
+                            "cost_trend_3_months",
+                            "budget_vs_actual",
+                            "top_5_cost_drivers"
+                        ]
+                    },
+                    {
+                        "title": "Optimization Opportunities",
+                        "content": [
+                            "potential_savings",
+                            "rightsizing_recommendations",
+                            "reserved_instance_opportunities",
+                            "unused_resource_cleanup"
+                        ]
+                    },
+                    {
+                        "title": "Resource Utilization",
+                        "content": [
+                            "vm_utilization_summary",
+                            "storage_utilization",
+                            "database_performance_cost"
+                        ]
+                    }
+                ],
+                "charts": [
+                    "monthly_cost_trend",
+                    "service_cost_breakdown",
+                    "resource_group_costs"
+                ]
+            }
+            reports.append(executive_report)
+
+            # Detailed Technical Report
+            technical_report = {
+                "name": "detailed-technical-analysis",
+                "description": "Detailed cost and usage analysis for technical teams",
+                "frequency": "weekly",
+                "recipients": ["admin@company.com", "devops@company.com"],
+                "format": "excel",
+                "sections": [
+                    {
+                        "title": "Resource-Level Costs",
+                        "content": [
+                            "resource_by_resource_costs",
+                            "cost_per_resource_type",
+                            "geographical_cost_distribution"
+                        ]
+                    },
+                    {
+                        "title": "Usage Metrics",
+                        "content": [
+                            "vm_cpu_memory_utilization",
+                            "storage_iops_throughput",
+                            "network_bandwidth_usage",
+                            "database_dtu_ru_consumption"
+                        ]
+                    },
+                    {
+                        "title": "Optimization Recommendations",
+                        "content": [
+                            "rightsizing_details",
+                            "storage_tier_recommendations",
+                            "database_scaling_suggestions",
+                            "network_optimization_opportunities"
+                        ]
+                    }
+                ],
+                "data_sources": [
+                    "azure_cost_management",
+                    "azure_monitor",
+                    "azure_advisor",
+                    "log_analytics"
+                ]
+            }
+            reports.append(technical_report)
+
+            # Department Chargeback Report
+            chargeback_report = {
+                "name": "department-chargeback",
+                "description": "Cost allocation and chargeback by department/project",
+                "frequency": "monthly",
+                "recipients": ["finance@company.com", "department-heads@company.com"],
+                "format": "csv",
+                "allocation_method": "tag_based",
+                "allocation_tags": [
+                    "department",
+                    "project",
+                    "cost_center",
+                    "environment"
+                ],
+                "sections": [
+                    {
+                        "title": "Department Breakdown",
+                        "content": [
+                            "cost_by_department",
+                            "usage_by_department",
+                            "trend_by_department"
+                        ]
+                    },
+                    {
+                        "title": "Project Allocation",
+                        "content": [
+                            "cost_by_project",
+                            "resource_allocation",
+                            "budget_tracking"
+                        ]
+                    }
+                ],
+                "formulas": [
+                    "shared_cost_allocation",
+                    "overhead_distribution"
+                ]
+            }
+            reports.append(chargeback_report)
+
+            # Anomaly Detection Report
+            anomaly_report = {
+                "name": "cost-anomaly-detection",
+                "description": "Automated detection of unusual cost patterns",
+                "frequency": "daily",
+                "recipients": ["admin@company.com", "finance@company.com"],
+                "format": "json",
+                "detection_algorithms": [
+                    "statistical_outlier_detection",
+                    "machine_learning_anomaly",
+                    "trend_deviation_analysis"
+                ],
+                "thresholds": {
+                    "daily_cost_increase": 25,  # percent
+                    "resource_cost_spike": 50,  # percent
+                    "service_cost_anomaly": 30  # percent
+                },
+                "automated_actions": [
+                    "send_alert",
+                    "create_incident",
+                    "pause_resources_if_critical"
+                ]
+            }
+            reports.append(anomaly_report)
+
+            # Compliance and Governance Report
+            compliance_report = {
+                "name": "cost-compliance-governance",
+                "description": "Cost-related compliance and governance metrics",
+                "frequency": "monthly",
+                "recipients": ["compliance@company.com", "admin@company.com"],
+                "format": "pdf",
+                "sections": [
+                    {
+                        "title": "Policy Compliance",
+                        "content": [
+                            "budget_policy_adherence",
+                            "resource_tagging_compliance",
+                            "approval_workflow_compliance"
+                        ]
+                    },
+                    {
+                        "title": "Governance Metrics",
+                        "content": [
+                            "resource_lifecycle_management",
+                            "cost_center_accountability",
+                            "environmental_cost_segregation"
+                        ]
+                    },
+                    {
+                        "title": "Audit Trail",
+                        "content": [
+                            "cost_approval_history",
+                            "resource_provisioning_log",
+                            "policy_exception_tracking"
+                        ]
+                    }
+                ]
+            }
+            reports.append(compliance_report)
+
+            return {
+                "status": "success",
+                "reports_configured": len(reports),
+                "report_types": [r["name"] for r in reports],
+                "total_recipients": len(set([email for r in reports for email in r["recipients"]])),
+                "description": "Comprehensive cost reporting suite for all stakeholders"
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to setup cost reports: {e}")
+            return {
+                "status": "failed",
+                "error": str(e)
+            }
+
+    async def implement_cost_governance(self) -> Dict[str, Any]:
+        """Implement enterprise cost governance framework"""
+        try:
+            governance_framework = {
+                "policies": [],
+                "roles": [],
+                "workflows": [],
+                "controls": []
+            }
+
+            # Cost Management Policies
+            policies = [
+                {
+                    "name": "resource-provisioning-approval",
+                    "description": "Require approval for high-cost resource provisioning",
+                    "enabled": True,
+                    "scope": f"/subscriptions/{self.config.subscription_id}",
+                    "rules": [
+                        {
+                            "condition": "estimated_monthly_cost > $500",
+                            "action": "require_approval",
+                            "approvers": ["admin@company.com", "finance@company.com"],
+                            "timeout_hours": 24
+                        },
+                        {
+                            "condition": "estimated_monthly_cost > $2000",
+                            "action": "require_senior_approval",
+                            "approvers": ["cto@company.com", "cfo@company.com"],
+                            "timeout_hours": 48
+                        }
+                    ]
+                },
+                {
+                    "name": "mandatory-tagging-policy",
+                    "description": "Enforce mandatory cost allocation tags",
+                    "enabled": True,
+                    "scope": f"/subscriptions/{self.config.subscription_id}",
+                    "required_tags": [
+                        "department",
+                        "project",
+                        "cost_center",
+                        "environment",
+                        "owner"
+                    ],
+                    "enforcement": "deny_creation_without_tags"
+                },
+                {
+                    "name": "resource-lifecycle-policy",
+                    "description": "Manage resource lifecycle for cost optimization",
+                    "enabled": True,
+                    "scope": f"/subscriptions/{self.config.subscription_id}",
+                    "rules": [
+                        {
+                            "resource_type": "development",
+                            "auto_shutdown": {
+                                "enabled": True,
+                                "schedule": "weekdays_after_hours",
+                                "timezone": "UTC"
+                            },
+                            "auto_delete": {
+                                "enabled": True,
+                                "after_days": 30,
+                                "require_confirmation": True
+                            }
+                        },
+                        {
+                            "resource_type": "testing",
+                            "auto_shutdown": {
+                                "enabled": True,
+                                "schedule": "daily_after_hours",
+                                "timezone": "UTC"
+                            },
+                            "auto_delete": {
+                                "enabled": True,
+                                "after_days": 14,
+                                "require_confirmation": True
+                            }
+                        }
+                    ]
+                }
+            ]
+            governance_framework["policies"] = policies
+
+            # Cost Management Roles and Responsibilities
+            roles = [
+                {
+                    "name": "Cost Center Manager",
+                    "description": "Responsible for departmental cost management",
+                    "permissions": [
+                        "view_department_costs",
+                        "approve_department_budgets",
+                        "create_cost_alerts",
+                        "export_cost_reports"
+                    ],
+                    "scope": "department_resources",
+                    "assignment_method": "tag_based"
+                },
+                {
+                    "name": "Finance Controller",
+                    "description": "Oversees enterprise-wide cost governance",
+                    "permissions": [
+                        "view_all_costs",
+                        "create_budgets",
+                        "modify_cost_policies",
+                        "approve_high_value_resources",
+                        "access_all_reports"
+                    ],
+                    "scope": "subscription_wide",
+                    "assignment_method": "direct_assignment"
+                },
+                {
+                    "name": "Resource Owner",
+                    "description": "Owns and manages specific resources",
+                    "permissions": [
+                        "view_owned_resource_costs",
+                        "optimize_owned_resources",
+                        "create_resource_budgets",
+                        "receive_cost_alerts"
+                    ],
+                    "scope": "owned_resources",
+                    "assignment_method": "resource_owner_tag"
+                }
+            ]
+            governance_framework["roles"] = roles
+
+            # Approval Workflows
+            workflows = [
+                {
+                    "name": "high_cost_resource_approval",
+                    "description": "Approval workflow for expensive resource creation",
+                    "trigger": "resource_estimated_cost > threshold",
+                    "steps": [
+                        {
+                            "step": 1,
+                            "action": "technical_review",
+                            "assignee": "resource_requester_manager",
+                            "timeout_hours": 24,
+                            "required_fields": [
+                                "business_justification",
+                                "cost_benefit_analysis",
+                                "alternative_solutions_considered"
+                            ]
+                        },
+                        {
+                            "step": 2,
+                            "action": "financial_review",
+                            "assignee": "finance_controller",
+                            "timeout_hours": 24,
+                            "required_fields": [
+                                "budget_impact_assessment",
+                                "roi_calculation",
+                                "operational_cost_estimate"
+                            ]
+                        },
+                        {
+                            "step": 3,
+                            "action": "executive_approval",
+                            "assignee": "cto_or_cfo",
+                            "timeout_hours": 48,
+                            "condition": "estimated_monthly_cost > $5000"
+                        }
+                    ],
+                    "escalation": {
+                        "enabled": True,
+                        "escalation_timeout_hours": 72,
+                        "escalation_assignee": "ceo@company.com"
+                    }
+                }
+            ]
+            governance_framework["workflows"] = workflows
+
+            # Cost Controls and Guardrails
+            controls = [
+                {
+                    "name": "spending_limits",
+                    "description": "Hard spending limits to prevent cost overruns",
+                    "type": "preventive",
+                    "limits": [
+                        {
+                            "scope": "subscription",
+                            "monthly_limit": 50000,
+                            "action": "block_new_resources"
+                        },
+                        {
+                            "scope": "resource_group",
+                            "monthly_limit": 10000,
+                            "action": "require_approval"
+                        },
+                        {
+                            "scope": "individual_resource",
+                            "monthly_limit": 5000,
+                            "action": "alert_and_review"
+                        }
+                    ]
+                },
+                {
+                    "name": "cost_anomaly_protection",
+                    "description": "Automated protection against cost anomalies",
+                    "type": "detective",
+                    "detection_rules": [
+                        {
+                            "rule": "daily_cost_increase_over_50_percent",
+                            "action": "immediate_alert_and_investigation"
+                        },
+                        {
+                            "rule": "new_resource_type_deployed",
+                            "action": "review_and_validate"
+                        },
+                        {
+                            "rule": "cost_pattern_deviation",
+                            "action": "analyze_and_report"
+                        }
+                    ]
+                },
+                {
+                    "name": "compliance_monitoring",
+                    "description": "Monitor compliance with cost governance policies",
+                    "type": "detective",
+                    "monitoring_areas": [
+                        "tag_compliance",
+                        "budget_adherence",
+                        "approval_workflow_compliance",
+                        "policy_exception_tracking"
+                    ],
+                    "reporting_frequency": "weekly"
+                }
+            ]
+            governance_framework["controls"] = controls
+
+            return {
+                "status": "success",
+                "governance_components": {
+                    "policies": len(policies),
+                    "roles": len(roles),
+                    "workflows": len(workflows),
+                    "controls": len(controls)
+                },
+                "framework": governance_framework,
+                "description": "Comprehensive enterprise cost governance framework"
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to implement cost governance: {e}")
+            return {
+                "status": "failed",
+                "error": str(e)
+            }
+
+## Usage Examples
+
+### Basic Azure Platform Setup

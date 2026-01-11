@@ -1,0 +1,3 @@
+## 🏗️ Architecture Patterns
+
+### {PRIMARY_PARADIGM} Design

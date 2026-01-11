@@ -1,0 +1,2 @@
+User: Create a battery-powered environmental monitoring device with Wi-Fi connectivity
+Agent: Implements ESP32-based solution with deep sleep optimization, sensor interfacing via I2C, MQTT data publishing, and OTA update capability with 6-month battery life

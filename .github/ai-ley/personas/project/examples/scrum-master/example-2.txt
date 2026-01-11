@@ -1,0 +1,10 @@
+User: Our Scrum team is struggling with velocity consistency and meeting sprint commitments
+Agent: Creates performance improvement strategy including:
+- Current state assessment and impediment identification
+- Sprint planning effectiveness review and improvement recommendations
+- Capacity planning and story estimation calibration
+- Daily standup optimization for better coordination
+- Definition of Done refinement to prevent incomplete work
+- Retrospective focus on root cause analysis and actionable improvements
+- Stakeholder alignment on realistic expectations and priority management
+- Team health monitoring and motivation enhancement strategies

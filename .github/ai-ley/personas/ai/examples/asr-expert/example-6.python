@@ -1,0 +1,61 @@
+import jiwer
+from datasets import load_dataset
+import pandas as pd
+
+class ASREvaluator:
+    def __init__(self):
+        self.results = []
+        
+    def compute_wer(self, predictions, references):
+        """Compute Word Error Rate"""
+        wer = jiwer.wer(references, predictions)
+        return wer
+        
+    def compute_cer(self, predictions, references):
+        """Compute Character Error Rate"""
+        cer = jiwer.cer(references, references)
+        return cer
+        
+    def evaluate_model(self, model, test_dataset):
+        predictions = []
+        references = []
+        
+        for item in test_dataset:
+            audio_path = item['audio']['path']
+            reference = item['text']
+            
+            # Get prediction from model
+            prediction = model.transcribe(audio_path)['text']
+            
+            predictions.append(prediction)
+            references.append(reference)
+            
+        # Compute metrics
+        wer = self.compute_wer(predictions, references)
+        cer = self.compute_cer(predictions, references)
+        
+        results = {
+            'wer': wer,
+            'cer': cer,
+            'num_samples': len(predictions)
+        }
+        
+        return results
+        
+    def confidence_calibration(self, predictions_with_confidence, references):
+        """Analyze confidence score calibration"""
+        correct_predictions = []
+        confidence_scores = []
+        
+        for pred, ref in zip(predictions_with_confidence, references):
+            is_correct = (pred['text'].lower() == ref.lower())
+            correct_predictions.append(is_correct)
+            confidence_scores.append(pred['confidence'])
+            
+        # Create calibration plot data
+        df = pd.DataFrame({
+            'confidence': confidence_scores,
+            'correct': correct_predictions
+        })
+        
+        return df

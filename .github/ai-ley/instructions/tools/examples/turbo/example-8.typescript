@@ -1,0 +1,124 @@
+// tools/turbo-analytics.ts - Turbo performance monitoring
+import { execSync } from 'child_process';
+import { writeFileSync, readFileSync } from 'fs';
+import { join } from 'path';
+
+interface BuildMetrics {
+  timestamp: string;
+  command: string;
+  duration: number;
+  cacheHitRate: number;
+  tasksExecuted: number;
+  tasksCached: number;
+}
+
+export class TurboAnalytics {
+  private metricsFile = join(process.cwd(), '.turbo', 'metrics.json');
+  
+  public recordBuild(command: string): BuildMetrics {
+    const startTime = Date.now();
+    
+    try {
+      // Execute Turbo command with verbose output
+      const output = execSync(`turbo ${command} --dry-run=json`, {
+        encoding: 'utf-8',
+        stdio: 'pipe'
+      });
+      
+      const dryRunResult = JSON.parse(output);
+      const duration = Date.now() - startTime;
+      
+      const metrics: BuildMetrics = {
+        timestamp: new Date().toISOString(),
+        command,
+        duration,
+        cacheHitRate: this.calculateCacheHitRate(dryRunResult),
+        tasksExecuted: dryRunResult.tasks?.length || 0,
+        tasksCached: dryRunResult.tasks?.filter((t: any) => t.cache === 'HIT').length || 0
+      };
+      
+      this.saveMetrics(metrics);
+      return metrics;
+      
+    } catch (error) {
+      console.error('Failed to record build metrics:', error);
+      throw error;
+    }
+  }
+  
+  private calculateCacheHitRate(dryRunResult: any): number {
+    const tasks = dryRunResult.tasks || [];
+    if (tasks.length === 0) return 0;
+    
+    const cacheHits = tasks.filter((task: any) => task.cache === 'HIT').length;
+    return (cacheHits / tasks.length) * 100;
+  }
+  
+  private saveMetrics(metrics: BuildMetrics): void {
+    try {
+      const existingMetrics = this.loadMetrics();
+      existingMetrics.push(metrics);
+      
+      // Keep only last 100 builds
+      const recentMetrics = existingMetrics.slice(-100);
+      
+      writeFileSync(this.metricsFile, JSON.stringify(recentMetrics, null, 2));
+    } catch (error) {
+      console.warn('Failed to save metrics:', error);
+    }
+  }
+  
+  private loadMetrics(): BuildMetrics[] {
+    try {
+      const data = readFileSync(this.metricsFile, 'utf-8');
+      return JSON.parse(data);
+    } catch {
+      return [];
+    }
+  }
+  
+  public generateReport(): void {
+    const metrics = this.loadMetrics();
+    if (metrics.length === 0) {
+      console.log('No build metrics available');
+      return;
+    }
+    
+    const avgDuration = metrics.reduce((sum, m) => sum + m.duration, 0) / metrics.length;
+    const avgCacheHitRate = metrics.reduce((sum, m) => sum + m.cacheHitRate, 0) / metrics.length;
+    const totalBuilds = metrics.length;
+    
+    console.log('\n🚀 Turbo Performance Report');
+    console.log('============================');
+    console.log(`Total builds: ${totalBuilds}`);
+    console.log(`Average build time: ${(avgDuration / 1000).toFixed(2)}s`);
+    console.log(`Average cache hit rate: ${avgCacheHitRate.toFixed(1)}%`);
+    console.log(`Last build: ${metrics[metrics.length - 1].timestamp}`);
+    
+    // Show trend analysis
+    if (metrics.length >= 10) {
+      const recent10 = metrics.slice(-10);
+      const recentAvgCacheHit = recent10.reduce((sum, m) => sum + m.cacheHitRate, 0) / 10;
+      
+      console.log(`\n📈 Recent Trends (last 10 builds):`);
+      console.log(`Recent cache hit rate: ${recentAvgCacheHit.toFixed(1)}%`);
+      
+      if (recentAvgCacheHit > avgCacheHitRate) {
+        console.log('✅ Cache performance is improving');
+      } else if (recentAvgCacheHit < avgCacheHitRate) {
+        console.log('⚠️ Cache performance is declining');
+      } else {
+        console.log('➡️ Cache performance is stable');
+      }
+    }
+  }
+}
+
+// Usage example
+const analytics = new TurboAnalytics();
+
+// Record a build
+analytics.recordBuild('build');
+
+// Generate performance report
+analytics.generateReport();

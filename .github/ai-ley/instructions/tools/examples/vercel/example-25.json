@@ -1,0 +1,8 @@
+// vercel.json - Increase memory limit
+{
+  "functions": {
+    "pages/api/heavy-task.js": {
+      "memory": 1024
+    }
+  }
+}

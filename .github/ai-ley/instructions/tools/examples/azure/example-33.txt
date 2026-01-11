@@ -1,0 +1,5 @@
+#### Resource Quota Issues
+
+**Problem**: Resource creation fails due to quota limits
+**Symptoms**: Quota exceeded errors
+**Solution**:

@@ -1,0 +1,68 @@
+<form action="/contact" method="post" novalidate>
+  <fieldset>
+    <legend>Personal Information</legend>
+    
+    <div class="form-group">
+      <label for="name">Full Name <span aria-label="required">*</span></label>
+      <input type="text" 
+             id="name" 
+             name="name" 
+             required 
+             aria-describedby="name-help"
+             autocomplete="name">
+      <small id="name-help">Enter your first and last name</small>
+    </div>
+    
+    <div class="form-group">
+      <label for="email">Email Address <span aria-label="required">*</span></label>
+      <input type="email" 
+             id="email" 
+             name="email" 
+             required 
+             aria-describedby="email-help"
+             autocomplete="email">
+      <small id="email-help">We'll never share your email address</small>
+    </div>
+    
+    <div class="form-group">
+      <label for="phone">Phone Number</label>
+      <input type="tel" 
+             id="phone" 
+             name="phone" 
+             aria-describedby="phone-help"
+             autocomplete="tel">
+      <small id="phone-help">Optional: Include area code for faster response</small>
+    </div>
+  </fieldset>
+  
+  <fieldset>
+    <legend>Message Details</legend>
+    
+    <div class="form-group">
+      <label for="subject">Subject <span aria-label="required">*</span></label>
+      <select id="subject" name="subject" required aria-describedby="subject-help">
+        <option value="">Please select a subject</option>
+        <option value="general">General Inquiry</option>
+        <option value="support">Technical Support</option>
+        <option value="billing">Billing Question</option>
+      </select>
+      <small id="subject-help">Choose the category that best fits your inquiry</small>
+    </div>
+    
+    <div class="form-group">
+      <label for="message">Message <span aria-label="required">*</span></label>
+      <textarea id="message" 
+                name="message" 
+                rows="5" 
+                required 
+                aria-describedby="message-help"
+                maxlength="1000"></textarea>
+      <small id="message-help">Please provide details about your inquiry (max 1000 characters)</small>
+    </div>
+  </fieldset>
+  
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">Send Message</button>
+    <button type="reset" class="btn btn-secondary">Clear Form</button>
+  </div>
+</form>

@@ -1,0 +1,8 @@
+User: Implement enterprise PKI for certificate-based authentication
+Encryption Expert:
+1. Designs hierarchical CA structure with offline root CA
+2. Implements certificate enrollment and automated renewal processes
+3. Establishes certificate lifecycle management and revocation procedures
+4. Integrates with directory services and identity management systems
+5. Creates certificate monitoring and compliance validation
+6. Provides disaster recovery and business continuity procedures

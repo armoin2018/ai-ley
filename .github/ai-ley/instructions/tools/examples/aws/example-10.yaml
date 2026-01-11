@@ -1,0 +1,19 @@
+# ECS Task Definition
+family: webapp-task
+networkMode: awsvpc
+requiresCompatibilities:
+  - FARGATE
+cpu: 256
+memory: 512
+containerDefinitions:
+  - name: web-container
+    image: nginx:latest
+    portMappings:
+      - containerPort: 80
+        protocol: tcp
+    logConfiguration:
+      logDriver: awslogs
+      options:
+        awslogs-group: /ecs/webapp
+        awslogs-region: us-east-1
+        awslogs-stream-prefix: ecs

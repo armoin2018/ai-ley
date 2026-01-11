@@ -1,0 +1,53 @@
+use tokio::{sync::mpsc, time::Duration};
+use anyhow::Result;
+
+#[derive(Debug)]
+struct Task {
+    id: u64,
+    data: String,
+}
+
+async fn process_tasks(mut receiver: mpsc::Receiver<Task>) -> Result<()> {
+    while let Some(task) = receiver.recv().await {
+        // Process task asynchronously
+        let result = process_single_task(task).await?;
+        
+        // Handle result
+        println!("Processed task with result: {:?}", result);
+    }
+    
+    Ok(())
+}
+
+async fn process_single_task(task: Task) -> Result<ProcessResult> {
+    // Simulate async work
+    tokio::time::sleep(Duration::from_millis(100)).await;
+    
+    // Process the task
+    Ok(ProcessResult {
+        task_id: task.id,
+        output: task.data.to_uppercase(),
+    })
+}
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let (sender, receiver) = mpsc::channel(32);
+    
+    // Spawn task processor
+    let processor_handle = tokio::spawn(process_tasks(receiver));
+    
+    // Send some tasks
+    for i in 0..10 {
+        sender.send(Task {
+            id: i,
+            data: format!("task_{}", i),
+        }).await?;
+    }
+    
+    // Close sender and wait for processing to complete
+    drop(sender);
+    processor_handle.await??;
+    
+    Ok(())
+}

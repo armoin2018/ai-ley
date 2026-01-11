@@ -1,0 +1,72 @@
+// variables.less - Custom theme variables
+@global-primary-background: #1e87f0;
+@global-secondary-background: #222;
+@global-success-background: #32d296;
+@global-warning-background: #faa05a;
+@global-danger-background: #f0506e;
+
+@global-color: #666;
+@global-emphasis-color: #333;
+@global-muted-color: #999;
+
+@global-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+@global-font-size: 14px;
+@global-line-height: 1.5;
+
+@global-xxlarge-font-size: 2.625rem;
+@global-xlarge-font-size: 2rem;
+@global-large-font-size: 1.5rem;
+@global-medium-font-size: 1.25rem;
+@global-small-font-size: 0.875rem;
+
+// Border and spacing
+@global-border-width: 1px;
+@global-border: @global-border-width solid @global-border;
+@global-border-radius: 6px;
+
+@global-gutter: 30px;
+@global-small-gutter: 15px;
+@global-medium-gutter: 40px;
+@global-large-gutter: 70px;
+
+// Custom component variables
+@button-font-size: @global-small-font-size;
+@button-line-height: 38px;
+@button-small-line-height: 28px;
+@button-large-line-height: 54px;
+
+@card-body-padding-horizontal: @global-gutter;
+@card-body-padding-vertical: @global-gutter;
+@card-header-padding-horizontal: @global-gutter;
+@card-header-padding-vertical: round(@global-gutter * 0.5);
+
+// Import UIKit after variables
+@import 'uikit/src/less/uikit.less';
+
+// Custom component styles
+.uk-button-gradient {
+  background: linear-gradient(
+    135deg,
+    @global-primary-background 0%,
+    darken(@global-primary-background, 10%) 100%
+  );
+  border: none;
+
+  &:hover {
+    background: linear-gradient(
+      135deg,
+      lighten(@global-primary-background, 5%) 0%,
+      @global-primary-background 100%
+    );
+  }
+}
+
+.uk-card-premium {
+  border: 2px solid @global-primary-background;
+  box-shadow: 0 14px 25px rgba(0, 0, 0, 0.16);
+
+  &:hover {
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+  }
+}

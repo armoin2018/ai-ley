@@ -1,0 +1,189 @@
+#!/usr/bin/env python3
+"""
+CloudFormation Stack Analyzer
+Analyzes stack health, dependencies, and common issues
+"""
+
+import boto3
+import json
+from datetime import datetime, timedelta
+from collections import defaultdict
+
+def analyze_stack_health(stack_name, region='us-east-1'):
+    """Comprehensive stack health analysis"""
+
+    cf = boto3.client('cloudformation', region_name=region)
+
+    try:
+        # Get stack details
+        stack_response = cf.describe_stacks(StackName=stack_name)
+        stack = stack_response['Stacks'][0]
+
+        # Get stack events
+        events_response = cf.describe_stack_events(StackName=stack_name)
+        events = events_response['StackEvents']
+
+        # Get stack resources
+        resources_response = cf.describe_stack_resources(StackName=stack_name)
+        resources = resources_response['StackResources']
+
+        analysis = {
+            'stack_name': stack_name,
+            'stack_status': stack['StackStatus'],
+            'creation_time': stack['CreationTime'].isoformat(),
+            'last_updated': stack.get('LastUpdatedTime', stack['CreationTime']).isoformat(),
+            'analysis_time': datetime.utcnow().isoformat(),
+            'health_score': 0,
+            'issues': [],
+            'recommendations': []
+        }
+
+        # Analyze stack status
+        if stack['StackStatus'] in ['CREATE_COMPLETE', 'UPDATE_COMPLETE']:
+            analysis['health_score'] += 25
+        elif 'ROLLBACK' in stack['StackStatus']:
+            analysis['issues'].append("Stack has experienced rollback")
+            analysis['recommendations'].append("Review stack events to identify root cause")
+        elif 'FAILED' in stack['StackStatus']:
+            analysis['issues'].append("Stack is in failed state")
+            analysis['recommendations'].append("Check IAM permissions and resource quotas")
+
+        # Analyze recent failures
+        recent_failures = [e for e in events
+                          if e['Timestamp'] > datetime.utcnow() - timedelta(hours=24)
+                          and 'FAILED' in e['ResourceStatus']]
+
+        if recent_failures:
+            analysis['issues'].append(f"{len(recent_failures)} recent resource failures")
+            for failure in recent_failures[:5]:  # Show top 5
+                analysis['issues'].append(f"Failed: {failure['LogicalResourceId']} - {failure.get('ResourceStatusReason', 'No reason provided')}")
+        else:
+            analysis['health_score'] += 25
+
+        # Analyze resource health
+        unhealthy_resources = [r for r in resources
+                             if 'FAILED' in r['ResourceStatus'] or 'ROLLBACK' in r['ResourceStatus']]
+
+        if unhealthy_resources:
+            analysis['issues'].append(f"{len(unhealthy_resources)} resources in unhealthy state")
+        else:
+            analysis['health_score'] += 25
+
+        # Check for drift (if supported)
+        try:
+            drift_response = cf.detect_stack_drift(StackName=stack_name)
+            drift_id = drift_response['StackDriftDetectionId']
+
+            # Wait for drift detection to complete (simplified)
+            import time
+            time.sleep(10)
+
+            drift_status = cf.describe_stack_drift_detection_status(
+                StackDriftDetectionId=drift_id
+            )
+
+            if drift_status['DetectionStatus'] == 'DETECTION_COMPLETE':
+                if drift_status['StackDriftStatus'] == 'IN_SYNC':
+                    analysis['health_score'] += 25
+                    analysis['recommendations'].append("Stack is in sync with template")
+                else:
+                    analysis['issues'].append("Stack has drifted from template")
+                    analysis['recommendations'].append("Review drift details and update template")
+
+        except Exception as e:
+            analysis['issues'].append(f"Could not check drift: {str(e)}")
+
+        # Generate overall health assessment
+        if analysis['health_score'] >= 75:
+            analysis['overall_health'] = 'Healthy'
+        elif analysis['health_score'] >= 50:
+            analysis['overall_health'] = 'Warning'
+        else:
+            analysis['overall_health'] = 'Critical'
+
+        # Add general recommendations
+        if len(analysis['issues']) > 3:
+            analysis['recommendations'].append("Consider recreating stack if issues persist")
+        if not analysis['issues']:
+            analysis['recommendations'].append("Stack appears healthy - continue monitoring")
+
+        return analysis
+
+    except Exception as e:
+        return {
+            'error': str(e),
+            'stack_name': stack_name,
+            'analysis_time': datetime.utcnow().isoformat()
+        }
+
+def check_stack_dependencies(stack_name, region='us-east-1'):
+    """Analyze stack dependencies and potential circular references"""
+
+    cf = boto3.client('cloudformation', region_name=region)
+
+    try:
+        # Get stack template
+        template_response = cf.get_template(StackName=stack_name)
+        template = template_response['TemplateBody']
+
+        dependencies = {
+            'imports': [],
+            'exports': [],
+            'nested_stacks': [],
+            'circular_risk': False
+        }
+
+        # Analyze imports (GetAtt and ImportValue)
+        template_str = json.dumps(template) if isinstance(template, dict) else template
+
+        if 'Fn::ImportValue' in template_str:
+            # Extract import references (simplified)
+            dependencies['imports'].append("Uses cross-stack references")
+
+        if 'Fn::GetAtt' in template_str and 'AWS::CloudFormation::Stack' in template_str:
+            dependencies['nested_stacks'].append("Contains nested stacks")
+
+        # Check outputs (exports)
+        if 'Outputs' in template:
+            for output_name, output_config in template['Outputs'].items():
+                if 'Export' in output_config:
+                    dependencies['exports'].append(output_name)
+
+        return dependencies
+
+    except Exception as e:
+        return {'error': str(e)}
+
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) != 2:
+        print("Usage: python stack_analyzer.py <stack-name>")
+        sys.exit(1)
+
+    stack_name = sys.argv[1]
+
+    print(f"Analyzing stack: {stack_name}")
+    print("=" * 50)
+
+    # Perform health analysis
+    health = analyze_stack_health(stack_name)
+    print(f"Health Score: {health.get('health_score', 0)}/100")
+    print(f"Overall Health: {health.get('overall_health', 'Unknown')}")
+
+    if health.get('issues'):
+        print("\nIssues Found:")
+        for issue in health['issues']:
+            print(f"  • {issue}")
+
+    if health.get('recommendations'):
+        print("\nRecommendations:")
+        for rec in health['recommendations']:
+            print(f"  • {rec}")
+
+    # Check dependencies
+    deps = check_stack_dependencies(stack_name)
+    print(f"\nDependency Analysis:")
+    print(f"  Exports: {len(deps.get('exports', []))}")
+    print(f"  Imports: {len(deps.get('imports', []))}")
+    print(f"  Nested Stacks: {len(deps.get('nested_stacks', []))}")

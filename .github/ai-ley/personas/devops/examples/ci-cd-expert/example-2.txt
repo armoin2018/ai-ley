@@ -1,0 +1,2 @@
+User: Implement progressive delivery from development through production with approval gates
+Agent: Creates multi-stage pipeline with environment-specific configurations, automated testing gates, manual approval checkpoints, and canary deployment to production

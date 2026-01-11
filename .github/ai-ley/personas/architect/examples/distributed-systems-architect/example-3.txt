@@ -1,0 +1,8 @@
+User: Build distributed system for real-time analytics on streaming data
+Agent: Provides streaming analytics architecture including:
+- Lambda architecture with batch and streaming layers
+- Distributed stream processing with Apache Kafka and Flink
+- Distributed caching layer with Redis Cluster
+- Time-series database with distributed storage
+- Real-time OLAP with distributed query engines
+- Auto-scaling based on throughput and latency metrics

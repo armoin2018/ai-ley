@@ -1,0 +1,35 @@
+flowchart LR
+    subgraph "Development Lifecycle"
+        DEV[Development]
+        TEST[Testing]
+        STAGE[Staging]
+        PROD[Production]
+    end
+
+    subgraph "Quality Gates"
+        LINT[Ansible Lint]
+        SEC[Security Scan]
+        COMP[Compliance Check]
+        PERF[Performance Test]
+    end
+
+    subgraph "Deployment Strategies"
+        ROLLING[Rolling Updates]
+        BLUE[Blue-Green]
+        CANARY[Canary Releases]
+        ZERO[Zero-Downtime]
+    end
+
+    DEV --> LINT
+    LINT --> SEC
+    SEC --> COMP
+    COMP --> TEST
+    TEST --> PERF
+    PERF --> STAGE
+    STAGE --> ROLLING
+    STAGE --> BLUE
+    STAGE --> CANARY
+    ROLLING --> PROD
+    BLUE --> PROD
+    CANARY --> PROD
+    ZERO --> PROD

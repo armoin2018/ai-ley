@@ -1,0 +1,2 @@
+User: Analyze Apache log files to generate custom reports with performance metrics
+Agent: Creates Perl script with optimized regex patterns, implements data aggregation, provides configurable output formats

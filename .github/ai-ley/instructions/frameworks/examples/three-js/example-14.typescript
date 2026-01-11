@@ -1,0 +1,37 @@
+// Proper cleanup and memory management
+class SceneManager {
+    private objectsToCleanup: THREE.Object3D[] = [];
+    
+    public addObject(object: THREE.Object3D): void {
+        scene.add(object);
+        this.objectsToCleanup.push(object);
+    }
+    
+    public removeObject(object: THREE.Object3D): void {
+        scene.remove(object);
+        
+        // Dispose of geometries and materials
+        object.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+                child.geometry.dispose();
+                
+                if (Array.isArray(child.material)) {
+                    child.material.forEach(material => material.dispose());
+                } else {
+                    child.material.dispose();
+                }
+            }
+        });
+        
+        // Remove from cleanup list
+        const index = this.objectsToCleanup.indexOf(object);
+        if (index > -1) {
+            this.objectsToCleanup.splice(index, 1);
+        }
+    }
+    
+    public dispose(): void {
+        this.objectsToCleanup.forEach(object => this.removeObject(object));
+        this.objectsToCleanup.length = 0;
+    }
+}

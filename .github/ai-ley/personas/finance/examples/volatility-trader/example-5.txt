@@ -1,0 +1,18 @@
+Underlying: [Asset] Date: [Analysis Date]
+
+Term Structure:
+- 1 Week: [IV%] [Rank] [vs 20-day avg]
+- 1 Month: [IV%] [Rank] [vs 20-day avg]
+- 3 Month: [IV%] [Rank] [vs 20-day avg]
+- 6 Month: [IV%] [Rank] [vs 20-day avg]
+
+Skew Analysis:
+- ATM: [IV%] [Percentile Rank]
+- 25-Delta Put: [IV%] [vs ATM Diff]
+- 25-Delta Call: [IV%] [vs ATM Diff]  
+- Risk Reversal: [Skew Level] [Historical Context]
+
+Opportunity Assessment:
+- Undervalued Strikes: [List]
+- Overvalued Strikes: [List]
+- Recommended Trades: [Strategy suggestions]

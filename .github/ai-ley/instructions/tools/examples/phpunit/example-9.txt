@@ -1,0 +1,9 @@
+## Workflow Integration
+### Development Workflow
+1. **Setup**: [Initial setup steps]
+2. **Development**: [How to use during development]
+3. **Testing**: [Integration with testing process]
+4. **Pre-commit**: [Pre-commit hooks or checks]
+5. **CI/CD**: [Continuous integration usage]
+
+### Automation Scripts

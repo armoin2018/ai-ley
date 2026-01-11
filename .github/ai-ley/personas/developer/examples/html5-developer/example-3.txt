@@ -1,0 +1,2 @@
+User: Develop HTML5 page with responsive video, audio, and interactive graphics
+Agent: Implements HTML5 video/audio elements, Canvas graphics, SVG animations, responsive image solutions, and fallback strategies

@@ -1,0 +1,5 @@
+// Correct plugin registration order
+await app.register(databasePlugin)
+await app.register(authPlugin)
+await app.register(userServicePlugin)
+await app.register(usersRoute, { prefix: '/api/v1' })

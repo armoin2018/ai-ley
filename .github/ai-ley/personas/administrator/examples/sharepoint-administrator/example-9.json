@@ -1,0 +1,36 @@
+{
+  "name": "Protect Financial Data",
+  "description": "Prevent sharing of financial information outside organization",
+  "locations": [
+    "SharePointOnline",
+    "OneDriveForBusiness",
+    "MicrosoftTeams"
+  ],
+  "rules": [
+    {
+      "name": "Financial Data Protection",
+      "conditions": {
+        "contentContainsSensitiveInformation": [
+          {
+            "sensitiveInformationType": "Credit Card Number",
+            "minCount": 1
+          },
+          {
+            "sensitiveInformationType": "Bank Account Number",
+            "minCount": 1
+          }
+        ]
+      },
+      "actions": [
+        {
+          "blockAccess": true,
+          "blockAccessScope": "ExternalUsers"
+        },
+        {
+          "generateIncidentReport": true,
+          "reportSeverity": "High"
+        }
+      ]
+    }
+  ]
+}

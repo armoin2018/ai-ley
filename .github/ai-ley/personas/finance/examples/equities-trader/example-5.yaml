@@ -1,0 +1,44 @@
+market_making_strategy:
+  quote_parameters:
+    spread_calculation:
+      base_spread: "max(1_cent, volatility * 0.5)"
+      competition_adjustment: "narrow_spread_if_inside_nbbo"
+      inventory_adjustment: "widen_spread_when_long_inventory"
+      
+    quote_sizing:
+      base_size: "1000_shares"
+      inventory_scaling: "reduce_size_as_inventory_increases"
+      volatility_scaling: "reduce_size_in_high_volatility"
+      
+  inventory_management:
+    position_limits:
+      maximum_position: "50000_shares"
+      warning_threshold: "30000_shares"
+      risk_reduction_threshold: "40000_shares"
+      
+    hedging_strategy:
+      hedge_ratio: "0.8_for_sector_etf_hedge"
+      hedge_frequency: "every_10000_shares_or_hourly"
+      hedge_instruments: "sector_etfs_index_futures"
+      
+  risk_controls:
+    daily_limits:
+      maximum_loss: "$50000"
+      maximum_volume: "2%_of_average_daily_volume"
+      maximum_trades: "10000_per_day"
+      
+    real_time_monitoring:
+      pnl_alerts: "every_$5000_loss"
+      position_alerts: "80%_of_position_limit"
+      volatility_alerts: "2x_normal_volatility"
+      
+  performance_metrics:
+    profitability:
+      target_daily_pnl: "$5000"
+      sharpe_ratio_target: ">2.0"
+      maximum_drawdown: "<$20000"
+      
+    operational:
+      fill_rate_target: ">80%"
+      inventory_turnover: ">5x_daily"
+      capture_ratio: ">60%_of_spread"

@@ -1,0 +1,5 @@
+#### Quota and Limits Issues
+
+**Problem**: API quota exceeded or resource limits reached
+**Symptoms**: Quota exceeded errors, resource creation failures
+**Solution**:

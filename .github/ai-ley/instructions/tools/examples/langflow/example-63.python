@@ -1,0 +1,12 @@
+# Priority order for LLM components
+llm_priorities = {
+    "high_accuracy": ["gpt-4", "claude-3-opus", "gpt-4-turbo"],
+    "cost_effective": ["gpt-3.5-turbo", "claude-3-haiku", "llama-2-7b"],
+    "fast_response": ["gpt-3.5-turbo", "claude-3-haiku", "local-models"],
+    "specialized_tasks": {
+        "code_generation": ["gpt-4", "claude-3-sonnet", "codellama"],
+        "creative_writing": ["gpt-4", "claude-3-opus", "gpt-4-turbo"],
+        "data_analysis": ["gpt-4", "claude-3-sonnet", "gpt-4-turbo"],
+        "translation": ["gpt-4", "claude-3-sonnet", "specialized-models"]
+    }
+}

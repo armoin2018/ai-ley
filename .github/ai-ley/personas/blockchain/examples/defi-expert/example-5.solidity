@@ -1,0 +1,73 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./interfaces/IAave.sol";
+import "./interfaces/ICompound.sol";
+import "./interfaces/IYearn.sol";
+
+contract YieldAggregator {
+    struct ProtocolAllocation {
+        address protocol;
+        uint256 allocation; // basis points (10000 = 100%)
+        uint256 currentAPY;
+        uint256 riskScore;
+    }
+    
+    IERC20 public immutable baseToken;
+    ProtocolAllocation[] public allocations;
+    
+    uint256 public constant REBALANCE_THRESHOLD = 200; // 2% APY difference
+    uint256 public lastRebalance;
+    
+    event Rebalance(uint256 totalValue, uint256 timestamp);
+    event StrategyUpdate(address protocol, uint256 newAllocation);
+    
+    function deposit(uint256 amount) external {
+        baseToken.transferFrom(msg.sender, address(this), amount);
+        _distributeToProtocols(amount);
+    }
+    
+    function _distributeToProtocols(uint256 amount) internal {
+        for (uint i = 0; i < allocations.length; i++) {
+            uint256 protocolAmount = (amount * allocations[i].allocation) / 10000;
+            _depositToProtocol(allocations[i].protocol, protocolAmount);
+        }
+    }
+    
+    function rebalance() external {
+        require(block.timestamp > lastRebalance + 1 days, "Too frequent");
+        
+        // Get current APYs
+        _updateAPYs();
+        
+        // Check if rebalancing is profitable
+        uint256 maxAPY = _getMaxAPY();
+        uint256 currentWeightedAPY = _getCurrentWeightedAPY();
+        
+        if (maxAPY - currentWeightedAPY > REBALANCE_THRESHOLD) {
+            _executeRebalance();
+            lastRebalance = block.timestamp;
+            emit Rebalance(_getTotalValue(), block.timestamp);
+        }
+    }
+    
+    function _calculateOptimalAllocation() internal view returns (uint256[] memory) {
+        // Implement Modern Portfolio Theory for DeFi
+        // Risk-adjusted return optimization considering:
+        // 1. Expected returns (APY)
+        // 2. Volatility (historical IL, exploit risk)
+        // 3. Correlation between protocols
+        // 4. Gas costs and rebalancing frequency
+        
+        uint256[] memory optimal = new uint256[](allocations.length);
+        
+        // Simplified allocation based on risk-adjusted returns
+        for (uint i = 0; i < allocations.length; i++) {
+            uint256 riskAdjustedAPY = (allocations[i].currentAPY * (100 - allocations[i].riskScore)) / 100;
+            optimal[i] = riskAdjustedAPY; // Simplified - should use proper MPT
+        }
+        
+        return optimal;
+    }
+}

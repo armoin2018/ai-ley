@@ -1,0 +1,23 @@
+## Core Concepts
+
+### Collections and Documents
+
+- **Purpose**: Collections store documents (BSON objects) similar to tables storing rows
+- **Usage**: Flexible schema allows varied document structures within collections
+- **Best Practices**: Use consistent document structure, avoid deeply nested documents (>100 levels)
+
+### Indexes
+
+- **Purpose**: Accelerate query performance through efficient data access
+- **Usage**: Create on frequently queried fields, compound indexes for multi-field queries
+- **Best Practices**: Monitor index usage, use sparse indexes for optional fields
+
+### Replica Sets
+
+- **Purpose**: Provide high availability and data redundancy
+- **Usage**: Automatic failover and data replication across multiple nodes
+- **Best Practices**: Use odd number of nodes, configure appropriate read preferences
+
+## Connection and Authentication
+
+### Connection Methods

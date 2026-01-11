@@ -1,0 +1,40 @@
+cost_optimization:
+  function_optimization:
+    memory_sizing:
+      strategy: "power_tuning"
+      tool: "AWS Lambda Power Tuning"
+      target: "minimize_cost"
+      
+    provisioned_concurrency:
+      criteria:
+        - predictable_traffic: true
+        - cold_start_sensitive: true
+        - cost_threshold: "$50/month"
+        
+    scheduling:
+      dev_environments:
+        - start_time: "8:00 AM"
+        - stop_time: "8:00 PM"
+        - timezone: "UTC"
+        
+  storage_optimization:
+    s3_lifecycle:
+      - transition_to_ia: 30_days
+      - transition_to_glacier: 90_days
+      - expire_objects: 365_days
+      
+    dynamodb_optimization:
+      - on_demand_vs_provisioned_analysis
+      - global_secondary_index_optimization
+      - ttl_configuration
+      
+  monitoring:
+    cost_alerts:
+      - daily_spend_threshold: "$10"
+      - monthly_budget: "$500"
+      - anomaly_detection: true
+      
+    cost_attribution:
+      - tag_based_allocation
+      - service_level_breakdown
+      - environment_segregation

@@ -1,0 +1,13 @@
+## 🏗️ Enterprise Governance & Compliance Automation
+
+## 🚀 Enterprise CI/CD Integration & Automation
+
+## Compose and orchestration
+
+- podman‑compose for docker‑compose.yml compatibility (best effort)
+- Quadlet for production: create .container/.pod unit files and manage via systemd
+- For clusters, prefer Kubernetes; use podman kube generate/apply for simple handoffs
+
+## Logging & observability
+
+### Enterprise Monitoring Setup

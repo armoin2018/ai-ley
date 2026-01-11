@@ -1,0 +1,103 @@
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
+
+export default defineConfig({
+  plugins: [react()],
+
+  test: {
+    // Environment configuration
+    environment: 'jsdom',
+    environmentOptions: {
+      jsdom: {
+        resources: 'usable',
+      },
+    },
+
+    // Global setup
+    globals: true,
+    setupFiles: [
+      './src/test/setup.ts',
+      './src/test/mocks.ts',
+    ],
+
+    // Path resolution
+    alias: {
+      '@': resolve(__dirname, './src'),
+      '@components': resolve(__dirname, './src/components'),
+      '@utils': resolve(__dirname, './src/utils'),
+    },
+
+    // Test patterns
+    include: [
+      'src/**/*.{test,spec}.{js,ts,jsx,tsx}',
+      'tests/**/*.{test,spec}.{js,ts,jsx,tsx}',
+    ],
+    exclude: [
+      'node_modules',
+      'dist',
+      'e2e',
+      '**/*.d.ts',
+    ],
+
+    // Timeouts
+    testTimeout: 10000,
+    hookTimeout: 10000,
+
+    // Reporter configuration
+    reporter: ['verbose', 'json', 'html'],
+    outputFile: {
+      json: './test-results.json',
+      html: './test-results.html',
+    },
+
+    // Coverage settings
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json-summary', 'html', 'lcov'],
+      reportsDirectory: './coverage',
+      exclude: [
+        'coverage/**',
+        'dist/**',
+        '**/*.d.ts',
+        '**/*.config.*',
+        '**/node_modules/**',
+        'src/main.tsx',
+        'src/vite-env.d.ts',
+      ],
+      thresholds: {
+        global: {
+          branches: 80,
+          functions: 80,
+          lines: 80,
+          statements: 80,
+        },
+      },
+    },
+
+    // Watch mode configuration
+    watch: {
+      ignore: ['node_modules/**', 'dist/**'],
+    },
+
+    // Browser testing
+    browser: {
+      enabled: false,
+      name: 'chrome', // or 'firefox', 'webkit'
+      provider: 'playwright', // or 'webdriverio'
+      headless: true,
+    },
+
+    // Workspace configuration for monorepos
+    workspace: [
+      'packages/*/vitest.config.{e2e,unit}.ts',
+    ],
+  },
+
+  // Resolve configuration
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+    },
+  },
+})

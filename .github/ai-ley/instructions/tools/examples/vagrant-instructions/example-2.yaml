@@ -1,0 +1,158 @@
+# config/enterprise.yml - Enterprise-wide configuration
+enterprise:
+  domain: "enterprise.local"
+  organization: "ACME Corporation"
+  timezone: "UTC"
+
+compliance:
+  framework: "SOC2"
+  enabled_controls:
+    - encryption_at_rest
+    - encryption_in_transit
+    - access_logging
+    - vulnerability_scanning
+    - security_hardening
+
+monitoring:
+  enabled: true
+  prometheus_endpoint: "http://prometheus.enterprise.local:9090"
+  grafana_endpoint: "http://grafana.enterprise.local:3000"
+  log_aggregation: "http://elk.enterprise.local:9200"
+
+security:
+  ssh_hardening: true
+  firewall_enabled: true
+  antivirus_enabled: true
+  vulnerability_scanning: true
+
+networking:
+  dns_servers:
+    - "8.8.8.8"
+    - "8.8.4.4"
+  ntp_servers:
+    - "pool.ntp.org"
+  proxy:
+    enabled: false
+    http_proxy: ""
+    https_proxy: ""
+
+environments:
+  development:
+    name: "dev"
+    environment: "development"
+    project: "enterprise-platform"
+    owner: "development-team"
+    provider: "virtualbox"
+    auto_shutdown: true
+
+    network:
+      name: "enterprise-dev"
+      subnet: "192.168.100.0/24"
+
+    compliance:
+      framework: "CIS"
+      level: "basic"
+
+    nodes:
+      - name: "web01"
+        role: "web"
+        image: "ubuntu/jammy64"
+        resources:
+          memory: 2048
+          cpus: 2
+          disk: 20
+        network:
+          private_ip: "192.168.100.10"
+          ports:
+            - guest: 80, host: 8080
+            - guest: 443, host: 8443
+        volumes:
+          - host: "./app", container: "/var/www/html", options: "rw"
+
+      - name: "db01"
+        role: "database"
+        image: "ubuntu/jammy64"
+        resources:
+          memory: 4096
+          cpus: 2
+          disk: 50
+        network:
+          private_ip: "192.168.100.11"
+          ports:
+            - guest: 5432, host: 5432
+        volumes:
+          - host: "./data", container: "/var/lib/postgresql/data", options: "rw"
+
+  staging:
+    name: "staging"
+    environment: "staging"
+    project: "enterprise-platform"
+    owner: "qa-team"
+    provider: "aws"
+    auto_shutdown: false
+
+    aws:
+      region: "us-west-2"
+      availability_zone: "us-west-2a"
+      keypair_name: "enterprise-staging"
+      subnet_id: "subnet-12345678"
+      security_groups: ["sg-12345678"]
+      private_key_path: "~/.ssh/enterprise-staging.pem"
+
+    compliance:
+      framework: "SOC2"
+      level: "enhanced"
+
+    nodes:
+      - name: "web01"
+        role: "web"
+        aws:
+          instance_type: "t3.medium"
+          ami: "ami-0c02fb55956c7d316"
+          ssh_username: "ubuntu"
+          disk_size: 30
+          public_ip: true
+        network:
+          private_ip: "10.0.1.10"
+
+      - name: "db01"
+        role: "database"
+        aws:
+          instance_type: "r5.large"
+          ami: "ami-0c02fb55956c7d316"
+          ssh_username: "ubuntu"
+          disk_size: 100
+          public_ip: false
+        network:
+          private_ip: "10.0.1.11"
+
+  production:
+    name: "prod"
+    environment: "production"
+    project: "enterprise-platform"
+    owner: "ops-team"
+    provider: "vmware"
+    auto_shutdown: false
+
+    compliance:
+      framework: "SOC2"
+      level: "maximum"
+
+    nodes:
+      - name: "web01"
+        role: "web-primary"
+        resources:
+          memory: 8192
+          cpus: 4
+          disk: 100
+        network:
+          private_ip: "10.10.1.10"
+
+      - name: "web02"
+        role: "web-secondary"
+        resources:
+          memory: 8192
+          cpus: 4
+          disk: 100
+        network:
+          private_ip: "10.10.1.11"

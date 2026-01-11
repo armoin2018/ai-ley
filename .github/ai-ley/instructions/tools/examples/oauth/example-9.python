@@ -1,0 +1,182 @@
+from flask import Flask, request, jsonify, session, redirect
+from authlib.integrations.flask_oauth2 import AuthorizationServer, ResourceProtector
+from authlib.oauth2.rfc6749 import grants
+import secrets
+import json
+from datetime import datetime, timedelta
+
+app = Flask(__name__)
+app.secret_key = 'your-secret-key'
+
+class OAuthAuthorizationServer:
+    """Complete OAuth 2.0 Authorization Server implementation."""
+
+    def __init__(self, app):
+        self.app = app
+        self.clients = {}
+        self.authorization_codes = {}
+        self.access_tokens = {}
+        self.refresh_tokens = {}
+        self.users = {}
+
+        # Initialize authorization server
+        self.authorization_server = AuthorizationServer(app)
+        self.resource_protector = ResourceProtector()
+
+        self._setup_grants()
+        self._setup_endpoints()
+
+    def _setup_grants(self):
+        """Setup OAuth 2.0 grants and token validators."""
+
+        # Authorization Code Grant
+        class AuthorizationCodeGrant(grants.AuthorizationCodeGrant):
+            def save_authorization_code(self, code, request):
+                # Save authorization code with expiration
+                self.authorization_codes[code] = {
+                    'client_id': request.client.client_id,
+                    'redirect_uri': request.redirect_uri,
+                    'scope': request.scope,
+                    'user_id': request.user.id if hasattr(request, 'user') else None,
+                    'expires_at': datetime.utcnow() + timedelta(minutes=10),
+                    'code_challenge': getattr(request, 'code_challenge', None),
+                    'code_challenge_method': getattr(request, 'code_challenge_method', None)
+                }
+
+            def query_authorization_code(self, code, client):
+                # Retrieve and validate authorization code
+                code_data = self.authorization_codes.get(code)
+                if not code_data:
+                    return None
+
+                if code_data['client_id'] != client.client_id:
+                    return None
+
+                if datetime.utcnow() > code_data['expires_at']:
+                    del self.authorization_codes[code]
+                    return None
+
+                return code_data
+
+            def delete_authorization_code(self, authorization_code):
+                # Delete used authorization code
+                if authorization_code in self.authorization_codes:
+                    del self.authorization_codes[authorization_code]
+
+            def authenticate_user(self, authorization_code):
+                # Return user information
+                code_data = self.authorization_codes.get(authorization_code)
+                if code_data and code_data.get('user_id'):
+                    return self.users.get(code_data['user_id'])
+                return None
+
+        # Client Credentials Grant
+        class ClientCredentialsGrant(grants.ClientCredentialsGrant):
+            def save_token(self, token, request):
+                # Save access token for client credentials
+                access_token = token['access_token']
+                self.access_tokens[access_token] = {
+                    'client_id': request.client.client_id,
+                    'scope': token.get('scope'),
+                    'expires_at': datetime.utcnow() + timedelta(seconds=token['expires_in']),
+                    'token_type': token.get('token_type', 'Bearer')
+                }
+
+        # Register grants
+        self.authorization_server.register_grant(AuthorizationCodeGrant)
+        self.authorization_server.register_grant(ClientCredentialsGrant)
+
+    def _setup_endpoints(self):
+        """Setup OAuth 2.0 endpoints."""
+
+        @self.app.route('/oauth/authorize', methods=['GET', 'POST'])
+        def authorize():
+            if request.method == 'GET':
+                # Show authorization page
+                return self._render_authorize_page(request)
+
+            # Handle authorization decision
+            user_id = session.get('user_id')
+            if not user_id:
+                return redirect('/login')
+
+            # Process authorization
+            return self.authorization_server.create_authorization_response(request=request)
+
+        @self.app.route('/oauth/token', methods=['POST'])
+        def issue_token():
+            return self.authorization_server.create_token_response(request=request)
+
+        @self.app.route('/oauth/revoke', methods=['POST'])
+        def revoke_token():
+            return self.authorization_server.create_revocation_response(request=request)
+
+        @self.app.route('/oauth/userinfo', methods=['GET'])
+        @self.resource_protector()
+        def get_userinfo():
+            # Return user information for valid access token
+            token = self.resource_protector.get_token_from_request(request)
+            user_id = token.get('user_id')
+
+            if user_id and user_id in self.users:
+                user = self.users[user_id]
+                return jsonify({
+                    'sub': user_id,
+                    'name': user.get('name'),
+                    'email': user.get('email'),
+                    'picture': user.get('picture')
+                })
+
+            return jsonify({'error': 'invalid_token'}), 401
+
+    def register_client(self, client_id, client_secret, redirect_uris, grant_types, scope):
+        """Register OAuth client application."""
+        self.clients[client_id] = {
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'redirect_uris': redirect_uris,
+            'grant_types': grant_types,
+            'scope': scope,
+            'created_at': datetime.utcnow()
+        }
+
+    def _render_authorize_page(self, request):
+        """Render authorization consent page."""
+        client_id = request.args.get('client_id')
+        scope = request.args.get('scope', '')
+
+        if client_id not in self.clients:
+            return jsonify({'error': 'invalid_client'}), 400
+
+        client = self.clients[client_id]
+
+        # In a real implementation, this would render an HTML template
+        return f"""
+        <html>
+        <body>
+            <h2>Authorization Request</h2>
+            <p>Application "{client_id}" is requesting access to:</p>
+            <ul>
+                {''.join(f'<li>{s}</li>' for s in scope.split())}
+            </ul>
+            <form method="post">
+                <input type="hidden" name="client_id" value="{client_id}">
+                <input type="hidden" name="scope" value="{scope}">
+                <button type="submit" name="confirm" value="yes">Allow</button>
+                <button type="submit" name="confirm" value="no">Deny</button>
+            </form>
+        </body>
+        </html>
+        """
+
+# Initialize OAuth server
+oauth_server = OAuthAuthorizationServer(app)
+
+# Register a sample client
+oauth_server.register_client(
+    client_id='sample_client',
+    client_secret='sample_secret',
+    redirect_uris=['https://client.app.com/callback'],
+    grant_types=['authorization_code', 'refresh_token'],
+    scope='read write'
+)

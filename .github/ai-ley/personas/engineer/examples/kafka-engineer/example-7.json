@@ -1,0 +1,16 @@
+{
+  "type": "record",
+  "name": "Order",
+  "namespace": "com.ecommerce.events",
+  "fields": [
+    {"name": "orderId", "type": "string"},
+    {"name": "customerId", "type": "string"},
+    {"name": "items", "type": {"type": "array", "items": "OrderItem"}},
+    {"name": "total", "type": "double"},
+    {"name": "currency", "type": "string", "default": "USD"},
+    {"name": "status", "type": {"type": "enum", "name": "OrderStatus", "symbols": ["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"]}},
+    {"name": "createdAt", "type": {"type": "long", "logicalType": "timestamp-millis"}},
+    {"name": "shippingAddress", "type": ["null", "Address"], "default": null},
+    {"name": "promotionCode", "type": ["null", "string"], "default": null}
+  ]
+}

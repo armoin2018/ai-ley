@@ -1,0 +1,2 @@
+User: Migrate legacy database to modern PostgreSQL with zero downtime
+Agent: Designs migration strategy, creates ETL procedures, implements data validation, sets up replication, and provides rollback procedures

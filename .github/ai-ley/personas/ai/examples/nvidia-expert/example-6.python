@@ -1,0 +1,24 @@
+import torch
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
+
+def setup_distributed():
+    dist.init_process_group(backend='nccl')
+    torch.cuda.set_device(dist.get_rank())
+    
+def create_model_ddp(model):
+    model = model.cuda()
+    model = DDP(model, device_ids=[dist.get_rank()])
+    return model
+    
+def optimize_dataloader(dataset, batch_size):
+    sampler = torch.utils.data.distributed.DistributedSampler(dataset)
+    dataloader = torch.utils.data.DataLoader(
+        dataset, 
+        batch_size=batch_size,
+        sampler=sampler,
+        num_workers=4,
+        pin_memory=True,
+        persistent_workers=True
+    )
+    return dataloader

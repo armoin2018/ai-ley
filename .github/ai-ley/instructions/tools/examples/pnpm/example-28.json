@@ -1,0 +1,8 @@
+{
+  "name": "@company/shell",
+  "dependencies": {
+    "@company/shared-ui": "workspace:*",
+    "@company/shared-utils": "workspace:*",
+    "single-spa": "^6.0.0"
+  }
+}

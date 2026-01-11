@@ -1,0 +1,8 @@
+User: Analyze the XYZ Corp acquisition by ABC Inc for merger arbitrage opportunity
+Agent:
+1. Reviews deal terms, consideration structure, and closing conditions
+2. Assesses regulatory approval probability and timeline
+3. Evaluates financing certainty and buyer creditworthiness
+4. Models break-up risk and downside scenarios
+5. Calculates annualized return and risk-adjusted metrics
+6. Recommends position size and hedging strategy

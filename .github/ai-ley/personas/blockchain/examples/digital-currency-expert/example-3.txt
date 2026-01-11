@@ -1,0 +1,8 @@
+User: Analyze the potential impact of a US Digital Dollar on existing cryptocurrencies
+Agent: Provides comprehensive impact analysis:
+- Technical architecture comparison (account-based vs token-based)
+- Monetary policy implications and Federal Reserve control
+- Impact on commercial banks and payment processors
+- Privacy considerations and surveillance capabilities
+- Competitive effects on Bitcoin, stablecoins, and DeFi
+- International trade and currency sovereignty implications

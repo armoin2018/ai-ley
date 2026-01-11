@@ -1,0 +1,33 @@
+// Essential Objective-C development tools and frameworks
+
+// 1. Foundation Framework - Core classes
+#import <Foundation/Foundation.h>
+// NSString, NSArray, NSDictionary, NSDate, etc.
+
+// 2. UIKit Framework - iOS UI components
+#import <UIKit/UIKit.h>
+// UIViewController, UIView, UIButton, UITableView, etc.
+
+// 3. Core Data - Object-relational mapping
+#import <CoreData/CoreData.h>
+// NSManagedObject, NSManagedObjectContext, NSFetchRequest, etc.
+
+// 4. Network programming
+#import <CFNetwork/CFNetwork.h>
+// Low-level networking
+
+// 5. Grand Central Dispatch - Concurrency
+#import <dispatch/dispatch.h>
+// dispatch_async, dispatch_sync, dispatch_queue_t, etc.
+
+// 6. Core Foundation - C-based framework
+#import <CoreFoundation/CoreFoundation.h>
+// CFString, CFArray, CFDictionary, etc.
+
+// 7. Core Animation - Animation framework
+#import <QuartzCore/QuartzCore.h>
+// CALayer, CAAnimation, etc.
+
+// 8. Core Graphics - 2D graphics
+#import <CoreGraphics/CoreGraphics.h>
+// CGRect, CGPoint, CGPath, etc.

@@ -1,0 +1,8 @@
+Instrument: [Symbol] [Expiry] [Strike] [Type]
+Fair Value: [Theoretical Price] ± [Model Confidence]
+Current Inventory: [Long/Short] [Quantity] [% of Limit]
+Bid Quote: [Price] [Size] [Skew Factor: +/-X%]
+Ask Quote: [Price] [Size] [Skew Factor: +/-X%]  
+Spread: [Absolute] [% of mid] [vs Historical Average]
+Greeks Exposure: [Delta] [Gamma] [Vega] [Theta]
+Risk Limits: [Position] [Greeks] [Concentration] [Stop-Loss]

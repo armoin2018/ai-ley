@@ -1,0 +1,156 @@
+# test_user_service.py
+import pytest
+from unittest.mock import AsyncMock, MagicMock, patch
+from datetime import datetime, timezone
+import asyncio
+
+from src.services.user_service import UserService
+from src.models.user import User
+from src.exceptions import UserNotFoundError, ValidationError
+
+class TestUserService:
+    @pytest.fixture
+    def mock_database(self):
+        return AsyncMock()
+    
+    @pytest.fixture
+    def mock_cache(self):
+        return AsyncMock()
+    
+    @pytest.fixture
+    def user_service(self, mock_database, mock_cache):
+        return UserService(mock_database, mock_cache)
+    
+    @pytest.fixture
+    def sample_user(self):
+        return User(
+            id="123",
+            name="John Doe",
+            email="john@example.com",
+            is_active=True,
+            created_at=datetime.now(timezone.utc)
+        )
+    
+    @pytest.mark.asyncio
+    async def test_get_user_from_cache(self, user_service, mock_cache, sample_user):
+        """Test getting user from cache when available."""
+        # Arrange
+        user_id = "123"
+        mock_cache.get.return_value = sample_user.__dict__
+        
+        # Act
+        result = await user_service.get_user(user_id)
+        
+        # Assert
+        assert result == sample_user.__dict__
+        mock_cache.get.assert_called_once_with(f"user:{user_id}")
+        user_service._database.find_user_by_id.assert_not_called()
+    
+    @pytest.mark.asyncio
+    async def test_get_user_from_database_when_not_cached(
+        self, user_service, mock_database, mock_cache, sample_user
+    ):
+        """Test fetching user from database when not in cache."""
+        # Arrange
+        user_id = "123"
+        mock_cache.get.return_value = None
+        mock_database.find_user_by_id.return_value = sample_user
+        
+        # Act
+        result = await user_service.get_user(user_id)
+        
+        # Assert
+        assert result == sample_user
+        mock_database.find_user_by_id.assert_called_once_with(user_id)
+        mock_cache.set.assert_called_once()
+    
+    @pytest.mark.asyncio
+    async def test_get_user_raises_not_found_error(
+        self, user_service, mock_database, mock_cache
+    ):
+        """Test that UserNotFoundError is raised when user doesn't exist."""
+        # Arrange
+        user_id = "nonexistent"
+        mock_cache.get.return_value = None
+        mock_database.find_user_by_id.return_value = None
+        
+        # Act & Assert
+        with pytest.raises(UserNotFoundError, match="User nonexistent not found"):
+            await user_service.get_user(user_id)
+    
+    @pytest.mark.parametrize("email,should_raise", [
+        ("valid@example.com", False),
+        ("invalid-email", True),
+        ("", True),
+        ("@example.com", True),
+        ("user@", True),
+    ])
+    def test_user_validation(self, email, should_raise):
+        """Test user validation with various email formats."""
+        user = User(id="123", name="Test User", email=email)
+        
+        if should_raise:
+            with pytest.raises(ValidationError):
+                user.validate()
+        else:
+            # Should not raise
+            user.validate()
+
+# test_integration.py - Integration testing
+@pytest.mark.integration
+class TestUserAPIIntegration:
+    @pytest.fixture(scope="class")
+    async def app(self):
+        """Create test application instance."""
+        from src.main import create_app
+        app = create_app(testing=True)
+        yield app
+    
+    @pytest.fixture(scope="class")
+    async def client(self, app):
+        """Create test client."""
+        async with AsyncClient(app=app, base_url="http://test") as client:
+            yield client
+    
+    @pytest.fixture(autouse=True)
+    async def setup_database(self):
+        """Setup and teardown test database."""
+        await setup_test_database()
+        yield
+        await cleanup_test_database()
+    
+    @pytest.mark.asyncio
+    async def test_create_user_endpoint(self, client):
+        """Test user creation endpoint."""
+        user_data = {
+            "name": "John Doe",
+            "email": "john@example.com"
+        }
+        
+        response = await client.post("/api/users", json=user_data)
+        
+        assert response.status_code == 201
+        assert response.json()["name"] == user_data["name"]
+        assert response.json()["email"] == user_data["email"]
+        assert "id" in response.json()
+    
+    @pytest.mark.asyncio
+    async def test_get_user_endpoint_returns_404_for_nonexistent(self, client):
+        """Test that getting nonexistent user returns 404."""
+        response = await client.get("/api/users/nonexistent-id")
+        
+        assert response.status_code == 404
+        assert "not found" in response.json()["detail"].lower()
+
+# conftest.py - Shared test configuration
+@pytest.fixture(scope="session")
+def event_loop():
+    """Create event loop for async tests."""
+    loop = asyncio.new_event_loop()
+    yield loop
+    loop.close()
+
+@pytest.fixture
+def anyio_backend():
+    """Use asyncio backend for anyio."""
+    return "asyncio"

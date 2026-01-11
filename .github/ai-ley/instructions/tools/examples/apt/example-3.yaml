@@ -1,0 +1,43 @@
+---
+- name: Manage packages with APT
+  hosts: debian_servers
+  become: yes
+  tasks:
+    - name: Update APT cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install essential packages
+      apt:
+        name:
+          - curl
+          - wget
+          - git
+          - vim
+          - htop
+          - tree
+        state: present
+
+    - name: Add Node.js repository
+      block:
+        - name: Add Node.js GPG key
+          apt_key:
+            url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+            state: present
+
+        - name: Add Node.js repository
+          apt_repository:
+            repo: "deb https://deb.nodesource.com/node_18.x {{ ansible_distribution_release }} main"
+            state: present
+
+    - name: Install Node.js
+      apt:
+        name: nodejs
+        state: present
+        update_cache: yes
+
+    - name: Remove unnecessary packages
+      apt:
+        autoremove: yes
+        autoclean: yes

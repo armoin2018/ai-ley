@@ -1,0 +1,1 @@
+python3 analyze_pages.py .project/seo/example.com/2025.10.03/cache --format both

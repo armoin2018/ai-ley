@@ -1,0 +1,5 @@
+### Azure Container Instances (ACI)
+
+- **Purpose**: Run containers without managing servers
+- **Usage**: Batch processing, microservices, CI/CD agents
+- **Example**:

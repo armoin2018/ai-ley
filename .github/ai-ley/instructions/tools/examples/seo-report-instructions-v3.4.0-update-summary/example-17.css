@@ -1,0 +1,22 @@
+@media (max-width: 768px) {
+  .markdown-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #md-file-select {
+    max-width: none;
+  }
+
+  .markdown-rendered {
+    padding: 1.5rem;
+  }
+
+  .markdown-rendered h1 {
+    font-size: 2rem;
+  }
+
+  .markdown-rendered pre {
+    padding: 1rem;
+  }
+}

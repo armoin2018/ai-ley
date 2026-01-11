@@ -1,0 +1,58 @@
+// Version 2 of the schema with backward compatibility
+syntax = "proto3";
+
+package com.example.trading.v2;
+
+// Import the previous version for compatibility
+import "com/example/trading/v1/trading.proto";
+
+message OrderV2 {
+  // All original fields maintained with same numbers
+  string symbol = 1;
+  int64 quantity = 2;
+  int64 price_cents = 3;
+  OrderType type = 4;
+  string order_id = 5;
+  
+  // New fields added with higher field numbers
+  string account_id = 6;          // New required field for v2
+  TradingSession session = 7;     // New enum
+  repeated string tags = 8;       // New repeated field
+  
+  // Optional enhancement fields
+  RiskParameters risk_params = 9;
+  
+  google.protobuf.Timestamp created_at = 15;
+  google.protobuf.Duration time_in_force = 16;
+  
+  oneof order_details {
+    LimitOrderDetails limit_details = 20;
+    StopOrderDetails stop_details = 21;
+    MarketOrderDetails market_details = 22;
+    // New order type added
+    AlgorithmicOrderDetails algo_details = 23;
+  }
+  
+  // Reserved for deprecated fields
+  reserved 30 to 39;
+  reserved "deprecated_broker_id";
+}
+
+enum TradingSession {
+  TRADING_SESSION_UNSPECIFIED = 0;
+  TRADING_SESSION_PRE_MARKET = 1;
+  TRADING_SESSION_REGULAR = 2;
+  TRADING_SESSION_AFTER_HOURS = 3;
+}
+
+message RiskParameters {
+  int64 max_position_size = 1;
+  int64 max_order_value_cents = 2;
+  bool allow_short_selling = 3;
+}
+
+message AlgorithmicOrderDetails {
+  string algorithm_name = 1;
+  map<string, string> algorithm_params = 2;
+  int32 slice_size = 3;
+}

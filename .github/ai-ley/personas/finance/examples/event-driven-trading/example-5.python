@@ -1,0 +1,65 @@
+# Merger Arbitrage Analysis Tools
+import numpy as np
+import pandas as pd
+from scipy.stats import norm
+import datetime as dt
+
+class MergerArbitrageModel:
+    def __init__(self, target_price, offer_price, announcement_date, 
+                 expected_close_date, risk_free_rate=0.05):
+        self.target_price = target_price
+        self.offer_price = offer_price
+        self.announcement_date = announcement_date
+        self.expected_close_date = expected_close_date
+        self.risk_free_rate = risk_free_rate
+        
+    def calculate_spread(self):
+        """Calculate current deal spread"""
+        gross_spread = (self.offer_price - self.target_price) / self.target_price
+        return gross_spread
+    
+    def annualized_return(self, completion_probability=1.0):
+        """Calculate risk-adjusted annualized return"""
+        days_to_close = (self.expected_close_date - dt.date.today()).days
+        gross_spread = self.calculate_spread()
+        
+        # Risk-adjusted spread
+        expected_spread = gross_spread * completion_probability
+        
+        # Annualized return
+        annualized = expected_spread * (365 / days_to_close)
+        return annualized
+    
+    def kelly_position_size(self, completion_prob, downside_return=-0.15):
+        """Calculate optimal position size using Kelly criterion"""
+        gross_spread = self.calculate_spread()
+        
+        # Kelly formula: f = (bp - q) / b
+        # where b = odds received, p = probability of winning, q = 1-p
+        expected_return = completion_prob * gross_spread + (1 - completion_prob) * downside_return
+        
+        if gross_spread <= 0:
+            return 0
+            
+        kelly_fraction = expected_return / abs(downside_return)
+        
+        # Cap at reasonable maximum
+        return min(kelly_fraction, 0.25)
+    
+    def scenario_analysis(self):
+        """Perform scenario analysis with different outcomes"""
+        scenarios = {
+            'deal_closes': {'probability': 0.85, 'return': self.calculate_spread()},
+            'deal_breaks': {'probability': 0.10, 'return': -0.15},
+            'higher_bid': {'probability': 0.05, 'return': 0.08}
+        }
+        
+        expected_return = sum(s['probability'] * s['return'] for s in scenarios.values())
+        variance = sum(s['probability'] * (s['return'] - expected_return)**2 
+                      for s in scenarios.values())
+        
+        return {
+            'expected_return': expected_return,
+            'volatility': np.sqrt(variance),
+            'sharpe_ratio': expected_return / np.sqrt(variance) if variance > 0 else 0
+        }

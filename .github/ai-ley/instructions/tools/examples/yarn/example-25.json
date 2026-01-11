@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@myorg/core": "workspace:*",
+    "@myorg/utils": "workspace:^1.0.0"
+  }
+}

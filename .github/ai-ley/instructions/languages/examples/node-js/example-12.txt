@@ -1,0 +1,10 @@
+### Essential Tools
+- **Formatter**: {FORMATTER_TOOL} - {FORMATTER_DESCRIPTION}
+- **Linter**: {LINTER_TOOL} - {LINTER_DESCRIPTION}
+- **Type Checker**: {TYPE_CHECKER} - {TYPE_CHECKER_DESCRIPTION}
+- **Build Tool**: {BUILD_TOOL} - {BUILD_DESCRIPTION}
+- **Package Manager**: {PACKAGE_MANAGER} - {PACKAGE_DESCRIPTION}
+
+## 🔍 Code Quality Standards
+
+### Static Analysis

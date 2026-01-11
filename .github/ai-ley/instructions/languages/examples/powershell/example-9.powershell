@@ -1,0 +1,19 @@
+# Run PSScriptAnalyzer on scripts
+Invoke-ScriptAnalyzer -Path .\MyScript.ps1 -Severity Warning,Error
+
+# Pester test example
+Describe "Get-SystemInfo Tests" {
+    Context "When run against localhost" {
+        It "Should return system information object" {
+            $result = Get-SystemInfo
+            $result | Should -Not -BeNullOrEmpty
+            $result.ComputerName | Should -Be $env:COMPUTERNAME
+        }
+        
+        It "Should include required properties" {
+            $result = Get-SystemInfo
+            $result.PSObject.Properties.Name | Should -Contain 'OperatingSystem'
+            $result.PSObject.Properties.Name | Should -Contain 'TotalMemoryGB'
+        }
+    }
+}

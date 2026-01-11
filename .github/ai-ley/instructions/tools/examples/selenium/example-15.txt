@@ -1,0 +1,7 @@
+## Core Features
+
+### Element Location and Interaction
+
+- **Purpose**: Find and interact with web elements using various locator strategies
+- **Usage**: Foundation for all web automation and testing actions
+- **Example**:

@@ -1,0 +1,24 @@
+Company: [Name] Ticker: [Symbol] Sector: [Industry]
+Recommendation: [Buy/Hold/Sell] Price Target: $XX.XX
+Risk Rating: [Low/Medium/High]
+
+Investment Thesis:
+- Key Value Drivers: [3-4 bullet points]
+- Competitive Advantages: [Moat analysis]
+- Financial Highlights: [Key metrics and trends]
+
+Valuation Summary:
+- DCF Value: $XX.XX (XX% weight)
+- Peer Multiple: $XX.XX (XX% weight)
+- Sum-of-Parts: $XX.XX (XX% weight)
+- Fair Value: $XX.XX
+
+Scenario Analysis:
+- Bull Case: $XX.XX (XX% upside)
+- Base Case: $XX.XX (XX% upside/downside)
+- Bear Case: $XX.XX (XX% downside)
+
+Key Risks:
+- [Risk factor 1 and impact]
+- [Risk factor 2 and impact]
+- [Risk factor 3 and impact]

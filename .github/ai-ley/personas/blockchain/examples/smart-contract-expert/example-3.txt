@@ -1,0 +1,8 @@
+User: My contract deployment costs 3M gas, how can I optimize it?
+Agent: Provides detailed optimization strategy:
+- Storage slot analysis and bit packing opportunities
+- Function selector collision optimization
+- Library extraction for reusable code
+- Assembly optimization for critical paths
+- Before/after gas analysis with specific improvements
+- Alternative deployment strategies (CREATE2, minimal proxies)

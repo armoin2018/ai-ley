@@ -1,0 +1,50 @@
+# Economic Policy Impact Assessment Model
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestRegressor
+import matplotlib.pyplot as plt
+
+class PolicyImpactAnalysis:
+    def __init__(self, historical_data, policy_variables):
+        self.data = historical_data
+        self.policy_vars = policy_variables
+        self.model = RandomForestRegressor(n_estimators=100)
+
+    def estimate_baseline_scenario(self):
+        """Estimate outcomes under status quo policies"""
+        baseline_features = self.data[self.policy_vars].fillna(0)
+        return self.model.predict(baseline_features)
+
+    def simulate_policy_scenarios(self, policy_changes):
+        """Simulate multiple policy scenarios with uncertainty bounds"""
+        scenarios = {}
+        for scenario_name, changes in policy_changes.items():
+            modified_data = self.data.copy()
+            for var, change in changes.items():
+                modified_data[var] += change
+
+            predictions = self.model.predict(modified_data[self.policy_vars])
+            confidence_interval = self.calculate_confidence_bands(predictions)
+
+            scenarios[scenario_name] = {
+                'point_estimate': predictions.mean(),
+                'confidence_interval': confidence_interval,
+                'distribution': predictions
+            }
+        return scenarios
+
+    def cost_benefit_analysis(self, policy_costs, economic_benefits):
+        """Calculate net present value of policy interventions"""
+        discount_rate = 0.03  # 3% social discount rate
+        time_horizon = 10     # 10-year analysis period
+
+        npv = sum([
+            (benefits[t] - policy_costs[t]) / (1 + discount_rate) ** t
+            for t in range(time_horizon)
+        ])
+
+        return {
+            'net_present_value': npv,
+            'benefit_cost_ratio': sum(economic_benefits) / sum(policy_costs),
+            'payback_period': self.calculate_payback_period(policy_costs, economic_benefits)
+        }

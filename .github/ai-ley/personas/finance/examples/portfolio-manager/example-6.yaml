@@ -1,0 +1,47 @@
+risk_management:
+  portfolio_risk_metrics:
+    var_calculation:
+      confidence_level: "95% and 99%"
+      time_horizons: "1_day, 1_week, 1_month"
+      methodology: "parametric, historical_simulation, monte_carlo"
+      
+    stress_testing:
+      systematic_scenarios:
+        - "2008_financial_crisis_replay"
+        - "dot_com_bubble_conditions"
+        - "covid_pandemic_market_shock"
+        - "interest_rate_shock_300bp"
+        
+      factor_shocks:
+        - "growth_value_rotation"
+        - "sector_rotation_tech_cyclicals"
+        - "quality_momentum_reversal"
+        - "small_large_cap_performance_gap"
+        
+  position_limits:
+    individual_securities:
+      maximum_position: "5% of portfolio"
+      minimum_position: "0.25% of portfolio"
+      concentration_monitoring: "top_10_holdings <40%"
+      
+    sector_allocation:
+      maximum_sector: "25% of portfolio"
+      minimum_diversification: "8_sectors_minimum"
+      benchmark_deviation: "max +/-10% vs benchmark"
+      
+    factor_exposures:
+      value_tilt: "-0.5 to +1.0 standard deviations"
+      growth_tilt: "-0.5 to +1.0 standard deviations"
+      quality_bias: "0 to +1.5 standard deviations"
+      momentum_exposure: "-1.0 to +1.0 standard deviations"
+      
+  hedging_strategies:
+    portfolio_hedging:
+      systematic_hedge: "5-10% put option overlay"
+      tactical_hedge: "volatility_targeting_dynamic_hedge"
+      currency_hedge: "50-100% foreign_currency_exposure"
+      
+    implementation:
+      options_strategy: "put_spreads_collars_protective_puts"
+      futures_strategy: "index_futures_sector_etf_hedges"
+      cost_management: "hedge_ratio_optimization_timing"

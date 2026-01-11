@@ -1,0 +1,11 @@
+from cloud_platforms.gcp import GCPEnterpriseManager
+
+gcp_config = EnterpriseGCPConfig(
+    organization_id="enterprise-gcp-org",
+    tier=GCPTier.ENTERPRISE,
+    primary_region=GCPRegion.US_CENTRAL1,
+    ai_ml_enabled=True
+)
+
+gcp_manager = GCPEnterpriseManager(gcp_config)
+deployment_result = await gcp_manager.deploy_enterprise_infrastructure()

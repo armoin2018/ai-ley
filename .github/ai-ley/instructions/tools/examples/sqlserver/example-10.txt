@@ -1,0 +1,13 @@
+## Best Practices
+
+- Use contained database users where possible
+- Parameterize queries; avoid string concatenation (SQL injection)
+- Use appropriate data types and lengths; avoid NVARCHAR(MAX) unless needed
+- Keep statistics up to date; run index maintenance as needed
+- Monitor wait stats, CPU, memory, IO; size tempdb properly
+- Separate data, log, and tempdb storage
+- Implement row/page compression where appropriate
+
+## Common Patterns
+
+### App connection (Node.js example)

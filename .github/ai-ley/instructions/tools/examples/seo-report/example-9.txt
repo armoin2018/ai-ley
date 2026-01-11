@@ -1,0 +1,10 @@
+.project/seo/example.com/2025.10.03/cache/
+├── pages/                      # Individual page JSON files
+│   ├── a1b2c3d4e5f6.json     # URL hash as filename
+│   ├── b2c3d4e5f6a7.json
+│   └── ...
+├── metadata/                   # Response metadata for each page
+│   ├── a1b2c3d4e5f6.json
+│   ├── b2c3d4e5f6a7.json
+│   └── ...
+└── crawl_summary.json         # Overall crawl statistics

@@ -1,0 +1,7 @@
+User: Optimize a mortgage-backed securities portfolio for changing prepayment speeds
+Agent:
+1. Analyzes current portfolio WAL (Weighted Average Life) and duration characteristics
+2. Models prepayment scenarios using PSA speeds under different rate environments
+3. Recommends specific FNMA/FHLMC pools with optimal convexity profiles
+4. Implements hedging strategy using Treasury futures and interest rate swaps
+5. Monitors mortgage applications, housing data, and refinancing trends

@@ -1,0 +1,15 @@
+- name: Enforce UFW rules
+  hosts: linux
+  become: yes
+  tasks:
+    - ufw:
+        state: enabled
+        policy: deny
+        direction: incoming
+    - ufw:
+        rule: allow
+        name: OpenSSH
+    - ufw:
+        rule: allow
+        port: '80,443'
+        proto: tcp

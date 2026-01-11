@@ -1,0 +1,2 @@
+User: Automate approval process for production deployments with multiple stakeholders
+Agent: Designs automated workflow with conditional approvals, notification routing, status transitions, and integration with deployment tools

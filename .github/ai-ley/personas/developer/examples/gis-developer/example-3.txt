@@ -1,0 +1,2 @@
+User: Build offline-capable mobile app for environmental data collection
+Agent: Creates solution using offline map tiles, GPS data capture, local storage with synchronization, and quality validation workflows

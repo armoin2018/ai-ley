@@ -1,0 +1,3 @@
+### Usage
+
+The system automatically runs on every commit. No manual intervention required.

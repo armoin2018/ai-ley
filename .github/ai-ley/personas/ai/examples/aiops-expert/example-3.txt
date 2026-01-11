@@ -1,0 +1,2 @@
+User: Build AI-driven capacity planning for multi-cloud environment
+Agent: Develops machine learning models for workload forecasting, cost optimization recommendations, automated resource provisioning, and what-if scenario analysis for capacity decisions

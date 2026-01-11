@@ -1,0 +1,65 @@
+describe('Users (e2e)', () => {
+  let app: INestApplication;
+  let connection: Connection;
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [
+        AppModule,
+        TypeOrmModule.forRoot({
+          type: 'sqlite',
+          database: ':memory:',
+          entities: [User],
+          synchronize: true,
+        }),
+      ],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({ transform: true }));
+    app.useGlobalFilters(new AllExceptionsFilter());
+    
+    await app.init();
+    
+    connection = moduleFixture.get<Connection>(Connection);
+  });
+
+  afterEach(async () => {
+    await connection.close();
+    await app.close();
+  });
+
+  describe('/users (GET)', () => {
+    it('should return empty array when no users exist', () => {
+      return request(app.getHttpServer())
+        .get('/users')
+        .expect(200)
+        .expect([]);
+    });
+
+    it('should return users with proper authentication', async () => {
+      // Create test user first
+      const user = await connection.getRepository(User).save({
+        email: 'test@example.com',
+        name: 'Test User',
+        password: 'hashedpassword',
+      });
+
+      const authToken = 'valid-jwt-token'; // Mock or generate real token
+
+      return request(app.getHttpServer())
+        .get('/users')
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200)
+        .expect(res => {
+          expect(res.body).toHaveLength(1);
+          expect(res.body[0]).toMatchObject({
+            id: user.id,
+            email: user.email,
+            name: user.name,
+          });
+          expect(res.body[0].password).toBeUndefined(); // Password should not be returned
+        });
+    });
+  });
+});

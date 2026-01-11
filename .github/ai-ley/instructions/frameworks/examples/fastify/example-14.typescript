@@ -1,0 +1,20 @@
+// Performance plugins
+await app.register(import('@fastify/compress'), {
+  encodings: ['gzip', 'deflate']
+})
+
+await app.register(import('@fastify/caching'), {
+  privacy: 'private'
+})
+
+// Custom caching
+const cache = new Map()
+app.addHook('onRequest', async (request, reply) => {
+  if (request.method === 'GET') {
+    const cached = cache.get(request.url)
+    if (cached) {
+      reply.send(cached)
+      return
+    }
+  }
+})

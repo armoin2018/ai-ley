@@ -1,0 +1,25 @@
+construct3-project/
+├── Project Files/
+│   ├── eventSheets/          # Game logic and behaviors
+│   │   ├── Main.json         # Primary event sheet
+│   │   ├── Player.json       # Player-specific events
+│   │   └── UI.json           # User interface events
+│   ├── layouts/              # Game scenes and levels
+│   │   ├── Layout1.json      # Main menu layout
+│   │   ├── GameLevel.json    # Gameplay layout
+│   │   └── GameOver.json     # End screen layout
+│   ├── objectTypes/          # Game objects and sprites
+│   │   ├── Player.json       # Player character object
+│   │   ├── Enemy.json        # Enemy objects
+│   │   └── Platform.json     # Static game elements
+│   ├── animations/           # Sprite animations
+│   ├── sounds/              # Audio files and music
+│   ├── music/               # Background music tracks
+│   ├── icons/               # App icons and metadata
+│   └── timelines/           # Animation timelines
+├── project.c3proj           # Main project file
+└── export/                  # Built game outputs
+    ├── html5/              # Web deployment
+    ├── android/            # Android APK
+    ├── ios/                # iOS export
+    └── windows/            # Desktop executable

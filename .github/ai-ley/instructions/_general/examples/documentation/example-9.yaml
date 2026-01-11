@@ -1,0 +1,63 @@
+# OpenAPI 3.0 specification example
+openapi: 3.0.0
+info:
+  title: User Management API
+  description: |
+    Comprehensive API for user management operations including registration,
+    authentication, and profile management.
+    
+    ## Authentication
+    This API uses JWT tokens for authentication. Include the token in the 
+    Authorization header: `Authorization: Bearer <token>`
+    
+  version: 2.1.0
+  contact:
+    name: API Support
+    url: https://example.com/support
+    email: support@example.com
+
+servers:
+  - url: https://api.example.com/v2
+    description: Production server
+  - url: https://staging-api.example.com/v2
+    description: Staging server
+
+paths:
+  /users:
+    post:
+      summary: Create a new user
+      description: |
+        Creates a new user account with the provided information.
+        
+        ### Security
+        - Passwords are hashed using bcrypt
+        - Email verification is required
+        - Rate limiting applies: 5 requests per minute
+        
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+            examples:
+              basic_user:
+                summary: Basic user creation
+                value:
+                  email: "user@example.com"
+                  password: "securePassword123"
+                  firstName: "John"
+                  lastName: "Doe"
+      responses:
+        201:
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'

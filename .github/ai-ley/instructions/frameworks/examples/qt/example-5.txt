@@ -1,0 +1,36 @@
+qt_quick_app/
+├── CMakeLists.txt           # Build configuration
+├── main.cpp                 # C++ entry point
+├── qml/
+│   ├── main.qml            # Main QML file
+│   ├── components/         # Reusable QML components
+│   │   ├── CustomButton.qml
+│   │   ├── FileDialog.qml
+│   │   └── NavigationBar.qml
+│   ├── pages/              # Application pages
+│   │   ├── HomePage.qml
+│   │   ├── SettingsPage.qml
+│   │   └── AboutPage.qml
+│   ├── models/             # QML data models
+│   │   └── FileListModel.qml
+│   └── styles/             # Styling and themes
+│       ├── AppStyle.qml
+│       └── Colors.qml
+├── src/                    # C++ backend
+│   ├── applicationcontroller.cpp
+│   ├── applicationcontroller.h
+│   ├── models/
+│   │   ├── filemodel.cpp
+│   │   └── filemodel.h
+│   └── utils/
+│       ├── filemanager.cpp
+│       └── filemanager.h
+├── resources/
+│   ├── qml.qrc             # QML resources
+│   ├── images/
+│   └── fonts/
+├── tests/
+└── platform/               # Platform-specific code
+    ├── windows/
+    ├── macos/
+    └── linux/

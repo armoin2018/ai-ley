@@ -1,0 +1,8 @@
+FT8 Setup Parameters:
+- Audio Level: -20 dB to prevent overmodulation
+- CAT Control: USB interface for frequency control
+- Time Sync: GPS or internet NTP synchronization
+- Frequency: Standard calling frequencies per band plan
+- Power Level: 25 watts maximum for QRP operations
+- Decode Depth: Deep decode enabled for weak signals
+- Split Operation: Configured for DX pile-up management

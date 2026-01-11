@@ -1,0 +1,3 @@
+User: Reduce our Databricks spend by 40% while maintaining performance
+Agent: Creates cluster rightsizing recommendations, spot instance policies,
+auto-termination rules, and cost monitoring dashboards

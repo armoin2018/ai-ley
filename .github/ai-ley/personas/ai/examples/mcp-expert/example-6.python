@@ -1,0 +1,78 @@
+# MCP security and authentication framework
+import jwt
+import hashlib
+import secrets
+from typing import Optional, Dict, Any
+import asyncio
+from functools import wraps
+
+class MCPSecurityManager:
+    def __init__(self, secret_key: str):
+        self.secret_key = secret_key
+        self.active_sessions: Dict[str, Dict] = {}
+        self.rate_limits: Dict[str, list] = {}
+    
+    def generate_api_key(self, client_id: str, permissions: list) -> str:
+        """Generate secure API key for MCP client"""
+        payload = {
+            "client_id": client_id,
+            "permissions": permissions,
+            "created_at": asyncio.get_event_loop().time()
+        }
+        return jwt.encode(payload, self.secret_key, algorithm="HS256")
+    
+    def validate_api_key(self, api_key: str) -> Optional[Dict]:
+        """Validate API key and return client info"""
+        try:
+            payload = jwt.decode(api_key, self.secret_key, algorithms=["HS256"])
+            return payload
+        except jwt.InvalidTokenError:
+            return None
+    
+    def check_permission(self, client_info: Dict, required_permission: str) -> bool:
+        """Check if client has required permission"""
+        permissions = client_info.get("permissions", [])
+        return required_permission in permissions or "admin" in permissions
+    
+    def rate_limit(self, client_id: str, max_requests: int = 100, window_seconds: int = 60) -> bool:
+        """Implement rate limiting for client requests"""
+        current_time = asyncio.get_event_loop().time()
+        window_start = current_time - window_seconds
+        
+        if client_id not in self.rate_limits:
+            self.rate_limits[client_id] = []
+        
+        # Clean old requests
+        self.rate_limits[client_id] = [
+            req_time for req_time in self.rate_limits[client_id]
+            if req_time > window_start
+        ]
+        
+        # Check if under limit
+        if len(self.rate_limits[client_id]) >= max_requests:
+            return False
+        
+        # Add current request
+        self.rate_limits[client_id].append(current_time)
+        return True
+    
+    def secure_handler(self, required_permission: str):
+        """Decorator for securing MCP handlers"""
+        def decorator(func):
+            @wraps(func)
+            async def wrapper(*args, **kwargs):
+                # Extract client info from request context
+                client_info = kwargs.get('client_info')
+                if not client_info:
+                    raise PermissionError("Authentication required")
+                
+                if not self.check_permission(client_info, required_permission):
+                    raise PermissionError(f"Permission '{required_permission}' required")
+                
+                client_id = client_info.get('client_id')
+                if not self.rate_limit(client_id):
+                    raise RuntimeError("Rate limit exceeded")
+                
+                return await func(*args, **kwargs)
+            return wrapper
+        return decorator

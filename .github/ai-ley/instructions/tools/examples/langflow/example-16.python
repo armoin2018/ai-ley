@@ -1,0 +1,9 @@
+# Local model integration
+local_model_config = {
+    "model_path": "/path/to/local/model",
+    "tokenizer_path": "/path/to/tokenizer",
+    "device": "cuda",  # or "cpu"
+    "torch_dtype": "float16",
+    "load_in_8bit": False,
+    "trust_remote_code": True
+}

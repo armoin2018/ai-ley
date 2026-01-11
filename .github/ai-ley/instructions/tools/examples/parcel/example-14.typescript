@@ -1,0 +1,5 @@
+// src/index.ts - Library entry point
+export { Button } from './components/Button';
+export { Input } from './components/Input';
+export { Modal } from './components/Modal';
+export type { ButtonProps, InputProps, ModalProps } from './types';

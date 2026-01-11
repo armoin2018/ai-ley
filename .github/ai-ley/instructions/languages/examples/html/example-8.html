@@ -1,0 +1,43 @@
+<!-- Structured Data for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Article Title",
+  "author": {
+    "@type": "Person",
+    "name": "Author Name"
+  },
+  "datePublished": "2025-01-08",
+  "dateModified": "2025-01-08",
+  "description": "Article description",
+  "image": "https://example.com/article-image.jpg"
+}
+</script>
+
+<!-- Performance Optimization -->
+<head>
+  <!-- Critical resource hints -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://analytics.google.com">
+  
+  <!-- Critical CSS inline -->
+  <style>
+    /* Above-the-fold critical styles */
+  </style>
+  
+  <!-- Non-critical CSS with media queries -->
+  <link rel="stylesheet" 
+        href="/assets/css/print.css" 
+        media="print" 
+        onload="this.media='all'">
+</head>
+
+<!-- Lazy loading for performance -->
+<img src="/assets/images/placeholder.jpg" 
+     data-src="/assets/images/actual-image.jpg"
+     alt="Image description"
+     loading="lazy"
+     class="lazy-load"
+     width="400" 
+     height="300">

@@ -1,0 +1,11 @@
+from cloud_platforms.azure import AzureEnterpriseManager
+
+azure_config = EnterpriseAzureConfig(
+    tenant_id="enterprise-tenant",
+    tier=AzureTier.ENTERPRISE,
+    primary_region=AzureRegion.EAST_US,
+    hybrid_integration=True
+)
+
+azure_manager = AzureEnterpriseManager(azure_config)
+deployment_result = await azure_manager.deploy_enterprise_infrastructure()

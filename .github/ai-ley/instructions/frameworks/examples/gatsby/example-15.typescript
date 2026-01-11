@@ -1,0 +1,16 @@
+// src/pages/404.tsx
+import React from 'react';
+import { PageProps } from 'gatsby';
+import Layout from '../components/layout';
+import SEO from '../components/seo';
+
+const NotFoundPage: React.FC<PageProps> = ({ location }) => (
+  <Layout location={location}>
+    <SEO title="404: Not Found" />
+    <h1>404: Not Found</h1>
+    <p>You just hit a route that doesn&#39;t exist... the sadness.</p>
+    <a href="/">Go back home</a>
+  </Layout>
+);
+
+export default NotFoundPage;

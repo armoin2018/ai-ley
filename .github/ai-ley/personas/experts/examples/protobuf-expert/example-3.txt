@@ -1,0 +1,2 @@
+User: Optimize protobuf serialization for 1M+ messages per second throughput
+Agent: Provides optimized schema design, encoding strategies, and language-specific performance tuning

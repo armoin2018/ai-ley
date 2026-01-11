@@ -1,0 +1,68 @@
+# Quantitative Screening Model
+import pandas as pd
+import numpy as np
+from scipy import stats
+
+class EquityScreener:
+    def __init__(self, universe_data):
+        self.data = universe_data
+        
+    def quality_screen(self, min_roe=12, min_roic=10, max_debt_ratio=0.6):
+        """Screen for quality companies based on profitability and leverage"""
+        quality_filter = (
+            (self.data['roe'] >= min_roe) & 
+            (self.data['roic'] >= min_roic) &
+            (self.data['debt_to_equity'] <= max_debt_ratio) &
+            (self.data['current_ratio'] >= 1.2)
+        )
+        return self.data[quality_filter]
+    
+    def growth_screen(self, min_earnings_growth=10, min_revenue_growth=5):
+        """Screen for growth companies based on historical growth rates"""
+        growth_filter = (
+            (self.data['earnings_growth_5y'] >= min_earnings_growth) &
+            (self.data['revenue_growth_5y'] >= min_revenue_growth) &
+            (self.data['earnings_stability'] >= 0.7)  # Consistency metric
+        )
+        return self.data[growth_filter]
+    
+    def value_screen(self, max_pe=20, max_pb=3, min_dividend_yield=1):
+        """Screen for value companies based on valuation metrics"""
+        value_filter = (
+            (self.data['pe_ratio'] <= max_pe) &
+            (self.data['pb_ratio'] <= max_pb) &
+            (self.data['dividend_yield'] >= min_dividend_yield) &
+            (self.data['fcf_yield'] >= 0.05)
+        )
+        return self.data[value_filter]
+    
+    def momentum_screen(self, min_12m_return=5, min_3m_return=0):
+        """Screen for momentum based on price performance"""
+        momentum_filter = (
+            (self.data['return_12m'] >= min_12m_return) &
+            (self.data['return_3m'] >= min_3m_return) &
+            (self.data['analyst_revisions'] > 0)  # Positive estimate revisions
+        )
+        return self.data[momentum_filter]
+    
+    def composite_score(self, weights={'quality': 0.3, 'growth': 0.3, 'value': 0.2, 'momentum': 0.2}):
+        """Create composite score combining multiple factors"""
+        # Normalize each factor to 0-100 scale
+        quality_score = self.rank_normalize(self.data['roe'] + self.data['roic'])
+        growth_score = self.rank_normalize(self.data['earnings_growth_5y'])
+        value_score = 100 - self.rank_normalize(self.data['pe_ratio'])  # Inverse for value
+        momentum_score = self.rank_normalize(self.data['return_12m'])
+        
+        composite = (
+            weights['quality'] * quality_score +
+            weights['growth'] * growth_score +
+            weights['value'] * value_score +
+            weights['momentum'] * momentum_score
+        )
+        
+        self.data['composite_score'] = composite
+        return self.data.sort_values('composite_score', ascending=False)
+    
+    def rank_normalize(self, series):
+        """Convert to 0-100 percentile ranks"""
+        return stats.rankdata(series, nan_policy='omit') / len(series) * 100

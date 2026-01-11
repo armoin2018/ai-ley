@@ -1,0 +1,14 @@
+# Check PowerShell version
+$PSVersionTable
+
+# Set execution policy (Windows)
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+# Install PowerShellGet and update modules
+Install-Module -Name PowerShellGet -Force
+Update-Module -Name PowerShellGet
+
+# Install common modules
+Install-Module -Name Az -Scope CurrentUser  # Azure
+Install-Module -Name AWS.Tools.Installer -Scope CurrentUser  # AWS
+Install-Module -Name Pester -Scope CurrentUser  # Testing

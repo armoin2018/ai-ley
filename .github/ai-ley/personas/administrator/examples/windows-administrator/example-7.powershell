@@ -1,0 +1,5 @@
+# Domain controller health check
+Get-ADDomainController | ForEach-Object {
+    Test-ComputerSecureChannel -Server $_.Name
+    Repadmin /showrepl $_.Name
+}

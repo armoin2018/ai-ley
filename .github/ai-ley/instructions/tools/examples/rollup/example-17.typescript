@@ -1,0 +1,28 @@
+// src/index.ts
+export interface Config {
+  apiKey: string
+  endpoint?: string
+}
+
+export class MyLibrary {
+  private config: Config
+
+  constructor(config: Config) {
+    this.config = config
+  }
+
+  async fetchData(): Promise<any> {
+    const response = await fetch(`${this.config.endpoint || '/api'}/data`, {
+      headers: {
+        'Authorization': `Bearer ${this.config.apiKey}`
+      }
+    })
+    return response.json()
+  }
+}
+
+export default MyLibrary
+
+// Export everything for named imports
+export * from './utils'
+export * from './types'

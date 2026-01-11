@@ -1,0 +1,4 @@
+Favorites → Insert Transaction
+Favorites → Insert Report
+Favorites → Insert File
+Favorites → Organize

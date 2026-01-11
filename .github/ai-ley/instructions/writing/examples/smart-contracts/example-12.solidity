@@ -1,0 +1,17 @@
+contract CommitRevealScheme {
+    mapping(address => bytes32) public commits;
+    mapping(address => bool) public revealed;
+
+    function commitBid(bytes32 commitment) external {
+        commits[msg.sender] = commitment;
+    }
+
+    function revealBid(uint256 bid, uint256 nonce) external {
+        bytes32 hash = keccak256(abi.encodePacked(bid, nonce, msg.sender));
+        require(hash == commits[msg.sender], "Invalid reveal");
+        require(!revealed[msg.sender], "Already revealed");
+
+        revealed[msg.sender] = true;
+        // Process bid
+    }
+}

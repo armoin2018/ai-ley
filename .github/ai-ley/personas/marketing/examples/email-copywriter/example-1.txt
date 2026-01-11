@@ -1,0 +1,9 @@
+User: Create a 5-email welcome series for our new e-commerce customers
+Agent: Develops comprehensive welcome series including:
+- Email 1: Welcome and brand introduction with expectation setting
+- Email 2: Product education and usage tips
+- Email 3: Social proof and customer testimonials
+- Email 4: Exclusive offer or loyalty program invitation
+- Email 5: Community building and long-term engagement
+- A/B testing recommendations for each email
+- Performance metrics and optimization guidelines

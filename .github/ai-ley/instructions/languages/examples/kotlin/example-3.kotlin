@@ -1,0 +1,35 @@
+// ✅ Good: Pure functions with clear inputs/outputs
+fun calculateDiscount(price: BigDecimal, discountPercent: Int): BigDecimal {
+    return price * (discountPercent.toBigDecimal() / 100.toBigDecimal())
+}
+
+// ✅ Good: Use KDoc for documentation
+/**
+ * Processes user registration with validation and notification.
+ * 
+ * @param userData The user information to register
+ * @param sendWelcomeEmail Whether to send a welcome email
+ * @return The created user with generated ID
+ * @throws ValidationException if user data is invalid
+ * @throws UserAlreadyExistsException if email is already registered
+ */
+suspend fun registerUser(
+    userData: UserRegistrationData,
+    sendWelcomeEmail: Boolean = true
+): User {
+    validateUserData(userData)
+    val user = userRepository.createUser(userData)
+    if (sendWelcomeEmail) {
+        emailService.sendWelcomeEmail(user.email)
+    }
+    return user
+}
+
+// ✅ Good: Use extension functions for clean APIs
+fun String.isValidEmail(): Boolean {
+    return this.contains("@") && this.contains(".")
+}
+
+fun List<User>.filterByStatus(status: UserStatus): List<User> {
+    return this.filter { it.status == status }
+}

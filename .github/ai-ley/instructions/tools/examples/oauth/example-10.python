@@ -1,0 +1,232 @@
+import requests
+import secrets
+import hashlib
+import base64
+from urllib.parse import urlencode, parse_qs
+from datetime import datetime, timedelta
+
+class OAuthClient:
+    """OAuth 2.0 client implementation with PKCE support."""
+
+    def __init__(self, client_id, client_secret, redirect_uri, authorization_endpoint, token_endpoint):
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.redirect_uri = redirect_uri
+        self.authorization_endpoint = authorization_endpoint
+        self.token_endpoint = token_endpoint
+
+        self.access_token = None
+        self.refresh_token = None
+        self.token_expires_at = None
+
+    def generate_authorization_url(self, scope=None, state=None, use_pkce=True):
+        """Generate authorization URL with optional PKCE."""
+        if state is None:
+            state = secrets.token_urlsafe(32)
+
+        params = {
+            'response_type': 'code',
+            'client_id': self.client_id,
+            'redirect_uri': self.redirect_uri,
+            'state': state
+        }
+
+        if scope:
+            params['scope'] = scope
+
+        # Add PKCE parameters for enhanced security
+        if use_pkce:
+            code_verifier = base64.urlsafe_b64encode(secrets.token_bytes(32)).decode('utf-8').rstrip('=')
+            code_challenge = base64.urlsafe_b64encode(
+                hashlib.sha256(code_verifier.encode()).digest()
+            ).decode('utf-8').rstrip('=')
+
+            params['code_challenge'] = code_challenge
+            params['code_challenge_method'] = 'S256'
+
+            # Store code verifier for token exchange
+            self.code_verifier = code_verifier
+
+        authorization_url = f"{self.authorization_endpoint}?{urlencode(params)}"
+        return authorization_url, state
+
+    def exchange_code_for_token(self, authorization_code, state=None, code_verifier=None):
+        """Exchange authorization code for access token."""
+        token_data = {
+            'grant_type': 'authorization_code',
+            'code': authorization_code,
+            'redirect_uri': self.redirect_uri,
+            'client_id': self.client_id
+        }
+
+        # Add PKCE code verifier if used
+        if hasattr(self, 'code_verifier') or code_verifier:
+            token_data['code_verifier'] = code_verifier or self.code_verifier
+
+        # Use client secret for confidential clients
+        if self.client_secret:
+            token_data['client_secret'] = self.client_secret
+
+        try:
+            response = requests.post(
+                self.token_endpoint,
+                data=token_data,
+                headers={'Content-Type': 'application/x-www-form-urlencoded'},
+                timeout=30
+            )
+
+            if response.status_code == 200:
+                token_response = response.json()
+
+                self.access_token = token_response['access_token']
+                self.refresh_token = token_response.get('refresh_token')
+
+                # Calculate token expiration
+                expires_in = token_response.get('expires_in', 3600)
+                self.token_expires_at = datetime.utcnow() + timedelta(seconds=expires_in)
+
+                return token_response
+            else:
+                raise Exception(f"Token exchange failed: {response.status_code} - {response.text}")
+
+        except requests.RequestException as e:
+            raise Exception(f"Token exchange request failed: {str(e)}")
+
+    def refresh_access_token(self):
+        """Refresh access token using refresh token."""
+        if not self.refresh_token:
+            raise Exception("No refresh token available")
+
+        token_data = {
+            'grant_type': 'refresh_token',
+            'refresh_token': self.refresh_token,
+            'client_id': self.client_id
+        }
+
+        if self.client_secret:
+            token_data['client_secret'] = self.client_secret
+
+        try:
+            response = requests.post(
+                self.token_endpoint,
+                data=token_data,
+                headers={'Content-Type': 'application/x-www-form-urlencoded'},
+                timeout=30
+            )
+
+            if response.status_code == 200:
+                token_response = response.json()
+
+                self.access_token = token_response['access_token']
+
+                # Update refresh token if provided
+                if 'refresh_token' in token_response:
+                    self.refresh_token = token_response['refresh_token']
+
+                # Update token expiration
+                expires_in = token_response.get('expires_in', 3600)
+                self.token_expires_at = datetime.utcnow() + timedelta(seconds=expires_in)
+
+                return token_response
+            else:
+                raise Exception(f"Token refresh failed: {response.status_code} - {response.text}")
+
+        except requests.RequestException as e:
+            raise Exception(f"Token refresh request failed: {str(e)}")
+
+    def is_token_expired(self):
+        """Check if access token is expired."""
+        if not self.token_expires_at:
+            return True
+
+        # Add 60-second buffer for network latency
+        return datetime.utcnow() >= (self.token_expires_at - timedelta(seconds=60))
+
+    def get_valid_token(self):
+        """Get valid access token, refreshing if necessary."""
+        if not self.access_token or self.is_token_expired():
+            if self.refresh_token:
+                self.refresh_access_token()
+            else:
+                raise Exception("No valid access token and no refresh token available")
+
+        return self.access_token
+
+    def make_authenticated_request(self, url, method='GET', **kwargs):
+        """Make authenticated API request with automatic token refresh."""
+        token = self.get_valid_token()
+
+        # Add authorization header
+        headers = kwargs.get('headers', {})
+        headers['Authorization'] = f'Bearer {token}'
+        kwargs['headers'] = headers
+
+        try:
+            response = requests.request(method, url, **kwargs)
+
+            # Handle token expiration
+            if response.status_code == 401:
+                # Try to refresh token and retry once
+                if self.refresh_token:
+                    self.refresh_access_token()
+                    headers['Authorization'] = f'Bearer {self.access_token}'
+                    response = requests.request(method, url, **kwargs)
+
+            return response
+
+        except requests.RequestException as e:
+            raise Exception(f"Authenticated request failed: {str(e)}")
+
+    def revoke_token(self, token_type='access_token'):
+        """Revoke access or refresh token."""
+        token = self.access_token if token_type == 'access_token' else self.refresh_token
+
+        if not token:
+            return
+
+        revoke_data = {
+            'token': token,
+            'token_type_hint': token_type,
+            'client_id': self.client_id
+        }
+
+        if self.client_secret:
+            revoke_data['client_secret'] = self.client_secret
+
+        try:
+            response = requests.post(
+                self.token_endpoint.replace('/token', '/revoke'),
+                data=revoke_data,
+                timeout=30
+            )
+
+            if response.status_code == 200:
+                if token_type == 'access_token':
+                    self.access_token = None
+                    self.token_expires_at = None
+                else:
+                    self.refresh_token = None
+
+        except requests.RequestException:
+            # Revocation endpoint might not be available
+            pass
+
+# Usage example
+client = OAuthClient(
+    client_id='your_client_id',
+    client_secret='your_client_secret',
+    redirect_uri='https://yourapp.com/callback',
+    authorization_endpoint='https://auth.provider.com/oauth/authorize',
+    token_endpoint='https://auth.provider.com/oauth/token'
+)
+
+# Generate authorization URL
+auth_url, state = client.generate_authorization_url(scope='read write', use_pkce=True)
+print(f"Visit this URL to authorize: {auth_url}")
+
+# After user authorization, exchange code for token
+# authorization_code = 'code_from_callback'
+# token_response = client.exchange_code_for_token(authorization_code)
+
+# Make authenticated API requests
+# response = client.make_authenticated_request('https://api.provider.com/user')

@@ -1,0 +1,2 @@
+User: Create a scalable icon system with consistent styling and interactive states
+Agent: Develops SVG icon library with optimized markup, CSS styling system, and hover/focus animations

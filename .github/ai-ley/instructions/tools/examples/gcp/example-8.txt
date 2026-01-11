@@ -1,0 +1,7 @@
+## Core Features
+
+### App Engine Deployment
+
+- **Purpose**: Fully managed serverless platform for web applications
+- **Usage**: Deploy web applications without infrastructure management
+- **Example**:

@@ -1,0 +1,180 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+contract QuadraticVoting is Ownable, ReentrancyGuard {
+    struct Proposal {
+        string title;
+        string description;
+        uint256 endTime;
+        bool active;
+        mapping(address => uint256) votes;
+        mapping(address => uint256) creditsUsed;
+        uint256 totalVotes;
+        address proposer;
+    }
+    
+    struct VoterProfile {
+        uint256 voiceCredits;
+        bool isVerified;
+        uint256 lastCreditRefresh;
+        uint256 reputationScore;
+    }
+    
+    mapping(uint256 => Proposal) public proposals;
+    mapping(address => VoterProfile) public voterProfiles;
+    mapping(address => bool) public identityVerifiers;
+    
+    uint256 public nextProposalId = 1;
+    uint256 public baseVoiceCredits = 100;
+    uint256 public creditRefreshPeriod = 30 days;
+    
+    event ProposalCreated(uint256 indexed proposalId, address indexed proposer, string title);
+    event VoteCast(uint256 indexed proposalId, address indexed voter, uint256 votes, uint256 creditsUsed);
+    event IdentityVerified(address indexed voter, address indexed verifier);
+    event CreditsRefreshed(address indexed voter, uint256 newCredits);
+    
+    modifier onlyVerified() {
+        require(voterProfiles[msg.sender].isVerified, "Identity not verified");
+        _;
+    }
+    
+    function verifyIdentity(address voter) external {
+        require(identityVerifiers[msg.sender], "Not authorized verifier");
+        
+        voterProfiles[voter].isVerified = true;
+        voterProfiles[voter].voiceCredits = baseVoiceCredits;
+        voterProfiles[voter].lastCreditRefresh = block.timestamp;
+        voterProfiles[voter].reputationScore = 100; // Starting reputation
+        
+        emit IdentityVerified(voter, msg.sender);
+    }
+    
+    function createProposal(
+        string calldata title,
+        string calldata description,
+        uint256 votingPeriod
+    ) external onlyVerified returns (uint256) {
+        require(bytes(title).length > 0, "Empty title");
+        require(votingPeriod >= 1 days && votingPeriod <= 30 days, "Invalid voting period");
+        
+        uint256 proposalId = nextProposalId++;
+        Proposal storage proposal = proposals[proposalId];
+        
+        proposal.title = title;
+        proposal.description = description;
+        proposal.endTime = block.timestamp + votingPeriod;
+        proposal.active = true;
+        proposal.proposer = msg.sender;
+        
+        emit ProposalCreated(proposalId, msg.sender, title);
+        return proposalId;
+    }
+    
+    function vote(uint256 proposalId, uint256 voteCount) external onlyVerified nonReentrant {
+        Proposal storage proposal = proposals[proposalId];
+        require(proposal.active, "Proposal not active");
+        require(block.timestamp < proposal.endTime, "Voting ended");
+        require(voteCount > 0, "Invalid vote count");
+        
+        // Refresh credits if needed
+        _refreshCreditsIfNeeded(msg.sender);
+        
+        // Calculate quadratic cost: votes^2
+        uint256 creditsNeeded = voteCount * voteCount;
+        uint256 currentCreditsUsed = proposal.creditsUsed[msg.sender];
+        uint256 currentVotes = proposal.votes[msg.sender];
+        
+        // Calculate additional credits needed for new vote total
+        uint256 newVoteTotal = currentVotes + voteCount;
+        uint256 totalCreditsNeeded = newVoteTotal * newVoteTotal;
+        uint256 additionalCreditsNeeded = totalCreditsNeeded - currentCreditsUsed;
+        
+        require(
+            voterProfiles[msg.sender].voiceCredits >= additionalCreditsNeeded,
+            "Insufficient voice credits"
+        );
+        
+        // Update voter's credits and votes
+        voterProfiles[msg.sender].voiceCredits -= additionalCreditsNeeded;
+        proposal.creditsUsed[msg.sender] = totalCreditsNeeded;
+        proposal.votes[msg.sender] = newVoteTotal;
+        proposal.totalVotes += voteCount;
+        
+        // Update reputation based on participation
+        _updateReputation(msg.sender, true);
+        
+        emit VoteCast(proposalId, msg.sender, voteCount, additionalCreditsNeeded);
+    }
+    
+    function getProposalResults(uint256 proposalId) 
+        external 
+        view 
+        returns (
+            string memory title,
+            uint256 totalVotes,
+            bool active,
+            uint256 endTime
+        ) 
+    {
+        Proposal storage proposal = proposals[proposalId];
+        return (
+            proposal.title,
+            proposal.totalVotes,
+            proposal.active,
+            proposal.endTime
+        );
+    }
+    
+    function getUserVotes(uint256 proposalId, address user) 
+        external 
+        view 
+        returns (uint256 votes, uint256 creditsUsed) 
+    {
+        return (proposals[proposalId].votes[user], proposals[proposalId].creditsUsed[user]);
+    }
+    
+    function _refreshCreditsIfNeeded(address voter) internal {
+        VoterProfile storage profile = voterProfiles[voter];
+        
+        if (block.timestamp >= profile.lastCreditRefresh + creditRefreshPeriod) {
+            // Refresh credits based on reputation
+            uint256 bonusCredits = (profile.reputationScore > 100) ? 
+                (profile.reputationScore - 100) / 10 : 0;
+            
+            profile.voiceCredits = baseVoiceCredits + bonusCredits;
+            profile.lastCreditRefresh = block.timestamp;
+            
+            emit CreditsRefreshed(voter, profile.voiceCredits);
+        }
+    }
+    
+    function _updateReputation(address voter, bool positiveAction) internal {
+        VoterProfile storage profile = voterProfiles[voter];
+        
+        if (positiveAction) {
+            profile.reputationScore += 1;
+        } else if (profile.reputationScore > 1) {
+            profile.reputationScore -= 1;
+        }
+    }
+    
+    // Admin functions
+    function addIdentityVerifier(address verifier) external onlyOwner {
+        identityVerifiers[verifier] = true;
+    }
+    
+    function removeIdentityVerifier(address verifier) external onlyOwner {
+        identityVerifiers[verifier] = false;
+    }
+    
+    function updateBaseCredits(uint256 newBaseCredits) external onlyOwner {
+        baseVoiceCredits = newBaseCredits;
+    }
+    
+    function closeProposal(uint256 proposalId) external onlyOwner {
+        proposals[proposalId].active = false;
+    }
+}

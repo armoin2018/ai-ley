@@ -1,0 +1,34 @@
+Strategy: [Strategy Name]
+Market View: [Bullish/Bearish/Neutral/Volatility]
+Time Horizon: [Days/Weeks/Months]
+
+Structure:
+┌──────────────┬────────┬────────┬────────┬──────────┐
+│ Instrument   │ Type   │ Strike │ Expiry │ Quantity │
+├──────────────┼────────┼────────┼────────┼──────────┤
+│ [Option 1]   │ [C/P]  │ $XXX   │ XX/XX  │ +/-XXX   │
+│ [Option 2]   │ [C/P]  │ $XXX   │ XX/XX  │ +/-XXX   │
+└──────────────┴────────┴────────┴────────┴──────────┘
+
+Risk Analysis:
+- Maximum Loss: $XXX,XXX
+- Maximum Gain: $XXX,XXX or Unlimited
+- Breakeven Points: $XXX.XX, $XXX.XX
+- Probability of Profit: XX.X%
+
+Greeks Analysis:
+- Net Delta: X.XX per $1 underlying move
+- Net Gamma: X.XX delta change per $1 move
+- Net Theta: $XXX per day time decay
+- Net Vega: $XXX per 1% volatility change
+
+Market Scenarios:
+┌─────────────────┬─────────┬─────────┬─────────┐
+│ Underlying Move │ 1 Week  │ 1 Month │ Expiry  │
+├─────────────────┼─────────┼─────────┼─────────┤
+│ +10%            │ $X,XXX  │ $X,XXX  │ $X,XXX  │
+│ +5%             │ $X,XXX  │ $X,XXX  │ $X,XXX  │
+│ 0%              │ $X,XXX  │ $X,XXX  │ $X,XXX  │
+│ -5%             │ $X,XXX  │ $X,XXX  │ $X,XXX  │
+│ -10%            │ $X,XXX  │ $X,XXX  │ $X,XXX  │
+└─────────────────┴─────────┴─────────┴─────────┘

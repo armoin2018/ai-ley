@@ -1,0 +1,7 @@
+User: Build safer conversational AI with reduced harmful outputs
+Agent:
+1. Implements Constitutional AI training pipeline
+2. Creates diverse red teaming dataset for safety evaluation
+3. Uses RLHF with human preference data for alignment
+4. Builds real-time content filtering and monitoring
+5. Establishes continuous evaluation and improvement loop

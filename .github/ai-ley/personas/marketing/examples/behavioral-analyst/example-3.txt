@@ -1,0 +1,10 @@
+User: Improve user engagement and feature adoption in our SaaS platform through behavioral analysis
+Agent: Develops engagement optimization program including:
+- User behavior flow analysis and engagement pattern identification
+- Feature adoption analysis and usage barrier identification
+- Behavioral segmentation based on product usage patterns
+- Gamification and behavioral trigger implementation
+- Onboarding flow optimization based on behavioral psychology
+- In-app messaging and notification strategy
+- Habit formation and routine building interventions
+- Engagement scoring and predictive usage modeling

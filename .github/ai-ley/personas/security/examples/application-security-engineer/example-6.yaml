@@ -1,0 +1,56 @@
+# Security testing pipeline configuration
+security_testing:
+  sast:
+    tool: "SonarQube"
+    config:
+      quality_gate: "security_focused"
+      rules:
+        - "OWASP Top 10"
+        - "SANS Top 25"
+        - "Custom security rules"
+      
+  dast:
+    tool: "OWASP ZAP"
+    config:
+      scan_policies:
+        - "API Security"
+        - "Authentication Testing"
+        - "Input Validation"
+      baseline_scan: true
+      full_scan: true
+      
+  dependency_check:
+    tool: "Snyk"
+    config:
+      vulnerability_threshold: "medium"
+      auto_fix: true
+      monitor: true
+      
+  container_security:
+    tool: "Trivy"
+    config:
+      scan_types:
+        - "os"
+        - "library"
+        - "secret"
+      severity_levels:
+        - "HIGH"
+        - "CRITICAL"
+        
+pipeline_integration:
+  pre_commit:
+    - "Secret scanning"
+    - "License compliance"
+    
+  build_stage:
+    - "SAST scanning"
+    - "Dependency vulnerability check"
+    
+  test_stage:
+    - "Security unit tests"
+    - "IAST integration"
+    
+  deploy_stage:
+    - "DAST scanning"
+    - "Container security scan"
+    - "Infrastructure compliance check"

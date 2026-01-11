@@ -1,0 +1,7 @@
+User: Create a custom Bootstrap theme matching our brand guidelines
+Agent:
+- Sets up SCSS build process with custom variables
+- Implements brand color palette using CSS custom properties
+- Customizes Bootstrap components with consistent styling
+- Creates reusable component variations and utilities
+- Provides documentation for theme usage and maintenance

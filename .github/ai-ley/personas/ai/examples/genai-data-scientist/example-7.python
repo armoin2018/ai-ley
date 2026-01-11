@@ -1,0 +1,19 @@
+from trl import PPOTrainer, PPOConfig, AutoModelForCausalLMWithValueHead
+
+def setup_rlhf_training(model, tokenizer, reward_model):
+    config = PPOConfig(
+        batch_size=32,
+        mini_batch_size=4,
+        gradient_accumulation_steps=8,
+        learning_rate=1e-5
+    )
+    
+    trainer = PPOTrainer(
+        config=config,
+        model=model,
+        ref_model=None,
+        tokenizer=tokenizer,
+        reward_model=reward_model
+    )
+    
+    return trainer

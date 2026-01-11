@@ -1,0 +1,123 @@
+#!/usr/bin/env python3
+# performance_monitor.py
+
+import psycopg2
+import json
+import datetime
+import smtplib
+from email.mime.text import MIMEText
+
+def connect_db():
+    return psycopg2.connect(
+        host="localhost",
+        database="myapp",
+        user="monitoring_user",
+        password="monitoring_password"
+    )
+
+def check_slow_queries():
+    """Check for queries slower than threshold"""
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT query, calls, mean_exec_time, total_exec_time
+        FROM pg_stat_statements
+        WHERE mean_exec_time > 1000  -- Slower than 1 second
+        ORDER BY mean_exec_time DESC
+        LIMIT 10
+    """)
+
+    slow_queries = cursor.fetchall()
+    conn.close()
+
+    return slow_queries
+
+def check_connection_count():
+    """Check connection usage"""
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT COUNT(*) as current_connections,
+               setting::int as max_connections
+        FROM pg_stat_activity, pg_settings
+        WHERE name = 'max_connections'
+    """)
+
+    current, max_conn = cursor.fetchone()
+    usage_percent = (current * 100.0) / max_conn
+    conn.close()
+
+    return current, max_conn, usage_percent
+
+def check_replication_lag():
+    """Check replication lag if applicable"""
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT pg_wal_lsn_diff(sent_lsn, replay_lsn) as lag_bytes
+            FROM pg_stat_replication
+            ORDER BY lag_bytes DESC NULLS LAST
+            LIMIT 1
+        """)
+
+        result = cursor.fetchone()
+        lag_bytes = result[0] if result else 0
+    except:
+        lag_bytes = 0
+
+    conn.close()
+    return lag_bytes
+
+def send_alert(subject, message):
+    """Send email alert"""
+    smtp_server = "localhost"
+    sender = "postgres-monitor@company.com"
+    recipients = ["dba@company.com"]
+
+    msg = MIMEText(message)
+    msg['Subject'] = subject
+    msg['From'] = sender
+    msg['To'] = ', '.join(recipients)
+
+    try:
+        server = smtplib.SMTP(smtp_server)
+        server.send_message(msg)
+        server.quit()
+    except Exception as e:
+        print(f"Failed to send alert: {e}")
+
+def main():
+    alerts = []
+
+    # Check slow queries
+    slow_queries = check_slow_queries()
+    if slow_queries:
+        alerts.append(f"Found {len(slow_queries)} slow queries")
+
+    # Check connections
+    current, max_conn, usage_percent = check_connection_count()
+    if usage_percent > 80:
+        alerts.append(f"High connection usage: {usage_percent:.1f}% ({current}/{max_conn})")
+
+    # Check replication lag
+    lag_bytes = check_replication_lag()
+    if lag_bytes and lag_bytes > 100 * 1024 * 1024:  # 100MB lag
+        alerts.append(f"High replication lag: {lag_bytes / (1024*1024):.1f} MB")
+
+    # Send alerts if any issues found
+    if alerts:
+        message = "PostgreSQL Performance Issues Detected:
+
+" + "
+".join(alerts)
+        send_alert("PostgreSQL Performance Alert", message)
+        print("Alerts sent:", alerts)
+    else:
+        print("All checks passed")
+
+if __name__ == "__main__":
+    main()

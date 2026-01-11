@@ -1,0 +1,119 @@
+// src-tauri/src/services/app_state.rs
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
+use tauri::{command, State};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AppSettings {
+    pub theme: String,
+    pub language: String,
+    pub auto_save: bool,
+    pub recent_files: Vec<String>,
+}
+
+impl Default for AppSettings {
+    fn default() -> Self {
+        Self {
+            theme: "dark".to_string(),
+            language: "en".to_string(),
+            auto_save: true,
+            recent_files: Vec::new(),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct AppState {
+    pub settings: Arc<Mutex<AppSettings>>,
+    pub cache: Arc<Mutex<HashMap<String, String>>>,
+}
+
+impl AppState {
+    pub fn new() -> Self {
+        Self {
+            settings: Arc::new(Mutex::new(AppSettings::default())),
+            cache: Arc::new(Mutex::new(HashMap::new())),
+        }
+    }
+
+    pub fn load_settings(&self) -> Result<AppSettings, String> {
+        // Load settings from file or database
+        let settings_path = tauri::api::path::app_data_dir(&tauri::Config::default())
+            .ok_or("Failed to get app data directory")?
+            .join("settings.json");
+
+        if settings_path.exists() {
+            let content = std::fs::read_to_string(&settings_path)
+                .map_err(|e| format!("Failed to read settings: {}", e))?;
+
+            let settings: AppSettings = serde_json::from_str(&content)
+                .map_err(|e| format!("Failed to parse settings: {}", e))?;
+
+            *self.settings.lock().unwrap() = settings.clone();
+            Ok(settings)
+        } else {
+            Ok(AppSettings::default())
+        }
+    }
+
+    pub fn save_settings(&self, settings: &AppSettings) -> Result<(), String> {
+        let settings_path = tauri::api::path::app_data_dir(&tauri::Config::default())
+            .ok_or("Failed to get app data directory")?
+            .join("settings.json");
+
+        // Create directory if it doesn't exist
+        if let Some(parent) = settings_path.parent() {
+            std::fs::create_dir_all(parent)
+                .map_err(|e| format!("Failed to create settings directory: {}", e))?;
+        }
+
+        let content = serde_json::to_string_pretty(settings)
+            .map_err(|e| format!("Failed to serialize settings: {}", e))?;
+
+        std::fs::write(&settings_path, content)
+            .map_err(|e| format!("Failed to write settings: {}", e))?;
+
+        *self.settings.lock().unwrap() = settings.clone();
+        Ok(())
+    }
+}
+
+#[command]
+pub async fn get_settings(state: State<'_, AppState>) -> Result<AppSettings, String> {
+    state.load_settings()
+}
+
+#[command]
+pub async fn update_settings(
+    settings: AppSettings,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    state.save_settings(&settings)
+}
+
+#[command]
+pub async fn add_recent_file(
+    file_path: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let mut current_settings = state.load_settings()?;
+
+    // Remove if already exists
+    current_settings.recent_files.retain(|f| f != &file_path);
+
+    // Add to front
+    current_settings.recent_files.insert(0, file_path);
+
+    // Keep only last 10 files
+    current_settings.recent_files.truncate(10);
+
+    state.save_settings(&current_settings)
+}
+
+#[command]
+pub async fn clear_recent_files(state: State<'_, AppState>) -> Result<(), String> {
+    let mut current_settings = state.load_settings()?;
+    current_settings.recent_files.clear();
+    state.save_settings(&current_settings)
+}

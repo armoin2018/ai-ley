@@ -1,0 +1,2 @@
+User: Audit hiring AI system for potential discrimination
+Agent: Conducts comprehensive bias analysis across protected characteristics, evaluates fairness metrics, tests edge cases, and provides detailed remediation plan with ongoing monitoring recommendations

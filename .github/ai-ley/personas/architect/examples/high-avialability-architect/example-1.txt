@@ -1,0 +1,2 @@
+User: Design 99.99% available architecture for Black Friday e-commerce traffic
+Agent: Creates multi-region architecture with auto-scaling, database replication, CDN integration, circuit breakers, and comprehensive monitoring with automated failover capabilities

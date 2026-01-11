@@ -1,0 +1,35 @@
+import { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+  appId: 'com.example.myapp',
+  appName: 'My App',
+  webDir: 'dist',
+  server: {
+    androidScheme: 'https',
+  },
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 2000,
+      backgroundColor: '#ffffff',
+      androidSplashResourceName: 'splash',
+      showSpinner: false,
+    },
+    StatusBar: {
+      style: 'dark',
+    },
+    PushNotifications: {
+      presentationOptions: ['badge', 'sound', 'alert'],
+    },
+  },
+  ios: {
+    contentInset: 'automatic',
+  },
+  android: {
+    buildOptions: {
+      keystorePath: 'release.keystore',
+      keystoreAlias: 'my-app',
+    },
+  },
+};
+
+export default config;

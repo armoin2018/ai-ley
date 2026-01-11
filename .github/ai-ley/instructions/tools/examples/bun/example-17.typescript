@@ -1,0 +1,18 @@
+// basic.test.ts
+import { expect, test, describe, beforeEach, afterEach } from "bun:test";
+
+describe("Calculator", () => {
+  let calculator: Calculator;
+
+  beforeEach(() => {
+    calculator = new Calculator();
+  });
+
+  test("should add numbers correctly", () => {
+    expect(calculator.add(2, 3)).toBe(5);
+  });
+
+  test("should handle edge cases", () => {
+    expect(calculator.divide(10, 0)).toThrow("Division by zero");
+  });
+});

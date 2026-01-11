@@ -1,0 +1,63 @@
+// src/styles/main.scss - Main stylesheet
+@import 'variables';
+@import 'components/header';
+@import 'components/footer';
+
+// Global styles
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+  color: $text-color;
+  background-color: $bg-color;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding: $spacing-lg;
+  
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-md;
+  }
+}
+
+// Utility classes
+.container {
+  max-width: $container-max-width;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+}
+
+.btn {
+  display: inline-block;
+  padding: $spacing-sm $spacing-md;
+  background-color: $primary-color;
+  color: white;
+  text-decoration: none;
+  border-radius: $border-radius;
+  transition: background-color 0.3s ease;
+  
+  &:hover {
+    background-color: darken($primary-color, 10%);
+  }
+  
+  &.btn-secondary {
+    background-color: $secondary-color;
+    
+    &:hover {
+      background-color: darken($secondary-color, 10%);
+    }
+  }
+}

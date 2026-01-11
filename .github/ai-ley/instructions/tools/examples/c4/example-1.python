@@ -1,0 +1,315 @@
+# Enterprise C4 Context Diagram Generator
+from dataclasses import dataclass, asdict
+from typing import List, Dict, Any, Optional, Set
+from enum import Enum
+import json
+
+class StakeholderType(Enum):
+    CUSTOMER = "Customer"
+    INTERNAL_USER = "Internal User"
+    ADMIN = "Administrator"
+    EXTERNAL_SYSTEM = "External System"
+    PARTNER_SYSTEM = "Partner System"
+    REGULATORY_BODY = "Regulatory Body"
+
+class SystemType(Enum):
+    CORE_BUSINESS = "Core Business System"
+    SUPPORTING = "Supporting System"
+    EXTERNAL = "External System"
+    LEGACY = "Legacy System"
+    SAAS = "SaaS Solution"
+    INFRASTRUCTURE = "Infrastructure System"
+
+@dataclass
+class ContextStakeholder:
+    id: str
+    name: str
+    description: str
+    stakeholder_type: StakeholderType
+    criticality: str  # HIGH, MEDIUM, LOW
+    compliance_requirements: List[str]
+    interaction_patterns: List[str]
+    data_sensitivity: str
+    availability_requirements: str
+
+@dataclass
+class ContextSystem:
+    id: str
+    name: str
+    description: str
+    system_type: SystemType
+    owner: str
+    technology_stack: List[str]
+    criticality: str
+    compliance_frameworks: List[str]
+    data_classification: str
+    sla_requirements: Dict[str, Any]
+    security_requirements: List[str]
+
+@dataclass
+class SystemRelationship:
+    id: str
+    source_id: str
+    target_id: str
+    relationship_type: str  # USES, DEPENDS_ON, INTEGRATES_WITH, PROVIDES_DATA, etc.
+    description: str
+    protocols: List[str]
+    data_flow: str  # BIDIRECTIONAL, SOURCE_TO_TARGET, TARGET_TO_SOURCE
+    frequency: str  # REAL_TIME, BATCH, ON_DEMAND
+    volume: str  # HIGH, MEDIUM, LOW
+    security_controls: List[str]
+    compliance_considerations: List[str]
+
+class EnterpriseC4ContextEngine:
+    """
+    Enterprise C4 Context Diagram Engine
+    Generates comprehensive system context diagrams with enterprise architecture governance
+    """
+
+    def __init__(self, config: Dict[str, Any]):
+        self.config = config
+        self.architecture_standards = self._load_architecture_standards()
+        self.compliance_frameworks = self._load_compliance_frameworks()
+        self.governance_policies = self._load_governance_policies()
+
+    def generate_context_diagram(
+        self,
+        system_name: str,
+        stakeholders: List[ContextStakeholder],
+        systems: List[ContextSystem],
+        relationships: List[SystemRelationship]
+    ) -> Dict[str, Any]:
+        """Generate comprehensive enterprise context diagram"""
+
+        # Validate architecture compliance
+        compliance_result = self._validate_context_compliance(stakeholders, systems, relationships)
+
+        # Generate PlantUML C4 context diagram
+        plantuml_diagram = self._generate_context_plantuml(system_name, stakeholders, systems, relationships)
+
+        # Generate Mermaid diagram
+        mermaid_diagram = self._generate_context_mermaid(system_name, stakeholders, systems, relationships)
+
+        # Generate D2 diagram
+        d2_diagram = self._generate_context_d2(system_name, stakeholders, systems, relationships)
+
+        # Architecture analysis
+        architecture_analysis = self._analyze_context_architecture(stakeholders, systems, relationships)
+
+        # Generate documentation
+        documentation = self._generate_context_documentation(
+            system_name, stakeholders, systems, relationships, architecture_analysis
+        )
+
+        # Security assessment
+        security_assessment = self._assess_context_security(systems, relationships)
+
+        # Compliance assessment
+        compliance_assessment = self._assess_context_compliance(systems, relationships)
+
+        return {
+            'system_name': system_name,
+            'diagram_type': 'C4_CONTEXT',
+            'generated_at': self._get_timestamp(),
+            'diagrams': {
+                'plantuml': plantuml_diagram,
+                'mermaid': mermaid_diagram,
+                'd2': d2_diagram
+            },
+            'stakeholders': [asdict(s) for s in stakeholders],
+            'systems': [asdict(s) for s in systems],
+            'relationships': [asdict(r) for r in relationships],
+            'architecture_analysis': architecture_analysis,
+            'security_assessment': security_assessment,
+            'compliance_assessment': compliance_assessment,
+            'documentation': documentation,
+            'governance': {
+                'compliance_result': compliance_result,
+                'recommendations': self._generate_governance_recommendations(compliance_result),
+                'risk_assessment': self._assess_context_risks(systems, relationships)
+            }
+        }
+
+    def _generate_context_plantuml(
+        self,
+        system_name: str,
+        stakeholders: List[ContextStakeholder],
+        systems: List[ContextSystem],
+        relationships: List[SystemRelationship]
+    ) -> str:
+        """Generate PlantUML C4 context diagram"""
+
+        diagram = f"""@startuml {system_name}_Context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Enterprise System Context Diagram: {system_name}
+
+' Define color scheme for enterprise architecture
+!define CORE_BUSINESS #1f77b4
+!define SUPPORTING #ff7f0e
+!define EXTERNAL #2ca02c
+!define LEGACY #d62728
+!define SAAS #9467bd
+!define INFRASTRUCTURE #8c564b
+
+"""
+
+        # Add stakeholders
+        for stakeholder in stakeholders:
+            color = self._get_stakeholder_color(stakeholder.stakeholder_type)
+            criticality_icon = "⭐" if stakeholder.criticality == "HIGH" else "◯"
+
+            diagram += f"""Person({stakeholder.id}, "{stakeholder.name}", "{stakeholder.description}\\n{criticality_icon} {stakeholder.criticality} Criticality", {color})
+"""
+
+        # Add systems
+        for system in systems:
+            color = self._get_system_color(system.system_type)
+            tech_stack = ", ".join(system.technology_stack[:3])  # Show first 3 technologies
+            compliance = ", ".join(system.compliance_frameworks[:2])  # Show first 2 frameworks
+
+            if system.system_type == SystemType.EXTERNAL:
+                diagram += f"""System_Ext({system.id}, "{system.name}", "{system.description}\\nTech: {tech_stack}\\nCompliance: {compliance}", {color})
+"""
+            else:
+                diagram += f"""System({system.id}, "{system.name}", "{system.description}\\nTech: {tech_stack}\\nCompliance: {compliance}", {color})
+"""
+
+        # Add relationships
+        for rel in relationships:
+            protocol_info = ", ".join(rel.protocols) if rel.protocols else "Unknown"
+            frequency_icon = "⚡" if rel.frequency == "REAL_TIME" else "📦" if rel.frequency == "BATCH" else "🔄"
+
+            diagram += f"""Rel({rel.source_id}, {rel.target_id}, "{rel.description}", "{frequency_icon} {rel.frequency}\\n{protocol_info}")
+"""
+
+        # Add enterprise notes
+        diagram += """
+note top of """ + systems[0].id + """ : Enterprise Architecture Standards Applied
+note bottom : Generated by C4 Enterprise Platform
+- Security controls validated
+- Compliance requirements verified
+- Architecture governance applied
+end note
+
+@enduml"""
+
+        return diagram
+
+    def _generate_context_mermaid(
+        self,
+        system_name: str,
+        stakeholders: List[ContextStakeholder],
+        systems: List[ContextSystem],
+        relationships: List[SystemRelationship]
+    ) -> str:
+        """Generate Mermaid C4 context diagram"""
+
+        diagram = f"""graph TD
+    %% Enterprise System Context Diagram: {system_name}
+
+    classDef stakeholder fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef coreSystem fill:#e8f5e8,stroke:#2e7d32,stroke-width:3px
+    classDef supportSystem fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef externalSystem fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    classDef legacySystem fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+
+"""
+
+        # Add stakeholders
+        for stakeholder in stakeholders:
+            clean_id = stakeholder.id.replace("-", "_")
+            criticality_indicator = "🔴" if stakeholder.criticality == "HIGH" else "🟡" if stakeholder.criticality == "MEDIUM" else "🟢"
+
+            diagram += f"""    {clean_id}["{stakeholder.name}\\n{stakeholder.stakeholder_type.value}\\n{criticality_indicator}"]
+    class {clean_id} stakeholder
+"""
+
+        # Add systems
+        for system in systems:
+            clean_id = system.id.replace("-", "_")
+            tech_preview = system.technology_stack[0] if system.technology_stack else "Unknown"
+
+            if system.system_type == SystemType.CORE_BUSINESS:
+                class_name = "coreSystem"
+            elif system.system_type == SystemType.SUPPORTING:
+                class_name = "supportSystem"
+            elif system.system_type == SystemType.EXTERNAL:
+                class_name = "externalSystem"
+            elif system.system_type == SystemType.LEGACY:
+                class_name = "legacySystem"
+            else:
+                class_name = "supportSystem"
+
+            diagram += f"""    {clean_id}["{system.name}\\n{system.system_type.value}\\n{tech_preview}"]
+    class {clean_id} {class_name}
+"""
+
+        # Add relationships
+        for rel in relationships:
+            source_clean = rel.source_id.replace("-", "_")
+            target_clean = rel.target_id.replace("-", "_")
+
+            if rel.data_flow == "BIDIRECTIONAL":
+                diagram += f"""    {source_clean} <--> {target_clean}
+"""
+            else:
+                diagram += f"""    {source_clean} --> {target_clean}
+"""
+
+        return diagram
+
+    def _analyze_context_architecture(
+        self,
+        stakeholders: List[ContextStakeholder],
+        systems: List[ContextSystem],
+        relationships: List[SystemRelationship]
+    ) -> Dict[str, Any]:
+        """Comprehensive context architecture analysis"""
+
+        # System complexity analysis
+        system_count_by_type = {}
+        for system in systems:
+            system_type = system.system_type.value
+            system_count_by_type[system_type] = system_count_by_type.get(system_type, 0) + 1
+
+        # Relationship complexity analysis
+        relationship_complexity = {
+            'total_relationships': len(relationships),
+            'high_frequency_integrations': len([r for r in relationships if r.frequency == "REAL_TIME"]),
+            'batch_integrations': len([r for r in relationships if r.frequency == "BATCH"]),
+            'bidirectional_flows': len([r for r in relationships if r.data_flow == "BIDIRECTIONAL"]),
+        }
+
+        # Stakeholder impact analysis
+        stakeholder_complexity = {
+            'total_stakeholders': len(stakeholders),
+            'high_criticality_stakeholders': len([s for s in stakeholders if s.criticality == "HIGH"]),
+            'external_stakeholders': len([s for s in stakeholders if s.stakeholder_type in [StakeholderType.EXTERNAL_SYSTEM, StakeholderType.PARTNER_SYSTEM]]),
+            'compliance_requirements': len(set([req for s in stakeholders for req in s.compliance_requirements]))
+        }
+
+        # Integration patterns analysis
+        integration_patterns = self._analyze_integration_patterns(relationships)
+
+        # Technology landscape analysis
+        technology_analysis = self._analyze_technology_landscape(systems)
+
+        # Architecture quality metrics
+        quality_metrics = self._calculate_architecture_quality_metrics(systems, relationships)
+
+        return {
+            'system_distribution': system_count_by_type,
+            'relationship_complexity': relationship_complexity,
+            'stakeholder_complexity': stakeholder_complexity,
+            'integration_patterns': integration_patterns,
+            'technology_analysis': technology_analysis,
+            'quality_metrics': quality_metrics,
+            'recommendations': self._generate_architecture_recommendations(
+                systems, relationships, quality_metrics
+            )
+        }
+
+#### **Container Level - Application Architecture**

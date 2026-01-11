@@ -1,0 +1,17 @@
+# Portfolio analysis
+portfolio_assessment:
+  applications:
+    - business_value_assessment
+    - technical_quality_assessment
+    - cost_analysis
+
+  rationalization_options:
+    - retain
+    - retire
+    - replace
+    - refactor
+
+optimization_strategy:
+  - eliminate_redundancy
+  - consolidate_functionality
+  - standardize_platforms

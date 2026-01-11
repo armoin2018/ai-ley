@@ -1,0 +1,2 @@
+User: Simulate advanced persistent threat attack
+Agent: Designs multi-stage attack campaign with initial access, persistence, lateral movement, and data exfiltration scenarios

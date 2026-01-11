@@ -1,0 +1,228 @@
+use std::collections::{HashMap, HashSet};
+use std::sync::{Arc, Mutex};
+use tokio::time::{timeout, Duration};
+use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Block {
+    pub height: u64,
+    pub timestamp: u64,
+    pub previous_hash: String,
+    pub transactions: Vec<Transaction>,
+    pub validator: String,
+    pub signature: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Transaction {
+    pub from: String,
+    pub to: String,
+    pub amount: u64,
+    pub nonce: u64,
+    pub signature: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Vote {
+    pub block_hash: String,
+    pub height: u64,
+    pub round: u32,
+    pub vote_type: VoteType,
+    pub validator: String,
+    pub signature: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum VoteType {
+    Prevote,
+    Precommit,
+}
+
+pub struct TendermintConsensus {
+    pub validator_id: String,
+    pub validators: Arc<Mutex<HashMap<String, ValidatorInfo>>>,
+    pub blockchain: Arc<Mutex<Vec<Block>>>,
+    pub vote_pool: Arc<Mutex<HashMap<u64, HashMap<String, Vote>>>>,
+    pub current_height: Arc<Mutex<u64>>,
+    pub current_round: Arc<Mutex<u32>>,
+}
+
+#[derive(Debug, Clone)]
+pub struct ValidatorInfo {
+    pub address: String,
+    pub voting_power: u64,
+    pub public_key: String,
+}
+
+impl TendermintConsensus {
+    pub fn new(validator_id: String, validators: HashMap<String, ValidatorInfo>) -> Self {
+        Self {
+            validator_id,
+            validators: Arc::new(Mutex::new(validators)),
+            blockchain: Arc::new(Mutex::new(Vec::new())),
+            vote_pool: Arc::new(Mutex::new(HashMap::new())),
+            current_height: Arc::new(Mutex::new(1)),
+            current_round: Arc::new(Mutex::new(0)),
+        }
+    }
+    
+    pub async fn consensus_round(&self) -> Result<Block, ConsensusError> {
+        let height = *self.current_height.lock().unwrap();
+        let mut round = *self.current_round.lock().unwrap();
+        
+        loop {
+            // Step 1: Propose
+            if self.is_proposer(height, round).await? {
+                let proposal = self.create_proposal(height).await?;
+                self.broadcast_proposal(proposal.clone()).await?;
+            }
+            
+            // Step 2: Prevote
+            let proposal = self.wait_for_proposal(height, round).await?;
+            if self.validate_proposal(&proposal).await? {
+                let prevote = self.create_vote(proposal.hash(), height, round, VoteType::Prevote).await?;
+                self.broadcast_vote(prevote).await?;
+            }
+            
+            // Step 3: Precommit
+            if self.has_majority_prevotes(height, round).await? {
+                let precommit = self.create_vote(proposal.hash(), height, round, VoteType::Precommit).await?;
+                self.broadcast_vote(precommit).await?;
+            }
+            
+            // Step 4: Commit
+            if self.has_majority_precommits(height, round).await? {
+                self.commit_block(proposal).await?;
+                *self.current_height.lock().unwrap() += 1;
+                *self.current_round.lock().unwrap() = 0;
+                return Ok(proposal);
+            }
+            
+            // Move to next round if no consensus
+            round += 1;
+            *self.current_round.lock().unwrap() = round;
+            
+            // Timeout mechanism
+            if round > 10 {
+                return Err(ConsensusError::Timeout);
+            }
+        }
+    }
+    
+    async fn is_proposer(&self, height: u64, round: u32) -> Result<bool, ConsensusError> {
+        let validators = self.validators.lock().unwrap();
+        let total_validators = validators.len();
+        let proposer_index = ((height + round as u64) % total_validators as u64) as usize;
+        
+        let proposer_id = validators.keys().nth(proposer_index)
+            .ok_or(ConsensusError::InvalidProposer)?;
+            
+        Ok(proposer_id == &self.validator_id)
+    }
+    
+    async fn create_proposal(&self, height: u64) -> Result<Block, ConsensusError> {
+        let blockchain = self.blockchain.lock().unwrap();
+        let previous_block = blockchain.last().cloned()
+            .unwrap_or_else(|| self.genesis_block());
+        
+        let transactions = self.select_transactions().await?;
+        
+        let block = Block {
+            height,
+            timestamp: chrono::Utc::now().timestamp() as u64,
+            previous_hash: self.hash_block(&previous_block),
+            transactions,
+            validator: self.validator_id.clone(),
+            signature: String::new(), // Would be signed with validator's private key
+        };
+        
+        Ok(block)
+    }
+    
+    async fn validate_proposal(&self, block: &Block) -> Result<bool, ConsensusError> {
+        // Validate block height
+        let current_height = *self.current_height.lock().unwrap();
+        if block.height != current_height {
+            return Ok(false);
+        }
+        
+        // Validate previous hash
+        let blockchain = self.blockchain.lock().unwrap();
+        if let Some(previous_block) = blockchain.last() {
+            let expected_hash = self.hash_block(previous_block);
+            if block.previous_hash != expected_hash {
+                return Ok(false);
+            }
+        }
+        
+        // Validate transactions
+        for tx in &block.transactions {
+            if !self.validate_transaction(tx).await? {
+                return Ok(false);
+            }
+        }
+        
+        // Validate validator signature
+        self.verify_block_signature(block).await
+    }
+    
+    async fn has_majority_prevotes(&self, height: u64, round: u32) -> Result<bool, ConsensusError> {
+        let vote_pool = self.vote_pool.lock().unwrap();
+        let height_votes = vote_pool.get(&height).unwrap_or(&HashMap::new());
+        
+        let prevote_count = height_votes.values()
+            .filter(|vote| vote.round == round && matches!(vote.vote_type, VoteType::Prevote))
+            .count();
+            
+        let validators = self.validators.lock().unwrap();
+        let total_voting_power: u64 = validators.values().map(|v| v.voting_power).sum();
+        let majority_threshold = (total_voting_power * 2 / 3) + 1;
+        
+        let prevote_power: u64 = height_votes.values()
+            .filter(|vote| vote.round == round && matches!(vote.vote_type, VoteType::Prevote))
+            .filter_map(|vote| validators.get(&vote.validator).map(|v| v.voting_power))
+            .sum();
+            
+        Ok(prevote_power >= majority_threshold)
+    }
+    
+    async fn commit_block(&self, block: Block) -> Result<(), ConsensusError> {
+        // Validate one final time
+        if !self.validate_proposal(&block).await? {
+            return Err(ConsensusError::InvalidBlock);
+        }
+        
+        // Apply state transitions
+        for transaction in &block.transactions {
+            self.apply_transaction(transaction).await?;
+        }
+        
+        // Add to blockchain
+        self.blockchain.lock().unwrap().push(block.clone());
+        
+        // Notify other components
+        self.notify_block_committed(block).await?;
+        
+        Ok(())
+    }
+    
+    fn hash_block(&self, block: &Block) -> String {
+        let mut hasher = Sha256::new();
+        let serialized = serde_json::to_string(block).unwrap();
+        hasher.update(serialized.as_bytes());
+        format!("{:x}", hasher.finalize())
+    }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum ConsensusError {
+    #[error("Consensus timeout")]
+    Timeout,
+    #[error("Invalid proposer")]
+    InvalidProposer,
+    #[error("Invalid block")]
+    InvalidBlock,
+    #[error("Network error: {0}")]
+    Network(String),
+}

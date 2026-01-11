@@ -1,0 +1,16 @@
+{
+  "pnpm": {
+    "overrides": {
+      "semver@<7.5.2": ">=7.5.2",
+      "lodash@<4.17.21": ">=4.17.21",
+      "minimist": "^1.2.6"
+    },
+    "neverBuiltDependencies": [
+      "fsevents",
+      "level"
+    ],
+    "onlyBuiltDependencies": [
+      "core-js"
+    ]
+  }
+}

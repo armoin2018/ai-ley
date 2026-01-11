@@ -1,0 +1,47 @@
+import pytest
+from myapp.services import UserService
+from myapp.models import User
+
+class TestUserService:
+    """Test suite for UserService."""
+
+    def test_create_user_success(self, db_session, sample_user):
+        """Test successful user creation."""
+        # Arrange
+        service = UserService(db_session)
+        user_data = sample_user
+
+        # Act
+        result = service.create_user(user_data)
+
+        # Assert
+        assert result.id == user_data["id"]
+        assert result.username == user_data["username"]
+        assert result.email == user_data["email"]
+        assert result.is_active is True
+
+    def test_create_user_duplicate_email(self, db_session, sample_user):
+        """Test user creation with duplicate email fails."""
+        # Arrange
+        service = UserService(db_session)
+        service.create_user(sample_user)  # Create first user
+
+        # Act & Assert
+        with pytest.raises(ValueError, match="Email already exists"):
+            service.create_user(sample_user)  # Try to create duplicate
+
+    @pytest.mark.parametrize("email,is_valid", [
+        ("valid@example.com", True),
+        ("invalid-email", False),
+        ("", False),
+        ("test@", False),
+        ("@example.com", False),
+    ])
+    def test_validate_email(self, email, is_valid):
+        """Test email validation with various inputs."""
+        service = UserService(None)
+
+        if is_valid:
+            assert service.validate_email(email) is True
+        else:
+            assert service.validate_email(email) is False

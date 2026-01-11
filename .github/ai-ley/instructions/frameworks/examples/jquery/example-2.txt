@@ -1,0 +1,14 @@
+project-root/
+  css/
+    styles.css
+    vendor/
+  js/
+    main.js
+    modules/
+      components.js
+      utils.js
+    vendor/
+      jquery.min.js
+  images/
+  index.html
+  package.json

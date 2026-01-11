@@ -1,0 +1,91 @@
+# Government Relations CRM System
+import pandas as pd
+from datetime import datetime, timedelta
+import networkx as nx
+
+class StakeholderRelationshipManager:
+    def __init__(self):
+        self.contacts = pd.DataFrame(columns=[
+            'contact_id', 'name', 'title', 'organization', 'contact_type',
+            'policy_interests', 'influence_level', 'relationship_strength',
+            'last_contact', 'next_follow_up', 'preferred_communication'
+        ])
+        self.interactions = pd.DataFrame(columns=[
+            'interaction_id', 'contact_id', 'date', 'type', 'topic',
+            'outcome', 'follow_up_required', 'notes'
+        ])
+        self.issues = pd.DataFrame(columns=[
+            'issue_id', 'title', 'status', 'priority', 'stakeholders',
+            'positions', 'timeline', 'strategy'
+        ])
+
+    def add_stakeholder(self, contact_info):
+        """Add new stakeholder to relationship database"""
+        contact_id = len(self.contacts) + 1
+        contact_info['contact_id'] = contact_id
+        contact_info['relationship_strength'] = self.assess_relationship_strength(contact_info)
+
+        self.contacts = pd.concat([self.contacts, pd.DataFrame([contact_info])], ignore_index=True)
+        return contact_id
+
+    def log_interaction(self, contact_id, interaction_data):
+        """Record interaction with stakeholder"""
+        interaction = {
+            'interaction_id': len(self.interactions) + 1,
+            'contact_id': contact_id,
+            'date': datetime.now(),
+            **interaction_data
+        }
+
+        self.interactions = pd.concat([self.interactions, pd.DataFrame([interaction])], ignore_index=True)
+
+        # Update last contact date
+        self.contacts.loc[self.contacts['contact_id'] == contact_id, 'last_contact'] = datetime.now()
+
+        # Schedule follow-up if required
+        if interaction_data.get('follow_up_required'):
+            follow_up_date = datetime.now() + timedelta(days=interaction_data.get('follow_up_days', 30))
+            self.contacts.loc[self.contacts['contact_id'] == contact_id, 'next_follow_up'] = follow_up_date
+
+    def map_issue_network(self, issue_id):
+        """Create network map of stakeholders for specific issue"""
+        issue_stakeholders = self.issues[self.issues['issue_id'] == issue_id]['stakeholders'].iloc[0]
+
+        # Create network graph
+        G = nx.Graph()
+
+        for stakeholder_id in issue_stakeholders:
+            stakeholder = self.contacts[self.contacts['contact_id'] == stakeholder_id].iloc[0]
+            G.add_node(stakeholder_id,
+                      name=stakeholder['name'],
+                      influence=stakeholder['influence_level'],
+                      position=self.get_stakeholder_position(stakeholder_id, issue_id))
+
+        # Add edges based on organizational relationships and interaction patterns
+        self.add_relationship_edges(G, issue_stakeholders)
+
+        return G
+
+    def generate_outreach_plan(self, issue_id, timeline_days=90):
+        """Generate strategic outreach plan for specific issue"""
+        stakeholders = self.get_issue_stakeholders(issue_id)
+
+        # Prioritize based on influence, relationship strength, and position
+        priority_contacts = stakeholders.sort_values([
+            'influence_level', 'relationship_strength'
+        ], ascending=[False, False])
+
+        outreach_plan = []
+
+        for _, contact in priority_contacts.iterrows():
+            strategy = self.develop_contact_strategy(contact, issue_id)
+            timing = self.optimize_contact_timing(contact, timeline_days)
+
+            outreach_plan.append({
+                'contact': contact['name'],
+                'strategy': strategy,
+                'timing': timing,
+                'expected_outcome': self.predict_engagement_outcome(contact, issue_id)
+            })
+
+        return outreach_plan

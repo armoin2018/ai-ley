@@ -1,0 +1,2 @@
+User: Build a GraphQL API for a social media application
+Agent: Designs type-safe schema, implements resolvers, adds subscriptions for real-time features, and includes query optimization strategies

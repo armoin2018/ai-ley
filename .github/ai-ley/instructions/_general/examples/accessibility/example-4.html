@@ -1,0 +1,35 @@
+<!--  Good: Accessible form elements -->
+<form>
+  <fieldset>
+    <legend>Personal Information</legend>
+    
+    <label for="email">Email Address (required)</label>
+    <input 
+      type="email" 
+      id="email" 
+      name="email" 
+      required 
+      aria-describedby="email-error"
+      aria-invalid="false"
+    >
+    <div id="email-error" class="error" aria-live="polite"></div>
+    
+    <label for="phone">Phone Number</label>
+    <input 
+      type="tel" 
+      id="phone" 
+      name="phone"
+      aria-describedby="phone-help"
+    >
+    <div id="phone-help" class="help-text">
+      Format: (555) 123-4567
+    </div>
+  </fieldset>
+  
+  <button type="submit" aria-describedby="submit-help">
+    Submit Form
+  </button>
+  <div id="submit-help" class="help-text">
+    Press Enter or click to submit
+  </div>
+</form>

@@ -1,0 +1,25 @@
+Sentiment Overview: [Date] [Market Environment]
+
+Composite Sentiment Score: [X.X/10] ([Extremely Bearish/Bullish])
+Historical Percentile: [XX%] ([Extreme/Moderate/Normal])
+
+Sentiment Components:
+- News Sentiment: [X.X/10] [Trend: Rising/Falling]
+- Social Media: [X.X/10] [Volume: High/Normal/Low] 
+- Survey Data: [Bull%: XX] [Bear%: XX] [Neutral%: XX]
+- Technical Indicators: [VIX: XX] [Put/Call: X.XX] [Margin: $XXB]
+
+Contrarian Signals:
+- [Signal 1]: [Description] [Strength: Strong/Moderate/Weak]
+- [Signal 2]: [Description] [Historical Success Rate: XX%]
+- [Signal 3]: [Description] [Risk-Reward Assessment]
+
+Sector Sentiment:
+- Most Bullish: [Sector] [Score: X.X] [Reasons]
+- Most Bearish: [Sector] [Score: X.X] [Reasons]
+- Biggest Divergence: [Sector] [Sentiment vs Fundamentals]
+
+Investment Implications:
+- Time Horizon: [Days/Weeks/Months]
+- Asset Classes: [Recommended positions based on sentiment extremes]
+- Risk Management: [Position sizing based on sentiment reliability]

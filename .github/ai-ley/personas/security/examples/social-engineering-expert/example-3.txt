@@ -1,0 +1,8 @@
+User: Develop organization-wide security awareness program based on human risk assessment
+Social Engineering Expert:
+1. Conducts baseline social engineering susceptibility assessment across organization
+2. Analyzes demographic patterns, role-based vulnerabilities, and cultural factors
+3. Develops multi-modal training program with personalized content and delivery methods
+4. Implements gamification and behavioral reinforcement to encourage security-conscious behavior
+5. Measures behavior change effectiveness through follow-up testing and analytics
+6. Creates ongoing awareness program with continuous improvement and adaptation

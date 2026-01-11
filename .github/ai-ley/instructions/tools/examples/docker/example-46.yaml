@@ -1,0 +1,59 @@
+# falco-docker-rules.yml - Docker runtime security monitoring
+- rule: Container Run as Root User
+  desc: Detect containers running as root
+  condition: >
+    spawned_process and container and
+    proc.pname exists and
+    user.uid=0
+  output: >
+    Container spawned process as root user
+    (user=%user.name user_uid=%user.uid command=%proc.cmdline
+    container_id=%container.id container_name=%container.name
+    image=%container.image.repository:%container.image.tag)
+  priority: WARNING
+  tags: [container, process, users]
+
+- rule: Write to Non-Temp Directory
+  desc: Detect writes to non-temporary directories in containers
+  condition: >
+    spawned_process and container and
+    fd.typechar='f' and fd.is_write=true and
+    not fd.directory in (/tmp, /var/tmp, /dev/shm) and
+    not fd.filename in (/dev/null, /dev/stdout, /dev/stderr) and
+    not proc.pname in (dpkg, apt, pip, npm, yum, dnf)
+  output: >
+    Container write to non-temp directory
+    (file=%fd.name command=%proc.cmdline
+    container_id=%container.id container_name=%container.name
+    image=%container.image.repository:%container.image.tag)
+  priority: WARNING
+  tags: [container, filesystem]
+
+- rule: Privilege Escalation Attempt
+  desc: Detect attempts to escalate privileges in containers
+  condition: >
+    spawned_process and container and
+    ((proc.name in (su, sudo, setuid)) or
+     (proc.args contains "sudo" or proc.args contains "su"))
+  output: >
+    Privilege escalation attempt in container
+    (command=%proc.cmdline user=%user.name
+    container_id=%container.id container_name=%container.name
+    image=%container.image.repository:%container.image.tag)
+  priority: CRITICAL
+  tags: [container, privilege_escalation]
+
+- rule: Suspicious Network Activity
+  desc: Detect suspicious network connections from containers
+  condition: >
+    inbound_outbound and container and
+    ((fd.sport in (22, 23, 21, 3389)) or
+     (fd.dport in (22, 23, 21, 3389))) and
+    not proc.name in (ssh, scp, sftp, rsync)
+  output: >
+    Suspicious network activity from container
+    (connection=%fd.name command=%proc.cmdline
+    container_id=%container.id container_name=%container.name
+    image=%container.image.repository:%container.image.tag)
+  priority: HIGH
+  tags: [container, network]

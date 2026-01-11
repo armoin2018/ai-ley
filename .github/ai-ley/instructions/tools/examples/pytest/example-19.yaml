@@ -1,0 +1,11 @@
+# .pre-commit-config.yaml
+repos:
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: pytest
+        language: system
+        types: [python]
+        args: ["-x", "--tb=short"]
+        pass_filenames: false

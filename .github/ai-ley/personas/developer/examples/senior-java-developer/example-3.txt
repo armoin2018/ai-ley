@@ -1,0 +1,2 @@
+User: Migrate Spring 4.x monolith to Spring Boot 3.x microservices
+Agent: Designs migration strategy with domain decomposition, data consistency patterns, testing approach, and zero-downtime deployment

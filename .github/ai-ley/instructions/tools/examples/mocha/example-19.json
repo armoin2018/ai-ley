@@ -1,0 +1,8 @@
+// .mocharc.json - Parallel execution
+{
+  "spec": "test/**/*.test.js",
+  "parallel": true,
+  "jobs": 4,
+  "timeout": 10000,
+  "reporter": "spec"
+}

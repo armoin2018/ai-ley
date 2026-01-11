@@ -1,0 +1,14 @@
+class CryptoTradingStrategy:
+    def __init__(self, risk_tolerance=0.02, max_positions=10):
+        self.risk_per_trade = risk_tolerance
+        self.max_concurrent_positions = max_positions
+        self.indicators = {
+            'sma_fast': 20, 'sma_slow': 50,
+            'rsi_period': 14, 'bb_period': 20,
+            'volume_ma': 20, 'atr_period': 14
+        }
+    
+    def calculate_position_size(self, account_balance, entry_price, stop_loss):
+        risk_amount = account_balance * self.risk_per_trade
+        price_risk = abs(entry_price - stop_loss) / entry_price
+        return risk_amount / (price_risk * entry_price)

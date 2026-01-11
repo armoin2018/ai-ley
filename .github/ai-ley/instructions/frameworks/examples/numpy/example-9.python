@@ -1,0 +1,18 @@
+# Array creation
+np.array(list)                    # Create array from list
+np.zeros((shape))                 # Array of zeros
+np.ones((shape))                  # Array of ones
+np.arange(start, stop, step)      # Range array
+np.linspace(start, stop, num)     # Linearly spaced array
+
+# Array operations
+np.dot(a, b)                      # Dot product
+np.sum(arr, axis=None)           # Sum along axis
+np.mean(arr, axis=None)          # Mean along axis
+np.std(arr, axis=None)           # Standard deviation
+
+# Array manipulation
+np.reshape(arr, shape)           # Reshape array
+np.transpose(arr)                # Transpose
+np.concatenate([arr1, arr2])     # Concatenate arrays
+np.split(arr, indices)           # Split array

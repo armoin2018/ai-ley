@@ -1,0 +1,43 @@
+alternative_investments:
+  asset_class_allocation:
+    private_equity:
+      allocation: "15% - 25%"
+      strategy_mix:
+        - buyout_funds: "60%"
+        - growth_equity: "25%"
+        - venture_capital: "15%"
+      vintage_diversification: "3_year_commitment_schedule"
+      
+    real_estate:
+      allocation: "10% - 20%"
+      strategy_mix:
+        - core_properties: "50%"
+        - value_add: "30%"
+        - opportunistic: "20%"
+      geographic_diversification: "us_60_international_40"
+      
+    hedge_funds:
+      allocation: "5% - 15%"
+      strategy_mix:
+        - long_short_equity: "40%"
+        - market_neutral: "25%"
+        - event_driven: "20%"
+        - macro_strategies: "15%"
+      manager_diversification: "15_20_managers"
+      
+  due_diligence_framework:
+    quantitative_analysis:
+      - return_risk_metrics: "sharpe_ratio_maximum_drawdown"
+      - correlation_analysis: "public_market_equivalents"
+      - style_analysis: "factor_attribution_performance"
+      
+    operational_due_diligence:
+      - investment_process: "research_decision_making_risk_management"
+      - operational_infrastructure: "compliance_reporting_valuation"
+      - business_continuity: "key_person_risk_succession_planning"
+      
+  liquidity_management:
+    commitment_pacing:
+      - capital_call_modeling: "j_curve_cash_flow_projections"
+      - distribution_forecasting: "exit_environment_assumptions"
+      - liquidity_buffer: "2x_annual_commitments_cash_buffer"

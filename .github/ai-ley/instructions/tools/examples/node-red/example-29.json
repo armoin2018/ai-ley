@@ -1,0 +1,7 @@
+// .gitignore for Node-RED projects
+flows_*.json.backup
+.flows.json.backup
+*_cred.json
+node_modules/
+.npm/
+.sessions.json

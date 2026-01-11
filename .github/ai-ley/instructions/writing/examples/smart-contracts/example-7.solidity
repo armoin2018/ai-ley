@@ -1,0 +1,34 @@
+// Factory Pattern
+contract TokenFactory {
+    address[] public deployedTokens;
+
+    event TokenDeployed(address indexed tokenAddress, address indexed creator);
+
+    function createToken(
+        string memory name,
+        string memory symbol,
+        uint256 totalSupply
+    ) public returns (address) {
+        ERC20Token newToken = new ERC20Token(name, symbol, totalSupply, msg.sender);
+        deployedTokens.push(address(newToken));
+        emit TokenDeployed(address(newToken), msg.sender);
+        return address(newToken);
+    }
+}
+
+// Proxy Pattern (Upgradeable)
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
+contract UpgradeableContract is Initializable, OwnableUpgradeable {
+    uint256 public version;
+
+    function initialize() public initializer {
+        __Ownable_init();
+        version = 1;
+    }
+
+    function upgrade() public onlyOwner {
+        version += 1;
+    }
+}

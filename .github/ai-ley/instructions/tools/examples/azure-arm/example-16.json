@@ -1,0 +1,106 @@
+{
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "name": "networkDeployment",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('templateBaseUrl'), 'templates/modules/network.json')]",
+          "contentVersion": "3.0.0.0"
+        },
+        "parameters": {
+          "vnetName": {
+            "value": "[variables('namingConvention').vnet]"
+          },
+          "addressSpace": {
+            "value": "[parameters('networkConfiguration').addressSpace]"
+          },
+          "subnets": {
+            "value": "[parameters('networkConfiguration').subnets]"
+          },
+          "enableDdosProtection": {
+            "value": "[if(equals(parameters('environment'), 'production'), true, false)]"
+          },
+          "enableNetworkSecurityGroups": {
+            "value": true
+          },
+          "complianceFramework": {
+            "value": "[parameters('complianceFramework')]"
+          },
+          "tags": {
+            "value": "[variables('enterpriseTags')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "name": "securityDeployment",
+      "dependsOn": ["[resourceId('Microsoft.Resources/deployments', 'networkDeployment')]"],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('templateBaseUrl'), 'templates/modules/security.json')]",
+          "contentVersion": "3.0.0.0"
+        },
+        "parameters": {
+          "keyVaultName": {
+            "value": "[variables('namingConvention').keyVault]"
+          },
+          "managedIdentityId": {
+            "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('namingConvention').managedIdentity)]"
+          },
+          "vnetId": {
+            "value": "[reference('networkDeployment').outputs.vnetId.value]"
+          },
+          "enableAdvancedThreatProtection": {
+            "value": "[if(equals(parameters('environment'), 'production'), true, false)]"
+          },
+          "complianceFramework": {
+            "value": "[parameters('complianceFramework')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "name": "monitoringDeployment",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'networkDeployment')]",
+        "[resourceId('Microsoft.Resources/deployments', 'securityDeployment')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('templateBaseUrl'), 'templates/modules/monitoring.json')]",
+          "contentVersion": "3.0.0.0"
+        },
+        "parameters": {
+          "logAnalyticsWorkspaceName": {
+            "value": "[variables('namingConvention').logAnalytics]"
+          },
+          "applicationInsightsName": {
+            "value": "[variables('namingConvention').appInsights]"
+          },
+          "retentionInDays": {
+            "value": "[variables('currentCompliance').auditRetentionDays]"
+          },
+          "enableSentinel": {
+            "value": "[if(equals(parameters('environment'), 'production'), true, false)]"
+          },
+          "alertingConfiguration": {
+            "value": {
+              "operationalEmail": "[parameters('alertEmail')]",
+              "securityEmail": "[parameters('securityEmail')]",
+              "enableBudgetAlerts": "[parameters('enableCostOptimization')]"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

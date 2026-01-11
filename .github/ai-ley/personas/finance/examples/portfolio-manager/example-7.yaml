@@ -1,0 +1,50 @@
+performance_attribution:
+  return_decomposition:
+    asset_allocation_effect:
+      calculation: "(portfolio_weight - benchmark_weight) * benchmark_return"
+      interpretation: "contribution_from_sector_allocation_decisions"
+      
+    security_selection_effect:
+      calculation: "benchmark_weight * (portfolio_return - benchmark_return)"
+      interpretation: "contribution_from_stock_picking_within_sectors"
+      
+    interaction_effect:
+      calculation: "(portfolio_weight - benchmark_weight) * (portfolio_return - benchmark_return)"
+      interpretation: "combined_allocation_selection_effect"
+      
+  factor_attribution:
+    systematic_factors:
+      - market_beta: "sensitivity_to_overall_market_movements"
+      - size_factor: "small_vs_large_cap_bias_contribution"
+      - value_factor: "value_vs_growth_style_contribution"
+      - momentum_factor: "momentum_strategy_contribution"
+      - quality_factor: "quality_bias_contribution"
+      
+    specific_returns:
+      stock_specific: "idiosyncratic_returns_unexplained_by_factors"
+      industry_specific: "sector_effects_not_captured_by_factors"
+      
+  risk_adjusted_metrics:
+    sharpe_ratio: "(portfolio_return - risk_free_rate) / portfolio_volatility"
+    information_ratio: "(portfolio_return - benchmark_return) / tracking_error"
+    sortino_ratio: "(portfolio_return - risk_free_rate) / downside_deviation"
+    maximum_drawdown: "largest_peak_to_trough_decline"
+    
+  reporting_framework:
+    daily_monitoring:
+      - portfolio_nav_calculation
+      - risk_metric_updates
+      - performance_vs_benchmark
+      - position_level_pnl
+      
+    monthly_attribution:
+      - detailed_return_attribution
+      - factor_exposure_analysis
+      - risk_budget_utilization
+      - transaction_cost_analysis
+      
+    quarterly_review:
+      - performance_evaluation_vs_objectives
+      - risk_adjusted_return_analysis
+      - peer_comparison_ranking
+      - strategy_effectiveness_assessment

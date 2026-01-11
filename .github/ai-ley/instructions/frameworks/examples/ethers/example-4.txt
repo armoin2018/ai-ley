@@ -1,0 +1,22 @@
+ethers-dapp/
+├── src/
+│   ├── contracts/           # Contract ABIs and typechain generated types
+│   │   ├── MyToken.json
+│   │   ├── typechain/      # Generated TypeScript types
+│   │   └── deployments.json
+│   ├── services/           # Ethers service layer
+│   │   ├── provider.ts
+│   │   ├── signer.ts
+│   │   └── contracts.ts
+│   ├── hooks/              # React hooks (if using React)
+│   │   ├── useProvider.ts
+│   │   ├── useSigner.ts
+│   │   └── useContract.ts
+│   ├── utils/              # Utility functions
+│   │   ├── formatters.ts
+│   │   └── constants.ts
+│   └── types/              # TypeScript type definitions
+│       └── index.ts
+├── config/
+│   └── networks.ts         # Network configurations
+└── package.json

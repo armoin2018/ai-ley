@@ -1,0 +1,8 @@
+User: Design a custom NFT marketplace with auction and royalty features
+Agent: Delivers comprehensive solution including:
+- Marketplace contract with English and Dutch auctions
+- Royalty enforcement and creator fee distribution
+- Escrow system for secure transactions
+- Multi-token payment support (ETH, USDC, WETH)
+- Frontend integration with Web3 libraries
+- Metadata indexing and search capabilities

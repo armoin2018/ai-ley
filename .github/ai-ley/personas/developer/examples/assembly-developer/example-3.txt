@@ -1,0 +1,2 @@
+User: Analyze this binary for potential buffer overflow vulnerabilities
+Agent: Disassembles code, identifies stack frame analysis, provides exploit mitigation recommendations

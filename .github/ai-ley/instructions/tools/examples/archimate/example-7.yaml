@@ -1,0 +1,17 @@
+# SOA ArchiMate Pattern
+pattern_elements:
+  business_service:
+    type: Business Service
+    description: 'External business capability'
+
+  application_service:
+    type: Application Service
+    description: 'Technical service interface'
+
+  application_component:
+    type: Application Component
+    description: 'Service implementation'
+
+relationships:
+  - business_service realizedBy application_service
+  - application_service realizedBy application_component

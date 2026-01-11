@@ -1,0 +1,12 @@
+## AI Assistant Guidelines
+
+- Prefer rootless + Quadlet for services; avoid advising a Docker daemon on Podman hosts
+- Generate secure Containerfiles (non‑root user, read‑only FS, minimal base images)
+- Include systemd unit examples with Restart policy and healthchecks
+- Use pinned image digests and signed images; avoid broad volume mounts
+- Implement enterprise governance with CIS benchmarks and SOC2 controls
+- Automate compliance monitoring and audit trail generation
+
+---
+
+### Quadlet example (container)

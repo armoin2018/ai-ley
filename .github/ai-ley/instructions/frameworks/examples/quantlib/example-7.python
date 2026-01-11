@@ -1,0 +1,88 @@
+class PortfolioRiskAnalyzer:
+    """Portfolio-level risk analysis and reporting."""
+    
+    def __init__(self, market_data_manager):
+        self.mdm = market_data_manager
+        self.positions = []
+        self.risk_metrics = {}
+    
+    def add_position(self, instrument, quantity, market_value=None):
+        """Add position to portfolio."""
+        position = {
+            'instrument': instrument,
+            'quantity': quantity,
+            'market_value': market_value or instrument.NPV() * quantity
+        }
+        self.positions.append(position)
+    
+    def calculate_portfolio_value(self):
+        """Calculate total portfolio value."""
+        total_value = 0
+        for position in self.positions:
+            if position['market_value'] is None:
+                position['market_value'] = position['instrument'].NPV() * position['quantity']
+            total_value += position['market_value']
+        
+        return total_value
+    
+    def calculate_portfolio_greeks(self):
+        """Calculate portfolio-level Greeks."""
+        portfolio_greeks = {
+            'delta': 0, 'gamma': 0, 'theta': 0, 'vega': 0, 'rho': 0
+        }
+        
+        for position in self.positions:
+            instrument = position['instrument']
+            quantity = position['quantity']
+            
+            # Check if instrument supports Greeks calculation
+            try:
+                portfolio_greeks['delta'] += instrument.delta() * quantity
+                portfolio_greeks['gamma'] += instrument.gamma() * quantity
+                portfolio_greeks['theta'] += instrument.theta() * quantity
+                portfolio_greeks['vega'] += instrument.vega() * quantity
+                portfolio_greeks['rho'] += instrument.rho() * quantity
+            except AttributeError:
+                # Instrument doesn't support Greeks
+                continue
+        
+        return portfolio_greeks
+    
+    def stress_test(self, scenarios):
+        """Perform stress testing on portfolio."""
+        original_evaluation_date = ql.Settings.instance().evaluationDate
+        stress_results = {}
+        
+        for scenario_name, scenario in scenarios.items():
+            try:
+                # Apply scenario
+                if 'spot_shock' in scenario:
+                    # Implement spot price shock
+                    pass
+                
+                if 'rate_shock' in scenario:
+                    # Implement interest rate shock
+                    pass
+                
+                if 'vol_shock' in scenario:
+                    # Implement volatility shock
+                    pass
+                
+                # Calculate portfolio value under stress
+                stressed_value = self.calculate_portfolio_value()
+                base_value = self.risk_metrics.get('base_value', stressed_value)
+                
+                stress_results[scenario_name] = {
+                    'stressed_value': stressed_value,
+                    'pnl': stressed_value - base_value,
+                    'pnl_percent': (stressed_value - base_value) / base_value * 100
+                }
+                
+            except Exception as e:
+                stress_results[scenario_name] = {'error': str(e)}
+            
+            finally:
+                # Reset evaluation date
+                ql.Settings.instance().evaluationDate = original_evaluation_date
+        
+        return stress_results

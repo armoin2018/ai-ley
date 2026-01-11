@@ -1,0 +1,43 @@
+# Volume types and configurations
+volumes:
+  # Named volume for persistent data
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/myapp/data/postgres
+
+  # External volume (created separately)
+  shared_data:
+    external: true
+    name: myapp_shared_data
+
+  # NFS volume for distributed storage
+  nfs_storage:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nfs-server.local,rw
+      device: ':/path/to/share'
+
+services:
+  web:
+    volumes:
+      # Bind mount (development)
+      - .:/app
+
+      # Named volume mount
+      - postgres_data:/var/lib/postgresql/data
+
+      # Anonymous volume
+      - /app/node_modules
+
+      # Read-only mount
+      - ./config:/app/config:ro
+
+      # Delegated mount (macOS performance)
+      - .:/app:delegated
+
+      # Cached mount (macOS performance)
+      - ./node_modules:/app/node_modules:cached

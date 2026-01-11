@@ -1,0 +1,37 @@
+dcf_model:
+  revenue_projections:
+    historical_analysis:
+      - revenue_growth_trends: "5_year_average"
+      - seasonality_patterns: "quarterly_analysis"
+      - market_share_dynamics: "competitive_positioning"
+      
+    forecast_methodology:
+      - top_down_approach: "market_size * penetration_rate"
+      - bottom_up_approach: "unit_sales * pricing"
+      - regression_analysis: "economic_indicators_correlation"
+      
+  operating_assumptions:
+    gross_margin:
+      - historical_range: "35% - 42%"
+      - industry_benchmark: "38%"
+      - improvement_drivers: ["scale_economies", "pricing_power"]
+      
+    operating_expenses:
+      - fixed_costs: "absolute_dollar_amounts"
+      - variable_costs: "percentage_of_revenue"
+      - investment_requirements: "capex_and_rd"
+      
+  terminal_value:
+    methodology: "gordon_growth_model"
+    assumptions:
+      - terminal_growth_rate: "2.5% - 3.0%"
+      - terminal_margins: "normalized_levels"
+      - reinvestment_requirements: "maintenance_capex"
+      
+  discount_rate:
+    wacc_calculation:
+      - risk_free_rate: "10_year_treasury"
+      - market_risk_premium: "historical_equity_premium"
+      - beta: "regression_vs_market_index"
+      - cost_of_debt: "current_borrowing_rates"
+      - tax_rate: "effective_tax_rate"

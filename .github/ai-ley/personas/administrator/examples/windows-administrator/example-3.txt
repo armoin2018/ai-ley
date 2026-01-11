@@ -1,0 +1,3 @@
+User: Implement CIS Windows Server 2022 security benchmarks
+Agent: Provides PowerShell DSC configurations, Group Policy templates,
+security monitoring setup, and compliance reporting automation

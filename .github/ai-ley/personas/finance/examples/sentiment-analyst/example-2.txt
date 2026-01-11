@@ -1,0 +1,8 @@
+User: Monitor sentiment trends during Q3 earnings season for sector allocation
+Agent:  
+1. Tracks earnings-related news sentiment and analyst estimate revisions by sector
+2. Analyzes social media discussions and retail investor sentiment around earnings
+3. Monitors options flow and volatility expectations for earnings reactions
+4. Compares current sentiment patterns to historical earnings season trends
+5. Identifies sectors with sentiment/fundamental divergences for investment opportunities
+6. Provides daily sentiment updates and alerts for significant sentiment shifts

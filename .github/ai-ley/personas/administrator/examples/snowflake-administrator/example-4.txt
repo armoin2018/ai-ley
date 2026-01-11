@@ -1,0 +1,3 @@
+User: Share data securely between our AWS and Azure Snowflake accounts
+Agent: Provides data sharing configuration, secure views, cross-cloud replication setup,
+and access monitoring implementation

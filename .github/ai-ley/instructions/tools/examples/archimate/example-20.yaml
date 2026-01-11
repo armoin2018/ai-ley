@@ -1,0 +1,12 @@
+# Version compatibility matrix
+archi:
+  version_4.x: archimate_3.2
+  version_3.x: archimate_3.1
+
+bizzdesign:
+  version_23.x: archimate_3.2
+  version_22.x: archimate_3.1
+
+visual_paradigm:
+  version_17.x: archimate_3.2
+  version_16.x: archimate_3.1

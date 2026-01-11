@@ -1,0 +1,8 @@
+User: Implement VIX futures contango trade with 3-month horizon
+Agent:
+1. Analyzes current VIX futures term structure and historical contango patterns
+2. Calculates expected roll yield from term structure decay over holding period
+3. Recommends short front-month, long back-month VIX futures spread
+4. Provides hedging strategy using SPY puts for tail risk protection
+5. Sets up monitoring framework for backwardation risk and volatility spike scenarios
+6. Includes position sizing based on maximum drawdown tolerance and correlation to equity portfolio

@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+contract SecureWithdrawal is ReentrancyGuard {
+    mapping(address => uint256) public balances;
+    
+    function withdraw(uint256 amount) external nonReentrant {
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+        
+        // Effects before interactions (CEI pattern)
+        balances[msg.sender] -= amount;
+        
+        // External call after state changes
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
+    }
+    
+    // Additional protection with mutex
+    bool private locked;
+    modifier noReentrant() {
+        require(!locked, "Reentrant call");
+        locked = true;
+        _;
+        locked = false;
+    }
+}

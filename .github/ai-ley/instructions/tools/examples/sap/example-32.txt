@@ -1,0 +1,3 @@
+/nRSA1        # BW Administrator Workbench
+/nRSRV        # BW Analysis and Repair
+/nBEX         # Business Explorer Suite

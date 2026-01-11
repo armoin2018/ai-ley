@@ -1,0 +1,25 @@
+# Modern Phillips Curve Estimation
+import statsmodels.api as sm
+from statsmodels.tsa.stattools import adfuller
+
+class PhillipsCurveModel:
+    def __init__(self, data):
+        self.data = data
+        
+    def hybrid_phillips_curve(self):
+        """
+        Estimate hybrid New Keynesian Phillips Curve:
+        π_t = λ*π^e_{t+1} + (1-λ)*π_{t-1} + κ*mc_t + ε_t
+        """
+        # Prepare variables
+        inflation = self.data['inflation']
+        marginal_cost = self.data['unit_labor_cost'] - self.data['productivity']
+        
+        # IV estimation for forward-looking expectations
+        instruments = ['lag1_inflation', 'lag2_inflation', 'output_gap_lag']
+        results = self.iv_regression(inflation, marginal_cost, instruments)
+        return results
+    
+    def evaluate_fit(self, results):
+        # Calculate forecast accuracy and stability tests
+        pass

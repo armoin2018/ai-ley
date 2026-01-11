@@ -1,0 +1,3 @@
+Mass Change: Use transaction with &SAP_ALL
+Batch Jobs: /nSM36 (Job Scheduling)
+Background Processing: F9 in most transactions

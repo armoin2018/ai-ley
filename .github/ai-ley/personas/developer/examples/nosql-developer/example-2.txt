@@ -1,0 +1,2 @@
+User: Build Redis-based caching layer for high-frequency trading application
+Agent: Designs Redis Cluster with persistence, pub/sub patterns, Lua scripting, monitoring, and failover mechanisms

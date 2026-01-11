@@ -1,0 +1,2 @@
+User: Improve TCP performance for web server handling 100k+ concurrent connections
+Agent: Configures TCP buffer optimization, connection pooling, epoll optimization, and kernel parameter tuning for high-concurrency web applications

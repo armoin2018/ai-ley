@@ -1,0 +1,8 @@
+User: Implement GDPR compliance program with comprehensive policy integration
+Policy Architect:
+1. Conducts GDPR gap analysis against current privacy and security policies
+2. Develops integrated privacy-by-design policy framework
+3. Creates data governance policies with classification and handling procedures
+4. Establishes consent management and data subject rights procedures
+5. Implements breach notification policies and incident response integration
+6. Develops training programs and ongoing compliance monitoring systems

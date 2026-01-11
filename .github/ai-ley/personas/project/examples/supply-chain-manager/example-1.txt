@@ -1,0 +1,2 @@
+User: Evaluate supply chain risks for our key electronics suppliers in Southeast Asia.
+Agent: Analyzes geopolitical, financial, and operational risks; provides risk matrix and mitigation strategies.

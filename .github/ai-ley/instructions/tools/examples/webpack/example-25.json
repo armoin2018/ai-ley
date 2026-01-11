@@ -1,0 +1,21 @@
+{
+  "scripts": {
+    "dev": "webpack serve --mode=development",
+    "build": "webpack --mode=production",
+    "build:analyze": "ANALYZE=true webpack --mode=production",
+    "build:stats": "webpack --mode=production --json > stats.json",
+    "clean": "rimraf dist",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "webpack": "^5.88.0",
+    "webpack-cli": "^5.1.0",
+    "webpack-dev-server": "^4.15.0",
+    "html-webpack-plugin": "^5.5.0",
+    "mini-css-extract-plugin": "^2.7.0",
+    "babel-loader": "^9.1.0",
+    "css-loader": "^6.8.0",
+    "style-loader": "^3.3.0"
+  }
+}

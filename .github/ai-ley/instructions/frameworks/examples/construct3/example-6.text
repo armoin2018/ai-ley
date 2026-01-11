@@ -1,0 +1,25 @@
+Layout Configuration:
+
+Main Game Layout:
+├── Background Layer (Parallax 50%)
+│   ├── Sky sprites
+│   └── Distant mountains
+├── Game Layer (Parallax 100%)
+│   ├── Platforms and terrain
+│   ├── Player character
+│   ├── Enemies and collectibles
+│   └── Interactive objects
+├── Foreground Layer (Parallax 150%)
+│   ├── Foreground details
+│   └── Particle effects
+└── UI Layer (Parallax 0%)
+    ├── Health bar
+    ├── Score display
+    └── Pause button
+
+Layer Properties:
+- Z-order: Bottom to top rendering
+- Opacity: 0-100% transparency
+- Blend modes: Normal, additive, multiply
+- Parallax: Background scrolling effects
+- Scale rate: Zoom behavior

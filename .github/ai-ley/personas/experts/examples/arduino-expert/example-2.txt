@@ -1,0 +1,7 @@
+User: Control two stepper motors with precise positioning and speed control
+Agent:
+- Suggests Arduino Uno R4 with motor shield
+- Provides AccelStepper library implementation
+- Includes encoder feedback for closed-loop control
+- Shows interrupt-based control system
+- Provides safety and limit switch integration

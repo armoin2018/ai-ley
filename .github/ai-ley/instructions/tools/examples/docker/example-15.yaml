@@ -1,0 +1,79 @@
+# Advanced volume management
+version: '3.8'
+
+services:
+  database:
+    image: postgres:15
+    volumes:
+      # Named volume for data persistence
+      - postgres_data:/var/lib/postgresql/data
+      # Bind mount for configuration
+      - ./config/postgres.conf:/etc/postgresql/postgresql.conf:ro
+      # Bind mount for initialization scripts
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+      # Tmpfs for temporary files
+      - type: tmpfs
+        target: /var/lib/postgresql/tmp
+        tmpfs:
+          size: 100m
+    environment:
+      - POSTGRES_DB=myapp
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_CONFIG_FILE=/etc/postgresql/postgresql.conf
+
+  app:
+    build: .
+    volumes:
+      # Application uploads
+      - app_uploads:/app/uploads
+      # Application logs
+      - app_logs:/app/logs
+      # Configuration files
+      - ./config/app.yml:/app/config/production.yml:ro
+      # Development: source code mounting
+      - .:/app:cached
+      - /app/node_modules # Anonymous volume to prevent overwriting
+    depends_on:
+      - database
+
+  backup:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data:ro
+      - backup_data:/backup
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    command: |
+      bash -c "
+        while true; do
+          pg_dump -h database -U postgres myapp > /backup/backup_$(date +%Y%m%d_%H%M%S).sql
+          find /backup -name '*.sql' -mtime +7 -delete
+          sleep 3600
+        done
+      "
+    depends_on:
+      - database
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/myapp/data/postgres
+  app_uploads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/myapp/uploads
+  app_logs:
+    external: true
+    name: myapp_logs
+  backup_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/myapp/backups

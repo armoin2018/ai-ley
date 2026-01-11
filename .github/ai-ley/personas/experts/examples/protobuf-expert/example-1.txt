@@ -1,0 +1,2 @@
+User: Design a protobuf schema for a high-frequency trading system with strict latency requirements
+Agent: Creates optimized proto3 schema with efficient field ordering, minimal message size, and benchmarking examples

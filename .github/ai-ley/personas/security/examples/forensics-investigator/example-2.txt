@@ -1,0 +1,8 @@
+User: Extract evidence from company mobile devices involved in insider threat case
+Forensics Investigator:
+1. Documents device condition and implements proper chain of custody procedures
+2. Performs logical and physical acquisition using appropriate forensic tools
+3. Extracts and analyzes call logs, messages, emails, and application data
+4. Reconstructs user activities and timelines using artifact correlation techniques
+5. Performs geolocation analysis and maps user movements and activities
+6. Provides expert analysis report with admissible evidence documentation

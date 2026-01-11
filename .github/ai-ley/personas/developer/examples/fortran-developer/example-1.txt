@@ -1,0 +1,2 @@
+User: Implement a parallel matrix multiplication using MPI and OpenMP
+Agent: Provides optimized Fortran code with domain decomposition, shows compilation flags, includes performance benchmarking strategy

@@ -1,0 +1,66 @@
+# Yield curve construction
+deposits = {
+    ql.Period(1, ql.Months): 0.0231,
+    ql.Period(3, ql.Months): 0.0235,
+    ql.Period(6, ql.Months): 0.0240
+}
+
+futures = {
+    ql.Date(15, 3, 2024): 97.25,
+    ql.Date(15, 6, 2024): 97.15,
+    ql.Date(15, 9, 2024): 97.05
+}
+
+swaps = {
+    ql.Period(2, ql.Years): 0.0245,
+    ql.Period(3, ql.Years): 0.0250,
+    ql.Period(5, ql.Years): 0.0255,
+    ql.Period(10, ql.Years): 0.0265,
+    ql.Period(30, ql.Years): 0.0275
+}
+
+# Create rate helpers
+helpers = []
+
+# Deposit helpers
+for tenor, rate in deposits.items():
+    helper = ql.DepositRateHelper(
+        ql.QuoteHandle(ql.SimpleQuote(rate)),
+        tenor,
+        2,  # settlement days
+        calendar,
+        business_convention,
+        True,  # end of month
+        day_count
+    )
+    helpers.append(helper)
+
+# Swap helpers
+swap_index = ql.UsdLiborSwapIsdaFixAm(ql.Period(3, ql.Months))
+for tenor, rate in swaps.items():
+    helper = ql.SwapRateHelper(
+        ql.QuoteHandle(ql.SimpleQuote(rate)),
+        tenor,
+        calendar,
+        ql.Semiannual,
+        business_convention,
+        day_count,
+        swap_index
+    )
+    helpers.append(helper)
+
+# Build yield curve
+yield_curve = ql.PiecewiseLinearZero(today, helpers, day_count)
+yield_curve.enableExtrapolation()
+
+# Create term structure handle
+ts_handle = ql.YieldTermStructureHandle(yield_curve)
+
+# Zero rates and discount factors
+tenors = [1, 2, 3, 5, 7, 10, 15, 20, 30]
+print("Tenor\tZero Rate\tDiscount Factor")
+for tenor in tenors:
+    maturity = calendar.advance(today, tenor, ql.Years)
+    zero_rate = yield_curve.zeroRate(maturity, day_count, ql.Compounded).rate()
+    discount = yield_curve.discount(maturity)
+    print(f"{tenor}Y\t{zero_rate:.4f}\t{discount:.6f}")

@@ -1,0 +1,3 @@
+User: Analyze 25 RFI responses to identify best suppliers for our ERP implementation
+Agent: Provides response evaluation framework, comparative analysis methodology,
+supplier scoring matrix, and market intelligence summary

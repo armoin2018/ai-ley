@@ -1,0 +1,71 @@
+// src/services/api.ts
+export async function fetchUser(id: string) {
+  const response = await fetch(`/api/users/${id}`)
+  if (!response.ok) {
+    throw new Error('Failed to fetch user')
+  }
+  return response.json()
+}
+
+// src/services/__tests__/api.test.ts
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { fetchUser } from '../api'
+
+// Mock global fetch
+global.fetch = vi.fn()
+
+describe('API service', () => {
+  beforeEach(() => {
+    vi.resetAllMocks()
+  })
+
+  describe('fetchUser', () => {
+    it('should fetch user successfully', async () => {
+      const mockUser = { id: '1', name: 'John Doe' }
+
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockUser,
+      } as Response)
+
+      const result = await fetchUser('1')
+
+      expect(fetch).toHaveBeenCalledWith('/api/users/1')
+      expect(result).toEqual(mockUser)
+    })
+
+    it('should throw error on failed request', async () => {
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      } as Response)
+
+      await expect(fetchUser('999')).rejects.toThrow('Failed to fetch user')
+    })
+  })
+})
+
+// Module mocking
+vi.mock('../config', () => ({
+  API_BASE_URL: 'http://test-api.com',
+}))
+
+// Partial mocking
+vi.mock('../utils', async () => {
+  const actual = await vi.importActual('../utils')
+  return {
+    ...actual,
+    formatDate: vi.fn(() => '2023-01-01'),
+  }
+})
+
+// Mock implementation
+const mockLogger = {
+  info: vi.fn(),
+  error: vi.fn(),
+  warn: vi.fn(),
+}
+
+vi.mock('../logger', () => ({
+  default: mockLogger,
+}))

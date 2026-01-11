@@ -1,0 +1,49 @@
+tca_framework:
+  execution_benchmarks:
+    arrival_price:
+      definition: "price_at_order_arrival_time"
+      use_case: "immediate_execution_strategies"
+      calculation: "execution_price - arrival_price"
+      
+    twap_benchmark:
+      definition: "time_weighted_average_during_execution"
+      use_case: "scheduled_execution_strategies"
+      calculation: "execution_price - twap_price"
+      
+    vwap_benchmark:
+      definition: "volume_weighted_average_during_execution"
+      use_case: "volume_following_strategies"
+      calculation: "execution_price - vwap_price"
+      
+  cost_components:
+    market_impact:
+      temporary_impact: "immediate_price_movement_from_order"
+      permanent_impact: "persistent_price_change"
+      measurement: "price_change_vs_natural_price_movement"
+      
+    timing_risk:
+      definition: "cost_of_delayed_execution"
+      measurement: "price_drift_during_execution_period"
+      factors: "volatility_trend_momentum"
+      
+    opportunity_cost:
+      definition: "cost_of_not_executing_immediately"
+      measurement: "price_movement_if_executed_at_arrival"
+      application: "gradual_execution_strategies"
+      
+  analytics_metrics:
+    implementation_shortfall:
+      formula: "(execution_price - decision_price) / decision_price"
+      components: "market_impact + timing_risk + fees"
+      interpretation: "total_cost_of_execution_strategy"
+      
+    capture_rate:
+      formula: "(execution_price - worst_price) / (best_price - worst_price)"
+      range: "0_to_1_higher_is_better"
+      interpretation: "price_improvement_capture_efficiency"
+      
+    venue_analysis:
+      fill_rate: "percentage_of_orders_filled"
+      price_improvement: "execution_price_vs_nbbo_midpoint"
+      speed_of_execution: "time_to_fill_measurement"
+      effective_spread: "cost_adjusted_for_rebates_fees"

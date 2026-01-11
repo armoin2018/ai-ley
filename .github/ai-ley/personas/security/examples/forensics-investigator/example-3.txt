@@ -1,0 +1,8 @@
+User: Analyze sophisticated malware discovered in network breach
+Forensics Investigator:
+1. Implements secure malware analysis environment with network isolation
+2. Conducts static analysis using disassemblers and hex editors for code structure
+3. Performs dynamic analysis in sandboxed environment to observe runtime behavior
+4. Extracts IOCs, C2 communications, and persistence mechanisms
+5. Conducts attribution analysis using malware signatures and TTPs mapping
+6. Provides threat intelligence report with defensive recommendations

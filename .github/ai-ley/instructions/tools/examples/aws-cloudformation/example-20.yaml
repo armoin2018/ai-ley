@@ -1,0 +1,46 @@
+# Use parameters for environment-specific values
+Parameters:
+  Environment:
+    Type: String
+    AllowedValues: [dev, staging, prod]
+
+  DatabasePassword:
+    Type: String
+    NoEcho: true
+    MinLength: 8
+    MaxLength: 128
+    AllowedPattern: ^[a-zA-Z0-9]*$
+
+# Use mappings for region-specific values
+Mappings:
+  EnvironmentConfig:
+    dev:
+      InstanceType: t3.micro
+      MinSize: 1
+      MaxSize: 2
+    prod:
+      InstanceType: m5.large
+      MinSize: 2
+      MaxSize: 10
+
+# Use conditions for conditional resource creation
+Conditions:
+  IsProduction: !Equals [!Ref Environment, prod]
+  CreateMonitoring: !Not [!Equals [!Ref Environment, dev]]
+
+Resources:
+  ProductionDatabase:
+    Type: AWS::RDS::DBInstance
+    Condition: IsProduction
+    Properties:
+      MultiAZ: true
+      BackupRetentionPeriod: 30
+      # ... other properties
+
+# Use outputs for cross-stack references
+Outputs:
+  DatabaseEndpoint:
+    Description: RDS instance endpoint
+    Value: !GetAtt DatabaseInstance.Endpoint.Address
+    Export:
+      Name: !Sub ${AWS::StackName}-database-endpoint

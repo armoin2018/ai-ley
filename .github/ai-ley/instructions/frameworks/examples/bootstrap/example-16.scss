@@ -1,0 +1,15 @@
+// Bootstrap 4 to 5 migration helpers
+// Update these common class changes:
+
+// .form-group → .mb-3
+// .form-control-file → .form-control
+// .custom-select → .form-select
+// .custom-control → .form-check
+// .text-left → .text-start
+// .text-right → .text-end
+// .float-left → .float-start
+// .float-right → .float-end
+
+// jQuery dependency removed in Bootstrap 5
+// Update JavaScript initialization:
+// $('.modal').modal() → new bootstrap.Modal(element)

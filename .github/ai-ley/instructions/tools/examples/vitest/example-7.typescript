@@ -1,0 +1,40 @@
+// src/utils/math.ts
+export function add(a: number, b: number): number {
+  return a + b
+}
+
+export function divide(a: number, b: number): number {
+  if (b === 0) {
+    throw new Error('Division by zero')
+  }
+  return a / b
+}
+
+// src/utils/__tests__/math.test.ts
+import { describe, it, expect } from 'vitest'
+import { add, divide } from '../math'
+
+describe('Math utilities', () => {
+  describe('add', () => {
+    it('should add two numbers correctly', () => {
+      expect(add(2, 3)).toBe(5)
+      expect(add(-1, 1)).toBe(0)
+      expect(add(0, 0)).toBe(0)
+    })
+
+    it('should handle floating point numbers', () => {
+      expect(add(0.1, 0.2)).toBeCloseTo(0.3)
+    })
+  })
+
+  describe('divide', () => {
+    it('should divide two numbers correctly', () => {
+      expect(divide(10, 2)).toBe(5)
+      expect(divide(7, 2)).toBe(3.5)
+    })
+
+    it('should throw error for division by zero', () => {
+      expect(() => divide(10, 0)).toThrow('Division by zero')
+    })
+  })
+})

@@ -1,0 +1,8 @@
+User: Implement market making strategy for QQQ with underlying basket arbitrage
+Agent:  
+1. Monitors QQQ vs NASDAQ-100 basket spread for arbitrage opportunities
+2. Calculates fair value using real-time constituent prices and dividends
+3. Implements creation/redemption mechanism with authorized participants
+4. Manages intraday inventory through cross-hedging with futures and individual stocks
+5. Optimizes bid-ask spreads based on flow toxicity and adverse selection costs
+6. Coordinates with prime brokers for efficient stock lending and financing

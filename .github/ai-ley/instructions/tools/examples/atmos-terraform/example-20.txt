@@ -1,0 +1,17 @@
+## 📚 Enterprise References and Documentation
+
+- **Atmos Documentation**: [atmos.tools](https://atmos.tools) - Comprehensive Atmos CLI and configuration guide
+- **Terraform Enterprise**: [terraform.io](https://terraform.io) - Advanced Terraform patterns and best practices
+- **AWS Well-Architected**: [aws.amazon.com/architecture/well-architected](https://aws.amazon.com/architecture/well-architected) - Enterprise architecture principles
+- **Cloud Security Alliance**: [cloudsecurityalliance.org](https://cloudsecurityalliance.org) - Cloud security best practices and compliance
+- **NIST Cybersecurity Framework**: [nist.gov/cyberframework](https://nist.gov/cyberframework) - Security and compliance standards
+- **Terraform Registry**: [registry.terraform.io](https://registry.terraform.io) - Community modules and providers
+- **Policy as Code**: [openpolicyagent.org](https://openpolicyagent.org) - OPA policies for infrastructure governance
+- **GitOps**: [gitops.tech](https://gitops.tech) - GitOps principles and implementation patterns
+
+### Enterprise Support and Escalation
+
+- **Infrastructure Team**: infrastructure@enterprise.com - Primary support for Atmos-Terraform deployments
+- **Security Team**: security@enterprise.com - Security compliance and vulnerability management
+- **Platform Engineering**: platform@enterprise.com - Enterprise architecture and best practices
+- **On-Call Escalation**: +1-555-INFRA-1 - 24/7 production infrastructure support

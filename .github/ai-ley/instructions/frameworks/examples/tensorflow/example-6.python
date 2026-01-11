@@ -1,0 +1,40 @@
+def create_cnn_model(input_shape, num_classes):
+    """Create a CNN model for image classification"""
+    model = keras.Sequential([
+        # Convolutional layers
+        layers.Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
+        layers.BatchNormalization(),
+        layers.MaxPooling2D((2, 2)),
+        
+        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.BatchNormalization(),
+        layers.MaxPooling2D((2, 2)),
+        
+        layers.Conv2D(128, (3, 3), activation='relu'),
+        layers.BatchNormalization(),
+        layers.MaxPooling2D((2, 2)),
+        
+        # Dense layers
+        layers.Flatten(),
+        layers.Dense(512, activation='relu'),
+        layers.Dropout(0.5),
+        layers.Dense(256, activation='relu'),
+        layers.Dropout(0.3),
+        layers.Dense(num_classes, activation='softmax')
+    ])
+    
+    return model
+
+# Data augmentation
+data_augmentation = keras.Sequential([
+    layers.RandomFlip("horizontal"),
+    layers.RandomRotation(0.1),
+    layers.RandomZoom(0.1),
+    layers.RandomContrast(0.1),
+])
+
+# Model with augmentation
+inputs = keras.Input(shape=input_shape)
+x = data_augmentation(inputs)
+x = layers.Rescaling(1./255)(x)
+# ... rest of the model

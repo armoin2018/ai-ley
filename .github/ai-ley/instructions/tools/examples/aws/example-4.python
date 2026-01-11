@@ -1,0 +1,15 @@
+# Deploy enterprise AWS infrastructure
+config = EnterpriseAWSConfig(
+    organization_name="Your Company",
+    application_name="production-app",
+    environment=DeploymentEnvironment.PRODUCTION
+)
+
+async with EnterpriseAWSPlatform(config) as platform:
+    # Deploy complete infrastructure
+    infrastructure = EnterpriseAWSInfrastructureManager(platform)
+    result = await infrastructure.deploy_enterprise_infrastructure()
+
+    # Setup cost management
+    cost_manager = EnterpriseAWSCostManager(platform)
+    await cost_manager.setup_cost_management()

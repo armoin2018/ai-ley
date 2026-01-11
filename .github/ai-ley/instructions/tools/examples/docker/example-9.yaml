@@ -1,0 +1,54 @@
+# docker-compose.override.yml - Development environment
+version: '3.8'
+
+services:
+  web:
+    build:
+      target: development
+    environment:
+      - NODE_ENV=development
+      - DEBUG=app:*
+    volumes:
+      - .:/app:cached
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - '3000:3000'
+      - '9229:9229' # Node.js debugger
+    command: npm run dev
+
+  db:
+    ports:
+      - '5432:5432' # Expose for local access
+    environment:
+      - POSTGRES_DB=myapp_dev
+
+  redis:
+    ports:
+      - '6379:6379' # Expose for local access
+
+  # Development tools
+  adminer:
+    image: adminer:latest
+    container_name: myapp-adminer
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
+    depends_on:
+      - db
+    networks:
+      - app_network
+
+  # Redis GUI
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: myapp-redis-commander
+    restart: unless-stopped
+    ports:
+      - '8081:8081'
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - app_network

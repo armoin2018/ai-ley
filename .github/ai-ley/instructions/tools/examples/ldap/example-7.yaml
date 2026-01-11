@@ -1,0 +1,11 @@
+ldap:
+  url: ldaps://ldap.example.com:636
+  bindDN: 'uid=app_svc,ou=Services,dc=example,dc=com'
+  bindPassword: '${LDAP_BIND_PASSWORD}'
+  userSearchBase: 'ou=People,dc=example,dc=com'
+  userFilter: '(mail={username})'
+  groupSearchBase: 'ou=Groups,dc=example,dc=com'
+  groupFilter: '(&(objectClass=groupOfNames)(member={userDN}))'
+  tls:
+    caFile: /etc/ssl/certs/ca-bundle.crt
+    requireValidCert: true

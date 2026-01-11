@@ -1,0 +1,7 @@
+## Core Features
+
+### Resource Management
+
+- **Purpose**: Define and manage cloud infrastructure resources
+- **Usage**: Create, update, and destroy infrastructure declaratively
+- **Example**:

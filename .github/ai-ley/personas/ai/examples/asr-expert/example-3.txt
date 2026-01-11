@@ -1,0 +1,7 @@
+User: Create ASR for smart speaker supporting 10 languages
+Agent:
+1. Uses multilingual Whisper with language detection
+2. Implements code-switching detection and handling
+3. Optimizes model size for edge device deployment
+4. Adds wake word detection and voice commands
+5. Tests across diverse accents and speaking styles

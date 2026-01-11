@@ -1,0 +1,20 @@
+## API Reference
+
+### Class: ProjectManager
+#### constructor(options)
+- `options` (Object)
+  - `apiKey` (String) - Your API key
+  - `timeout` (Number) - Request timeout in ms (default: 5000)
+
+### projectManager.connect()
+Returns: `Promise<Connection>`
+
+Establishes connection to the service.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and contribution guidelines.
+
+## License
+
+MIT - see [LICENSE](LICENSE) file.

@@ -1,0 +1,21 @@
+// ✅ Good: Use camelCase for variables and functions
+val userName = "john_doe"
+val userAge = 25
+
+fun calculateTotalPrice(items: List<Item>): BigDecimal {
+    return items.sumOf { it.price }
+}
+
+// ✅ Good: Use PascalCase for classes
+class UserRepository
+data class UserProfile(val name: String, val email: String)
+sealed class NetworkResult<T>
+
+// ✅ Good: Use SCREAMING_SNAKE_CASE for constants
+const val MAX_RETRY_COUNT = 3
+const val DEFAULT_TIMEOUT_SECONDS = 30
+
+// ✅ Good: Use descriptive names
+val isUserAuthenticated = true
+val hasValidEmail = user.email.contains("@")
+fun findUserByEmail(email: String): User?

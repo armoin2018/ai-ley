@@ -1,0 +1,19 @@
+**Expected Outcomes**: Reliable backup and recovery procedures
+
+### Anti-Patterns to Avoid
+
+#### Anti-Pattern 1: Single Point of Failure
+
+- **Description**: Running critical services on a single droplet
+- **Why It's Problematic**: No redundancy leads to service outages
+- **Better Approach**: Use load balancers with multiple droplets
+
+#### Anti-Pattern 2: Hardcoded Credentials
+
+- **Description**: Storing secrets in code or configuration files
+- **Why It's Problematic**: Security vulnerabilities and credential exposure
+- **Better Approach**: Use DO's secret management or environment variables
+
+## Tools and Resources
+
+### Essential CLI Commands

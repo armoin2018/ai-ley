@@ -1,0 +1,29 @@
+# Adaptive temperature based on task type
+temperature_config = {
+    "task_temperatures": {
+        "factual": 0.1,
+        "analytical": 0.3,
+        "creative": 0.8,
+        "brainstorming": 0.9
+    },
+    "implementation": {
+        "type": "PythonFunction",
+        "code": """
+def get_temperature(task_type: str, user_preference: float = None) -> float:
+    base_temps = {
+        "factual": 0.1,
+        "analytical": 0.3,
+        "creative": 0.8,
+        "brainstorming": 0.9
+    }
+
+    base_temp = base_temps.get(task_type, 0.5)
+
+    if user_preference is not None:
+        # Blend user preference with task-appropriate temperature
+        return (base_temp + user_preference) / 2
+
+    return base_temp
+        """
+    }
+}

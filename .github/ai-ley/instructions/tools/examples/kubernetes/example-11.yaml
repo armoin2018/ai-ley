@@ -1,0 +1,52 @@
+# configmap.yaml - Application configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: production
+data:
+  app.properties: |
+    server.port=3000
+    logging.level=info
+    redis.url=redis://redis-service:6379
+    database.pool.max=20
+    database.pool.min=5
+    cache.ttl=3600
+  nginx.conf: |
+    upstream backend {
+        server web-app-service:80;
+    }
+    server {
+        listen 80;
+        location / {
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+    }
+
+---
+# secret.yaml - Sensitive configuration
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secrets
+  namespace: production
+type: Opaque
+data:
+  jwt-secret: <base64-encoded-secret>
+  api-key: <base64-encoded-api-key>
+  database-password: <base64-encoded-password>
+
+---
+# database-secrets.yaml - Database connection
+apiVersion: v1
+kind: Secret
+metadata:
+  name: database-secrets
+  namespace: production
+type: Opaque
+stringData:
+  connection-string: 'postgresql://user:password@postgres-service:5432/myapp'
+  username: 'myapp_user'
+  password: 'secure_password_123'

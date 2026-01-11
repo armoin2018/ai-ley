@@ -1,0 +1,44 @@
+# Custom resource for random password generation
+Resources:
+  PasswordGeneratorFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub ${Environment}-password-generator
+      Runtime: python3.9
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          import cfnresponse
+          import secrets
+          import string
+
+          def handler(event, context):
+              try:
+                  if event['RequestType'] == 'Create':
+                      length = int(event['ResourceProperties'].get('Length', 16))
+                      charset = string.ascii_letters + string.digits + "!@#$%^&*"
+                      password = ''.join(secrets.choice(charset) for _ in range(length))
+                      
+                      cfnresponse.send(event, context, cfnresponse.SUCCESS, {
+                          'Password': password
+                      })
+                  else:
+                      cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
+              except Exception as e:
+                  cfnresponse.send(event, context, cfnresponse.FAILED, {})
+
+  DatabasePassword:
+    Type: Custom::PasswordGenerator
+    Properties:
+      ServiceToken: !GetAtt PasswordGeneratorFunction.Arn
+      Length: 32
+
+  DatabaseInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      MasterUsername: admin
+      MasterUserPassword: !GetAtt DatabasePassword.Password
+      # ... other properties

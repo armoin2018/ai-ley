@@ -1,0 +1,352 @@
+# ERD Performance Analysis and Optimization Engine
+from dataclasses import dataclass
+from typing import Dict, List, Any, Optional, Tuple
+import json
+from datetime import datetime
+from enum import Enum
+
+class OptimizationType(Enum):
+    INDEX_RECOMMENDATION = "INDEX_RECOMMENDATION"
+    PARTITIONING_STRATEGY = "PARTITIONING_STRATEGY"
+    DENORMALIZATION = "DENORMALIZATION"
+    NORMALIZATION = "NORMALIZATION"
+    CONSTRAINT_OPTIMIZATION = "CONSTRAINT_OPTIMIZATION"
+    QUERY_OPTIMIZATION = "QUERY_OPTIMIZATION"
+    STORAGE_OPTIMIZATION = "STORAGE_OPTIMIZATION"
+    REPLICATION_STRATEGY = "REPLICATION_STRATEGY"
+
+class PerformanceMetric(Enum):
+    QUERY_RESPONSE_TIME = "QUERY_RESPONSE_TIME"
+    INDEX_USAGE = "INDEX_USAGE"
+    TABLE_SIZE = "TABLE_SIZE"
+    CONSTRAINT_VIOLATIONS = "CONSTRAINT_VIOLATIONS"
+    LOCK_CONTENTION = "LOCK_CONTENTION"
+    IO_OPERATIONS = "IO_OPERATIONS"
+    CACHE_HIT_RATIO = "CACHE_HIT_RATIO"
+    CONCURRENT_CONNECTIONS = "CONCURRENT_CONNECTIONS"
+
+@dataclass
+class PerformanceAnalysis:
+    entity_name: str
+    analysis_type: str
+    findings: List[Dict[str, Any]]
+    recommendations: List[Dict[str, Any]]
+    performance_impact: Dict[str, float]  # Projected improvements
+    implementation_complexity: str  # LOW, MEDIUM, HIGH
+    estimated_effort: str  # Hours/days estimation
+    priority_score: int  # 1-10, 10 being highest priority
+
+@dataclass
+class IndexRecommendation:
+    table_name: str
+    columns: List[str]
+    index_type: str  # BTREE, HASH, GIN, GIST, etc.
+    reason: str
+    query_patterns: List[str]
+    estimated_improvement: float  # Percentage improvement
+    storage_overhead: float  # Additional storage in MB
+    maintenance_cost: str  # LOW, MEDIUM, HIGH
+
+class ERDPerformanceEngine:
+    """
+    Advanced Performance Analysis and Optimization Engine
+    Provides comprehensive performance analysis and optimization recommendations
+    """
+
+    def __init__(self, config: Dict[str, Any]):
+        self.config = config
+        self.performance_rules = self._load_performance_rules()
+        self.optimization_patterns = self._load_optimization_patterns()
+        self.database_profiles = self._load_database_profiles()
+        self.query_patterns = self._load_common_query_patterns()
+
+    def analyze_model_performance(
+        self,
+        entities: List[ERDEntity],
+        relationships: List[ERDRelationship],
+        workload_profile: Dict[str, Any],
+        target_database: str = "postgresql"
+    ) -> Dict[str, Any]:
+        """Comprehensive performance analysis of the data model"""
+
+        # Entity-level performance analysis
+        entity_analyses = []
+        for entity in entities:
+            analysis = self._analyze_entity_performance(entity, workload_profile, target_database)
+            entity_analyses.append(analysis)
+
+        # Relationship performance analysis
+        relationship_analyses = []
+        for relationship in relationships:
+            analysis = self._analyze_relationship_performance(
+                relationship, entities, workload_profile, target_database
+            )
+            relationship_analyses.append(analysis)
+
+        # Global model analysis
+        global_analysis = self._analyze_global_performance(
+            entities, relationships, workload_profile, target_database
+        )
+
+        # Index recommendations
+        index_recommendations = self._generate_index_recommendations(
+            entities, relationships, workload_profile, target_database
+        )
+
+        # Partitioning strategies
+        partitioning_strategies = self._analyze_partitioning_opportunities(
+            entities, workload_profile, target_database
+        )
+
+        # Query optimization suggestions
+        query_optimizations = self._analyze_query_optimization_opportunities(
+            entities, relationships, workload_profile, target_database
+        )
+
+        # Overall performance score and recommendations
+        performance_score = self._calculate_performance_score(
+            entity_analyses, relationship_analyses, global_analysis
+        )
+
+        return {
+            'performance_score': performance_score,
+            'analysis_timestamp': datetime.now().isoformat(),
+            'target_database': target_database,
+            'entity_analyses': entity_analyses,
+            'relationship_analyses': relationship_analyses,
+            'global_analysis': global_analysis,
+            'index_recommendations': index_recommendations,
+            'partitioning_strategies': partitioning_strategies,
+            'query_optimizations': query_optimizations,
+            'implementation_roadmap': self._generate_implementation_roadmap(
+                index_recommendations, partitioning_strategies, query_optimizations
+            ),
+            'estimated_improvements': self._estimate_performance_improvements(
+                entity_analyses, relationship_analyses, index_recommendations
+            )
+        }
+
+    def _analyze_entity_performance(
+        self,
+        entity: ERDEntity,
+        workload_profile: Dict[str, Any],
+        target_database: str
+    ) -> PerformanceAnalysis:
+        """Detailed performance analysis for a single entity"""
+
+        findings = []
+        recommendations = []
+        performance_impact = {}
+
+        # Analyze table size projections
+        estimated_rows = entity.estimated_volume or 1000000
+        row_size = self._estimate_row_size(entity.attributes)
+        estimated_table_size = estimated_rows * row_size / (1024 * 1024)  # MB
+
+        findings.append({
+            'type': 'TABLE_SIZE_PROJECTION',
+            'estimated_rows': estimated_rows,
+            'estimated_size_mb': estimated_table_size,
+            'growth_rate': entity.growth_rate or 0.1,
+            'projected_size_1_year': estimated_table_size * (1 + (entity.growth_rate or 0.1))
+        })
+
+        # Analyze attribute performance implications
+        for attr in entity.attributes:
+            if attr.data_type in [DataType.TEXT, DataType.JSON]:
+                findings.append({
+                    'type': 'LARGE_ATTRIBUTE',
+                    'attribute': attr.name,
+                    'data_type': attr.data_type.value,
+                    'impact': 'HIGH_STORAGE_IO_COST',
+                    'recommendation': 'Consider compression or separate storage'
+                })
+
+        # Check for missing primary key
+        has_primary_key = any(
+            c.constraint_type == ConstraintType.PRIMARY_KEY
+            for c in entity.constraints
+        )
+
+        if not has_primary_key:
+            findings.append({
+                'type': 'MISSING_PRIMARY_KEY',
+                'severity': 'HIGH',
+                'impact': 'Severe performance degradation, replication issues'
+            })
+
+            recommendations.append({
+                'type': 'ADD_PRIMARY_KEY',
+                'priority': 10,
+                'description': f'Add primary key to {entity.name}',
+                'implementation': 'Add UUID or BIGSERIAL column as primary key'
+            })
+
+        # Analyze indexing opportunities
+        indexing_analysis = self._analyze_entity_indexing(entity, workload_profile)
+        findings.extend(indexing_analysis['findings'])
+        recommendations.extend(indexing_analysis['recommendations'])
+
+        # Check for normalization issues
+        normalization_analysis = self._analyze_normalization(entity)
+        findings.extend(normalization_analysis['findings'])
+        recommendations.extend(normalization_analysis['recommendations'])
+
+        # Calculate performance impact
+        if recommendations:
+            performance_impact['query_improvement'] = sum(
+                r.get('estimated_improvement', 0) for r in recommendations
+            ) / len(recommendations)
+            performance_impact['storage_impact'] = sum(
+                r.get('storage_impact', 0) for r in recommendations
+            )
+
+        # Determine implementation complexity
+        complexity_score = sum(
+            self._get_recommendation_complexity(r) for r in recommendations
+        ) / max(len(recommendations), 1)
+
+        if complexity_score <= 2:
+            complexity = "LOW"
+        elif complexity_score <= 5:
+            complexity = "MEDIUM"
+        else:
+            complexity = "HIGH"
+
+        # Calculate priority score
+        priority_score = min(10, max(1, int(
+            len([f for f in findings if f.get('severity') == 'HIGH']) * 3 +
+            len([f for f in findings if f.get('severity') == 'MEDIUM']) * 2 +
+            len([f for f in findings if f.get('severity') == 'LOW']) * 1
+        )))
+
+        return PerformanceAnalysis(
+            entity_name=entity.name,
+            analysis_type='ENTITY_PERFORMANCE',
+            findings=findings,
+            recommendations=recommendations,
+            performance_impact=performance_impact,
+            implementation_complexity=complexity,
+            estimated_effort=self._estimate_implementation_effort(recommendations),
+            priority_score=priority_score
+        )
+
+    def _generate_index_recommendations(
+        self,
+        entities: List[ERDEntity],
+        relationships: List[ERDRelationship],
+        workload_profile: Dict[str, Any],
+        target_database: str
+    ) -> List[IndexRecommendation]:
+        """Generate comprehensive index recommendations"""
+
+        recommendations = []
+
+        # Analyze query patterns from workload profile
+        query_patterns = workload_profile.get('query_patterns', [])
+
+        for entity in entities:
+            # Primary key index (usually automatic)
+            pk_columns = []
+            for constraint in entity.constraints:
+                if constraint.constraint_type == ConstraintType.PRIMARY_KEY:
+                    pk_columns.extend(constraint.columns)
+
+            # Foreign key indexes
+            fk_columns = []
+            for constraint in entity.constraints:
+                if constraint.constraint_type == ConstraintType.FOREIGN_KEY:
+                    fk_columns.extend(constraint.columns)
+
+            for fk_col in fk_columns:
+                recommendations.append(IndexRecommendation(
+                    table_name=entity.name,
+                    columns=[fk_col],
+                    index_type='BTREE',
+                    reason='Foreign key performance and referential integrity',
+                    query_patterns=[f'JOIN queries on {fk_col}'],
+                    estimated_improvement=40.0,
+                    storage_overhead=self._estimate_index_storage([fk_col], entity),
+                    maintenance_cost='LOW'
+                ))
+
+            # Unique constraint indexes
+            unique_columns = []
+            for constraint in entity.constraints:
+                if constraint.constraint_type == ConstraintType.UNIQUE:
+                    unique_columns.extend(constraint.columns)
+
+            for unique_col in unique_columns:
+                recommendations.append(IndexRecommendation(
+                    table_name=entity.name,
+                    columns=[unique_col],
+                    index_type='BTREE',
+                    reason='Unique constraint enforcement and lookup performance',
+                    query_patterns=[f'Unique lookups on {unique_col}'],
+                    estimated_improvement=60.0,
+                    storage_overhead=self._estimate_index_storage([unique_col], entity),
+                    maintenance_cost='LOW'
+                ))
+
+            # Analyze common query patterns for additional indexes
+            for pattern in query_patterns:
+                if pattern.get('table') == entity.name:
+                    columns_used = pattern.get('where_columns', [])
+                    order_columns = pattern.get('order_by_columns', [])
+
+                    if columns_used:
+                        recommendations.append(IndexRecommendation(
+                            table_name=entity.name,
+                            columns=columns_used,
+                            index_type='BTREE',
+                            reason=f'Query pattern optimization: {pattern.get("description", "Common query")}',
+                            query_patterns=[pattern.get('sql_template', 'SELECT * FROM ...')],
+                            estimated_improvement=pattern.get('frequency', 1) * 10.0,
+                            storage_overhead=self._estimate_index_storage(columns_used, entity),
+                            maintenance_cost='MEDIUM' if len(columns_used) > 2 else 'LOW'
+                        ))
+
+            # Text search indexes for appropriate columns
+            text_columns = [
+                attr.name for attr in entity.attributes
+                if attr.data_type in [DataType.TEXT, DataType.STRING] and
+                   attr.size and attr.size > 100
+            ]
+
+            if text_columns:
+                recommendations.append(IndexRecommendation(
+                    table_name=entity.name,
+                    columns=text_columns,
+                    index_type='GIN' if target_database == 'postgresql' else 'FULLTEXT',
+                    reason='Full-text search optimization',
+                    query_patterns=[f'Text search queries on {", ".join(text_columns)}'],
+                    estimated_improvement=80.0,
+                    storage_overhead=self._estimate_index_storage(text_columns, entity) * 1.5,
+                    maintenance_cost='HIGH'
+                ))
+
+            # Partial indexes for filtered queries
+            status_columns = [
+                attr.name for attr in entity.attributes
+                if 'status' in attr.name.lower() or 'state' in attr.name.lower()
+            ]
+
+            for status_col in status_columns:
+                recommendations.append(IndexRecommendation(
+                    table_name=entity.name,
+                    columns=[status_col],
+                    index_type='BTREE_PARTIAL',
+                    reason=f'Partial index for active records filtering on {status_col}',
+                    query_patterns=[f'SELECT * FROM {entity.name} WHERE {status_col} = "ACTIVE"'],
+                    estimated_improvement=30.0,
+                    storage_overhead=self._estimate_index_storage([status_col], entity) * 0.3,
+                    maintenance_cost='LOW'
+                ))
+
+        # Remove duplicate recommendations and sort by priority
+        unique_recommendations = self._deduplicate_index_recommendations(recommendations)
+        return sorted(unique_recommendations, key=lambda x: x.estimated_improvement, reverse=True)
+
+### **🔧 Database Schema Optimization & Migration Engine**
+
+#### **Advanced Schema Generation with Optimization**

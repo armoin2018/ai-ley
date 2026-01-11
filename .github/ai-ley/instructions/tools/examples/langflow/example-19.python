@@ -1,0 +1,20 @@
+# Simple conversation buffer
+buffer_memory_config = {
+    "type": "ConversationBufferMemory",
+    "memory_key": "chat_history",
+    "return_messages": True,
+    "max_token_limit": 2000,
+    "human_prefix": "Human",
+    "ai_prefix": "Assistant"
+}
+
+# Usage in flow
+conversation_flow = {
+    "memory_component": {
+        "type": "ConversationBufferMemory",
+        "config": buffer_memory_config
+    },
+    "llm_component": {
+        "prompt": "Previous conversation:\n{chat_history}\n\nHuman: {input}\nAssistant:"
+    }
+}

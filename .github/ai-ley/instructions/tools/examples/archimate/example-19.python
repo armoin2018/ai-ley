@@ -1,0 +1,19 @@
+# Python script for model analysis
+import archimate_parser as ap
+
+def analyze_application_dependencies(model_file):
+    model = ap.parse_model(model_file)
+    dependencies = {}
+
+    for component in model.application_components:
+        deps = find_dependencies(component)
+        dependencies[component.name] = deps
+
+    return dependencies
+
+def generate_impact_analysis(component_name, model):
+    impacts = []
+    for relationship in model.relationships:
+        if relationship.source.name == component_name:
+            impacts.append(relationship.target)
+    return impacts

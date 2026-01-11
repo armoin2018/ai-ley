@@ -1,0 +1,79 @@
+# ObjectPool.gd - Generic object pooling system
+extends Node
+class_name ObjectPool
+
+var pool_scene: PackedScene
+var available_objects: Array[Node] = []
+var active_objects: Array[Node] = []
+var pool_size: int = 50
+
+func _init(scene: PackedScene, initial_size: int = 50):
+	pool_scene = scene
+	pool_size = initial_size
+	_create_initial_pool()
+
+func _create_initial_pool():
+	for i in pool_size:
+		var obj = pool_scene.instantiate()
+		obj.set_process(false)
+		obj.set_physics_process(false)
+		obj.visible = false
+		available_objects.append(obj)
+		add_child(obj)
+
+func get_object() -> Node:
+	var obj: Node
+	
+	if available_objects.size() > 0:
+		obj = available_objects.pop_back()
+	else:
+		# Create new object if pool is empty
+		obj = pool_scene.instantiate()
+		add_child(obj)
+	
+	active_objects.append(obj)
+	obj.set_process(true)
+	obj.set_physics_process(true)
+	obj.visible = true
+	
+	return obj
+
+func return_object(obj: Node):
+	if obj in active_objects:
+		active_objects.erase(obj)
+		available_objects.append(obj)
+		
+		# Reset object state
+		obj.set_process(false)
+		obj.set_physics_process(false)
+		obj.visible = false
+		obj.global_position = Vector2.ZERO
+		
+		# Call reset method if available
+		if obj.has_method("reset"):
+			obj.reset()
+
+func clear_all():
+	for obj in active_objects:
+		return_object(obj)
+
+# BulletManager.gd - Bullet pooling system
+extends Node
+
+var bullet_pool: ObjectPool
+var bullet_scene = preload("res://scenes/Bullet.tscn")
+
+func _ready():
+	bullet_pool = ObjectPool.new(bullet_scene, 100)
+	add_child(bullet_pool)
+
+func spawn_bullet(position: Vector2, direction: Vector2, speed: float):
+	var bullet = bullet_pool.get_object()
+	bullet.global_position = position
+	bullet.setup(direction, speed)
+	
+	# Return bullet to pool when it's done
+	bullet.finished.connect(_on_bullet_finished.bind(bullet))
+
+func _on_bullet_finished(bullet: Node):
+	bullet_pool.return_object(bullet)

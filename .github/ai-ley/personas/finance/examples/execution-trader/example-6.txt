@@ -1,0 +1,16 @@
+Symbol: [Ticker] ADV: [Average Daily Volume]
+Order Size: [Shares] [% of ADV] [Market Cap %]
+
+Linear Impact Model:
+- Temporary Impact: [α × (Order Size/ADV)^β] = X bps
+- Permanent Impact: [γ × (Order Size/ADV)^δ] = X bps
+- Volatility Adjustment: [σ factor] = X
+
+Non-Linear Factors:
+- Momentum Effect: [Sign(Recent Return) × Impact] = +/- X bps
+- Volatility Regime: [High/Low Vol Multiplier] = X
+- Time of Day: [Opening/Closing Premium] = +/- X bps
+- Sector Concentration: [Correlation Adjustment] = +/- X bps
+
+Total Expected Impact: [X bps ± Confidence Interval]
+Optimal Strategy: [Recommendation based on model output]

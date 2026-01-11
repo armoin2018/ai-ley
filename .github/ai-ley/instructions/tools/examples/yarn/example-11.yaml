@@ -1,0 +1,9 @@
+# .yarnrc.yml
+nodeLinker: pnp                    # Enable Plug'n'Play
+
+# Generate PnP files
+compressionLevel: mixed
+enableGlobalCache: false
+
+# ESM support
+pnpMode: strict

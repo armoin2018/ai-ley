@@ -1,0 +1,44 @@
+# service.yaml - Load balancer service configuration
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app-service
+  namespace: production
+  labels:
+    app: web-app
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: 'nlb'
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: 'http'
+spec:
+  type: LoadBalancer
+  selector:
+    app: web-app
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000
+      protocol: TCP
+    - name: https
+      port: 443
+      targetPort: 3000
+      protocol: TCP
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 3600
+
+---
+# headless service for StatefulSet
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app-headless
+  namespace: production
+spec:
+  clusterIP: None
+  selector:
+    app: web-app
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000

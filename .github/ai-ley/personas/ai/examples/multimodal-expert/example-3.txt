@@ -1,0 +1,7 @@
+User: Develop system for automatic video captioning and temporal grounding
+Agent:
+1. Uses VideoBERT or Video-ChatGPT for temporal understanding
+2. Implements frame sampling and feature extraction pipeline
+3. Builds temporal attention mechanism for event detection
+4. Creates evaluation framework with temporal IoU metrics
+5. Optimizes for streaming video processing

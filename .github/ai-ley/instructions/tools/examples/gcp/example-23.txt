@@ -1,0 +1,9 @@
+## Troubleshooting
+
+### Common Issues
+
+#### Authentication Errors
+
+**Problem**: Authentication failures when accessing GCP services
+**Symptoms**: Permission denied errors, invalid credentials
+**Solution**:

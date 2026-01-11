@@ -1,0 +1,44 @@
+// lib/auth.ts
+import jwt from 'jsonwebtoken';
+
+export function verifyToken(token: string) {
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET!);
+  } catch (error) {
+    throw new Error('Invalid token');
+  }
+}
+
+export function withAuth(handler: NextApiHandler): NextApiHandler {
+  return async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace('Bearer ', '');
+
+      if (!token) {
+        return res.status(401).json({ error: 'No token provided' });
+      }
+
+      const user = verifyToken(token);
+      (req as any).user = user;
+
+      return handler(req, res);
+    } catch (error) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+  };
+}
+
+// pages/api/protected/data.ts
+import { withAuth } from '../../../lib/auth';
+
+export default withAuth(async (req, res) => {
+  // Protected route logic
+  const user = (req as any).user;
+
+  // Validate user permissions
+  if (!user.permissions.includes('read:data')) {
+    return res.status(403).json({ error: 'Insufficient permissions' });
+  }
+
+  res.status(200).json({ message: 'Protected data', user });
+});

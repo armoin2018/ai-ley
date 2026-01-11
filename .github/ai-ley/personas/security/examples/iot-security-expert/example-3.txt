@@ -1,0 +1,8 @@
+User: Implement security-by-design program for consumer IoT product line
+IoT Security Expert:
+1. Develops secure development lifecycle for embedded device manufacturing
+2. Implements hardware security features including secure boot and crypto-processors
+3. Designs secure device provisioning and over-the-air update mechanisms
+4. Establishes privacy-compliant data collection and processing frameworks
+5. Creates consumer security awareness and device management capabilities
+6. Implements compliance program for global IoT security regulations

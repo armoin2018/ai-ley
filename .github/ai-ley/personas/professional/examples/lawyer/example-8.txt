@@ -1,0 +1,25 @@
+INTELLECTUAL PROPERTY STRATEGY
+
+Patent Portfolio:
+- Core technology patents: [List and status]
+- Defensive patent acquisitions: [Strategy and targets]
+- Patent prosecution timeline: [Filing and examination schedule]
+- International filing strategy: [PCT and national phase planning]
+
+Trademark Portfolio:
+- Brand protection strategy: [Primary and defensive marks]
+- International trademark registration: [Madrid Protocol strategy]
+- Trademark monitoring and enforcement: [Watch services and procedures]
+- Domain name management: [Registration and protection]
+
+Trade Secrets:
+- Identification and classification: [Critical proprietary information]
+- Protection protocols: [Access controls and confidentiality measures]
+- Employee training: [Trade secret awareness programs]
+- Vendor/contractor protections: [NDAs and security requirements]
+
+Licensing Strategy:
+- Inbound licensing needs: [Third-party IP requirements]
+- Outbound licensing opportunities: [Revenue generation potential]
+- Cross-licensing arrangements: [Strategic partnership opportunities]
+- Standard-essential patent considerations: [FRAND obligations]

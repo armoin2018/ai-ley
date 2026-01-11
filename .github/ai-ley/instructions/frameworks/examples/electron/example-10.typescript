@@ -1,0 +1,37 @@
+// tests/main.test.ts - Testing main process
+import { Application } from 'spectron';
+import * as path from 'path';
+
+describe('Application launch', () => {
+  let app: Application;
+
+  beforeEach(async () => {
+    app = new Application({
+      path: path.join(__dirname, '..', 'out', 'my-app', 'my-app.exe'),
+      args: [],
+    });
+    await app.start();
+  });
+
+  afterEach(async () => {
+    if (app && app.isRunning()) {
+      await app.stop();
+    }
+  });
+
+  it('shows an initial window', async () => {
+    const count = await app.client.getWindowCount();
+    expect(count).toBe(1);
+  });
+
+  it('has the correct title', async () => {
+    const title = await app.client.getTitle();
+    expect(title).toBe('Text Editor');
+  });
+
+  it('handles file operations', async () => {
+    // Test file open dialog
+    await app.client.keys(['CommandOrControl', 'o']);
+    // Add assertions for file dialog behavior
+  });
+});

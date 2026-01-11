@@ -1,0 +1,72 @@
+// Example layered architecture structure
+// Presentation Layer
+export class UserController {
+  constructor(private userService: UserService) {}
+  
+  async createUser(request: CreateUserRequest): Promise<UserResponse> {
+    try {
+      const user = await this.userService.createUser(request);
+      return this.mapToResponse(user);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+}
+
+// Business Logic Layer
+export class UserService {
+  constructor(
+    private userRepository: UserRepository,
+    private emailService: EmailService
+  ) {}
+  
+  async createUser(userData: CreateUserData): Promise<User> {
+    // Business logic validation
+    await this.validateUserData(userData);
+    
+    // Create user entity
+    const user = new User(userData);
+    
+    // Persist user
+    const savedUser = await this.userRepository.save(user);
+    
+    // Send welcome email
+    await this.emailService.sendWelcomeEmail(savedUser.email);
+    
+    return savedUser;
+  }
+  
+  private async validateUserData(userData: CreateUserData): Promise<void> {
+    if (!userData.email || !this.isValidEmail(userData.email)) {
+      throw new ValidationError('Valid email is required');
+    }
+    
+    const existingUser = await this.userRepository.findByEmail(userData.email);
+    if (existingUser) {
+      throw new BusinessError('User with this email already exists');
+    }
+  }
+}
+
+// Data Access Layer
+export class UserRepository {
+  constructor(private database: Database) {}
+  
+  async save(user: User): Promise<User> {
+    const result = await this.database.query(
+      'INSERT INTO users (email, name, created_at) VALUES (?, ?, ?)',
+      [user.email, user.name, new Date()]
+    );
+    
+    return { ...user, id: result.insertId };
+  }
+  
+  async findByEmail(email: string): Promise<User | null> {
+    const result = await this.database.query(
+      'SELECT * FROM users WHERE email = ?',
+      [email]
+    );
+    
+    return result.length > 0 ? this.mapToUser(result[0]) : null;
+  }
+}

@@ -1,0 +1,2 @@
+User: Process sensor data locally and sync aggregated results to cloud
+Agent: Designs edge flow with local data filtering, time-based aggregation, cloud synchronization with offline buffering, and bandwidth optimization strategies

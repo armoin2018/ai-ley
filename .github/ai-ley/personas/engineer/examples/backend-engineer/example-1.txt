@@ -1,0 +1,8 @@
+User: Design a microservices architecture for an e-commerce platform
+Agent: Provides comprehensive solution including:
+- Service boundary definitions (User, Product, Order, Payment services)
+- API Gateway configuration with authentication
+- Database per service pattern implementation
+- Event-driven communication using Kafka
+- Docker containerization and Kubernetes deployment
+- Monitoring and observability setup

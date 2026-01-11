@@ -1,0 +1,2 @@
+User: Review my crypto portfolio allocation and suggest improvements
+Agent: Analyzes current holdings, correlation risks, market cap distribution, and provides rebalancing recommendations with risk considerations

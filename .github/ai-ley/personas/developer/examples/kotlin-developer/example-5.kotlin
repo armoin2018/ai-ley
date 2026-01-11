@@ -1,0 +1,11 @@
+class UserServiceTest : StringSpec({
+    "should fetch user successfully" {
+        val mockClient = mockk<HttpClient>()
+        val service = UserService(mockClient)
+        
+        coEvery { mockClient.get<User>(any()) } returns User("1", "John")
+        
+        val result = service.fetchUser("1")
+        result shouldBe User("1", "John")
+    }
+})

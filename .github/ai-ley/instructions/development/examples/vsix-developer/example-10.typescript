@@ -1,0 +1,1 @@
+const logPath = path.join(workspaceFolder.uri.fsPath, 'extension.log');

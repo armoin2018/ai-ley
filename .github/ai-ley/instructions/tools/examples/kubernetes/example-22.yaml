@@ -1,0 +1,91 @@
+# istio-gateway.yaml - Istio gateway configuration
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: web-app-gateway
+  namespace: production
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - 'app.mydomain.com'
+      tls:
+        httpsRedirect: true
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        credentialName: web-app-tls
+      hosts:
+        - 'app.mydomain.com'
+
+---
+# virtualservice.yaml - Traffic routing
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: web-app-vs
+  namespace: production
+spec:
+  hosts:
+    - 'app.mydomain.com'
+  gateways:
+    - web-app-gateway
+  http:
+    - match:
+        - uri:
+            prefix: '/api/v2'
+      route:
+        - destination:
+            host: web-app-v2-service
+            port:
+              number: 80
+          weight: 10
+        - destination:
+            host: web-app-service
+            port:
+              number: 80
+          weight: 90
+    - match:
+        - uri:
+            prefix: '/'
+      route:
+        - destination:
+            host: web-app-service
+            port:
+              number: 80
+      timeout: 30s
+      retries:
+        attempts: 3
+        perTryTimeout: 10s
+
+---
+# destinationrule.yaml - Traffic policies
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: web-app-dr
+  namespace: production
+spec:
+  host: web-app-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 50
+        maxRequestsPerConnection: 10
+    circuitBreaker:
+      consecutiveErrors: 3
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50

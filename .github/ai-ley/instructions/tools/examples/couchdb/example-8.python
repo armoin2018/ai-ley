@@ -1,0 +1,99 @@
+import couchdb
+import requests
+import json
+from typing import Dict, List, Any, Optional
+import logging
+
+class CouchDBManager:
+    """Comprehensive CouchDB database manager."""
+
+    def __init__(self, host='localhost', port=5984, username=None, password=None, use_ssl=False):
+        self.host = host
+        self.port = port
+        self.username = username
+        self.password = password
+        self.use_ssl = use_ssl
+
+        # Build server URL
+        protocol = 'https' if use_ssl else 'http'
+        if username and password:
+            self.server_url = f"{protocol}://{username}:{password}@{host}:{port}"
+        else:
+            self.server_url = f"{protocol}://{host}:{port}"
+
+        # Initialize connection
+        try:
+            self.server = couchdb.Server(self.server_url)
+            # Test connection
+            info = self.get_server_info()
+            logging.info(f"Connected to CouchDB {info.get('version')} on {host}:{port}")
+        except Exception as e:
+            logging.error(f"Failed to connect to CouchDB: {e}")
+            raise
+
+    def get_server_info(self) -> Dict[str, Any]:
+        """Get CouchDB server information."""
+        try:
+            response = requests.get(f"{self.server_url}/")
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            logging.error(f"Error getting server info: {e}")
+            raise
+
+    def create_database(self, db_name: str) -> bool:
+        """Create a new database."""
+        try:
+            if db_name in self.server:
+                logging.warning(f"Database '{db_name}' already exists")
+                return False
+
+            self.server.create(db_name)
+            logging.info(f"Database '{db_name}' created successfully")
+            return True
+        except Exception as e:
+            logging.error(f"Error creating database '{db_name}': {e}")
+            raise
+
+    def delete_database(self, db_name: str) -> bool:
+        """Delete a database."""
+        try:
+            if db_name not in self.server:
+                logging.warning(f"Database '{db_name}' does not exist")
+                return False
+
+            del self.server[db_name]
+            logging.info(f"Database '{db_name}' deleted successfully")
+            return True
+        except Exception as e:
+            logging.error(f"Error deleting database '{db_name}': {e}")
+            raise
+
+    def list_databases(self) -> List[str]:
+        """List all databases."""
+        try:
+            return list(self.server)
+        except Exception as e:
+            logging.error(f"Error listing databases: {e}")
+            raise
+
+    def get_database(self, db_name: str):
+        """Get database instance."""
+        try:
+            if db_name not in self.server:
+                raise ValueError(f"Database '{db_name}' does not exist")
+            return self.server[db_name]
+        except Exception as e:
+            logging.error(f"Error accessing database '{db_name}': {e}")
+            raise
+
+# Usage example
+couchdb_manager = CouchDBManager(
+    host='localhost',
+    port=5984,
+    username='admin',
+    password='password'
+)
+
+# Create database
+couchdb_manager.create_database('myapp')

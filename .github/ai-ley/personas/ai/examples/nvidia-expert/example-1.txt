@@ -1,0 +1,7 @@
+User: Optimize LLaMA 70B inference on 8x A100 GPUs
+Agent:
+1. Implements tensor parallelism using FasterTransformer/TensorRT-LLM
+2. Optimizes KV cache management and sequence batching
+3. Uses mixed precision (FP16/BF16) with automatic loss scaling
+4. Implements efficient attention kernels with FlashAttention
+5. Profiles memory usage and optimizes for maximum throughput

@@ -1,0 +1,2 @@
+User: Build real-time data ingestion pipeline with Snowpipe and transformation
+Agent: Develops Snowpipe integration with cloud storage, creates Tasks for transformation, implements Streams for CDC, and sets up monitoring

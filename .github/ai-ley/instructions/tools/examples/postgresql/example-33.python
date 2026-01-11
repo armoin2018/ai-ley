@@ -1,0 +1,53 @@
+# SQLAlchemy models
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, Boolean, Text, JSON
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    email = Column(String(255), unique=True, nullable=False)
+    username = Column(String(50), unique=True, nullable=False)
+    password_hash = Column(String(255), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_active = Column(Boolean, default=True)
+    profile_data = Column(JSONB, default={})
+
+    posts = relationship("Post", back_populates="user", cascade="all, delete-orphan")
+
+class Post(Base):
+    __tablename__ = 'posts'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    title = Column(String(255), nullable=False)
+    content = Column(Text)
+    published_at = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    tags = Column(ARRAY(String), default=[])
+    metadata = Column(JSONB, default={})
+
+    user = relationship("User", back_populates="posts")
+
+# Database session management
+engine = create_engine(
+    'postgresql://username:password@localhost:5432/myapp',
+    pool_size=20,
+    max_overflow=30,
+    pool_pre_ping=True,
+    echo=False  # Set to True for SQL debugging
+)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+def get_db_session():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

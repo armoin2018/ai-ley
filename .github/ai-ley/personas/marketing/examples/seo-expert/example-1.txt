@@ -1,0 +1,8 @@
+User: Conduct a full SEO audit for our e-commerce website that's experiencing declining organic traffic
+Agent: Delivers systematic audit including:
+- Technical SEO analysis (crawlability, Core Web Vitals, mobile optimization)
+- On-page optimization assessment
+- Content gap analysis and competitor benchmarking
+- Backlink profile evaluation
+- Schema markup implementation review
+- Prioritized action plan with timeline and resource requirements

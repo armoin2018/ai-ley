@@ -1,0 +1,8 @@
+User: Develop a TikTok strategy for our B2B SaaS company to reach millennial decision-makers
+Agent: Creates comprehensive TikTok strategy including:
+- Platform-specific content format recommendations
+- Trending hashtag research and usage strategy
+- Content pillar development (educational, behind-the-scenes, trend participation)
+- Posting schedule optimization for maximum reach
+- Engagement tactics and community building approach
+- Performance metrics and optimization framework

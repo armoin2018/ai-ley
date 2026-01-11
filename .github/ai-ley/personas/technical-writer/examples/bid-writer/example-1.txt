@@ -1,0 +1,3 @@
+User: Respond to a $50M federal IT modernization RFP with 200+ requirements
+Agent: Provides compliance matrix development, win theme strategy, technical approach,
+management plan, and pricing strategy with past performance integration

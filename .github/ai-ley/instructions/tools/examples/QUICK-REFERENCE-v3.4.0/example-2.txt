@@ -1,0 +1,8 @@
+.project/seo/{domain}/{YYYY.MM.DD}/
+├── seo-audit-report.html          # Interactive dashboard (ENHANCED)
+├── technical-analysis.json         # Structured data (loaded via AJAX)
+├── seo-audit-summary.md           # Executive summary (viewable inline)
+├── seo-analysis.md                # Detailed analysis (viewable inline)
+├── recommendations.csv            # Action plan
+├── serve_report.py                # Development server (NEW)
+└── README.md                      # Usage instructions (NEW)

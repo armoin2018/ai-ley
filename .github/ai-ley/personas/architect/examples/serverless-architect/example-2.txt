@@ -1,0 +1,8 @@
+User: Build serverless architecture for real-time analytics on streaming data
+Agent: Designs streaming architecture including:
+- Kinesis Data Streams for data ingestion
+- Lambda functions for stream processing and aggregation
+- DynamoDB Streams for change data capture
+- ElasticSearch for real-time search and analytics
+- CloudWatch dashboards for monitoring and alerting
+- Auto-scaling configuration based on stream metrics

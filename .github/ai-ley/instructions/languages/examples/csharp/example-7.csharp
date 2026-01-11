@@ -1,0 +1,34 @@
+public abstract class BaseProcessor<T> : IDisposable
+{
+    protected readonly ILogger<BaseProcessor<T>> _logger;
+    protected readonly IConfiguration _configuration;
+    
+    protected BaseProcessor(ILogger<BaseProcessor<T>> logger, IConfiguration configuration)
+    {
+        _logger = logger;
+        _configuration = configuration;
+    }
+    
+    public abstract Task<ProcessResult<T>> ProcessAsync(ProcessMessage<T> message);
+    
+    protected virtual void LogOperation(string operation, object data)
+    {
+        _logger.LogInformation("Processing {Operation} with data {Data}", operation, data);
+    }
+    
+    public virtual void Dispose()
+    {
+        // Cleanup resources
+    }
+}
+
+// Usage with generic constraints
+public class ValidationProcessor<T> : BaseProcessor<T> where T : class
+{
+    public override async Task<ProcessResult<T>> ProcessAsync(ProcessMessage<T> message)
+    {
+        LogOperation("Validation", message.Payload);
+        // Process validation
+        return new ProcessResult<T> { Success = true, Payload = message.Payload };
+    }
+}

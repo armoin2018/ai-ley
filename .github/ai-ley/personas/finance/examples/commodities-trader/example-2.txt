@@ -1,0 +1,8 @@
+User: Develop a natural gas trading strategy for winter heating season
+Agent:
+1. Analyzes storage levels vs. 5-year average and capacity constraints
+2. Reviews weather forecasts and heating degree day projections
+3. Evaluates production trends from key basins and pipeline capacity
+4. Models supply/demand balance and withdrawal scenarios
+5. Identifies calendar spread opportunities and basis trades
+6. Implements risk management using futures and options

@@ -1,0 +1,111 @@
+// services/camera.service.ts
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Preferences } from '@capacitor/preferences';
+
+export class CameraService {
+  async takePicture(): Promise<string | undefined> {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Camera,
+      });
+
+      if (image.webPath) {
+        // Save to device storage
+        const savedFile = await this.saveImageToDevice(image.webPath);
+        return savedFile;
+      }
+    } catch (error) {
+      console.error('Error taking picture:', error);
+      throw new Error('Failed to take picture');
+    }
+  }
+
+  async selectFromGallery(): Promise<string | undefined> {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Photos,
+      });
+
+      if (image.webPath) {
+        const savedFile = await this.saveImageToDevice(image.webPath);
+        return savedFile;
+      }
+    } catch (error) {
+      console.error('Error selecting from gallery:', error);
+      throw new Error('Failed to select image');
+    }
+  }
+
+  private async saveImageToDevice(webPath: string): Promise<string> {
+    try {
+      // Convert web path to base64
+      const response = await fetch(webPath);
+      const blob = await response.blob();
+      const base64Data = await this.convertBlobToBase64(blob);
+
+      // Generate unique filename
+      const fileName = `image_${Date.now()}.jpeg`;
+
+      // Save to device filesystem
+      await Filesystem.writeFile({
+        path: fileName,
+        data: base64Data,
+        directory: Directory.Data,
+      });
+
+      // Save reference in preferences
+      await this.saveImageReference(fileName);
+
+      return fileName;
+    } catch (error) {
+      console.error('Error saving image:', error);
+      throw new Error('Failed to save image');
+    }
+  }
+
+  private convertBlobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = () => {
+        resolve(reader.result as string);
+      };
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  private async saveImageReference(fileName: string) {
+    const { value } = await Preferences.get({ key: 'saved_images' });
+    const images = value ? JSON.parse(value) : [];
+    images.push(fileName);
+    await Preferences.set({
+      key: 'saved_images',
+      value: JSON.stringify(images),
+    });
+  }
+
+  async getSavedImages(): Promise<string[]> {
+    const { value } = await Preferences.get({ key: 'saved_images' });
+    return value ? JSON.parse(value) : [];
+  }
+
+  async getImagePath(fileName: string): Promise<string> {
+    try {
+      const file = await Filesystem.readFile({
+        path: fileName,
+        directory: Directory.Data,
+      });
+      return `data:image/jpeg;base64,${file.data}`;
+    } catch (error) {
+      console.error('Error reading image:', error);
+      throw new Error('Failed to read image');
+    }
+  }
+}

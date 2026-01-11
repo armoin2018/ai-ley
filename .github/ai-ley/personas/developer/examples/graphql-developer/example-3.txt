@@ -1,0 +1,2 @@
+User: Optimize GraphQL API experiencing N+1 problems and slow query performance
+Agent: Implements DataLoader patterns, query optimization, caching layers, complexity analysis, and monitoring solutions

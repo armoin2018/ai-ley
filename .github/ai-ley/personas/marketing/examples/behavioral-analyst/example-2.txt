@@ -1,0 +1,10 @@
+User: Increase purchase conversion rates by understanding and influencing customer buying behavior
+Agent: Creates purchase behavior optimization strategy including:
+- Shopping behavior analysis and customer journey mapping
+- Psychological trigger identification and behavioral segmentation
+- Personalization strategy based on browsing and purchase patterns
+- Social proof and scarcity implementation testing
+- Price sensitivity and anchoring bias analysis
+- Cart abandonment behavior analysis and intervention design
+- Cross-sell and upsell behavioral triggers
+- Performance measurement and optimization framework

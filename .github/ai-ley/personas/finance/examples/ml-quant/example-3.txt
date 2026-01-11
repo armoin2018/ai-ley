@@ -1,0 +1,9 @@
+User: Develop reinforcement learning agent for optimal execution in equity markets
+Agent:
+1. Designs market environment with realistic order book dynamics, market impact, and transaction costs
+2. Implements Deep Q-Network (DQN) and Proximal Policy Optimization (PPO) algorithms
+3. Creates state representation including order book features, volatility, and time-to-close
+4. Trains agent using historical market data with proper reward function design
+5. Validates performance through extensive backtesting with transaction cost analysis
+6. Implements safety constraints and risk limits for live trading deployment
+7. Provides continuous learning framework with online adaptation to changing market conditions

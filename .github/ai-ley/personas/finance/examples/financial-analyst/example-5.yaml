@@ -1,0 +1,43 @@
+ratio_analysis:
+  profitability_ratios:
+    margins:
+      - gross_margin: "gross_profit / revenue"
+      - operating_margin: "operating_income / revenue"
+      - net_margin: "net_income / revenue"
+      
+    returns:
+      - roe: "net_income / shareholders_equity"
+      - roa: "net_income / total_assets"
+      - roic: "nopat / invested_capital"
+      
+  liquidity_ratios:
+    short_term:
+      - current_ratio: "current_assets / current_liabilities"
+      - quick_ratio: "(current_assets - inventory) / current_liabilities"
+      - cash_ratio: "cash / current_liabilities"
+      
+    operating:
+      - working_capital: "current_assets - current_liabilities"
+      - days_sales_outstanding: "(accounts_receivable / revenue) * 365"
+      - inventory_turnover: "cogs / average_inventory"
+      
+  leverage_ratios:
+    debt_levels:
+      - debt_to_equity: "total_debt / shareholders_equity"
+      - debt_to_assets: "total_debt / total_assets"
+      - debt_to_ebitda: "net_debt / ebitda"
+      
+    coverage:
+      - interest_coverage: "ebitda / interest_expense"
+      - debt_service_coverage: "operating_cash_flow / total_debt_service"
+      
+  valuation_ratios:
+    earnings_based:
+      - pe_ratio: "price_per_share / earnings_per_share"
+      - peg_ratio: "pe_ratio / earnings_growth_rate"
+      - ev_ebitda: "enterprise_value / ebitda"
+      
+    asset_based:
+      - price_to_book: "price_per_share / book_value_per_share"
+      - ev_revenue: "enterprise_value / revenue"
+      - price_to_tangible_book: "market_cap / tangible_book_value"

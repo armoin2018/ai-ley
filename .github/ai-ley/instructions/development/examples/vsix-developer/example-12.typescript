@@ -1,0 +1,10 @@
+const panel = vscode.window.createWebviewPanel(
+  'myView',
+  'My Panel',
+  vscode.ViewColumn.One,
+  {
+    enableScripts: true,
+    localResourceRoots: [vscode.Uri.file(extensionPath)]
+  }
+);
+panel.webview.html = getHtmlContent(panel.webview);

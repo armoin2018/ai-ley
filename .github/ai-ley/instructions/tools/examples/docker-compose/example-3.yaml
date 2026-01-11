@@ -1,0 +1,365 @@
+# monitoring-stack.yml - Enterprise observability platform
+version: '3.8'
+
+networks:
+  monitoring:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.1.0/24
+    labels:
+      - monitoring.stack=true
+      - security.zone=monitoring
+
+services:
+  # Prometheus metrics collection
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: enterprise-prometheus
+    restart: always
+    networks:
+      - monitoring
+      - app-tier
+    ports:
+      - '9090:9090'
+    volumes:
+      - prometheus_data:/prometheus
+      - ./monitoring/prometheus:/etc/prometheus:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--storage.tsdb.retention.size=10GB'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    security_opt:
+      - no-new-privileges:true
+    user: '65534:65534'
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    healthcheck:
+      test:
+        ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:9090/-/healthy']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - monitoring.service=prometheus
+      - backup.include=data
+
+  # Grafana visualization
+  grafana:
+    image: grafana/grafana:10.0.0
+    container_name: enterprise-grafana
+    restart: always
+    networks:
+      - monitoring
+      - frontend-dmz
+    ports:
+      - '3000:3000'
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_DISABLE_GRAVATAR=true
+      - GF_SECURITY_COOKIE_SECURE=true
+      - GF_SECURITY_COOKIE_SAMESITE=strict
+      - GF_SECURITY_CONTENT_TYPE_PROTECTION=true
+      - GF_SECURITY_X_CONTENT_TYPE_OPTIONS=nosniff
+      - GF_SECURITY_X_XSS_PROTECTION=true
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_USERS_ALLOW_ORG_CREATE=false
+      - GF_LOG_LEVEL=info
+      - GF_ALERTING_ENABLED=true
+      - GF_UNIFIED_ALERTING_ENABLED=true
+    security_opt:
+      - no-new-privileges:true
+    user: '472:472'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:3000/api/health || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    labels:
+      - monitoring.service=grafana
+      - backup.include=data
+
+  # Jaeger distributed tracing
+  jaeger:
+    image: jaegertracing/all-in-one:1.45
+    container_name: enterprise-jaeger
+    restart: always
+    networks:
+      - monitoring
+      - app-tier
+    ports:
+      - '16686:16686' # Jaeger UI
+      - '14250:14250' # gRPC
+      - '14268:14268' # HTTP
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - SPAN_STORAGE_TYPE=elasticsearch
+      - ES_SERVER_URLS=http://elasticsearch:9200
+      - ES_USERNAME=elastic
+      - ES_PASSWORD=${ELASTICSEARCH_PASSWORD}
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:14269/']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - monitoring.service=jaeger
+
+  # Elasticsearch for logs and traces
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    container_name: enterprise-elasticsearch
+    restart: always
+    networks:
+      - monitoring
+    ports:
+      - '9200:9200'
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
+      - xpack.security.http.ssl.enabled=false
+      - xpack.license.self_generated.type=basic
+      - cluster.name=enterprise-logs
+      - node.name=elasticsearch-single
+      - bootstrap.memory_lock=true
+      - 'ES_JAVA_OPTS=-Xms1g -Xmx1g'
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+      - ./monitoring/elasticsearch/config:/usr/share/elasticsearch/config:ro
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'curl -u elastic:${ELASTICSEARCH_PASSWORD} -f http://localhost:9200/_cluster/health || exit 1',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    labels:
+      - monitoring.service=elasticsearch
+      - backup.include=data
+
+  # Logstash for log processing
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.8.0
+    container_name: enterprise-logstash
+    restart: always
+    networks:
+      - monitoring
+    ports:
+      - '5044:5044' # Beats input
+      - '9600:9600' # Logstash monitoring
+    volumes:
+      - ./monitoring/logstash/config:/usr/share/logstash/config:ro
+      - ./monitoring/logstash/pipeline:/usr/share/logstash/pipeline:ro
+    environment:
+      - LS_JAVA_OPTS=-Xmx1g -Xms1g
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD}
+    security_opt:
+      - no-new-privileges:true
+    user: '1000:1000'
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1.5G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:9600 || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    labels:
+      - monitoring.service=logstash
+
+  # Filebeat for log shipping
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.8.0
+    container_name: enterprise-filebeat
+    restart: always
+    networks:
+      - monitoring
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./monitoring/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD}
+      - LOGSTASH_HOSTS=logstash:5044
+    security_opt:
+      - no-new-privileges:true
+    user: root
+    command: filebeat -e -strict.perms=false
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      logstash:
+        condition: service_healthy
+    labels:
+      - monitoring.service=filebeat
+
+  # AlertManager for alerting
+  alertmanager:
+    image: prom/alertmanager:v0.25.0
+    container_name: enterprise-alertmanager
+    restart: always
+    networks:
+      - monitoring
+    ports:
+      - '9093:9093'
+    volumes:
+      - alertmanager_data:/alertmanager
+      - ./monitoring/alertmanager:/etc/alertmanager:ro
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+      - '--cluster.advertise-address=0.0.0.0:9093'
+    security_opt:
+      - no-new-privileges:true
+    user: '65534:65534'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    healthcheck:
+      test:
+        ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:9093/-/healthy']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - monitoring.service=alertmanager
+
+  # Node Exporter for system metrics
+  node-exporter:
+    image: prom/node-exporter:v1.6.0
+    container_name: enterprise-node-exporter
+    restart: always
+    networks:
+      - monitoring
+    ports:
+      - '9100:9100'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.systemd'
+      - '--collector.processes'
+    security_opt:
+      - no-new-privileges:true
+    pid: host
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    labels:
+      - monitoring.service=node-exporter
+
+volumes:
+  prometheus_data:
+    driver: local
+    labels:
+      - backup.schedule=daily
+  grafana_data:
+    driver: local
+    labels:
+      - backup.schedule=daily
+  elasticsearch_data:
+    driver: local
+    labels:
+      - backup.schedule=daily
+  alertmanager_data:
+    driver: local
+    labels:
+      - backup.schedule=weekly

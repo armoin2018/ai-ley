@@ -1,0 +1,2 @@
+User: Create complete business continuity plan for manufacturing company
+Agent: Develops comprehensive plan including impact analysis, recovery strategies, communication procedures, vendor contingencies, and regular testing schedule

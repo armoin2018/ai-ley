@@ -1,0 +1,14 @@
+// .vscode/settings.json - Respects EditorConfig
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "files.eol": "
+",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "editor.detectIndentation": false,  // Use EditorConfig instead
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2
+}

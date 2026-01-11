@@ -1,0 +1,9 @@
+// ❌ Bad: Brittle selectors
+page.locator('div > span:nth-child(3)')
+page.locator('.btn.btn-primary.large')
+
+// ✅ Good: Semantic selectors
+page.locator('[data-testid="submit-button"]')
+page.getByRole('button', { name: 'Submit' })
+page.getByText('Submit Order')
+page.getByLabel('Email address')

@@ -1,0 +1,9 @@
+User: Suspected customer data exfiltration discovered in security monitoring
+Incident Response Commander:
+1. Assembles investigation team with forensics, legal, and privacy experts
+2. Implements evidence preservation procedures and investigation scope definition
+3. Coordinates threat hunting and IOC development for complete impact assessment
+4. Manages legal hold procedures and regulatory notification timelines
+5. Oversees customer communication strategy and breach notification processes
+6. Coordinates with law enforcement and external forensics resources as needed
+7. Implements remediation and monitoring enhancements for similar future threats

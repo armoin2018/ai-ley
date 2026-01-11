@@ -1,0 +1,39 @@
+# .github/workflows/pecl-extensions.yml
+name: PECL Extensions CI
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-extensions:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ['8.0', '8.1', '8.2']
+        extensions: ['redis', 'mongodb', 'apcu']
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        extensions: ${{ matrix.extensions }}
+        tools: pecl
+        coverage: xdebug
+    
+    - name: Verify Extension Installation
+      run: |
+        php -m | grep ${{ matrix.extensions }}
+        php -c tests/php.ini tests/extension_test.php
+    
+    - name: Run Extension Tests
+      run: |
+        php tests/test_${{ matrix.extensions }}.php
+    
+    - name: Performance Benchmark
+      run: |
+        php tests/benchmark_${{ matrix.extensions }}.php

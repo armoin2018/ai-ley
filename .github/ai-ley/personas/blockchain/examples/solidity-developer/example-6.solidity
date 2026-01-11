@@ -1,0 +1,63 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "forge-std/Test.sol";
+import "../src/ModernToken.sol";
+
+contract ModernTokenTest is Test {
+    ModernToken token;
+    address admin = makeAddr("admin");
+    address alice = makeAddr("alice");
+    address bob = makeAddr("bob");
+    
+    uint256 constant CAP = 1_000_000e18;
+    
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Mint(address indexed to, uint256 amount);
+    
+    function setUp() public {
+        vm.prank(admin);
+        token = new ModernToken("Test Token", "TEST", CAP, admin);
+        
+        vm.prank(admin);
+        token.grantRole(token.MINTER_ROLE(), admin);
+    }
+    
+    function testMint() public {
+        uint256 amount = 1000e18;
+        
+        vm.expectEmit(true, false, false, true);
+        emit Mint(alice, amount);
+        
+        vm.prank(admin);
+        token.mint(alice, amount);
+        
+        assertEq(token.balanceOf(alice), amount);
+        assertEq(token.totalSupply(), amount);
+    }
+    
+    function testMintExceedsCap() public {
+        uint256 amount = CAP + 1;
+        
+        vm.expectRevert(
+            abi.encodeWithSelector(ModernToken.ExceedsCap.selector, amount, CAP)
+        );
+        
+        vm.prank(admin);
+        token.mint(alice, amount);
+    }
+    
+    function testFuzzMint(uint256 amount) public {
+        vm.assume(amount <= CAP);
+        vm.assume(amount > 0);
+        
+        vm.prank(admin);
+        token.mint(alice, amount);
+        
+        assertEq(token.balanceOf(alice), amount);
+    }
+    
+    function invariant_totalSupplyNeverExceedsCap() public {
+        assertLe(token.totalSupply(), CAP);
+    }
+}

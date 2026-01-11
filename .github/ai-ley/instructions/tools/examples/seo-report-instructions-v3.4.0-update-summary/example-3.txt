@@ -1,0 +1,22 @@
+==================================================================
+  SEO AUDIT REPORT SERVER
+==================================================================
+
+📂 Serving directory: /path/to/report
+🌐 Server URL: http://localhost:8080
+
+📊 Available files:
+  ✓ seo-audit-report.html        Interactive HTML Dashboard         (156.3 KB)
+  ✓ technical-analysis.json       Structured Data (JSON)             (45.2 KB)
+  ✓ seo-audit-summary.md          Executive Summary (Markdown)       (12.8 KB)
+  ✓ seo-analysis.md               Detailed Analysis (Markdown)       (67.4 KB)
+  ✓ recommendations.csv           Action Plan (CSV)                  (8.9 KB)
+
+------------------------------------------------------------------
+
+🚀 Starting server on http://localhost:8080/
+📱 Open in browser: http://localhost:8080/seo-audit-report.html
+
+⚠️  Press Ctrl+C to stop the server
+
+==================================================================

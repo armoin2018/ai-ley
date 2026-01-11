@@ -1,0 +1,19 @@
+# DocuSaurus configuration
+sidebar:
+  - Getting Started:
+      - Introduction
+      - Quick Start
+      - Installation
+  - API Reference:
+      - Authentication
+      - Users
+      - Projects
+      - Webhooks
+  - Guides:
+      - Integration Guide
+      - Best Practices
+      - Troubleshooting
+  - SDKs & Tools:
+      - Python SDK
+      - JavaScript SDK
+      - CLI Tool

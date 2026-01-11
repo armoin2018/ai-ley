@@ -1,0 +1,23 @@
+# CloudFront distribution
+CloudFrontDistribution:
+  Type: AWS::CloudFront::Distribution
+  Properties:
+    DistributionConfig:
+      Origins:
+        - DomainName: !GetAtt S3Bucket.DomainName
+          Id: S3Origin
+          S3OriginConfig:
+            OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOAI}'
+      Enabled: true
+      DefaultRootObject: index.html
+      DefaultCacheBehavior:
+        TargetOriginId: S3Origin
+        ViewerProtocolPolicy: redirect-to-https
+        Compress: true
+        ForwardedValues:
+          QueryString: false
+          Cookies:
+            Forward: none
+      PriceClass: PriceClass_100
+      ViewerCertificate:
+        CloudFrontDefaultCertificate: true

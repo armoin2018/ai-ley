@@ -1,0 +1,51 @@
+{
+  "name": "@company/my-app",
+  "version": "1.0.0",
+  "description": "Modern app with pnpm",
+  "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.6.0"
+  },
+  "packageManager": "pnpm@8.15.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist node_modules/.vite",
+    "deps:update": "pnpm update --interactive",
+    "deps:check": "pnpm audit && pnpm outdated"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@vitejs/plugin-react": "^4.1.1",
+    "eslint": "^8.53.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "semver@<7.5.2": ">=7.5.2"
+    },
+    "peerDependencyRules": {
+      "ignoreMissing": ["@babel/core"],
+      "allowedVersions": {
+        "react": "18"
+      }
+    },
+    "updateConfig": {
+      "ignoreDependencies": ["@types/node"]
+    }
+  }
+}

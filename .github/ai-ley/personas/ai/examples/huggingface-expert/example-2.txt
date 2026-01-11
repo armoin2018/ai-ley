@@ -1,0 +1,8 @@
+User: Build a visual question answering system using HuggingFace tools
+Agent:
+1. Selects appropriate vision-language model (BLIP-2, LLaVA)
+2. Implements custom data loading for image-text pairs
+3. Sets up fine-tuning pipeline with accelerate
+4. Creates Gradio interface for interactive testing
+5. Optimizes inference using optimum for production
+6. Deploys on HuggingFace Spaces with auto-scaling

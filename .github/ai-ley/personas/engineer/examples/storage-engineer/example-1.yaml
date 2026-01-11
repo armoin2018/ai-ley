@@ -1,0 +1,118 @@
+# Comprehensive SAN Architecture Specification
+enterprise_san_design:
+  fabric_infrastructure:
+    primary_fabric:
+      switches:
+        - model: 'Cisco MDS 9396T'
+          ports: 96
+          capacity: '32Gb FC'
+          redundancy: 'Dual director configuration'
+
+      zoning_strategy:
+        single_initiator_single_target: true
+        zone_naming_convention: 'hostname_arrayport_lun'
+        zone_security: 'Enhanced zoning with device aliases'
+
+      multipathing:
+        active_active: true
+        load_balancing: 'Round robin with service time optimization'
+        failover_time: '<30 seconds'
+
+    secondary_fabric:
+      configuration: 'Mirror of primary fabric'
+      cross_connect: 'ISL redundancy between fabrics'
+      disaster_recovery: 'Extended fabric to DR site'
+
+  storage_arrays:
+    primary_array:
+      model: 'NetApp AFF A800'
+      capacity:
+        raw: '500TB NVMe SSD'
+        usable: '350TB after RAID-DP and spares'
+
+      performance:
+        max_iops: '1.2M IOPS mixed workload'
+        latency: '<0.5ms at 70% utilization'
+        throughput: '40GB/s sequential'
+
+      data_protection:
+        raid_type: 'RAID-DP (double parity)'
+        snapshot_retention: 'Daily for 30 days, weekly for 12 weeks'
+        replication: 'SnapMirror to DR site'
+
+      protocols:
+        - protocol: 'FC'
+          speed: '32Gb'
+          connections: 4
+        - protocol: 'iSCSI'
+          speed: '25Gb Ethernet'
+          connections: 4
+        - protocol: 'NFS'
+          version: '4.1'
+          connections: 2
+
+  storage_tiering:
+    tier_1_performance:
+      technology: 'NVMe SSD'
+      use_case: 'Mission-critical databases, real-time analytics'
+      capacity: '100TB'
+
+    tier_2_capacity:
+      technology: '15K RPM SAS'
+      use_case: 'Active file systems, virtual machine storage'
+      capacity: '200TB'
+
+    tier_3_archive:
+      technology: 'SATA or Cloud Storage'
+      use_case: 'Backup, archive, compliance data'
+      capacity: '500TB'
+
+    automated_tiering:
+      policy: 'Data movement based on access patterns'
+      frequency: 'Daily analysis, weekly movement'
+      tools: 'FabricPool with cloud tier integration'
+
+  backup_recovery:
+    backup_targets:
+      - type: 'Dell EMC Data Domain'
+        capacity: '2PB logical'
+        deduplication: 'Up to 30:1 ratio'
+        replication: 'To DR site'
+
+      - type: 'AWS S3 Glacier'
+        capacity: 'Unlimited'
+        use_case: 'Long-term archive and compliance'
+        retrieval: 'Standard and expedited options'
+
+    backup_policies:
+      database_backups:
+        frequency: 'Every 4 hours with log shipping'
+        retention: 'Daily for 30 days, monthly for 7 years'
+        recovery_time: 'RTO 4 hours, RPO 15 minutes'
+
+      file_system_backups:
+        frequency: 'Daily incremental, weekly full'
+        retention: 'Daily for 90 days, weekly for 2 years'
+        recovery_time: 'RTO 2 hours, RPO 24 hours'
+
+  monitoring_management:
+    storage_monitoring:
+      tools:
+        - 'NetApp Active IQ'
+        - 'SolarWinds Storage Manager'
+        - 'Custom PowerShell/Python scripts'
+
+      metrics:
+        performance: 'IOPS, latency, throughput per LUN/volume'
+        capacity: 'Used, available, growth rate per storage pool'
+        health: 'Component status, environmental, predictive failures'
+
+      alerting:
+        critical: 'SMS and email for outages or performance degradation'
+        warning: 'Email for capacity thresholds and maintenance needs'
+        informational: 'Dashboard updates for trend analysis'
+
+    automation:
+      provisioning: 'Self-service portal for standard LUN/volume requests'
+      maintenance: 'Automated patching during maintenance windows'
+      reporting: 'Weekly capacity and performance reports'

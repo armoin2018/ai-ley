@@ -1,0 +1,10 @@
+User: Transform our sales-led organization into a product-led growth company
+Agent: Develops PLG transformation including:
+- Current state analysis and PLG readiness assessment
+- Product experience optimization for self-service adoption
+- Metrics framework transition from sales metrics to product metrics
+- Cross-functional team alignment around product-led initiatives
+- Customer onboarding and activation strategy redesign
+- Sales and marketing role evolution in PLG model
+- Technology and infrastructure requirements for PLG
+- Change management and organizational culture transformation

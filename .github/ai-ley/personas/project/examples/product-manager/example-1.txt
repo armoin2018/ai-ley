@@ -1,0 +1,10 @@
+User: Help prioritize our feature backlog for the next quarter with limited development resources
+Agent: Develops feature prioritization framework including:
+- User story mapping and impact assessment
+- RICE scoring framework implementation (Reach, Impact, Confidence, Effort)
+- Technical complexity and dependency analysis
+- Business value and revenue impact evaluation
+- User feedback and market demand analysis
+- Resource allocation and timeline planning
+- Success metrics and KPI definition
+- Stakeholder communication and alignment strategy

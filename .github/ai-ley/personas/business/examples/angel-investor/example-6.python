@@ -1,0 +1,214 @@
+from typing import List, Dict, Optional
+from dataclasses import dataclass
+from datetime import datetime
+
+@dataclass
+class AngelGroupProfile:
+    """Angel group or network profile"""
+    name: str
+    location: str
+    focus_sectors: List[str]
+    investment_range: Tuple[int, int]  # Min, max investment amounts
+    member_count: int
+    deal_flow_quality: float  # 1-10 scale
+    due_diligence_rigor: float  # 1-10 scale
+    networking_value: float  # 1-10 scale
+    membership_cost: float
+    time_commitment: str  # Monthly hours required
+
+@dataclass
+class NetworkingEvent:
+    """Networking event or opportunity"""
+    event_name: str
+    date: datetime
+    location: str
+    event_type: str  # pitch_event, networking, educational
+    expected_attendees: int
+    cost: float
+    potential_deals: int
+    networking_value: float  # 1-10 scale
+
+class AngelNetworkStrategy:
+    def __init__(self):
+        self.angel_groups = []
+        self.events_calendar = []
+        self.networking_goals = {
+            'deal_flow_improvement': 0.4,
+            'knowledge_development': 0.3,
+            'relationship_building': 0.3
+        }
+
+    def evaluate_angel_group_membership(self, group: AngelGroupProfile) -> Dict:
+        """Evaluate angel group membership opportunity"""
+
+        # Calculate value score
+        value_components = {
+            'deal_flow_quality': group.deal_flow_quality * 0.4,
+            'due_diligence_support': group.due_diligence_rigor * 0.3,
+            'networking_opportunities': group.networking_value * 0.3
+        }
+
+        total_value_score = sum(value_components.values())
+
+        # Calculate cost efficiency
+        annual_cost = group.membership_cost
+        cost_per_quality_point = annual_cost / total_value_score if total_value_score > 0 else float('inf')
+
+        # Time commitment assessment
+        monthly_hours = float(group.time_commitment.split()[0]) if group.time_commitment else 0
+        annual_time_investment = monthly_hours * 12
+
+        # Recommendation logic
+        if total_value_score >= 8.0 and cost_per_quality_point <= 2000:
+            recommendation = "HIGHLY RECOMMENDED"
+        elif total_value_score >= 6.5 and cost_per_quality_point <= 3000:
+            recommendation = "RECOMMENDED"
+        elif total_value_score >= 5.0:
+            recommendation = "CONDITIONAL"
+        else:
+            recommendation = "NOT RECOMMENDED"
+
+        return {
+            'group_name': group.name,
+            'value_score': round(total_value_score, 1),
+            'value_components': value_components,
+            'annual_cost': annual_cost,
+            'cost_efficiency': round(cost_per_quality_point, 0),
+            'time_commitment': annual_time_investment,
+            'recommendation': recommendation,
+            'rationale': self._generate_group_rationale(group, total_value_score, recommendation)
+        }
+
+    def optimize_networking_calendar(self, available_hours_monthly: int = 20) -> Dict:
+        """Optimize networking event participation"""
+
+        # Score and rank events
+        scored_events = []
+        for event in self.events_calendar:
+            value_score = self._calculate_event_value(event)
+            time_cost = self._estimate_event_time_cost(event)
+            efficiency = value_score / time_cost if time_cost > 0 else 0
+
+            scored_events.append({
+                'event': event,
+                'value_score': value_score,
+                'time_cost': time_cost,
+                'efficiency': efficiency
+            })
+
+        # Sort by efficiency
+        scored_events.sort(key=lambda x: x['efficiency'], reverse=True)
+
+        # Select events within time budget
+        selected_events = []
+        total_time_allocated = 0
+        total_cost = 0
+
+        for event_data in scored_events:
+            if total_time_allocated + event_data['time_cost'] <= available_hours_monthly:
+                selected_events.append(event_data['event'])
+                total_time_allocated += event_data['time_cost']
+                total_cost += event_data['event'].cost
+
+        return {
+            'recommended_events': [e.event_name for e in selected_events],
+            'total_time_commitment': total_time_allocated,
+            'total_cost': total_cost,
+            'expected_deals': sum(e.potential_deals for e in selected_events),
+            'optimization_metrics': {
+                'events_considered': len(self.events_calendar),
+                'events_selected': len(selected_events),
+                'time_utilization': total_time_allocated / available_hours_monthly,
+                'average_event_efficiency': np.mean([e['efficiency'] for e in scored_events[:len(selected_events)]])
+            }
+        }
+
+    def _calculate_event_value(self, event: NetworkingEvent) -> float:
+        """Calculate event value score"""
+        base_score = event.networking_value
+
+        # Bonus for high-quality deal flow events
+        if event.event_type == 'pitch_event' and event.potential_deals >= 5:
+            base_score += 2.0
+
+        # Bonus for exclusive/small events
+        if event.expected_attendees <= 50:
+            base_score += 1.0
+
+        return min(base_score, 10.0)
+
+    def _estimate_event_time_cost(self, event: NetworkingEvent) -> float:
+        """Estimate total time investment for event"""
+
+        base_time = {
+            'pitch_event': 4.0,      # 4 hours
+            'networking': 3.0,       # 3 hours
+            'educational': 2.5       # 2.5 hours
+        }.get(event.event_type, 3.0)
+
+        # Add travel time if not local
+        if event.location != 'local':
+            base_time += 2.0
+
+        # Add follow-up time
+        follow_up_time = event.potential_deals * 0.5  # 30 min per potential deal
+
+        return base_time + follow_up_time
+
+    def _generate_group_rationale(self, group: AngelGroupProfile,
+                                 value_score: float, recommendation: str) -> str:
+        """Generate rationale for group membership recommendation"""
+
+        if recommendation == "HIGHLY RECOMMENDED":
+            return f"Excellent value proposition with {value_score:.1f}/10 overall score. Strong deal flow in {', '.join(group.focus_sectors)} sectors with {group.member_count} experienced members."
+        elif recommendation == "RECOMMENDED":
+            return f"Good networking opportunity with solid deal flow quality. Cost-effective membership for {', '.join(group.focus_sectors)} sector exposure."
+        elif recommendation == "CONDITIONAL":
+            return f"Moderate value but acceptable for specific sector focus or geographic presence. Monitor performance before long-term commitment."
+        else:
+            return f"Limited value relative to cost and time investment. Consider alternative networking approaches."
+
+# Example usage
+def develop_networking_strategy():
+    """Example networking strategy development"""
+
+    strategy = AngelNetworkStrategy()
+
+    # Sample angel groups
+    sample_groups = [
+        AngelGroupProfile(
+            name="TechCoast Angels",
+            location="Southern California",
+            focus_sectors=["technology", "healthcare", "clean_energy"],
+            investment_range=(25_000, 100_000),
+            member_count=300,
+            deal_flow_quality=8.5,
+            due_diligence_rigor=8.0,
+            networking_value=9.0,
+            membership_cost=2_500,
+            time_commitment="15 hours"
+        ),
+        AngelGroupProfile(
+            name="Local Angel Network",
+            location="Local",
+            focus_sectors=["fintech", "enterprise_software"],
+            investment_range=(10_000, 50_000),
+            member_count=50,
+            deal_flow_quality=6.5,
+            due_diligence_rigor=6.0,
+            networking_value=7.0,
+            membership_cost=1_000,
+            time_commitment="8 hours"
+        )
+    ]
+
+    # Evaluate groups
+    group_evaluations = []
+    for group in sample_groups:
+        evaluation = strategy.evaluate_angel_group_membership(group)
+        group_evaluations.append(evaluation)
+
+    return {
+        'group_evaluations': group_evaluations,
+        'strategy_recommendations': strategy._generate_overall_strategy_recommendations(group_evaluations)
+    }

@@ -1,0 +1,8 @@
+User: Develop custom factor model for emerging market equities with ESG integration
+Agent:
+1. Conducts literature review of emerging market factor models and ESG integration methods
+2. Collects and cleans data: returns, fundamentals, ESG scores, macro indicators for 15+ countries
+3. Performs factor analysis using PCA and independent component analysis to identify orthogonal factors
+4. Tests factor stability across time periods and market regimes using rolling window analysis
+5. Validates factor performance using Fama-MacBeth regressions and cross-sectional tests
+6. Implements factor portfolio construction with proper risk controls and transaction cost estimates

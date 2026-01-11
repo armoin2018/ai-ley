@@ -1,0 +1,57 @@
+# Implement response caching for repeated queries
+caching_config = {
+    "cache_backends": {
+        "redis": {
+            "type": "RedisCache",
+            "host": "localhost",
+            "port": 6379,
+            "db": 0,
+            "ttl": 3600,  # 1 hour
+            "key_prefix": "langflow_cache:"
+        },
+        "memory": {
+            "type": "MemoryCache",
+            "max_size": 1000,
+            "ttl": 1800  # 30 minutes
+        }
+    },
+    "implementation": {
+        "type": "PythonFunction",
+        "code": """
+import hashlib
+import json
+import redis
+
+def cached_llm_call(
+    prompt: str,
+    model: str,
+    temperature: float,
+    cache_backend: str = "redis"
+) -> str:
+    # Create cache key
+    cache_data = {
+        "prompt": prompt,
+        "model": model,
+        "temperature": temperature
+    }
+    cache_key = hashlib.md5(
+        json.dumps(cache_data, sort_keys=True).encode()
+    ).hexdigest()
+
+    # Check cache
+    if cache_backend == "redis":
+        r = redis.Redis(host='localhost', port=6379, db=0)
+        cached_response = r.get(f"langflow_cache:{cache_key}")
+        if cached_response:
+            return cached_response.decode('utf-8')
+
+    # If not cached, make API call (placeholder)
+    # response = actual_llm_call(prompt, model, temperature)
+
+    # Cache the response
+    # r.setex(f"langflow_cache:{cache_key}", 3600, response)
+
+    return "Generated response"  # Placeholder
+        """
+    }
+}

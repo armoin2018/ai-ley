@@ -1,0 +1,72 @@
+# feature_store.py
+from feast import FeatureStore, Entity, FeatureView, Field
+from feast.types import Float32, Int32, String
+from datetime import timedelta
+import pandas as pd
+
+# Define entities
+user_entity = Entity(name="user_id", description="User identifier")
+product_entity = Entity(name="product_id", description="Product identifier")
+
+# Define feature views
+user_features = FeatureView(
+    name="user_features",
+    entities=[user_entity],
+    ttl=timedelta(days=7),
+    schema=[
+        Field(name="age", dtype=Int32),
+        Field(name="lifetime_value", dtype=Float32),
+        Field(name="preferred_category", dtype=String),
+        Field(name="activity_score", dtype=Float32)
+    ],
+    source="user_data_source"
+)
+
+product_features = FeatureView(
+    name="product_features",
+    entities=[product_entity],
+    ttl=timedelta(days=30),
+    schema=[
+        Field(name="price", dtype=Float32),
+        Field(name="category", dtype=String),
+        Field(name="avg_rating", dtype=Float32),
+        Field(name="popularity_score", dtype=Float32)
+    ],
+    source="product_data_source"
+)
+
+class FeatureService:
+    def __init__(self):
+        self.store = FeatureStore(repo_path=".")
+    
+    def get_training_features(self, entity_df: pd.DataFrame) -> pd.DataFrame:
+        """Get features for model training"""
+        return self.store.get_historical_features(
+            entity_df=entity_df,
+            features=[
+                "user_features:age",
+                "user_features:lifetime_value",
+                "user_features:activity_score",
+                "product_features:price",
+                "product_features:avg_rating",
+                "product_features:popularity_score"
+            ]
+        ).to_df()
+    
+    def get_online_features(self, user_id: int, product_id: int) -> dict:
+        """Get features for real-time inference"""
+        entity_rows = [{"user_id": user_id, "product_id": product_id}]
+        
+        online_features = self.store.get_online_features(
+            features=[
+                "user_features:age",
+                "user_features:lifetime_value",
+                "user_features:activity_score",
+                "product_features:price",
+                "product_features:avg_rating",
+                "product_features:popularity_score"
+            ],
+            entity_rows=entity_rows
+        )
+        
+        return online_features.to_dict()

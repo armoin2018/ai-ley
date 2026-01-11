@@ -1,0 +1,7 @@
+User: Migrate existing jQuery codebase to modern vanilla JavaScript
+Agent:
+- Analyzes current jQuery usage patterns
+- Provides equivalent vanilla JavaScript implementations
+- Shows performance improvements and bundle size reduction
+- Includes migration strategy and testing approaches
+- Demonstrates modern ES6+ patterns and best practices

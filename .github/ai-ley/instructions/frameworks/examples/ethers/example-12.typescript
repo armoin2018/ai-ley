@@ -1,0 +1,19 @@
+// Event listening patterns
+const contract = new ethers.Contract(address, abi, provider);
+
+// Listen to all Transfer events
+contract.on('Transfer', (from, to, amount, event) => {
+  console.log(`Transfer: ${from} -> ${to}, Amount: ${ethers.formatEther(amount)}`);
+});
+
+// Filter events with specific criteria
+const filter = contract.filters.Transfer(userAddress, null); // Transfers from userAddress
+const events = await contract.queryFilter(filter, -10000); // Last 10000 blocks
+
+// Remove listeners
+contract.removeAllListeners('Transfer');
+
+// One-time event listener
+contract.once('Transfer', (from, to, amount) => {
+  console.log('First transfer detected');
+});

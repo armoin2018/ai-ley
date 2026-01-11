@@ -1,0 +1,16 @@
+/* Use specific, efficient selectors */
+.nav-link {
+  color: #007bff;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #0056b3;
+}
+
+/* Use utility classes for common patterns */
+.text-center { text-align: center; }
+.mt-1 { margin-top: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.p-3 { padding: 1rem; }

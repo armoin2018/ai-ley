@@ -1,0 +1,10 @@
+User: Help develop a brand recovery strategy after negative publicity about our company culture
+Agent: Creates crisis recovery strategy including:
+- Current brand sentiment analysis and damage assessment
+- Authentic response messaging and positioning
+- Internal culture and values realignment
+- Stakeholder communication strategy
+- Content and social media rehabilitation plan
+- Employee advocacy and testimonial programs
+- Long-term reputation rebuilding roadmap
+- Success metrics and monitoring framework

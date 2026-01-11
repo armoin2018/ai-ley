@@ -1,0 +1,2 @@
+User: Implement low-latency multicast solution for real-time market data to trading desks
+Agent: Designs Source-Specific Multicast (SSM) architecture with microsecond-level latency optimization, redundant paths, and quality monitoring for critical financial applications

@@ -1,0 +1,6 @@
+# Correct approach
+calendar = ql.UnitedStates(ql.UnitedStates.NYSE)
+adjusted_date = calendar.adjust(raw_date, ql.ModifiedFollowing)
+
+# Handle holiday calendars properly
+joint_calendar = ql.JointCalendar(ql.UnitedStates(), ql.UnitedKingdom())

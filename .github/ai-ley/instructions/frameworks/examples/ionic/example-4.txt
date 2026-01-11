@@ -1,0 +1,21 @@
+ionic-react-app/
+├── src/
+│   ├── pages/                # Page components
+│   │   ├── Tab1.tsx
+│   │   ├── Tab2.tsx
+│   │   └── Tab3.tsx
+│   ├── components/           # Reusable components
+│   │   ├── ExploreContainer.tsx
+│   │   └── UserCard.tsx
+│   ├── hooks/                # Custom React hooks
+│   ├── services/             # API and business logic
+│   ├── models/               # TypeScript types
+│   ├── contexts/             # React contexts
+│   ├── App.tsx               # Root component
+│   ├── App.test.tsx          # App tests
+│   └── index.tsx             # Entry point
+├── public/                   # Static assets
+├── android/                  # Android platform
+├── ios/                      # iOS platform
+├── capacitor.config.ts       # Capacitor configuration
+└── package.json

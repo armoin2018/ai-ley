@@ -1,0 +1,6 @@
+## Common Patterns and Examples
+
+### Pattern 1: Auto-Scaling Architecture
+
+**Scenario**: Automatically scale application based on traffic
+**Implementation**:

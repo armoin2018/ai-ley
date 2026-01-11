@@ -1,0 +1,64 @@
+// src/__tests__/tauri-api.test.ts
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { TauriAPI } from '../services/tauri-api';
+
+// Mock Tauri's invoke function
+const mockInvoke = vi.fn();
+vi.mock('@tauri-apps/api/tauri', () => ({
+  invoke: mockInvoke,
+}));
+
+describe('TauriAPI', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe('readFile', () => {
+    it('should return success result', async () => {
+      const mockResult = {
+        success: true,
+        data: 'file content',
+      };
+
+      mockInvoke.mockResolvedValue(mockResult);
+
+      const result = await TauriAPI.readFile('/path/to/file.txt');
+
+      expect(mockInvoke).toHaveBeenCalledWith('read_file', {
+        path: '/path/to/file.txt',
+      });
+      expect(result).toEqual(mockResult);
+    });
+
+    it('should handle error result', async () => {
+      const mockResult = {
+        success: false,
+        error: 'File not found',
+      };
+
+      mockInvoke.mockResolvedValue(mockResult);
+
+      const result = await TauriAPI.readFile('/nonexistent.txt');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('File not found');
+    });
+  });
+
+  describe('writeFile', () => {
+    it('should save file successfully', async () => {
+      const mockResult = { success: true };
+      mockInvoke.mockResolvedValue(mockResult);
+
+      const request = {
+        path: '/path/to/file.txt',
+        content: 'new content',
+      };
+
+      const result = await TauriAPI.writeFile(request);
+
+      expect(mockInvoke).toHaveBeenCalledWith('write_file', { request });
+      expect(result.success).toBe(true);
+    });
+  });
+});

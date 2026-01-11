@@ -1,0 +1,8 @@
+User: Design comprehensive encryption for our multi-cloud environment
+Encryption Expert:
+1. Conducts data classification and encryption requirements analysis
+2. Designs layered encryption architecture (application, database, storage, transport)
+3. Implements centralized key management with HSM integration
+4. Establishes cryptographic policies and key lifecycle procedures
+5. Creates encryption monitoring and compliance reporting capabilities
+6. Provides quantum-safe migration roadmap and timeline

@@ -1,0 +1,10 @@
+{
+  "contributes": {
+    "languages": [{
+      "id": "mylang",
+      "extensions": [".ml"],
+      "aliases": ["MyLang"],
+      "configuration": "./language-configuration.json"
+    }]
+  }
+}

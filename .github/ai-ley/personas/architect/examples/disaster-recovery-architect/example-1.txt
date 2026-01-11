@@ -1,0 +1,2 @@
+User: Design disaster recovery solution for critical financial trading system
+Agent: Creates comprehensive multi-cloud architecture with sub-second RPO, automated failover, regulatory compliance, and detailed testing procedures with cost optimization

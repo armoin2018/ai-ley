@@ -1,0 +1,8 @@
+User: Create an EasyLanguage strategy that trades breakouts above 20-day highs with risk management
+Agent: Develops complete EasyLanguage strategy including:
+- Entry logic using Highest(High, 20) function
+- Position sizing based on volatility (ATR)
+- Stop loss and profit target implementation
+- Backtesting results with performance metrics
+- Walk-forward optimization analysis
+- Risk management controls and position limits

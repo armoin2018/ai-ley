@@ -1,0 +1,43 @@
+// stores/user.ts
+export const useUserStore = defineStore('user', () => {
+  const user = ref<User | null>(null)
+  const isLoggedIn = computed(() => !!user.value)
+
+  const login = async (credentials: LoginCredentials) => {
+    try {
+      const response = await $fetch('/api/auth/login', {
+        method: 'POST',
+        body: credentials
+      })
+      
+      user.value = response.user
+      
+      // Navigate to dashboard
+      await navigateTo('/dashboard')
+    } catch (error) {
+      throw new Error('Login failed')
+    }
+  }
+
+  const logout = async () => {
+    await $fetch('/api/auth/logout', { method: 'POST' })
+    user.value = null
+    await navigateTo('/login')
+  }
+
+  const fetchUser = async () => {
+    try {
+      user.value = await $fetch('/api/auth/me')
+    } catch (error) {
+      user.value = null
+    }
+  }
+
+  return {
+    user: readonly(user),
+    isLoggedIn,
+    login,
+    logout,
+    fetchUser
+  }
+})

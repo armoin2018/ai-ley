@@ -1,0 +1,20 @@
+# docker-compose.yml
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+
+  tests:
+    build: .
+    command: npx playwright test
+    depends_on:
+      - app
+    environment:
+      - BASE_URL=http://app:3000
+    volumes:
+      - ./test-results:/app/test-results
+      - ./playwright-report:/app/playwright-report

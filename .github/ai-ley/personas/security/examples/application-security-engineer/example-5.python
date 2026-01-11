@@ -1,0 +1,75 @@
+import re
+from typing import Any, Dict, List
+from html import escape
+import bleach
+
+class SecurityValidator:
+    def __init__(self):
+        self.sql_injection_patterns = [
+            r"(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER)\b)",
+            r"(\b(UNION|OR|AND)\s+\b)",
+            r"[';\"--]",
+        ]
+        
+        self.xss_patterns = [
+            r"<script[^>]*>.*?</script>",
+            r"javascript:",
+            r"on\w+\s*=",
+        ]
+    
+    def validate_sql_input(self, input_value: str) -> bool:
+        """Check for SQL injection patterns"""
+        if not isinstance(input_value, str):
+            return True
+            
+        for pattern in self.sql_injection_patterns:
+            if re.search(pattern, input_value, re.IGNORECASE):
+                return False
+        return True
+    
+    def sanitize_html(self, input_value: str) -> str:
+        """Sanitize HTML content"""
+        allowed_tags = ['p', 'br', 'strong', 'em', 'ul', 'ol', 'li']
+        allowed_attributes = {}
+        
+        return bleach.clean(
+            input_value,
+            tags=allowed_tags,
+            attributes=allowed_attributes,
+            strip=True
+        )
+    
+    def validate_email(self, email: str) -> bool:
+        """Validate email format"""
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        return bool(re.match(pattern, email))
+    
+    def validate_api_input(self, data: Dict[str, Any], schema: Dict) -> List[str]:
+        """Validate API input against schema"""
+        errors = []
+        
+        for field, rules in schema.items():
+            if field not in data and rules.get('required'):
+                errors.append(f"Required field '{field}' is missing")
+                continue
+                
+            if field in data:
+                value = data[field]
+                
+                # Type validation
+                expected_type = rules.get('type')
+                if expected_type and not isinstance(value, expected_type):
+                    errors.append(f"Field '{field}' must be of type {expected_type.__name__}")
+                
+                # Length validation
+                if isinstance(value, str):
+                    max_length = rules.get('max_length')
+                    if max_length and len(value) > max_length:
+                        errors.append(f"Field '{field}' exceeds maximum length of {max_length}")
+                
+                # Custom validation
+                validator = rules.get('validator')
+                if validator and not validator(value):
+                    errors.append(f"Field '{field}' failed validation")
+        
+        return errors

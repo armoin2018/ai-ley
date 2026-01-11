@@ -1,0 +1,149 @@
+class CouchDBViewManager:
+    """Manage CouchDB views and queries."""
+
+    def __init__(self, couchdb_manager, db_name):
+        self.couchdb_manager = couchdb_manager
+        self.db_name = db_name
+        self.db = couchdb_manager.get_database(db_name)
+
+    def create_design_document(self, design_name: str, views: Dict[str, Dict[str, str]]) -> Dict[str, Any]:
+        """Create a design document with views."""
+        try:
+            design_doc = {
+                '_id': f'_design/{design_name}',
+                'language': 'javascript',
+                'views': views
+            }
+
+            # Check if design document already exists
+            try:
+                existing_doc = self.db[f'_design/{design_name}']
+                design_doc['_rev'] = existing_doc['_rev']
+                logging.info(f"Updating existing design document: {design_name}")
+            except couchdb.ResourceNotFound:
+                logging.info(f"Creating new design document: {design_name}")
+
+            doc_id, doc_rev = self.db.save(design_doc)
+
+            result = {
+                'id': doc_id,
+                'rev': doc_rev,
+                'success': True
+            }
+
+            logging.info(f"Design document saved: {design_name}")
+            return result
+
+        except Exception as e:
+            logging.error(f"Error creating design document {design_name}: {e}")
+            raise
+
+    def query_view(self, design_name: str, view_name: str, **params) -> List[Dict[str, Any]]:
+        """Query a view with optional parameters."""
+        try:
+            view_path = f'{design_name}/{view_name}'
+            rows = self.db.view(view_path, **params)
+
+            results = []
+            for row in rows:
+                result = {
+                    'key': row.key,
+                    'value': row.value
+                }
+                if hasattr(row, 'doc') and row.doc:
+                    result['doc'] = row.doc
+                results.append(result)
+
+            logging.info(f"View query completed: {view_path}, {len(results)} results")
+            return results
+
+        except Exception as e:
+            logging.error(f"Error querying view {design_name}/{view_name}: {e}")
+            raise
+
+    def create_user_views(self):
+        """Create common views for user documents."""
+        user_views = {
+            'by_email': {
+                'map': '''
+                function(doc) {
+                    if (doc.type === 'user' && doc.email) {
+                        emit(doc.email, {
+                            name: doc.name,
+                            created_at: doc.created_at
+                        });
+                    }
+                }
+                '''
+            },
+            'by_age_range': {
+                'map': '''
+                function(doc) {
+                    if (doc.type === 'user' && doc.age) {
+                        var ageRange;
+                        if (doc.age < 18) ageRange = 'minor';
+                        else if (doc.age < 30) ageRange = 'young_adult';
+                        else if (doc.age < 50) ageRange = 'adult';
+                        else ageRange = 'senior';
+
+                        emit(ageRange, {
+                            name: doc.name,
+                            age: doc.age,
+                            email: doc.email
+                        });
+                    }
+                }
+                ''',
+                'reduce': '''
+                function(keys, values, rereduce) {
+                    return values.length;
+                }
+                '''
+            },
+            'active_users': {
+                'map': '''
+                function(doc) {
+                    if (doc.type === 'user' && doc.last_login) {
+                        var lastLogin = new Date(doc.last_login);
+                        var thirtyDaysAgo = new Date();
+                        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+                        if (lastLogin > thirtyDaysAgo) {
+                            emit(doc.last_login, {
+                                name: doc.name,
+                                email: doc.email
+                            });
+                        }
+                    }
+                }
+                '''
+            }
+        }
+
+        return self.create_design_document('users', user_views)
+
+    def find_users_by_email(self, email: str) -> List[Dict[str, Any]]:
+        """Find users by email using view."""
+        return self.query_view('users', 'by_email', key=email, include_docs=True)
+
+    def get_users_by_age_range(self, age_range: str = None) -> List[Dict[str, Any]]:
+        """Get users by age range."""
+        if age_range:
+            return self.query_view('users', 'by_age_range', key=age_range)
+        else:
+            return self.query_view('users', 'by_age_range', group=True)
+
+    def get_active_users(self) -> List[Dict[str, Any]]:
+        """Get recently active users."""
+        return self.query_view('users', 'active_users', include_docs=True, descending=True)
+
+# Usage example
+view_manager = CouchDBViewManager(couchdb_manager, 'myapp')
+
+# Create user views
+view_manager.create_user_views()
+
+# Query views
+users_by_email = view_manager.find_users_by_email('john@example.com')
+age_distribution = view_manager.get_users_by_age_range()
+active_users = view_manager.get_active_users()

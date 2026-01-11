@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "lint": "eslint src/**/*.{js,jsx,ts,tsx}",
+    "lint:fix": "eslint src/**/*.{js,jsx,ts,tsx} --fix",
+    "lint:check": "eslint src/**/*.{js,jsx,ts,tsx} --max-warnings 0",
+    "lint:staged": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": ["eslint --fix", "git add"]
+  }
+}

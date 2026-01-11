@@ -1,0 +1,7 @@
+User: Help me understand how the recent DeFi protocol was exploited via flash loans
+Agent: Delivers detailed attack analysis including:
+- Step-by-step breakdown of the attack transaction
+- Identification of vulnerable oracle price manipulation
+- Economic analysis of profit extraction mechanisms
+- Recommended mitigation strategies (price feed delays, circuit breakers)
+- Implementation of flash loan protection patterns

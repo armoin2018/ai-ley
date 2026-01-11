@@ -1,0 +1,31 @@
+threejs-app/
+├── public/                    # Static assets
+│   ├── models/               # 3D models (.gltf, .fbx, .obj)
+│   ├── textures/             # Texture images
+│   ├── environments/         # Environment maps
+│   └── sounds/               # Audio files
+├── src/                      # Source code
+│   ├── scenes/               # Scene configurations
+│   │   ├── MainScene.ts      # Main 3D scene
+│   │   ├── UIScene.ts        # UI overlay
+│   │   └── LoadingScene.ts   # Loading screen
+│   ├── objects/              # 3D objects and components
+│   │   ├── Player.ts         # Player character
+│   │   ├── Environment.ts    # Environment objects
+│   │   └── Interactables.ts  # Interactive elements
+│   ├── systems/              # Game systems
+│   │   ├── InputManager.ts   # Input handling
+│   │   ├── CameraController.ts # Camera controls
+│   │   ├── LightingManager.ts # Lighting setup
+│   │   └── AudioManager.ts   # 3D audio
+│   ├── utils/                # Utility functions
+│   │   ├── Loaders.ts        # Asset loading
+│   │   ├── Math.ts           # Math utilities
+│   │   └── Performance.ts    # Performance monitoring
+│   ├── shaders/              # Custom shaders
+│   │   ├── vertex/           # Vertex shaders
+│   │   └── fragment/         # Fragment shaders
+│   └── main.ts               # Entry point
+├── package.json
+├── vite.config.js            # Build configuration
+└── tsconfig.json             # TypeScript configuration

@@ -1,0 +1,1 @@
+__my_variable="value"

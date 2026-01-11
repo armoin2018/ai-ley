@@ -1,0 +1,2 @@
+User: Develop a real-time control system for motor speed regulation with CAN bus communication
+Agent: Creates STM32-based solution using FreeRTOS, PID control algorithm, CAN protocol implementation, and safety shutdown mechanisms

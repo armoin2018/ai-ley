@@ -1,0 +1,111 @@
+from functools import wraps, lru_cache, singledispatch, partial
+from operator import itemgetter, attrgetter
+from itertools import chain, groupby, islice
+from typing import Callable, Iterable, Iterator, TypeVar, Any
+
+T = TypeVar('T')
+U = TypeVar('U')
+
+# ✅ Good: Decorators for common patterns
+def retry(max_attempts: int = 3, delay: float = 1.0):
+    """Retry decorator with exponential backoff."""
+    def decorator(func: Callable[..., T]) -> Callable[..., T]:
+        @wraps(func)
+        async def wrapper(*args, **kwargs) -> T:
+            last_exception = None
+            
+            for attempt in range(max_attempts):
+                try:
+                    return await func(*args, **kwargs)
+                except Exception as e:
+                    last_exception = e
+                    if attempt < max_attempts - 1:
+                        wait_time = delay * (2 ** attempt)
+                        await asyncio.sleep(wait_time)
+                    else:
+                        break
+            
+            raise last_exception
+        return wrapper
+    return decorator
+
+def validate_input(**validators):
+    """Validation decorator for function inputs."""
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # Validate keyword arguments
+            for param_name, validator in validators.items():
+                if param_name in kwargs:
+                    value = kwargs[param_name]
+                    if not validator(value):
+                        raise ValidationError(
+                            f"Invalid value for {param_name}: {value}",
+                            field=param_name,
+                            value=value
+                        )
+            
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+# ✅ Good: Functional composition utilities
+def pipe(*functions: Callable) -> Callable:
+    """Compose functions left to right (pipe)."""
+    def composed(value):
+        for func in functions:
+            value = func(value)
+        return value
+    return composed
+
+def compose(*functions: Callable) -> Callable:
+    """Compose functions right to left."""
+    def composed(value):
+        for func in reversed(functions):
+            value = func(value)
+        return value
+    return composed
+
+# ✅ Good: Data transformation pipeline
+def process_users(users: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Process users using functional composition."""
+    return pipe(
+        partial(filter, lambda u: u.get("is_active", False)),
+        partial(map, lambda u: {
+            **u,
+            "full_name": f"{u.get('first_name', '')} {u.get('last_name', '')}".strip()
+        }),
+        partial(sorted, key=itemgetter("created_at")),
+        list
+    )(users)
+
+# ✅ Good: Generator functions for memory efficiency
+def chunked(iterable: Iterable[T], chunk_size: int) -> Iterator[List[T]]:
+    """Yield chunks of specified size from iterable."""
+    iterator = iter(iterable)
+    while True:
+        chunk = list(islice(iterator, chunk_size))
+        if not chunk:
+            break
+        yield chunk
+
+def flatten(nested_iterable: Iterable[Iterable[T]]) -> Iterator[T]:
+    """Flatten nested iterables."""
+    return chain.from_iterable(nested_iterable)
+
+@singledispatch
+def serialize(obj: Any) -> Any:
+    """Generic serialization function."""
+    return str(obj)
+
+@serialize.register
+def _(obj: datetime) -> str:
+    return obj.isoformat()
+
+@serialize.register
+def _(obj: Decimal) -> float:
+    return float(obj)
+
+@serialize.register
+def _(obj: dict) -> Dict[str, Any]:
+    return {key: serialize(value) for key, value in obj.items()}

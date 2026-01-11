@@ -1,0 +1,18 @@
+# Performance monitoring
+func _ready():
+	# Enable performance monitoring
+	Performance.get_monitor.bind(Performance.TIME_FPS)
+
+func _process(_delta):
+	# Monitor FPS and object count
+	if Engine.get_process_frames() % 60 == 0:  # Check every second
+		var fps = Performance.get_monitor(Performance.TIME_FPS)
+		var objects = get_tree().get_node_count()
+		
+		if fps < 30 or objects > 1000:
+			print("Performance warning: FPS=", fps, " Objects=", objects)
+			_cleanup_unused_objects()
+
+func _cleanup_unused_objects():
+	# Remove queued objects immediately
+	get_tree().call_group("cleanup", "queue_free")

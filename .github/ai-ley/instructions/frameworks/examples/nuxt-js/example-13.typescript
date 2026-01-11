@@ -1,0 +1,8 @@
+// In page component
+const { data: post } = await useFetch(`/api/posts/${route.params.id}`)
+
+useSeoMeta({
+  title: () => post.value?.title,
+  description: () => post.value?.excerpt,
+  ogImage: () => post.value?.image
+})

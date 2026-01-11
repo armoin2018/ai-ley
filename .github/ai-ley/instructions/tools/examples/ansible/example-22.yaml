@@ -1,0 +1,81 @@
+# playbooks/deployment/microservices/orchestration.yml - Microservices deployment
+---
+- name: Microservices Deployment Orchestration
+  hosts: kubernetes_master
+  gather_facts: false
+  vars:
+    services_dependency_graph:
+      auth_service: []
+      user_service: ["auth_service"]
+      order_service: ["user_service", "inventory_service"]
+      payment_service: ["user_service", "external_payment_api"]
+      notification_service: ["user_service", "message_queue"]
+
+  tasks:
+    - name: Validate Kubernetes cluster health
+      k8s_info:
+        api_version: v1
+        kind: Node
+      register: cluster_nodes
+
+    - name: Check cluster resource availability
+      k8s_info:
+        api_version: v1
+        kind: ResourceQuota
+        namespace: "{{ target_namespace }}"
+      register: resource_quota
+
+    - name: Deploy services in dependency order
+      include_tasks: tasks/deploy_service.yml
+      vars:
+        service_name: "{{ item }}"
+        service_dependencies: "{{ services_dependency_graph[item] }}"
+      loop: "{{ services_dependency_graph | dict2items | sort(attribute='value') | map(attribute='key') | list }}"
+
+    - name: Configure service mesh (Istio)
+      k8s:
+        state: present
+        definition:
+          apiVersion: networking.istio.io/v1beta1
+          kind: VirtualService
+          metadata:
+            name: "{{ application_name }}-routing"
+            namespace: "{{ target_namespace }}"
+          spec:
+            hosts:
+              - "{{ application_domain }}"
+            http:
+              - match:
+                  - headers:
+                      canary:
+                        exact: "true"
+                route:
+                  - destination:
+                      host: "{{ item }}"
+                      subset: canary
+                    weight: "{{ canary_traffic_percentage }}"
+                  - destination:
+                      host: "{{ item }}"
+                      subset: stable
+                    weight: "{{ 100 - canary_traffic_percentage }}"
+      loop: "{{ services_to_deploy }}"
+      when: service_mesh_enabled | default(false)
+
+    - name: Setup monitoring for microservices
+      k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: ServiceMonitor
+          metadata:
+            name: "{{ item }}-monitor"
+            namespace: "{{ target_namespace }}"
+          spec:
+            selector:
+              matchLabels:
+                app: "{{ item }}"
+            endpoints:
+              - port: metrics
+                interval: 30s
+                path: /metrics
+      loop: "{{ services_to_deploy }}"

@@ -1,0 +1,53 @@
+servicenow_architecture:
+  instance_strategy:
+    production_instance:
+      type: "Enterprise"
+      domains: "Business unit separation"
+      high_availability: "Active-passive clustering"
+      
+    non_production_instances:
+      development: "Developer instance with Studio access"
+      test: "Full data clone for integration testing"
+      staging: "Production-like environment for UAT"
+      
+  data_architecture:
+    cmdb_design:
+      configuration_items: "Servers, applications, databases, network devices"
+      relationships: "Dependencies, hosted on, uses"
+      data_sources: "Discovery, Service Mapping, manual entry"
+      
+    custom_data_model:
+      tables: "Business-specific entities and relationships"
+      fields: "Custom attributes with proper data types"
+      reference_fields: "Proper relationship modeling"
+      
+  integration_layer:
+    rest_apis:
+      table_api: "Standard CRUD operations on ServiceNow tables"
+      import_set_api: "Bulk data loading with transform maps"
+      scripted_rest_api: "Custom business logic endpoints"
+      
+    web_services:
+      soap_services: "Legacy system integration"
+      direct_web_services: "Custom WSDL-based integrations"
+      
+    mid_server:
+      network_access: "Behind-firewall resource access"
+      scheduled_imports: "Automated data synchronization"
+      discovery_probes: "Infrastructure discovery"
+      
+  automation_framework:
+    workflow_engine:
+      approval_workflows: "Multi-stage approval processes"
+      fulfillment_workflows: "Service request automation"
+      escalation_workflows: "SLA-based escalations"
+      
+    business_rules:
+      before_insert: "Data validation and default values"
+      after_update: "Notifications and integrations"
+      async_rules: "Heavy processing in background"
+      
+    scheduled_jobs:
+      data_imports: "Nightly synchronization jobs"
+      maintenance_scripts: "Cleanup and optimization"
+      report_generation: "Automated reporting"

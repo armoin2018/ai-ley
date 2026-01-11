@@ -1,0 +1,2 @@
+User: Create a deployment script for a web application with rollback capability
+Agent: Develops comprehensive Bash script with pre-deployment checks, atomic deployments, health monitoring, and automatic rollback on failure

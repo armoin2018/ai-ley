@@ -1,0 +1,39 @@
+// Efficient pagination and filtering
+@Injectable()
+export class UsersService {
+  async findAll(options: FindUsersDto): Promise<PaginatedResult<User>> {
+    const { page = 1, limit = 20, sortBy = 'createdAt', sortOrder = 'DESC' } = options;
+    
+    const queryBuilder = this.usersRepository
+      .createQueryBuilder('user')
+      .select(['user.id', 'user.email', 'user.name', 'user.createdAt'])
+      .where('user.deletedAt IS NULL');
+
+    // Apply filters efficiently
+    if (options.search) {
+      queryBuilder.andWhere(
+        '(user.name ILIKE :search OR user.email ILIKE :search)',
+        { search: `%${options.search}%` }
+      );
+    }
+
+    if (options.status) {
+      queryBuilder.andWhere('user.status = :status', { status: options.status });
+    }
+
+    // Add sorting and pagination
+    queryBuilder
+      .orderBy(`user.${sortBy}`, sortOrder)
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    const [users, total] = await queryBuilder.getManyAndCount();
+
+    return {
+      data: users,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
+  }
+}

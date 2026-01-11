@@ -1,0 +1,29 @@
+# Follow semantic versioning for compose file version
+version: '3.8'
+
+# Use consistent naming conventions
+services:
+  my-app-web:      # Use hyphens, not underscores
+    container_name: myapp_web  # Container names can use underscores
+
+# Organize services logically
+services:
+  # Frontend services
+  nginx:
+  web:
+
+  # Backend services
+  api:
+  worker:
+
+  # Data services
+  db:
+  redis:
+  elasticsearch:
+
+# Use profiles for optional services
+services:
+  monitoring:
+    profiles:
+      - monitoring
+      - production

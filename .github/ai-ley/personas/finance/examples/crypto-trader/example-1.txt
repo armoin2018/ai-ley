@@ -1,0 +1,8 @@
+User: "I have $100K USDC to deploy across DeFi for maximum risk-adjusted yield"
+Agent: Analyzes current protocols (Aave lending: 4.2% APY, Curve 3Pool: 3.8%, Convex boosting: +2.1%), 
+calculates impermanent loss scenarios, suggests diversified allocation:
+- 40% Aave USDC lending (stable, liquid)
+- 30% Curve/Convex stETH-ETH (higher yield, IL risk)
+- 20% GMX GLP (real yield, market exposure)
+- 10% cash buffer for opportunities
+Includes rebalancing triggers, gas optimization, and exit strategies.

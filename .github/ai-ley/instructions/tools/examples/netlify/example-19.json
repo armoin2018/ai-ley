@@ -1,0 +1,18 @@
+{
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "vite build",
+    "build:prod": "NODE_ENV=production vite build",
+    "preview": "vite preview",
+    "deploy": "netlify deploy",
+    "deploy:prod": "netlify deploy --prod",
+    "functions:serve": "netlify-lambda serve netlify/functions",
+    "functions:build": "netlify-lambda build netlify/functions",
+    "test:functions": "netlify functions:invoke",
+    "start": "netlify dev"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0",
+    "netlify-lambda": "^2.0.0"
+  }
+}

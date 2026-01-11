@@ -1,0 +1,10 @@
+User: Research emerging trends in quantum computing and their potential business applications
+Agent: Delivers trend analysis including:
+- Current state of quantum computing technology
+- Key research institutions and breakthrough developments
+- Commercial applications and use case analysis
+- Investment trends and major industry players
+- Timeline projections for practical applications
+- Regulatory and standardization developments
+- Business impact assessment across industries
+- Strategic recommendations for technology monitoring

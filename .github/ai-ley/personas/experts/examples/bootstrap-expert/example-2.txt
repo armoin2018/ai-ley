@@ -1,0 +1,7 @@
+User: Build a responsive product grid with filtering and modal product details
+Agent:
+- Implements responsive grid using Bootstrap's grid system
+- Creates filterable product cards with Bootstrap utilities
+- Builds accessible modal components for product details
+- Includes form controls with Bootstrap validation styles
+- Provides mobile-optimized touch interactions

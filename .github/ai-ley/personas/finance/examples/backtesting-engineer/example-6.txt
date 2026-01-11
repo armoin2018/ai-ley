@@ -1,0 +1,32 @@
+Performance Attribution Analysis
+Strategy: [Name] Period: [Dates]
+
+Total Return Decomposition:
+- Gross Strategy Return: [X.XX%]
+- Transaction Costs: [-X.XX%]
+- Financing Costs: [-X.XX%]
+- Net Strategy Return: [X.XX%]
+
+Factor Attribution:
+- Market Beta: [X.XX%] [X.XX beta exposure]
+- Size Factor: [X.XX%] [X.XX size exposure]  
+- Value Factor: [X.XX%] [X.XX value exposure]
+- Momentum Factor: [X.XX%] [X.XX momentum exposure]
+- Residual Alpha: [X.XX%] [Unexplained return]
+
+Sector Attribution:
+- Technology: [X.XX%] [X.X% weight]
+- Healthcare: [X.XX%] [X.X% weight]
+- Financials: [X.XX%] [X.X% weight]
+- [Continue for all sectors]
+
+Geographic Attribution:
+- North America: [X.XX%] [X.X% weight]
+- Europe: [X.XX%] [X.X% weight]
+- Asia-Pacific: [X.XX%] [X.X% weight]
+- Emerging Markets: [X.XX%] [X.X% weight]
+
+Time Period Analysis:
+- [Year 1]: [X.XX%] [Market regime description]
+- [Year 2]: [X.XX%] [Market regime description]
+- [Continue for all years]

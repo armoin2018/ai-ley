@@ -1,0 +1,126 @@
+class ExchangeMonitor:
+    def __init__(self):
+        self.performance_metrics = {}
+        self.alert_thresholds = self.load_alert_thresholds()
+        self.monitoring_dashboard = MonitoringDashboard()
+
+    def load_alert_thresholds(self) -> Dict[str, any]:
+        """Load performance alert thresholds"""
+
+        return {
+            'latency': {
+                'order_placement': {'warning': 50, 'critical': 100},  # milliseconds
+                'order_matching': {'warning': 10, 'critical': 50},
+                'api_response': {'warning': 200, 'critical': 500}
+            },
+            'throughput': {
+                'orders_per_second': {'warning': 1000, 'critical': 500},
+                'trades_per_second': {'warning': 100, 'critical': 50}
+            },
+            'system_health': {
+                'cpu_usage': {'warning': 80, 'critical': 95},  # percentage
+                'memory_usage': {'warning': 85, 'critical': 95},
+                'disk_usage': {'warning': 85, 'critical': 95}
+            },
+            'business_metrics': {
+                'daily_volume_drop': {'warning': 20, 'critical': 50},  # percentage
+                'user_complaints': {'warning': 10, 'critical': 25}  # per hour
+            }
+        }
+
+    async def monitor_exchange_health(self) -> Dict[str, any]:
+        """Comprehensive exchange health monitoring"""
+
+        health_report = {
+            'overall_status': 'healthy',
+            'timestamp': datetime.now(),
+            'metrics': {},
+            'alerts': [],
+            'recommendations': []
+        }
+
+        # Monitor technical performance
+        technical_metrics = await self.monitor_technical_performance()
+        health_report['metrics']['technical'] = technical_metrics
+
+        # Monitor business metrics
+        business_metrics = await self.monitor_business_metrics()
+        health_report['metrics']['business'] = business_metrics
+
+        # Monitor security status
+        security_metrics = await self.monitor_security_status()
+        health_report['metrics']['security'] = security_metrics
+
+        # Generate alerts and recommendations
+        alerts = self.generate_alerts(health_report['metrics'])
+        health_report['alerts'] = alerts
+        health_report['recommendations'] = self.generate_recommendations(alerts)
+
+        # Determine overall status
+        health_report['overall_status'] = self.calculate_overall_status(alerts)
+
+        return health_report
+
+    async def monitor_technical_performance(self) -> Dict[str, any]:
+        """Monitor technical performance metrics"""
+
+        return {
+            'latency': {
+                'order_placement_ms': await self.measure_order_placement_latency(),
+                'order_matching_ms': await self.measure_order_matching_latency(),
+                'api_response_ms': await self.measure_api_response_latency()
+            },
+            'throughput': {
+                'orders_per_second': await self.measure_order_throughput(),
+                'trades_per_second': await self.measure_trade_throughput(),
+                'api_requests_per_second': await self.measure_api_throughput()
+            },
+            'system_resources': {
+                'cpu_usage_percent': await self.get_cpu_usage(),
+                'memory_usage_percent': await self.get_memory_usage(),
+                'disk_usage_percent': await self.get_disk_usage(),
+                'network_bandwidth_mbps': await self.get_network_usage()
+            }
+        }
+
+    async def monitor_business_metrics(self) -> Dict[str, any]:
+        """Monitor business performance metrics"""
+
+        return {
+            'trading_volume': {
+                'daily_volume_usd': await self.get_daily_volume(),
+                'volume_change_percent': await self.get_volume_change(),
+                'top_pairs_by_volume': await self.get_top_trading_pairs()
+            },
+            'user_activity': {
+                'active_users_24h': await self.get_active_users(),
+                'new_registrations': await self.get_new_registrations(),
+                'user_retention_rate': await self.calculate_user_retention()
+            },
+            'liquidity_metrics': {
+                'average_spread_bps': await self.calculate_average_spreads(),
+                'order_book_depth': await self.measure_order_book_depth(),
+                'slippage_impact': await self.measure_slippage_impact()
+            }
+        }
+
+    def generate_recommendations(self, alerts: List[Dict]) -> List[str]:
+        """Generate operational recommendations based on alerts"""
+
+        recommendations = []
+
+        for alert in alerts:
+            if alert['type'] == 'high_latency':
+                recommendations.append("Consider scaling trading engine infrastructure")
+                recommendations.append("Optimize database queries and indexing")
+            elif alert['type'] == 'low_liquidity':
+                recommendations.append("Activate additional market making bots")
+                recommendations.append("Contact liquidity providers for increased depth")
+            elif alert['type'] == 'security_concern':
+                recommendations.append("Initiate security incident response protocol")
+                recommendations.append("Review and update security monitoring rules")
+            elif alert['type'] == 'volume_drop':
+                recommendations.append("Analyze competitor activities and market conditions")
+                recommendations.append("Consider promotional campaigns or fee adjustments")
+
+        return list(set(recommendations))  # Remove duplicates

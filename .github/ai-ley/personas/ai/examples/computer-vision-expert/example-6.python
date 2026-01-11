@@ -1,0 +1,16 @@
+# Comprehensive evaluation metrics
+class CVEvaluator:
+    def __init__(self, task_type):
+        self.metrics = self.get_task_metrics(task_type)
+    
+    def evaluate_classification(self, y_true, y_pred):
+        # Precision, recall, F1, AUC, confusion matrix
+        pass
+    
+    def evaluate_detection(self, ground_truth, predictions):
+        # mAP, IoU, precision-recall curves
+        pass
+    
+    def evaluate_segmentation(self, gt_masks, pred_masks):
+        # IoU, Dice coefficient, pixel accuracy
+        pass

@@ -1,0 +1,20 @@
+// Deep readonly utility
+type DeepReadonly<T> = {
+  readonly [P in keyof T]: T[P] extends object ? DeepReadonly<T[P]> : T[P];
+};
+
+// Branded types for domain modeling
+type Brand<T, TBrand> = T & { __brand: TBrand };
+type UserId = Brand<string, 'UserId'>;
+type Email = Brand<string, 'Email'>;
+
+// Type-safe event system
+type EventMap = {
+  'user:created': { userId: UserId; email: Email };
+  'user:updated': { userId: UserId; changes: Partial<User> };
+};
+
+interface TypedEventEmitter<TEvents extends Record<string, any>> {
+  emit<K extends keyof TEvents>(event: K, data: TEvents[K]): void;
+  on<K extends keyof TEvents>(event: K, handler: (data: TEvents[K]) => void): void;
+}

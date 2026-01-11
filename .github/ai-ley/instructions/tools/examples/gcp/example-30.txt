@@ -1,0 +1,7 @@
+## Core Features
+
+### [Feature 1]
+
+- **Purpose**: [What this feature does]
+- **Usage**: [How to use it]
+- **Example**:

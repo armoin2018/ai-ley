@@ -1,0 +1,18 @@
+# Connect to SharePoint Online
+Connect-PnPOnline -Url "https://tenant-admin.sharepoint.com" -Interactive
+
+# Create site collection with modern template
+$siteParams = @{
+    Url = "https://tenant.sharepoint.com/sites/ProjectAlpha"
+    Owner = "admin@tenant.com"
+    Title = "Project Alpha"
+    Template = "SITEPAGEPUBLISHING#0"
+    StorageQuota = 1024
+    Lcid = 1033
+    Wait = $true
+}
+New-PnPSite @siteParams
+
+# Apply site template
+Connect-PnPOnline -Url "https://tenant.sharepoint.com/sites/ProjectAlpha" -Interactive
+Invoke-PnPSiteTemplate -Path "./ProjectTemplate.pnp"

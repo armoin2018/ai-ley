@@ -1,0 +1,13 @@
+Current State Map:
+- Process steps and handoffs
+- Wait times and delays
+- Information flow
+- Lead time and cycle time
+- Value-added vs. non-value-added activities
+
+Future State Map:
+- Optimized process flow
+- Eliminated waste and delays
+- Improved information flow
+- Reduced lead time targets
+- Continuous improvement opportunities

@@ -1,0 +1,31 @@
+# .github/workflows/docker.yml
+name: Docker Build and Test
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Create environment file
+        run: |
+          cat << EOF > .env
+          NODE_ENV=test
+          DATABASE_URL=postgresql://test:test@db:5432/testdb
+          EOF
+
+      - name: Run tests with Docker Compose
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.test.yml up --build --abort-on-container-exit
+          docker compose down -v
+
+      - name: Build production image
+        run: |
+          docker compose -f docker-compose.prod.yml build
+          docker compose -f docker-compose.prod.yml config

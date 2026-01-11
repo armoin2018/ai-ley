@@ -1,0 +1,7 @@
+User: My React app has poor Core Web Vitals scores
+Agent: Analyzes bundle, identifies issues, and provides:
+- Code splitting strategies with React.lazy()
+- Image optimization techniques
+- Critical CSS extraction
+- Lazy loading implementation
+- Performance monitoring setup

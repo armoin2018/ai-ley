@@ -1,0 +1,154 @@
+import pandas as pd
+from datetime import datetime, timedelta
+import asyncio
+import websocket
+import json
+
+class MarketDataManager:
+    """Comprehensive market data management."""
+    
+    def __init__(self, alpaca_client):
+        self.api = alpaca_client.api
+        self.streaming_data = {}
+        self.callbacks = {}
+    
+    def get_historical_data(self, symbols, timeframe='1Day', start=None, end=None, limit=1000):
+        """Get historical OHLCV data."""
+        try:
+            if start is None:
+                start = datetime.now() - timedelta(days=365)
+            if end is None:
+                end = datetime.now()
+            
+            # Convert symbols to list if string
+            if isinstance(symbols, str):
+                symbols = [symbols]
+            
+            # Get bars data
+            bars = self.api.get_bars(
+                symbols,
+                timeframe,
+                start=start.isoformat(),
+                end=end.isoformat(),
+                limit=limit,
+                adjustment='all'
+            )
+            
+            # Convert to DataFrame
+            data = []
+            for bar in bars:
+                data.append({
+                    'symbol': bar.symbol,
+                    'timestamp': bar.timestamp,
+                    'open': float(bar.open),
+                    'high': float(bar.high),
+                    'low': float(bar.low),
+                    'close': float(bar.close),
+                    'volume': int(bar.volume),
+                    'vwap': float(bar.vwap) if bar.vwap else None
+                })
+            
+            df = pd.DataFrame(data)
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
+            df.set_index('timestamp', inplace=True)
+            
+            return df
+            
+        except Exception as e:
+            logging.error(f"Error fetching historical data: {e}")
+            return None
+    
+    def get_latest_quotes(self, symbols):
+        """Get latest bid/ask quotes."""
+        try:
+            if isinstance(symbols, str):
+                symbols = [symbols]
+            
+            quotes = self.api.get_latest_quotes(symbols)
+            
+            quote_data = {}
+            for symbol, quote in quotes.items():
+                quote_data[symbol] = {
+                    'bid_price': float(quote.bid_price),
+                    'bid_size': int(quote.bid_size),
+                    'ask_price': float(quote.ask_price),
+                    'ask_size': int(quote.ask_size),
+                    'timestamp': quote.timestamp,
+                    'spread': float(quote.ask_price) - float(quote.bid_price),
+                    'mid_price': (float(quote.bid_price) + float(quote.ask_price)) / 2
+                }
+            
+            return quote_data
+            
+        except Exception as e:
+            logging.error(f"Error fetching quotes: {e}")
+            return None
+    
+    def setup_streaming(self, symbols, data_types=['trades', 'quotes', 'bars']):
+        """Setup real-time data streaming."""
+        try:
+            # Initialize streaming connection
+            stream = tradeapi.Stream(
+                self.api._key_id,
+                self.api._secret_key,
+                base_url=self.api._base_url.replace('api', 'stream'),
+                data_feed='iex'  # or 'sip' for SIP feed
+            )
+            
+            # Define handlers for different data types
+            if 'trades' in data_types:
+                @stream.on_trade(*symbols)
+                async def trade_handler(trade):
+                    await self._handle_trade_data(trade)
+            
+            if 'quotes' in data_types:
+                @stream.on_quote(*symbols)
+                async def quote_handler(quote):
+                    await self._handle_quote_data(quote)
+            
+            if 'bars' in data_types:
+                @stream.on_bar(*symbols)
+                async def bar_handler(bar):
+                    await self._handle_bar_data(bar)
+            
+            return stream
+            
+        except Exception as e:
+            logging.error(f"Error setting up streaming: {e}")
+            return None
+    
+    async def _handle_trade_data(self, trade):
+        """Handle incoming trade data."""
+        trade_data = {
+            'symbol': trade.symbol,
+            'price': float(trade.price),
+            'size': int(trade.size),
+            'timestamp': trade.timestamp
+        }
+        
+        # Store latest trade
+        self.streaming_data[f"{trade.symbol}_trade"] = trade_data
+        
+        # Call registered callbacks
+        if 'trade' in self.callbacks:
+            for callback in self.callbacks['trade']:
+                await callback(trade_data)
+    
+    async def _handle_quote_data(self, quote):
+        """Handle incoming quote data."""
+        quote_data = {
+            'symbol': quote.symbol,
+            'bid_price': float(quote.bid_price),
+            'bid_size': int(quote.bid_size),
+            'ask_price': float(quote.ask_price),
+            'ask_size': int(quote.ask_size),
+            'timestamp': quote.timestamp
+        }
+        
+        # Store latest quote
+        self.streaming_data[f"{quote.symbol}_quote"] = quote_data
+        
+        # Call registered callbacks
+        if 'quote' in self.callbacks:
+            for callback in self.callbacks['quote']:
+                await callback(quote_data)

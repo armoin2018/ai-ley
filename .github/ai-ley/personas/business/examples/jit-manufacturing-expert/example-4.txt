@@ -1,0 +1,12 @@
+Partnership Requirements:
+- Delivery Performance: 99.5% on-time within 30-minute window
+- Quality Standards: Zero-defect delivery with source inspection
+- Communication: Real-time production visibility and demand sharing
+- Continuous Improvement: Joint kaizen activities and cost reduction
+- Financial Stability: Quarterly business reviews and risk assessment
+
+Delivery Methods:
+- Milk Run: Optimized routes for multiple suppliers
+- Vendor-Managed Inventory: Supplier responsibility for stock levels
+- Cross-Docking: Direct delivery to point of use
+- Consignment: Ownership transfer at consumption point

@@ -1,0 +1,32 @@
+integration_patterns:
+  real_time_integration:
+    pattern: "REST API with Business Rules"
+    use_case: "CMDB updates from monitoring tools"
+    implementation:
+      inbound: "REST API endpoint with authentication"
+      processing: "Transform maps and business rules"
+      response: "Confirmation with created/updated record ID"
+      
+  scheduled_integration:
+    pattern: "Scheduled Import with MID Server"
+    use_case: "Daily employee data sync from LDAP"
+    implementation:
+      schedule: "Daily at 3 AM via MID Server"
+      data_source: "LDAP directory service"
+      transform: "Field mapping and data validation"
+      
+  event_driven_integration:
+    pattern: "Business Rule with Outbound REST"
+    use_case: "Incident notification to external monitoring"
+    implementation:
+      trigger: "Incident state change business rule"
+      payload: "JSON with incident details"
+      endpoint: "External system webhook URL"
+      
+  bi_directional_sync:
+    pattern: "Import Sets + Outbound Messages"
+    use_case: "Change request sync with external ITSM"
+    implementation:
+      inbound: "Scheduled import of external changes"
+      outbound: "Business rule triggering REST message"
+      conflict_resolution: "Last modified wins with logging"

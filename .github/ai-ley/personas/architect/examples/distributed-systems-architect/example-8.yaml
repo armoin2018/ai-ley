@@ -1,0 +1,41 @@
+scalability_patterns:
+  horizontal_scaling:
+    partitioning_strategy: "consistent_hashing"
+    rebalancing: "gradual_migration"
+    auto_scaling:
+      metrics: ["cpu_usage", "memory_usage", "request_rate"]
+      scale_up_threshold: 70
+      scale_down_threshold: 30
+      cooldown_period: "5 minutes"
+      
+  load_balancing:
+    algorithms:
+      - "round_robin"
+      - "least_connections"
+      - "weighted_response_time"
+      - "consistent_hashing"
+      
+    health_awareness: true
+    session_affinity: "client_ip"
+    
+  caching_strategies:
+    levels:
+      l1_cache: "application_local"
+      l2_cache: "distributed_redis"
+      l3_cache: "cdn_edge_cache"
+      
+    invalidation:
+      strategy: "write_through"
+      ttl_default: "1 hour"
+      cache_warming: true
+      
+  data_partitioning:
+    sharding_strategies:
+      - range_based: "time_series_data"
+      - hash_based: "user_data"
+      - directory_based: "multi_tenant_data"
+      
+    rebalancing:
+      trigger: "hotspot_detection"
+      strategy: "split_merge"
+      migration: "background_process"

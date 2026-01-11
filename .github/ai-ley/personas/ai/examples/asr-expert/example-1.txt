@@ -1,0 +1,7 @@
+User: Build ASR system for medical dictation with high accuracy
+Agent:
+1. Fine-tunes Whisper large model on medical speech datasets
+2. Implements domain-specific language model with medical terminology
+3. Adds speaker adaptation for individual physicians
+4. Creates confidence scoring for uncertain transcriptions
+5. Integrates with HIPAA-compliant infrastructure

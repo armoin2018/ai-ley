@@ -1,0 +1,74 @@
+# Content adaptation for different platforms
+content_workflow = {
+    "components": [
+        {
+            "type": "TextInput",
+            "name": "base_content",
+            "config": {
+                "placeholder": "Enter your main content..."
+            }
+        },
+        {
+            "type": "OpenAI",
+            "name": "linkedin_adapter",
+            "config": {
+                "model": "gpt-4",
+                "prompt": """
+Adapt this content for LinkedIn (professional, 1300 characters max):
+
+Original: {content}
+
+LinkedIn Post:
+                """,
+                "temperature": 0.7
+            }
+        },
+        {
+            "type": "OpenAI",
+            "name": "twitter_adapter",
+            "config": {
+                "model": "gpt-4",
+                "prompt": """
+Create a Twitter thread from this content (280 chars per tweet):
+
+Original: {content}
+
+Twitter Thread:
+                """,
+                "temperature": 0.7
+            }
+        },
+        {
+            "type": "OpenAI",
+            "name": "blog_adapter",
+            "config": {
+                "model": "gpt-4",
+                "prompt": """
+Expand this into a comprehensive blog post with:
+- Engaging title
+- Introduction
+- Main sections with headers
+- Conclusion
+- SEO-friendly meta description
+
+Original: {content}
+
+Blog Post:
+                """,
+                "temperature": 0.6
+            }
+        },
+        {
+            "type": "ContentFormatter",
+            "name": "output_formatter",
+            "config": {
+                "format": "json",
+                "structure": {
+                    "linkedin": "linkedin_post",
+                    "twitter": "twitter_thread",
+                    "blog": "blog_post"
+                }
+            }
+        }
+    ]
+}

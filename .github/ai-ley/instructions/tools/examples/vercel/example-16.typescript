@@ -1,0 +1,41 @@
+// lib/edge-config.ts
+import { get } from '@vercel/edge-config';
+
+export async function getFeatureFlag(key: string): Promise<boolean> {
+  try {
+    const value = await get(key);
+    return value === true;
+  } catch (error) {
+    console.error('Edge Config error:', error);
+    return false;
+  }
+}
+
+export async function getConfigValue<T>(key: string, defaultValue: T): Promise<T> {
+  try {
+    const value = await get(key);
+    return value !== undefined ? value : defaultValue;
+  } catch (error) {
+    console.error('Edge Config error:', error);
+    return defaultValue;
+  }
+}
+
+// middleware.ts - Using Edge Config
+import { NextRequest, NextResponse } from 'next/server';
+import { getFeatureFlag } from './lib/edge-config';
+
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Feature flag check
+  if (pathname === '/new-feature') {
+    const isEnabled = await getFeatureFlag('new_feature_enabled');
+
+    if (!isEnabled) {
+      return NextResponse.redirect(new URL('/coming-soon', request.url));
+    }
+  }
+
+  return NextResponse.next();
+}

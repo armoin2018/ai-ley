@@ -1,0 +1,3 @@
+User: Design a global intranet for 50,000 employees with multilingual support
+Agent: Provides hub site architecture, managed metadata design, search configuration,
+multi-geo setup, and governance framework implementation

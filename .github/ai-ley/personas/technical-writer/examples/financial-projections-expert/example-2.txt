@@ -1,0 +1,2 @@
+User: Model financial impact of new product line launch for Fortune 500 company
+Agent: Creates detailed business case with market sizing, revenue projections, cost structure, NPV analysis, and risk assessment with executive dashboard

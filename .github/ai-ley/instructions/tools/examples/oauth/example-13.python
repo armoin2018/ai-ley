@@ -1,0 +1,141 @@
+class SSOProvider:
+    """Single Sign-On implementation using OAuth 2.0."""
+
+    def __init__(self, oauth_server):
+        self.oauth_server = oauth_server
+        self.active_sessions = {}
+
+    def authenticate_user(self, username, password):
+        """Authenticate user and create session."""
+        # Validate credentials (use secure hashing)
+        import bcrypt
+
+        user = self._get_user_by_username(username)
+        if not user:
+            return None
+
+        if bcrypt.checkpw(password.encode(), user['password_hash'].encode()):
+            # Create SSO session
+            session_id = secrets.token_urlsafe(32)
+            self.active_sessions[session_id] = {
+                'user_id': user['id'],
+                'username': username,
+                'created_at': datetime.utcnow(),
+                'last_accessed': datetime.utcnow()
+            }
+
+            return session_id
+
+        return None
+
+    def validate_sso_session(self, session_id):
+        """Validate SSO session."""
+        if session_id not in self.active_sessions:
+            return None
+
+        session = self.active_sessions[session_id]
+
+        # Check session expiry (e.g., 8 hours)
+        if datetime.utcnow() - session['created_at'] > timedelta(hours=8):
+            del self.active_sessions[session_id]
+            return None
+
+        # Update last accessed time
+        session['last_accessed'] = datetime.utcnow()
+
+        return session
+
+    def logout_user(self, session_id):
+        """Logout user and invalidate session."""
+        if session_id in self.active_sessions:
+            del self.active_sessions[session_id]
+
+    def _get_user_by_username(self, username):
+        """Get user by username from database."""
+        # In production, this would query the database
+        return {
+            'id': '123',
+            'username': username,
+            'password_hash': '$2b$12$hashed_password_here'
+        }
+
+# Mobile app OAuth flow
+class MobileOAuthFlow:
+    """OAuth flow optimized for mobile applications."""
+
+    def __init__(self, client_id, redirect_uri, authorization_endpoint, token_endpoint):
+        self.client_id = client_id
+        self.redirect_uri = redirect_uri
+        self.authorization_endpoint = authorization_endpoint
+        self.token_endpoint = token_endpoint
+
+    def start_authorization_flow(self, scope=None):
+        """Start OAuth flow with PKCE for mobile security."""
+        # Generate PKCE parameters
+        code_verifier = base64.urlsafe_b64encode(secrets.token_bytes(32)).decode('utf-8').rstrip('=')
+        code_challenge = base64.urlsafe_b64encode(
+            hashlib.sha256(code_verifier.encode()).digest()
+        ).decode('utf-8').rstrip('=')
+
+        state = secrets.token_urlsafe(32)
+
+        params = {
+            'response_type': 'code',
+            'client_id': self.client_id,
+            'redirect_uri': self.redirect_uri,
+            'code_challenge': code_challenge,
+            'code_challenge_method': 'S256',
+            'state': state
+        }
+
+        if scope:
+            params['scope'] = scope
+
+        authorization_url = f"{self.authorization_endpoint}?{urlencode(params)}"
+
+        return {
+            'authorization_url': authorization_url,
+            'code_verifier': code_verifier,
+            'state': state
+        }
+
+    def handle_callback(self, callback_url, code_verifier, expected_state):
+        """Handle OAuth callback and exchange code for token."""
+        from urllib.parse import urlparse, parse_qs
+
+        # Parse callback URL
+        parsed_url = urlparse(callback_url)
+        query_params = parse_qs(parsed_url.query)
+
+        # Validate state parameter
+        received_state = query_params.get('state', [None])[0]
+        if received_state != expected_state:
+            raise Exception("Invalid state parameter")
+
+        # Get authorization code
+        authorization_code = query_params.get('code', [None])[0]
+        if not authorization_code:
+            error = query_params.get('error', [None])[0]
+            error_description = query_params.get('error_description', [None])[0]
+            raise Exception(f"Authorization failed: {error} - {error_description}")
+
+        # Exchange code for token
+        token_data = {
+            'grant_type': 'authorization_code',
+            'code': authorization_code,
+            'redirect_uri': self.redirect_uri,
+            'client_id': self.client_id,
+            'code_verifier': code_verifier
+        }
+
+        response = requests.post(
+            self.token_endpoint,
+            data=token_data,
+            headers={'Content-Type': 'application/x-www-form-urlencoded'},
+            timeout=30
+        )
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise Exception(f"Token exchange failed: {response.status_code} - {response.text}")

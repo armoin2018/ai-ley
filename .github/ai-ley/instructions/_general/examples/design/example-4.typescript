@@ -1,0 +1,73 @@
+// Abstract repository interface
+export interface Repository<T, ID> {
+  findById(id: ID): Promise<T | null>;
+  findAll(): Promise<T[]>;
+  save(entity: T): Promise<T>;
+  delete(id: ID): Promise<void>;
+}
+
+// Concrete implementation
+export class DatabaseUserRepository implements Repository<User, string> {
+  constructor(private database: Database) {}
+  
+  async findById(id: string): Promise<User | null> {
+    const result = await this.database.query(
+      'SELECT * FROM users WHERE id = ?',
+      [id]
+    );
+    return result.length > 0 ? this.mapToUser(result[0]) : null;
+  }
+  
+  async findAll(): Promise<User[]> {
+    const results = await this.database.query('SELECT * FROM users');
+    return results.map(row => this.mapToUser(row));
+  }
+  
+  async save(user: User): Promise<User> {
+    if (user.id) {
+      return this.update(user);
+    } else {
+      return this.create(user);
+    }
+  }
+  
+  async delete(id: string): Promise<void> {
+    await this.database.query('DELETE FROM users WHERE id = ?', [id]);
+  }
+  
+  private mapToUser(row: any): User {
+    return new User({
+      id: row.id,
+      email: row.email,
+      name: row.name,
+      createdAt: row.created_at
+    });
+  }
+}
+
+// Dependency injection container
+export class DIContainer {
+  private services = new Map<string, any>();
+  
+  register<T>(key: string, factory: () => T): void {
+    this.services.set(key, factory);
+  }
+  
+  resolve<T>(key: string): T {
+    const factory = this.services.get(key);
+    if (!factory) {
+      throw new Error(`Service ${key} not registered`);
+    }
+    return factory();
+  }
+}
+
+// Service registration
+const container = new DIContainer();
+container.register('Database', () => new Database(config.database));
+container.register('UserRepository', () => 
+  new DatabaseUserRepository(container.resolve('Database'))
+);
+container.register('UserService', () => 
+  new UserService(container.resolve('UserRepository'))
+);

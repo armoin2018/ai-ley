@@ -1,0 +1,97 @@
+// pages/api/users/[id].ts - Next.js API route
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+type Data = {
+  user?: any;
+  error?: string;
+};
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
+  const { id } = req.query;
+
+  try {
+    switch (req.method) {
+      case 'GET':
+        const user = await prisma.user.findUnique({
+          where: { id: String(id) },
+        });
+
+        if (!user) {
+          return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.status(200).json({ user });
+        break;
+
+      case 'PUT':
+        const updatedUser = await prisma.user.update({
+          where: { id: String(id) },
+          data: req.body,
+        });
+
+        res.status(200).json({ user: updatedUser });
+        break;
+
+      case 'DELETE':
+        await prisma.user.delete({
+          where: { id: String(id) },
+        });
+
+        res.status(204).end();
+        break;
+
+      default:
+        res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
+        res.status(405).json({ error: 'Method not allowed' });
+    }
+  } catch (error) {
+    console.error('API Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+// pages/api/auth/login.ts - Authentication endpoint
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { email, password } = req.body;
+
+  try {
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password required' });
+    }
+
+    // Find user
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Generate JWT
+    const token = jwt.sign({ userId: user.id, email: user.email }, process.env.JWT_SECRET!, {
+      expiresIn: '24h',
+    });
+
+    res.status(200).json({
+      token,
+      user: { id: user.id, email: user.email, name: user.name },
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}

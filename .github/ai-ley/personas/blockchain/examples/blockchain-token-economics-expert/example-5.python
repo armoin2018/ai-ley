@@ -1,0 +1,147 @@
+class EconomicAttackAnalyzer:
+    def __init__(self, token_model: TokenEconomyModel):
+        self.token_model = token_model
+        self.attack_scenarios = []
+
+    def analyze_governance_attack_cost(self, target_voting_power: float = 0.51) -> Dict[str, float]:
+        """Calculate cost of acquiring enough tokens for governance attack"""
+
+        current_supply = self.token_model.params.initial_supply
+        circulating_supply = current_supply * 0.8  # 80% circulating
+
+        # Assume attacker needs to buy from open market
+        tokens_needed = circulating_supply * target_voting_power
+
+        # Model price impact of large purchase
+        market_depth = circulating_supply * 0.1  # 10% available for immediate purchase
+
+        if tokens_needed <= market_depth:
+            # Linear price impact for small purchases
+            average_price_impact = tokens_needed / market_depth * 0.2  # 20% max impact
+            attack_cost = tokens_needed * (1 + average_price_impact / 2)
+        else:
+            # Exponential price impact for large purchases
+            shortage_multiplier = (tokens_needed / market_depth) ** 2
+            attack_cost = tokens_needed * shortage_multiplier
+
+        # Add opportunity cost and coordination costs
+        holding_cost = attack_cost * 0.05  # 5% annual holding cost
+        coordination_cost = attack_cost * 0.02  # 2% coordination overhead
+
+        total_attack_cost = attack_cost + holding_cost + coordination_cost
+
+        return {
+            'tokens_needed': tokens_needed,
+            'direct_purchase_cost': attack_cost,
+            'total_attack_cost': total_attack_cost,
+            'cost_as_percentage_of_market_cap': total_attack_cost / (current_supply * 1.0),
+            'feasibility_score': min(100, 1000 / total_attack_cost)  # Lower is more feasible
+        }
+
+    def model_flash_loan_attack_vectors(self) -> List[Dict[str, any]]:
+        """Identify potential flash loan attack vectors"""
+
+        attack_vectors = []
+
+        # Oracle manipulation attack
+        if 'price_oracle' in self.token_model.params.utility_mechanisms:
+            attack_vectors.append({
+                'attack_type': 'oracle_manipulation',
+                'description': 'Manipulate price oracle through large trades',
+                'required_capital': self.estimate_oracle_manipulation_cost(),
+                'potential_profit': self.estimate_oracle_attack_profit(),
+                'mitigation': 'Time-weighted average price (TWAP) oracles'
+            })
+
+        # Governance token borrowing attack
+        if 'governance' in self.token_model.params.utility_mechanisms:
+            attack_vectors.append({
+                'attack_type': 'borrowed_governance_attack',
+                'description': 'Borrow governance tokens for malicious proposal',
+                'required_capital': self.estimate_governance_borrow_cost(),
+                'potential_profit': 'Protocol capture or treasury drain',
+                'mitigation': 'Voting escrow with time locks'
+            })
+
+        # Liquidity pool manipulation
+        if 'staking_rewards' in self.token_model.params.utility_mechanisms:
+            attack_vectors.append({
+                'attack_type': 'reward_manipulation',
+                'description': 'Manipulate staking rewards through flash stake',
+                'required_capital': self.estimate_flash_stake_cost(),
+                'potential_profit': self.estimate_reward_extraction(),
+                'mitigation': 'Minimum staking periods and vesting'
+            })
+
+        return attack_vectors
+
+    def estimate_oracle_manipulation_cost(self) -> float:
+        """Estimate cost to manipulate price oracle"""
+        # Simplified model - real analysis would be much more complex
+        total_liquidity = self.token_model.params.initial_supply * 0.3  # 30% in liquidity pools
+        manipulation_target = 0.1  # 10% price deviation
+
+        # Use AMM curve mathematics for price impact
+        required_trade_size = total_liquidity * manipulation_target / (1 - manipulation_target)
+        return required_trade_size
+
+    def estimate_oracle_attack_profit(self) -> float:
+        """Estimate potential profit from oracle manipulation"""
+        # Depends on what actions can be triggered by manipulated price
+        vulnerable_value = self.token_model.params.initial_supply * 0.05  # 5% of tokens at risk
+        return vulnerable_value * 0.5  # Assume 50% extraction possible
+
+    def estimate_governance_borrow_cost(self) -> float:
+        """Estimate cost to borrow governance tokens"""
+        required_voting_power = 0.4  # 40% to pass proposal
+        borrow_rate = 0.001  # 0.1% daily borrow rate
+        proposal_duration = 7  # 7 days
+
+        tokens_needed = self.token_model.params.initial_supply * self.token_model.params.governance_weight * required_voting_power
+        borrow_cost = tokens_needed * borrow_rate * proposal_duration
+
+        return borrow_cost
+
+    def estimate_flash_stake_cost(self) -> float:
+        """Estimate capital required for flash staking attack"""
+        # Gas costs and temporary capital lockup
+        gas_cost = 1000  # Estimated gas cost in USD
+        temporary_capital = self.token_model.params.initial_supply * 0.1  # 10% of supply
+        opportunity_cost = temporary_capital * 0.0001  # 0.01% opportunity cost
+
+        return gas_cost + opportunity_cost
+
+    def estimate_reward_extraction(self) -> float:
+        """Estimate potential reward extraction from manipulation"""
+        daily_rewards = self.token_model.params.initial_supply * self.token_model.params.staking_yield / 365
+        extractable_percentage = 0.1  # 10% of daily rewards
+
+        return daily_rewards * extractable_percentage
+
+    def generate_security_recommendations(self) -> List[str]:
+        """Generate security recommendations based on attack analysis"""
+
+        recommendations = []
+
+        # Governance security
+        governance_attack_cost = self.analyze_governance_attack_cost()
+        if governance_attack_cost['feasibility_score'] > 50:
+            recommendations.append("Implement timelocks and multi-sig requirements for governance")
+            recommendations.append("Consider quadratic voting to reduce whale influence")
+
+        # Oracle security
+        attack_vectors = self.model_flash_loan_attack_vectors()
+        for vector in attack_vectors:
+            if vector['attack_type'] == 'oracle_manipulation':
+                recommendations.append("Implement TWAP oracles and multiple price sources")
+                recommendations.append("Add circuit breakers for large price movements")
+
+        # Economic mechanism security
+        if self.token_model.params.staking_yield > 0.15:  # High yield might be unsustainable
+            recommendations.append("Review staking yield sustainability and implement dynamic rates")
+
+        # Token distribution security
+        if self.token_model.params.governance_weight > 0.5:
+            recommendations.append("Consider reducing governance token concentration")
+
+        return recommendations

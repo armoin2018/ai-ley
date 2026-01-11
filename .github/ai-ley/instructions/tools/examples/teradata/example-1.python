@@ -1,0 +1,300 @@
+async def setup_financial_data_warehouse():
+    """Example: Setup enterprise financial data warehouse on Teradata Vantage"""
+
+    # Initialize enterprise configuration
+    config = EnterpriseTeradataConfig(
+        system_id="financial-dw",
+        organization_name="GlobalBank",
+        tier=TeradataTier.PREMIUM,
+        environment=TeradataEnvironment.PRODUCTION,
+        deployment_type=TeradataDeployment.CLOUD_NATIVE,
+        workload_type=TeradataWorkloadType.MIXED,
+        infrastructure_config={
+            "amp_configuration": {
+                "total_amps": 512,  # Large financial institution
+                "amps_per_node": 8,
+                "nodes": 64,
+                "cpu_cores_per_node": 96,
+                "memory_per_node_gb": 768,
+                "storage_per_node_tb": 100
+            },
+            "storage_configuration": {
+                "hot_storage_tb": 2000,  # Recent transactions
+                "warm_storage_tb": 8000,  # Historical data
+                "cold_storage_tb": 50000,  # Archived data
+                "compression_enabled": True,
+                "encryption_at_rest": True
+            }
+        },
+        team_management={
+            "sso_enabled": True,
+            "sso_provider": "active_directory",
+            "multi_factor_authentication": True,
+            "role_based_access": True,
+            "roles": [
+                {
+                    "name": "risk_analyst",
+                    "permissions": [
+                        "data_analysis", "advanced_analytics", "ml_model_training",
+                        "risk_reporting", "stress_testing"
+                    ],
+                    "resource_limits": {
+                        "spool_space_gb": 100000,
+                        "temp_space_gb": 50000,
+                        "priority": "high"
+                    }
+                },
+                {
+                    "name": "compliance_officer",
+                    "permissions": [
+                        "audit_access", "compliance_reporting", "data_lineage_view",
+                        "regulatory_reporting"
+                    ],
+                    "resource_limits": {
+                        "spool_space_gb": 25000,
+                        "temp_space_gb": 12500,
+                        "priority": "medium"
+                    }
+                },
+                {
+                    "name": "trading_analyst",
+                    "permissions": [
+                        "real_time_analysis", "market_data_access", "trading_reports",
+                        "position_analysis"
+                    ],
+                    "resource_limits": {
+                        "spool_space_gb": 75000,
+                        "temp_space_gb": 37500,
+                        "priority": "high"
+                    }
+                }
+            ]
+        },
+        security_config={
+            "encryption": {
+                "data_at_rest": {"enabled": True, "algorithm": "AES-256"},
+                "data_in_transit": {"enabled": True, "tls_version": "1.3"},
+                "column_level_encryption": {
+                    "enabled": True,
+                    "sensitive_columns": ["account_number", "ssn", "routing_number", "card_number"]
+                }
+            },
+            "compliance": {
+                "gdpr_compliant": True,
+                "sox_compliant": True,
+                "pci_dss_compliant": True,
+                "basel_iii_compliant": True,
+                "data_retention_policies": {
+                    "trade_data": "7_years",
+                    "customer_data": "10_years",
+                    "audit_logs": "permanent"
+                }
+            }
+        },
+        workload_management={
+            "tasm_enabled": True,
+            "workload_definitions": [
+                {
+                    "name": "Regulatory_Reporting",
+                    "classification_criteria": {
+                        "user_groups": ["compliance_officers", "risk_analysts"],
+                        "query_band": "Priority=Regulatory"
+                    },
+                    "performance_goals": {
+                        "response_time_goal": 180,
+                        "priority": 1,
+                        "concurrency_limit": 10
+                    },
+                    "resource_allocation": {
+                        "amp_usage_limit": 100,
+                        "cpu_usage_limit": 90,
+                        "io_usage_limit": 95
+                    }
+                },
+                {
+                    "name": "Real_Time_Trading",
+                    "classification_criteria": {
+                        "user_groups": ["trading_analysts"],
+                        "query_band": "WorkloadType=RealTime"
+                    },
+                    "performance_goals": {
+                        "response_time_goal": 5,
+                        "priority": 1,
+                        "concurrency_limit": 20
+                    },
+                    "resource_allocation": {
+                        "amp_usage_limit": 80,
+                        "cpu_usage_limit": 85,
+                        "io_usage_limit": 75
+                    }
+                },
+                {
+                    "name": "Risk_Analytics",
+                    "classification_criteria": {
+                        "user_groups": ["risk_analysts"],
+                        "query_band": "WorkloadType=Risk"
+                    },
+                    "performance_goals": {
+                        "response_time_goal": 300,
+                        "priority": 2,
+                        "concurrency_limit": 15
+                    },
+                    "resource_allocation": {
+                        "amp_usage_limit": 90,
+                        "cpu_usage_limit": 80,
+                        "io_usage_limit": 85
+                    }
+                }
+            ]
+        }
+    )
+
+    # Initialize Teradata platform
+    platform = EnterpriseTeradataVantage(config)
+
+    # Setup the platform
+    setup_result = await platform.setup_enterprise_platform()
+    print(f"Financial data warehouse setup: {setup_result['status']}")
+
+    # Create financial data model
+    financial_schemas = await create_financial_data_model(platform)
+
+    # Setup regulatory compliance framework
+    compliance_setup = await setup_regulatory_compliance(platform)
+
+    # Configure risk analytics workflows
+    risk_analytics = await setup_risk_analytics(platform)
+
+    return {
+        "platform_setup": setup_result,
+        "financial_schemas": financial_schemas,
+        "compliance_framework": compliance_setup,
+        "risk_analytics": risk_analytics,
+        "access_endpoints": {
+            "teradata_studio": f"https://studio-{config.system_id}.teradata.com",
+            "risk_dashboard": f"https://risk-{config.system_id}.globalbank.com",
+            "compliance_portal": f"https://compliance-{config.system_id}.globalbank.com"
+        }
+    }
+
+async def create_financial_data_model(platform):
+    """Create comprehensive financial data model"""
+
+    financial_ddl = """
+    -- Create Financial Database
+    CREATE DATABASE FinancialDW AS PERM=50000000000, SPOOL=10000000000;
+
+    -- Customers Dimension Table
+    CREATE MULTISET TABLE FinancialDW.DIM_Customer (
+        customer_id BIGINT NOT NULL,
+        customer_number VARCHAR(20) NOT NULL,
+        first_name VARCHAR(50),
+        last_name VARCHAR(50),
+        date_of_birth DATE,
+        ssn CHAR(11) ENCRYPT USING aes256_encryption,
+        customer_type VARCHAR(20),
+        risk_rating CHAR(1),
+        kyc_status VARCHAR(10),
+        onboarding_date DATE,
+        last_review_date DATE,
+        effective_date DATE NOT NULL,
+        expiration_date DATE,
+        current_flag CHAR(1) DEFAULT 'Y'
+    )
+    PRIMARY INDEX (customer_id)
+    PARTITION BY RANGE_N(effective_date BETWEEN DATE '2020-01-01' AND DATE '2030-12-31' EACH INTERVAL '1' MONTH);
+
+    -- Accounts Dimension Table
+    CREATE MULTISET TABLE FinancialDW.DIM_Account (
+        account_id BIGINT NOT NULL,
+        account_number VARCHAR(20) ENCRYPT USING aes256_encryption,
+        customer_id BIGINT NOT NULL,
+        account_type VARCHAR(20),
+        product_code VARCHAR(10),
+        branch_code VARCHAR(10),
+        opening_date DATE,
+        status VARCHAR(10),
+        currency_code CHAR(3),
+        credit_limit DECIMAL(15,2),
+        interest_rate DECIMAL(7,4),
+        effective_date DATE NOT NULL,
+        expiration_date DATE,
+        current_flag CHAR(1) DEFAULT 'Y'
+    )
+    PRIMARY INDEX (account_id)
+    PARTITION BY RANGE_N(effective_date BETWEEN DATE '2020-01-01' AND DATE '2030-12-31' EACH INTERVAL '1' MONTH);
+
+    -- Transactions Fact Table (Partitioned Primary Index)
+    CREATE MULTISET TABLE FinancialDW.FACT_Transaction (
+        transaction_id BIGINT NOT NULL,
+        account_id BIGINT NOT NULL,
+        transaction_date DATE NOT NULL,
+        transaction_timestamp TIMESTAMP(6) NOT NULL,
+        transaction_type VARCHAR(20),
+        amount DECIMAL(15,2),
+        balance_after DECIMAL(15,2),
+        currency_code CHAR(3),
+        channel VARCHAR(20),
+        merchant_category VARCHAR(10),
+        reference_number VARCHAR(50),
+        authorization_code VARCHAR(20),
+        status VARCHAR(10),
+        created_timestamp TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6)
+    )
+    PRIMARY INDEX (account_id, transaction_date)
+    PARTITION BY RANGE_N(transaction_date BETWEEN DATE '2020-01-01' AND DATE '2030-12-31' EACH INTERVAL '1' DAY);
+
+    -- Risk Metrics Fact Table
+    CREATE MULTISET TABLE FinancialDW.FACT_RiskMetrics (
+        risk_metric_id BIGINT NOT NULL,
+        customer_id BIGINT NOT NULL,
+        account_id BIGINT,
+        metric_date DATE NOT NULL,
+        var_1_day DECIMAL(15,2),
+        var_10_day DECIMAL(15,2),
+        expected_shortfall DECIMAL(15,2),
+        credit_score INTEGER,
+        probability_of_default DECIMAL(7,4),
+        loss_given_default DECIMAL(7,4),
+        exposure_at_default DECIMAL(15,2),
+        risk_weighted_assets DECIMAL(15,2),
+        created_timestamp TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6)
+    )
+    PRIMARY INDEX (customer_id, metric_date)
+    PARTITION BY RANGE_N(metric_date BETWEEN DATE '2020-01-01' AND DATE '2030-12-31' EACH INTERVAL '1' MONTH);
+
+    -- Market Data Fact Table
+    CREATE MULTISET TABLE FinancialDW.FACT_MarketData (
+        market_data_id BIGINT NOT NULL,
+        symbol VARCHAR(20) NOT NULL,
+        data_date DATE NOT NULL,
+        data_timestamp TIMESTAMP(6) NOT NULL,
+        open_price DECIMAL(12,4),
+        high_price DECIMAL(12,4),
+        low_price DECIMAL(12,4),
+        close_price DECIMAL(12,4),
+        volume BIGINT,
+        bid_price DECIMAL(12,4),
+        ask_price DECIMAL(12,4),
+        volatility DECIMAL(8,4),
+        created_timestamp TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6)
+    )
+    PRIMARY INDEX (symbol, data_date)
+    PARTITION BY RANGE_N(data_date BETWEEN DATE '2020-01-01' AND DATE '2030-12-31' EACH INTERVAL '1' DAY);
+
+    -- Collect Statistics for Optimal Performance
+    COLLECT STATISTICS ON FinancialDW.DIM_Customer COLUMN(customer_id);
+    COLLECT STATISTICS ON FinancialDW.DIM_Customer COLUMN(effective_date);
+    COLLECT STATISTICS ON FinancialDW.DIM_Account COLUMN(account_id);
+    COLLECT STATISTICS ON FinancialDW.DIM_Account COLUMN(customer_id);
+    COLLECT STATISTICS ON FinancialDW.FACT_Transaction COLUMN(account_id);
+    COLLECT STATISTICS ON FinancialDW.FACT_Transaction COLUMN(transaction_date);
+    COLLECT STATISTICS ON FinancialDW.FACT_RiskMetrics COLUMN(customer_id);
+    COLLECT STATISTICS ON FinancialDW.FACT_RiskMetrics COLUMN(metric_date);
+    COLLECT STATISTICS ON FinancialDW.FACT_MarketData COLUMN(symbol);
+    COLLECT STATISTICS ON FinancialDW.FACT_MarketData COLUMN(data_date);
+    """
+
+    return {"status": "created", "ddl_executed": True, "schemas_created": 5}
+
+### Example 2: Retail Analytics Data Warehouse

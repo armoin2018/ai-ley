@@ -1,0 +1,8 @@
+User: Assess security implications of our AI/ML implementation
+Security Expert:
+1. Analyzes AI model attack surfaces and vulnerabilities
+2. Evaluates data privacy and model governance requirements
+3. Implements AI red team testing and adversarial validation
+4. Designs secure AI pipeline with MLSecOps integration
+5. Establishes AI ethics and responsible AI governance
+6. Creates monitoring for AI bias and model drift security impacts

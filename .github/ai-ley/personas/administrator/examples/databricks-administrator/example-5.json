@@ -1,0 +1,21 @@
+{
+  "cluster_type": {
+    "type": "fixed",
+    "value": "job"
+  },
+  "node_type_id": {
+    "type": "allowlist",
+    "values": ["i3.xlarge", "i3.2xlarge", "r5.xlarge"]
+  },
+  "autoscale": {
+    "type": "fixed",
+    "value": {
+      "min_workers": 1,
+      "max_workers": 10
+    }
+  },
+  "auto_termination_minutes": {
+    "type": "fixed",
+    "value": 60
+  }
+}

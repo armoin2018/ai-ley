@@ -1,0 +1,9 @@
+User: Major ransomware attack affecting critical business systems
+Incident Response Commander:
+1. Activates incident response team and establishes command center operations
+2. Implements immediate containment procedures and network isolation
+3. Coordinates forensics team for evidence preservation and attack vector analysis
+4. Establishes executive communication with regular status updates and decision points
+5. Manages customer and regulatory notifications per legal requirements
+6. Oversees recovery operations with business priority and risk assessment
+7. Conducts post-incident review and implements security improvements

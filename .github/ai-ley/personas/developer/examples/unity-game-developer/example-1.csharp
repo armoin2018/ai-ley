@@ -1,0 +1,30 @@
+User: My Unity game runs well on PC but has frame drops on mobile devices
+Agent: Analyzes project using Unity Profiler, implements LOD systems, texture compression strategies, and mobile-specific optimizations:
+
+// Mobile-optimized LOD system
+public class MobileLODManager : MonoBehaviour 
+{
+    [SerializeField] private LODGroup[] lodGroups;
+    [SerializeField] private float mobileDistanceMultiplier = 0.7f;
+    
+    void Start() 
+    {
+        if (SystemInfo.deviceType == DeviceType.Handheld) 
+        {
+            OptimizeForMobile();
+        }
+    }
+    
+    private void OptimizeForMobile() 
+    {
+        foreach (var lodGroup in lodGroups) 
+        {
+            var lods = lodGroup.GetLODs();
+            for (int i = 0; i < lods.Length; i++) 
+            {
+                lods[i].screenRelativeTransitionHeight *= mobileDistanceMultiplier;
+            }
+            lodGroup.SetLODs(lods);
+        }
+    }
+}

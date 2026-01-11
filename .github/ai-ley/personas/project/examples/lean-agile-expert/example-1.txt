@@ -1,0 +1,2 @@
+User: Implement SAFe across 15 development teams in financial services company
+Agent: Provides complete SAFe transformation roadmap including value stream identification, ART formation, PI planning setup, coaching strategy, and metrics framework with regulatory compliance considerations

@@ -1,0 +1,48 @@
+serverless_architecture:
+  api_layer:
+    api_gateway:
+      type: "REST API"
+      features:
+        - request_validation
+        - rate_limiting
+        - api_keys
+        - usage_plans
+    
+    functions:
+      - name: "user-service"
+        runtime: "nodejs18.x"
+        memory: 512
+        timeout: 30
+        environment:
+          TABLE_NAME: !Ref UserTable
+        
+  data_layer:
+    primary_storage:
+      type: "DynamoDB"
+      billing_mode: "PAY_PER_REQUEST"
+      global_secondary_indexes: 2
+      
+    file_storage:
+      type: "S3"
+      versioning: true
+      lifecycle_policies: true
+      
+  event_layer:
+    event_bus:
+      type: "EventBridge"
+      rules:
+        - source: "user.service"
+          detail_type: "User Created"
+          targets: ["notification-function", "analytics-function"]
+          
+  monitoring:
+    metrics:
+      - function_duration
+      - error_rate
+      - concurrent_executions
+      - throttles
+    
+    alerts:
+      - error_rate_threshold: 5%
+      - duration_threshold: 10s
+      - cost_threshold: "$100/month"

@@ -1,0 +1,160 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using Nethereum.Web3;
+using Nethereum.Web3.Accounts;
+using Nethereum.Contracts;
+using System.Threading.Tasks;
+
+public class GameNFTManager : MonoBehaviour
+{
+    [SerializeField] private string rpcUrl = "https://polygon-rpc.com";
+    [SerializeField] private string contractAddress;
+    [SerializeField] private string contractAbi;
+    
+    private Web3 web3;
+    private Contract gameContract;
+    private Account playerAccount;
+    
+    public event Action<NFTCharacter> OnCharacterLoaded;
+    public event Action<string> OnTransactionComplete;
+    public event Action<string> OnError;
+    
+    [System.Serializable]
+    public class NFTCharacter
+    {
+        public uint tokenId;
+        public string characterClass;
+        public CharacterStats stats;
+        public Equipment equipment;
+    }
+    
+    [System.Serializable]
+    public class CharacterStats
+    {
+        public ushort level;
+        public ushort experience;
+        public ushort health;
+        public ushort attack;
+        public ushort defense;
+        public ushort speed;
+        public ushort magic;
+        public byte rarity;
+    }
+    
+    void Start()
+    {
+        InitializeWeb3();
+    }
+    
+    private async void InitializeWeb3()
+    {
+        try
+        {
+            // Connect to wallet (WalletConnect integration)
+            web3 = new Web3(rpcUrl);
+            gameContract = web3.Eth.GetContract(contractAbi, contractAddress);
+            
+            await LoadPlayerCharacters();
+        }
+        catch (Exception e)
+        {
+            OnError?.Invoke($"Failed to initialize Web3: {e.Message}");
+        }
+    }
+    
+    public async Task<List<NFTCharacter>> LoadPlayerCharacters()
+    {
+        var characters = new List<NFTCharacter>();
+        
+        try
+        {
+            var balanceFunction = gameContract.GetFunction("balanceOf");
+            var balance = await balanceFunction.CallAsync<int>(playerAccount.Address);
+            
+            for (int i = 0; i < balance; i++)
+            {
+                var tokenFunction = gameContract.GetFunction("tokenOfOwnerByIndex");
+                var tokenId = await tokenFunction.CallAsync<uint>(playerAccount.Address, i);
+                
+                var character = await LoadCharacterData(tokenId);
+                characters.Add(character);
+                OnCharacterLoaded?.Invoke(character);
+            }
+        }
+        catch (Exception e)
+        {
+            OnError?.Invoke($"Failed to load characters: {e.Message}");
+        }
+        
+        return characters;
+    }
+    
+    private async Task<NFTCharacter> LoadCharacterData(uint tokenId)
+    {
+        var statsFunction = gameContract.GetFunction("characterStats");
+        var classFunction = gameContract.GetFunction("characterClasses");
+        var equipmentFunction = gameContract.GetFunction("characterEquipment");
+        
+        var statsData = await statsFunction.CallDeserializingToObjectAsync<CharacterStats>(tokenId);
+        var characterClass = await classFunction.CallAsync<string>(tokenId);
+        var equipmentData = await equipmentFunction.CallDeserializingToObjectAsync<Equipment>(tokenId);
+        
+        return new NFTCharacter
+        {
+            tokenId = tokenId,
+            characterClass = characterClass,
+            stats = statsData,
+            equipment = equipmentData
+        };
+    }
+    
+    public async Task<string> InitiateBattle(uint attackerId, uint defenderId)
+    {
+        try
+        {
+            var battleFunction = gameContract.GetFunction("battle");
+            var receipt = await battleFunction.SendTransactionAndWaitForReceiptAsync(
+                playerAccount.Address, 
+                null, 
+                null, 
+                null, 
+                attackerId, 
+                defenderId
+            );
+            
+            OnTransactionComplete?.Invoke($"Battle completed: {receipt.TransactionHash}");
+            return receipt.TransactionHash;
+        }
+        catch (Exception e)
+        {
+            OnError?.Invoke($"Battle failed: {e.Message}");
+            return null;
+        }
+    }
+    
+    public async Task<string> EquipItem(uint characterId, uint itemId, string itemType)
+    {
+        try
+        {
+            var equipFunction = gameContract.GetFunction("equipItem");
+            var receipt = await equipFunction.SendTransactionAndWaitForReceiptAsync(
+                playerAccount.Address,
+                null,
+                null,
+                null,
+                characterId,
+                itemId,
+                itemType
+            );
+            
+            OnTransactionComplete?.Invoke($"Item equipped: {receipt.TransactionHash}");
+            return receipt.TransactionHash;
+        }
+        catch (Exception e)
+        {
+            OnError?.Invoke($"Equip failed: {e.Message}");
+            return null;
+        }
+    }
+}

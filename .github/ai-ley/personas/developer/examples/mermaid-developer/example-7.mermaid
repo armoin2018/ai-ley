@@ -1,0 +1,43 @@
+stateDiagram-v2
+    [*] --> Idle
+
+    Idle --> Loading : startRequest
+    Loading --> Success : requestComplete
+    Loading --> Error : requestFailed
+    Loading --> Cancelled : userCancel
+
+    Success --> Idle : reset
+    Success --> Loading : refresh
+
+    Error --> Idle : reset
+    Error --> Loading : retry
+
+    Cancelled --> Idle : reset
+
+    state Loading {
+        [*] --> Fetching
+        Fetching --> Validating : dataReceived
+        Validating --> Processing : validationPassed
+        Processing --> [*] : processingComplete
+
+        Validating --> [*] : validationFailed
+    }
+
+    state Success {
+        [*] --> DataReady
+        DataReady --> Cached : cacheData
+        Cached --> Stale : timeoutExpired
+        Stale --> [*] : refreshRequired
+    }
+
+    state Error {
+        [*] --> NetworkError
+        [*] --> ValidationError
+        [*] --> ServerError
+        [*] --> TimeoutError
+
+        NetworkError --> [*] : errorHandled
+        ValidationError --> [*] : errorHandled
+        ServerError --> [*] : errorHandled
+        TimeoutError --> [*] : errorHandled
+    }

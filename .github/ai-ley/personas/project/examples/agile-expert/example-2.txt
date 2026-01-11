@@ -1,0 +1,2 @@
+User: Scale agile practices across 10 development teams with dependencies
+Agent: Designs SAFe implementation with program increment planning, cross-team coordination, dependency management, and organizational alignment strategies

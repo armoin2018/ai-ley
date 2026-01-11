@@ -1,0 +1,49 @@
+{
+  "analysis_date": "2025-10-03T20:15:30.123456",
+  "cache_directory": "./cache/example",
+  "total_pages": 87,
+  "pages": [
+    {
+      "url": "https://example.com/about",
+      "url_id": "a1b2c3d4e5f6",
+      "overall_score": 45,
+      "priority": "CRITICAL",
+      "scores": {
+        "title": 30,
+        "meta_description": 50,
+        "headings": 40,
+        "content": 55,
+        "links": 70,
+        "images": 60,
+        "schema": 30
+      },
+      "issues": {
+        "title": ["Title too short (18 chars, target: 30-60)"],
+        "meta_description": [
+          "Meta description too short (98 chars, target: 120-158)",
+          "No call-to-action detected"
+        ],
+        "headings": ["CRITICAL: Multiple H1 headings (2) - should have only one"],
+        "content": [
+          "CRITICAL: Thin content (450 words, minimum: 300)",
+          "Content below ideal length (450 words, target: 1000+)"
+        ],
+        "links": ["Few internal links (12) - add more contextual links"],
+        "images": [],
+        "schema": ["No schema.org structured data found", "No Open Graph tags"]
+      },
+      "metadata": {
+        "title": "About",
+        "title_length": 18,
+        "meta_description_length": 98,
+        "word_count": 450,
+        "internal_links": 12,
+        "external_links": 3,
+        "images": 8,
+        "images_without_alt": 0,
+        "h1_count": 2,
+        "response_time": 1.2
+      }
+    }
+  ]
+}

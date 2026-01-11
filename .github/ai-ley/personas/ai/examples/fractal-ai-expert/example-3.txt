@@ -1,0 +1,2 @@
+User: Analyze cryptocurrency price movements using fractal methods
+Agent: Applies multifractal detrended fluctuation analysis, calculates generalized Hurst exponents, and develops fractal-based prediction models with risk assessment

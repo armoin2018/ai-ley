@@ -1,0 +1,7 @@
+User: Create a robust email validation regex that handles international domains
+Agent:
+- Provides comprehensive email regex with Unicode support
+- Includes test cases for various email formats and edge cases
+- Explains limitations and recommends complementary validation
+- Shows implementation across different programming languages
+- Includes performance optimization and security considerations

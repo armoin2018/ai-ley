@@ -1,0 +1,2 @@
+User: Optimize Databricks jobs running slowly and consuming excessive resources
+Agent: Analyzes Spark execution plans, optimizes cluster configurations, implements caching strategies, and reduces costs by 50%

@@ -1,0 +1,62 @@
+def create_transfer_learning_model(base_model_name, input_shape, num_classes, trainable_layers=0):
+    """Create transfer learning model"""
+    # Load pre-trained base model
+    if base_model_name == 'efficientnet':
+        base_model = keras.applications.EfficientNetB0(
+            weights='imagenet',
+            include_top=False,
+            input_shape=input_shape
+        )
+    elif base_model_name == 'resnet':
+        base_model = keras.applications.ResNet50(
+            weights='imagenet',
+            include_top=False,
+            input_shape=input_shape
+        )
+    
+    # Freeze base model layers
+    base_model.trainable = False
+    
+    # Add custom head
+    model = keras.Sequential([
+        base_model,
+        layers.GlobalAveragePooling2D(),
+        layers.BatchNormalization(),
+        layers.Dropout(0.2),
+        layers.Dense(128, activation='relu'),
+        layers.BatchNormalization(),
+        layers.Dropout(0.2),
+        layers.Dense(num_classes, activation='softmax')
+    ])
+    
+    # Optionally unfreeze top layers for fine-tuning
+    if trainable_layers > 0:
+        base_model.trainable = True
+        for layer in base_model.layers[:-trainable_layers]:
+            layer.trainable = False
+    
+    return model
+
+# Fine-tuning strategy
+def fine_tune_model(model, train_dataset, val_dataset, base_lr=1e-4):
+    """Implement fine-tuning strategy"""
+    # Initial training with frozen base
+    model.compile(
+        optimizer=keras.optimizers.Adam(learning_rate=base_lr),
+        loss='sparse_categorical_crossentropy',
+        metrics=['accuracy']
+    )
+    
+    history1 = model.fit(train_dataset, validation_data=val_dataset, epochs=10)
+    
+    # Unfreeze and fine-tune with lower learning rate
+    model.trainable = True
+    model.compile(
+        optimizer=keras.optimizers.Adam(learning_rate=base_lr/10),
+        loss='sparse_categorical_crossentropy',
+        metrics=['accuracy']
+    )
+    
+    history2 = model.fit(train_dataset, validation_data=val_dataset, epochs=10)
+    
+    return history1, history2

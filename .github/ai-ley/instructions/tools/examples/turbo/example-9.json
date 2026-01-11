@@ -1,0 +1,42 @@
+// turbo.json for micro-frontends
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "build/**"],
+      "env": [
+        "NODE_ENV",
+        "NEXT_PUBLIC_API_URL",
+        "REACT_APP_API_URL"
+      ]
+    },
+    "build:mf": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"],
+      "env": [
+        "NODE_ENV",
+        "MF_NAME",
+        "MF_PORT",
+        "PUBLIC_PATH"
+      ]
+    },
+    "dev:mf": {
+      "cache": false,
+      "persistent": true,
+      "env": [
+        "MF_PORT",
+        "PUBLIC_PATH"
+      ]
+    },
+    "deploy": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "env": [
+        "VERCEL_TOKEN",
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY"
+      ]
+    }
+  }
+}

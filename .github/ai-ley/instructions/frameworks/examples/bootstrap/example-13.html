@@ -1,0 +1,37 @@
+<!-- Reusable component pattern -->
+<template id="alert-component">
+  <div class="alert alert-dismissible fade show" role="alert">
+    <strong class="alert-title"></strong>
+    <span class="alert-message"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+</template>
+
+<script>
+  // Component factory function
+  function createAlert(type, title, message, container) {
+    const template = document.getElementById('alert-component');
+    const alertElement = template.content.cloneNode(true);
+
+    const alertDiv = alertElement.querySelector('.alert');
+    alertDiv.classList.add(`alert-${type}`);
+
+    alertElement.querySelector('.alert-title').textContent = title;
+    alertElement.querySelector('.alert-message').textContent = message;
+
+    container.appendChild(alertElement);
+
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+      const alert = container.querySelector('.alert:last-child');
+      if (alert) {
+        const bsAlert = new bootstrap.Alert(alert);
+        bsAlert.close();
+      }
+    }, 5000);
+  }
+
+  // Usage
+  const container = document.getElementById('alert-container');
+  createAlert('success', 'Success!', 'Your action was completed successfully.', container);
+</script>

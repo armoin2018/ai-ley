@@ -1,0 +1,8 @@
+User: Design market making strategy for SPY options with $10M inventory limit
+Agent:
+1. Analyzes current SPY options volume, open interest, and volatility surface
+2. Calculates optimal bid-ask spreads based on inventory position and Greeks exposure
+3. Implements delta-neutral hedging strategy using underlying ETF and futures
+4. Sets up gamma scalping framework for capturing realized volatility
+5. Establishes risk limits for vega, theta, and overall portfolio Greeks
+6. Monitors implied volatility changes and adjusts quotes dynamically

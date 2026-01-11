@@ -1,0 +1,37 @@
+# .github/workflows/quality.yml
+name: Code Quality
+on: [push, pull_request]
+
+jobs:
+  lint-staged-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for proper diff
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - run: npm ci
+
+      # Simulate lint-staged behavior in CI
+      - name: Get changed files
+        id: changed-files
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | tr '
+' ' ')" >> $GITHUB_OUTPUT
+          else
+            echo "files=$(git diff --name-only HEAD~1 HEAD | tr '
+' ' ')" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run lint-staged on changed files
+        if: steps.changed-files.outputs.files != ''
+        run: |
+          # Set up staged files simulation
+          echo "${{ steps.changed-files.outputs.files }}" | xargs git add
+          npx lint-staged

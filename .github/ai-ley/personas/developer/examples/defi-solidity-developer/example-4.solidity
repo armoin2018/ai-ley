@@ -1,0 +1,157 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./libraries/TickMath.sol";
+import "./libraries/LiquidityMath.sol";
+
+contract ConcentratedLiquidityAMM {
+    struct Position {
+        uint128 liquidity;
+        uint256 feeGrowthInside0LastX128;
+        uint256 feeGrowthInside1LastX128;
+        uint128 tokensOwed0;
+        uint128 tokensOwed1;
+    }
+    
+    struct Tick {
+        uint128 liquidityGross;
+        int128 liquidityNet;
+        uint256 feeGrowthOutside0X128;
+        uint256 feeGrowthOutside1X128;
+        bool initialized;
+    }
+    
+    IERC20 public immutable token0;
+    IERC20 public immutable token1;
+    uint24 public immutable fee;
+    int24 public immutable tickSpacing;
+    
+    uint160 public sqrtPriceX96;
+    int24 public tick;
+    uint128 public liquidity;
+    
+    mapping(int24 => Tick) public ticks;
+    mapping(bytes32 => Position) public positions;
+    
+    function mint(
+        address recipient,
+        int24 tickLower,
+        int24 tickUpper,
+        uint128 amount
+    ) external returns (uint256 amount0, uint256 amount1) {
+        require(tickLower < tickUpper, "Invalid tick range");
+        require(amount > 0, "Amount must be positive");
+        
+        bytes32 positionKey = keccak256(abi.encodePacked(recipient, tickLower, tickUpper));
+        Position storage position = positions[positionKey];
+        
+        // Calculate token amounts needed
+        (amount0, amount1) = LiquidityMath.getAmountsForLiquidity(
+            sqrtPriceX96,
+            TickMath.getSqrtRatioAtTick(tickLower),
+            TickMath.getSqrtRatioAtTick(tickUpper),
+            amount
+        );
+        
+        // Update ticks
+        _updateTick(tickLower, amount, false);
+        _updateTick(tickUpper, amount, true);
+        
+        // Update position
+        position.liquidity += amount;
+        
+        // Transfer tokens
+        if (amount0 > 0) token0.transferFrom(msg.sender, address(this), amount0);
+        if (amount1 > 0) token1.transferFrom(msg.sender, address(this), amount1);
+        
+        // Update global liquidity if position is in range
+        if (tick >= tickLower && tick < tickUpper) {
+            liquidity += amount;
+        }
+    }
+    
+    function swap(
+        address recipient,
+        bool zeroForOne,
+        int256 amountSpecified,
+        uint160 sqrtPriceLimitX96
+    ) external returns (int256 amount0, int256 amount1) {
+        require(amountSpecified != 0, "Zero amount");
+        
+        SwapState memory state = SwapState({
+            amountSpecifiedRemaining: amountSpecified,
+            amountCalculated: 0,
+            sqrtPriceX96: sqrtPriceX96,
+            tick: tick,
+            liquidity: liquidity
+        });
+        
+        while (state.amountSpecifiedRemaining != 0 && state.sqrtPriceX96 != sqrtPriceLimitX96) {
+            StepComputations memory step;
+            
+            step.sqrtPriceStartX96 = state.sqrtPriceX96;
+            
+            // Find next tick
+            (step.tickNext, step.initialized) = _nextInitializedTickWithinOneWord(
+                state.tick,
+                tickSpacing,
+                zeroForOne
+            );
+            
+            // Ensure tick is within bounds
+            if (step.tickNext < TickMath.MIN_TICK) {
+                step.tickNext = TickMath.MIN_TICK;
+            } else if (step.tickNext > TickMath.MAX_TICK) {
+                step.tickNext = TickMath.MAX_TICK;
+            }
+            
+            step.sqrtPriceNextX96 = TickMath.getSqrtRatioAtTick(step.tickNext);
+            
+            // Compute swap step
+            (state.sqrtPriceX96, step.amountIn, step.amountOut, step.feeAmount) = 
+                SwapMath.computeSwapStep(
+                    state.sqrtPriceX96,
+                    (zeroForOne ? step.sqrtPriceNextX96 < sqrtPriceLimitX96 : step.sqrtPriceNextX96 > sqrtPriceLimitX96)
+                        ? sqrtPriceLimitX96
+                        : step.sqrtPriceNextX96,
+                    state.liquidity,
+                    state.amountSpecifiedRemaining,
+                    fee
+                );
+            
+            state.amountSpecifiedRemaining -= (step.amountIn + step.feeAmount).toInt256();
+            state.amountCalculated = state.amountCalculated - step.amountOut.toInt256();
+            
+            // Update tick if price moved
+            if (state.sqrtPriceX96 == step.sqrtPriceNextX96) {
+                if (step.initialized) {
+                    int128 liquidityNet = ticks[step.tickNext].liquidityNet;
+                    if (zeroForOne) liquidityNet = -liquidityNet;
+                    state.liquidity = LiquidityMath.addDelta(state.liquidity, liquidityNet);
+                }
+                state.tick = zeroForOne ? step.tickNext - 1 : step.tickNext;
+            } else {
+                state.tick = TickMath.getTickAtSqrtRatio(state.sqrtPriceX96);
+            }
+        }
+        
+        // Update global state
+        sqrtPriceX96 = state.sqrtPriceX96;
+        tick = state.tick;
+        liquidity = state.liquidity;
+        
+        (amount0, amount1) = zeroForOne
+            ? (amountSpecified - state.amountSpecifiedRemaining, state.amountCalculated)
+            : (state.amountCalculated, amountSpecified - state.amountSpecifiedRemaining);
+        
+        // Transfer tokens
+        if (zeroForOne) {
+            token0.transferFrom(msg.sender, address(this), uint256(amount0));
+            token1.transfer(recipient, uint256(-amount1));
+        } else {
+            token1.transferFrom(msg.sender, address(this), uint256(amount1));
+            token0.transfer(recipient, uint256(-amount0));
+        }
+    }
+}

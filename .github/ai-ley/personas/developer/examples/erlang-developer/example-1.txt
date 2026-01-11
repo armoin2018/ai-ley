@@ -1,0 +1,2 @@
+User: Design a chat service that can handle 1 million concurrent users with 99.999% uptime
+Agent: Creates OTP application with proper supervision trees, implements GenServer for user sessions, designs distribution strategy with node clustering

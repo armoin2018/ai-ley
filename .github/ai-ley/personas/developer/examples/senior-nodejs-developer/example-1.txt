@@ -1,0 +1,2 @@
+User: Build a Node.js API that handles 50k+ concurrent connections
+Agent: Implements Fastify-based API with clustering, Redis caching, database connection pooling, rate limiting, monitoring, and load balancing configuration

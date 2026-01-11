@@ -1,0 +1,21 @@
+src/
+  routes/
+    user.routes.ts
+    product.routes.ts
+  controllers/
+    user.controller.ts
+  services/
+    user.service.ts
+  repositories/
+    user.repository.ts
+  schemas/
+    user.schema.ts
+  middleware/
+    error.middleware.ts
+    auth.middleware.ts
+  utils/
+  config/
+  types/
+tests/
+  unit/
+  integration/

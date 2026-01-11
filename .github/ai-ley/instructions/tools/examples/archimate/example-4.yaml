@@ -1,0 +1,19 @@
+# Recommended model structure
+business_layer:
+  - motivation_elements
+  - business_architecture
+  - information_architecture
+
+application_layer:
+  - application_landscape
+  - information_systems
+  - data_architecture
+
+technology_layer:
+  - infrastructure
+  - platforms
+  - technology_services
+
+cross_cutting:
+  - security_architecture
+  - integration_architecture

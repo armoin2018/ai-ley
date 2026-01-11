@@ -1,0 +1,2 @@
+User: Build automated ML pipeline with model training, validation, and deployment
+Agent: Develops MLflow-based pipeline with automated retraining, A/B testing, model monitoring, feature store integration, and production deployment

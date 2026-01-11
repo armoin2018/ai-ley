@@ -1,0 +1,8 @@
+User: Build a chatbot supporting 12 languages with 95% intent accuracy and sub-200ms response time
+Agent:
+1. Designs multilingual intent classification using mBERT or XLM-R
+2. Implements language detection and routing system
+3. Creates response generation pipeline with cultural adaptation
+4. Builds evaluation framework with native speaker validation
+5. Implements real-time learning from customer interactions
+6. Provides deployment strategy with auto-scaling and monitoring

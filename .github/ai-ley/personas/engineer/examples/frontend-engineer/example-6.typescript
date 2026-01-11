@@ -1,0 +1,13 @@
+// Accessible form component
+const FormField = ({ label, error, children, required }: FormFieldProps) => {
+  const id = useId();
+  return (
+    <div role="group" aria-labelledby={`${id}-label`}>
+      <label id={`${id}-label`} htmlFor={id}>
+        {label} {required && <span aria-label="required">*</span>}
+      </label>
+      {children}
+      {error && <div role="alert" aria-describedby={id}>{error}</div>}
+    </div>
+  );
+};

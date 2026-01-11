@@ -1,0 +1,17 @@
+# Ansible playbook integration
+- name: Deploy custom packages
+  block:
+    - name: Copy package files
+      copy:
+        src: "{{ item }}"
+        dest: "/tmp/{{ item | basename }}"
+      with_fileglob: "packages/*.deb"
+      
+    - name: Install packages with dpkg
+      shell: dpkg -i "/tmp/{{ item | basename }}" || apt-get install -f -y
+      with_fileglob: "packages/*.deb"
+      register: install_result
+      
+    - name: Verify installation
+      shell: dpkg -s "{{ item }}"
+      with_items: "{{ package_names }}"

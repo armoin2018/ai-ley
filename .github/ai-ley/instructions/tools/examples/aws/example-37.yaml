@@ -1,0 +1,21 @@
+# Auto Scaling Group with target tracking
+AutoScalingGroup:
+  Type: AWS::AutoScaling::AutoScalingGroup
+  Properties:
+    MinSize: 2
+    MaxSize: 10
+    DesiredCapacity: 2
+    TargetGroupARNs:
+      - !Ref TargetGroup
+    HealthCheckType: ELB
+    HealthCheckGracePeriod: 300
+
+ScalingPolicy:
+  Type: AWS::AutoScaling::ScalingPolicy
+  Properties:
+    AutoScalingGroupName: !Ref AutoScalingGroup
+    PolicyType: TargetTrackingScaling
+    TargetTrackingConfiguration:
+      PredefinedMetricSpecification:
+        PredefinedMetricType: ASGAverageCPUUtilization
+      TargetValue: 70

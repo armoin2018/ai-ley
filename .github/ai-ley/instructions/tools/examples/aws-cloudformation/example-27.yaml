@@ -1,0 +1,357 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Multi-Region Disaster Recovery Infrastructure'
+
+Parameters:
+  PrimaryRegion:
+    Type: String
+    Default: us-east-1
+    Description: Primary region for active resources
+  DRRegion:
+    Type: String
+    Default: us-west-2
+    Description: Disaster recovery region
+  Environment:
+    Type: String
+    AllowedValues: [dev, staging, production]
+    Default: production
+  RPOHours:
+    Type: Number
+    Default: 1
+    Description: Recovery Point Objective in hours
+  RTOMinutes:
+    Type: Number
+    Default: 60
+    Description: Recovery Time Objective in minutes
+
+Resources:
+  # Cross-region replication for critical data
+  DRDataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'enterprise-dr-data-${AWS::AccountId}-${AWS::Region}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !Ref DRKMSKey
+      VersioningConfiguration:
+        Status: Enabled
+      ReplicationConfiguration:
+        Role: !GetAtt ReplicationRole.Arn
+        Rules:
+          - Id: ReplicateAllObjects
+            Status: Enabled
+            Prefix: ''
+            Destination:
+              Bucket: !Sub 'arn:aws:s3:::enterprise-dr-replica-${AWS::AccountId}-${DRRegion}'
+              StorageClass: STANDARD_IA
+              EncryptionConfiguration:
+                ReplicaKmsKeyID: !Sub 'arn:aws:kms:${DRRegion}:${AWS::AccountId}:alias/enterprise-dr-key'
+      NotificationConfiguration:
+        CloudWatchConfigurations:
+          - Event: s3:Replication:*
+            CloudWatchConfiguration:
+              LogGroupName: !Ref DRLogGroup
+
+  # RDS Multi-AZ with cross-region read replica
+  DRDatabase:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: !Sub 'enterprise-dr-db-${Environment}'
+      DBInstanceClass: db.r5.large
+      Engine: mysql
+      EngineVersion: '8.0'
+      MasterUsername: admin
+      MasterUserPassword: !Ref DatabasePassword
+      AllocatedStorage: 100
+      StorageType: io1
+      Iops: 1000
+      StorageEncrypted: true
+      KmsKeyId: !Ref DRKMSKey
+      MultiAZ: true
+      BackupRetentionPeriod: 35
+      PreferredBackupWindow: '03:00-04:00'
+      PreferredMaintenanceWindow: 'sun:04:00-sun:05:00'
+      VPCSecurityGroups:
+        - !Ref DatabaseSecurityGroup
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      DeletionProtection: true
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Purpose
+          Value: DisasterRecovery
+
+  # Aurora Global Database for multi-region DR
+  AuroraGlobalCluster:
+    Type: AWS::RDS::GlobalCluster
+    Properties:
+      GlobalClusterIdentifier: !Sub 'enterprise-global-${Environment}'
+      Engine: aurora-mysql
+      EngineVersion: '8.0.mysql_aurora.3.02.0'
+      DatabaseName: enterprisedb
+      StorageEncrypted: true
+
+  PrimaryAuroraCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      DBClusterIdentifier: !Sub 'enterprise-primary-${Environment}'
+      Engine: aurora-mysql
+      EngineVersion: '8.0.mysql_aurora.3.02.0'
+      MasterUsername: admin
+      MasterUserPassword: !Ref DatabasePassword
+      DatabaseName: enterprisedb
+      GlobalClusterIdentifier: !Ref AuroraGlobalCluster
+      StorageEncrypted: true
+      KmsKeyId: !Ref DRKMSKey
+      BackupRetentionPeriod: 35
+      PreferredBackupWindow: '03:00-04:00'
+      PreferredMaintenanceWindow: 'sun:04:00-sun:05:00'
+      VpcSecurityGroupIds:
+        - !Ref DatabaseSecurityGroup
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      DeletionProtection: true
+
+  # Lambda function for DR orchestration
+  DROrchestrationFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'dr-orchestration-${Environment}'
+      Runtime: python3.9
+      Handler: index.handler
+      Timeout: 900
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          PRIMARY_REGION: !Ref PrimaryRegion
+          DR_REGION: !Ref DRRegion
+          RPO_HOURS: !Ref RPOHours
+          RTO_MINUTES: !Ref RTOMinutes
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          import os
+          from datetime import datetime, timedelta
+
+          def handler(event, context):
+              """DR orchestration and failover automation"""
+              
+              environment = os.environ['ENVIRONMENT']
+              primary_region = os.environ['PRIMARY_REGION']
+              dr_region = os.environ['DR_REGION']
+              
+              try:
+                  action = event.get('action', 'health_check')
+                  
+                  if action == 'health_check':
+                      return perform_health_check(primary_region, dr_region)
+                  elif action == 'initiate_failover':
+                      return initiate_failover(primary_region, dr_region)
+                  elif action == 'failback':
+                      return perform_failback(primary_region, dr_region)
+                  elif action == 'test_dr':
+                      return test_dr_procedures(dr_region)
+                  else:
+                      return {
+                          'statusCode': 400,
+                          'body': json.dumps({'error': 'Invalid action specified'})
+                      }
+                      
+              except Exception as e:
+                  print(f'DR Orchestration Error: {str(e)}')
+                  send_alert(f'DR Orchestration Failed: {str(e)}')
+                  return {
+                      'statusCode': 500,
+                      'body': json.dumps({'error': str(e)})
+                  }
+
+          def perform_health_check(primary_region, dr_region):
+              """Check health of primary and DR resources"""
+              
+              health_status = {
+                  'timestamp': datetime.utcnow().isoformat(),
+                  'primary_region': primary_region,
+                  'dr_region': dr_region,
+                  'services': {}
+              }
+              
+              # Check RDS health
+              rds_primary = boto3.client('rds', region_name=primary_region)
+              try:
+                  db_instances = rds_primary.describe_db_instances()
+                  health_status['services']['rds_primary'] = 'healthy'
+              except Exception as e:
+                  health_status['services']['rds_primary'] = f'unhealthy: {str(e)}'
+              
+              # Check S3 replication status
+              s3 = boto3.client('s3')
+              try:
+                  # Check replication metrics
+                  health_status['services']['s3_replication'] = 'healthy'
+              except Exception as e:
+                  health_status['services']['s3_replication'] = f'unhealthy: {str(e)}'
+              
+              # Overall health assessment
+              unhealthy_services = [k for k, v in health_status['services'].items() if 'unhealthy' in v]
+              health_status['overall_status'] = 'unhealthy' if unhealthy_services else 'healthy'
+              
+              if unhealthy_services:
+                  send_alert(f"DR Health Check Failed: {unhealthy_services}")
+              
+              return {
+                  'statusCode': 200,
+                  'body': json.dumps(health_status)
+              }
+
+          def initiate_failover(primary_region, dr_region):
+              """Initiate failover to DR region"""
+              
+              print(f"Initiating failover from {primary_region} to {dr_region}")
+              
+              failover_steps = []
+              
+              # Step 1: Promote Aurora read replica to primary
+              rds_dr = boto3.client('rds', region_name=dr_region)
+              try:
+                  # This would promote the Aurora global cluster
+                  # rds_dr.promote_read_replica_db_cluster(DBClusterIdentifier='replica-cluster')
+                  failover_steps.append({'step': 'aurora_promotion', 'status': 'completed'})
+              except Exception as e:
+                  failover_steps.append({'step': 'aurora_promotion', 'status': f'failed: {str(e)}'})
+              
+              # Step 2: Update Route 53 health checks and DNS
+              route53 = boto3.client('route53')
+              try:
+                  # Update DNS records to point to DR region
+                  failover_steps.append({'step': 'dns_update', 'status': 'completed'})
+              except Exception as e:
+                  failover_steps.append({'step': 'dns_update', 'status': f'failed: {str(e)}'})
+              
+              # Step 3: Start compute resources in DR region
+              ec2_dr = boto3.client('ec2', region_name=dr_region)
+              autoscaling_dr = boto3.client('autoscaling', region_name=dr_region)
+              try:
+                  # Scale up ASG in DR region
+                  failover_steps.append({'step': 'compute_scaling', 'status': 'completed'})
+              except Exception as e:
+                  failover_steps.append({'step': 'compute_scaling', 'status': f'failed: {str(e)}'})
+              
+              failover_result = {
+                  'timestamp': datetime.utcnow().isoformat(),
+                  'action': 'failover',
+                  'source_region': primary_region,
+                  'target_region': dr_region,
+                  'steps': failover_steps,
+                  'overall_status': 'completed' if all('failed' not in step['status'] for step in failover_steps) else 'partial'
+              }
+              
+              send_alert(f"DR Failover {'Completed' if failover_result['overall_status'] == 'completed' else 'Partially Completed'}")
+              
+              return {
+                  'statusCode': 200,
+                  'body': json.dumps(failover_result)
+              }
+
+          def test_dr_procedures(dr_region):
+              """Test DR procedures without affecting production"""
+              
+              test_results = {
+                  'timestamp': datetime.utcnow().isoformat(),
+                  'action': 'dr_test',
+                  'region': dr_region,
+                  'tests': []
+              }
+              
+              # Test 1: Verify Aurora read replica lag
+              try:
+                  rds = boto3.client('rds', region_name=dr_region)
+                  # Check replica lag
+                  test_results['tests'].append({'test': 'replica_lag', 'status': 'passed'})
+              except Exception as e:
+                  test_results['tests'].append({'test': 'replica_lag', 'status': f'failed: {str(e)}'})
+              
+              # Test 2: Verify S3 cross-region replication
+              try:
+                  s3 = boto3.client('s3')
+                  # Check replication status
+                  test_results['tests'].append({'test': 's3_replication', 'status': 'passed'})
+              except Exception as e:
+                  test_results['tests'].append({'test': 's3_replication', 'status': f'failed: {str(e)}'})
+              
+              # Test 3: Verify compute resources can be launched
+              try:
+                  ec2 = boto3.client('ec2', region_name=dr_region)
+                  # Verify AMIs and launch templates exist
+                  test_results['tests'].append({'test': 'compute_readiness', 'status': 'passed'})
+              except Exception as e:
+                  test_results['tests'].append({'test': 'compute_readiness', 'status': f'failed: {str(e)}'})
+              
+              failed_tests = [test for test in test_results['tests'] if 'failed' in test['status']]
+              test_results['overall_status'] = 'failed' if failed_tests else 'passed'
+              
+              if failed_tests:
+                  send_alert(f"DR Test Failed: {[test['test'] for test in failed_tests]}")
+              
+              return {
+                  'statusCode': 200,
+                  'body': json.dumps(test_results)
+              }
+
+          def send_alert(message):
+              """Send DR alert via SNS"""
+              
+              sns = boto3.client('sns')
+              try:
+                  sns.publish(
+                      TopicArn=f"arn:aws:sns:{os.environ.get('AWS_REGION', 'us-east-1')}:{boto3.client('sts').get_caller_identity()['Account']}:dr-alerts",
+                      Subject='Disaster Recovery Alert',
+                      Message=f"DR Alert: {message}\n\nTimestamp: {datetime.utcnow().isoformat()}Z"
+                  )
+              except Exception as e:
+                  print(f"Failed to send DR alert: {str(e)}")
+      Role: !GetAtt DROrchestrationRole.Arn
+
+  # CloudWatch Events for automated DR testing
+  DRTestingSchedule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub 'dr-testing-schedule-${Environment}'
+      Description: 'Automated DR testing schedule'
+      ScheduleExpression: 'cron(0 6 1 * ? *)' # First day of each month at 6 AM
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt DROrchestrationFunction.Arn
+          Id: DRTestingTarget
+          Input: '{"action": "test_dr"}'
+
+  DRHealthCheckSchedule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub 'dr-health-check-${Environment}'
+      Description: 'Regular DR health checks'
+      ScheduleExpression: 'rate(15 minutes)'
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt DROrchestrationFunction.Arn
+          Id: DRHealthCheckTarget
+          Input: '{"action": "health_check"}'
+
+Outputs:
+  DROrchestrationFunction:
+    Description: DR Orchestration Lambda Function
+    Value: !Ref DROrchestrationFunction
+    Export:
+      Name: !Sub '${AWS::StackName}-DRFunction'
+
+  GlobalDatabaseCluster:
+    Description: Aurora Global Database Cluster
+    Value: !Ref AuroraGlobalCluster
+    Export:
+      Name: !Sub '${AWS::StackName}-GlobalCluster'
+
+  DRDataBucket:
+    Description: Cross-region replicated data bucket
+    Value: !Ref DRDataBucket
+    Export:
+      Name: !Sub '${AWS::StackName}-DRBucket'

@@ -1,0 +1,32 @@
+import torch
+from sklearn.metrics import accuracy_score
+import numpy as np
+
+class MultimodalEvaluator:
+    def __init__(self):
+        self.metrics = {}
+        
+    def compute_retrieval_metrics(self, image_embeds, text_embeds, k=5):
+        """Compute image-text retrieval metrics"""
+        similarities = torch.mm(image_embeds, text_embeds.t())
+        
+        # Image-to-text retrieval
+        i2t_ranks = []
+        for i in range(len(similarities)):
+            _, indices = similarities[i].sort(descending=True)
+            rank = (indices == i).nonzero(as_tuple=True)[0][0].item() + 1
+            i2t_ranks.append(rank)
+            
+        # Text-to-image retrieval  
+        t2i_ranks = []
+        for i in range(len(similarities)):
+            _, indices = similarities[:, i].sort(descending=True)
+            rank = (indices == i).nonzero(as_tuple=True)[0][0].item() + 1
+            t2i_ranks.append(rank)
+            
+        return {
+            'i2t_r@1': np.mean([1 if r <= 1 else 0 for r in i2t_ranks]),
+            'i2t_r@5': np.mean([1 if r <= 5 else 0 for r in i2t_ranks]),
+            't2i_r@1': np.mean([1 if r <= 1 else 0 for r in t2i_ranks]),
+            't2i_r@5': np.mean([1 if r <= 5 else 0 for r in t2i_ranks])
+        }

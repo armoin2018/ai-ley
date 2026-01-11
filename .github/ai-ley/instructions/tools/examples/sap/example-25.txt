@@ -1,0 +1,4 @@
+/h            # Activate Debugger
+/nSE80        # ABAP Workbench
+/nSE16        # Data Browser
+/nSE11        # ABAP Dictionary

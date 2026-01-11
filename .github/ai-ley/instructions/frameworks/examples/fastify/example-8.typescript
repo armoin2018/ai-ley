@@ -1,0 +1,97 @@
+// src/services/user-service.ts
+import { FastifyInstance } from 'fastify'
+
+export interface User {
+  id: string
+  name: string
+  email: string
+  age?: number
+  createdAt: string
+}
+
+export interface CreateUserData {
+  name: string
+  email: string
+  age?: number
+}
+
+export class UserService {
+  constructor(private fastify: FastifyInstance) {}
+
+  async getAllUsers(): Promise<User[]> {
+    const result = await this.fastify.db.query('SELECT * FROM users')
+    return result.rows
+  }
+
+  async getUserById(id: string): Promise<User | null> {
+    const result = await this.fastify.db.query(
+      'SELECT * FROM users WHERE id = $1',
+      [id]
+    )
+    return result.rows[0] || null
+  }
+
+  async createUser(userData: CreateUserData): Promise<User> {
+    const id = generateUUID()
+    const createdAt = new Date().toISOString()
+
+    await this.fastify.db.query(
+      'INSERT INTO users (id, name, email, age, created_at) VALUES ($1, $2, $3, $4, $5)',
+      [id, userData.name, userData.email, userData.age, createdAt]
+    )
+
+    return {
+      id,
+      ...userData,
+      createdAt
+    }
+  }
+
+  async updateUser(id: string, userData: Partial<CreateUserData>): Promise<User | null> {
+    const user = await this.getUserById(id)
+    if (!user) return null
+
+    const updatedUser = { ...user, ...userData }
+    await this.fastify.db.query(
+      'UPDATE users SET name = $1, email = $2, age = $3 WHERE id = $4',
+      [updatedUser.name, updatedUser.email, updatedUser.age, id]
+    )
+
+    return updatedUser
+  }
+
+  async deleteUser(id: string): Promise<boolean> {
+    const result = await this.fastify.db.query(
+      'DELETE FROM users WHERE id = $1',
+      [id]
+    )
+    return result.rowCount > 0
+  }
+}
+
+// Plugin to register service
+import fp from 'fastify-plugin'
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    userService: UserService
+  }
+}
+
+const userServicePlugin: FastifyPluginAsync = async (fastify) => {
+  const userService = new UserService(fastify)
+  fastify.decorate('userService', userService)
+}
+
+export default fp(userServicePlugin, {
+  name: 'user-service',
+  dependencies: ['database']
+})
+
+function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0
+    const v = c == 'x' ? r : (r & 0x3 | 0x8)
+    return v.toString(16)
+  })
+}

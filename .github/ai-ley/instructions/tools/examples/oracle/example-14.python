@@ -1,0 +1,30 @@
+# Python application with Oracle
+import cx_Oracle
+from contextlib import contextmanager
+
+class OracleManager:
+    def __init__(self, connection_string):
+        self.connection_string = connection_string
+        self.pool = self.create_connection_pool()
+
+    def create_connection_pool(self):
+        return cx_Oracle.SessionPool(
+            self.connection_string,
+            min=2,
+            max=10,
+            increment=1,
+            encoding="UTF-8"
+        )
+
+    @contextmanager
+    def get_connection(self):
+        connection = self.pool.acquire()
+        try:
+            yield connection
+        except Exception as e:
+            connection.rollback()
+            raise
+        else:
+            connection.commit()
+        finally:
+            self.pool.release(connection)

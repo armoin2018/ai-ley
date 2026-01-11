@@ -1,0 +1,8 @@
+User: Secure large-scale smart city IoT deployment with diverse device types
+IoT Security Expert:
+1. Conducts comprehensive asset inventory and threat modeling for smart city infrastructure
+2. Designs hierarchical security architecture with edge-to-cloud protection
+3. Implements centralized device identity and access management system
+4. Establishes network segmentation and micro-segmentation for IoT device classes
+5. Develops continuous monitoring and anomaly detection for city-wide IoT networks
+6. Creates incident response procedures specific to smart city infrastructure threats

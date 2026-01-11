@@ -1,0 +1,51 @@
+performance_optimization:
+  query_optimization:
+    glide_record_best_practices:
+      - use_indexed_fields_in_queries
+      - limit_query_results_with_setLimit
+      - avoid_or_conditions_in_queries
+      - use_encoded_queries_for_complex_filters
+      
+    business_rule_optimization:
+      - minimize_database_queries_in_rules
+      - use_async_rules_for_heavy_processing
+      - avoid_recursive_rule_execution
+      - cache_frequently_accessed_data
+      
+  workflow_optimization:
+    workflow_design:
+      - minimize_workflow_activities
+      - use_conditions_to_control_flow
+      - avoid_nested_approval_loops
+      - implement_timeout_handling
+      
+    flow_designer_migration:
+      - migrate_workflows_to_flow_designer
+      - use_flow_logic_for_better_performance
+      - implement_error_handling_in_flows
+      
+  ui_optimization:
+    form_performance:
+      - minimize_form_sections_and_fields
+      - use_lazy_loading_for_related_lists
+      - optimize_client_scripts_and_ui_policies
+      - implement_form_caching_strategies
+      
+    list_performance:
+      - create_proper_database_indexes
+      - limit_list_columns_and_rows
+      - use_personalized_lists
+      - implement_list_filtering
+      
+  monitoring_strategy:
+    performance_monitoring:
+      - stats_module_for_system_metrics
+      - slow_query_logs_analysis
+      - business_rule_execution_timing
+      - custom_performance_dashboards
+      
+    capacity_planning:
+      - database_growth_monitoring
+      - attachment_storage_tracking
+      - concurrent_user_analysis
+      - peak_usage_pattern_identification

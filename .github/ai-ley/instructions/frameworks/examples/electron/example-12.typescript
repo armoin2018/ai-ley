@@ -1,0 +1,29 @@
+// tests/e2e/app.spec.ts
+import { test, expect, _electron as electron } from '@playwright/test';
+import * as path from 'path';
+
+test.describe('Electron App E2E', () => {
+  test('should launch app and interact with UI', async () => {
+    // Launch Electron app
+    const electronApp = await electron.launch({
+      args: [path.join(__dirname, '../../out/main/main.js')],
+    });
+
+    // Get first window
+    const page = await electronApp.firstWindow();
+
+    // Test initial state
+    await expect(page.locator('.title')).toHaveText('Text Editor');
+
+    // Test editor interaction
+    await page.locator('#editor').fill('Hello, Electron!');
+    await expect(page.locator('#editor')).toHaveValue('Hello, Electron!');
+
+    // Test menu interaction
+    await page.keyboard.press('CommandOrControl+N');
+    await expect(page.locator('#editor')).toHaveValue('');
+
+    // Close app
+    await electronApp.close();
+  });
+});

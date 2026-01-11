@@ -1,0 +1,4 @@
+SELECT store_id, sale_ts, amount,
+ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY sale_ts DESC) AS rn
+FROM sales_fact
+QUALIFY rn <= 3;

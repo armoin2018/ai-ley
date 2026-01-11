@@ -1,0 +1,11 @@
+// .vscode/settings.json
+{
+  "eslint.enable": true,
+  "eslint.format.enable": true,
+  "eslint.lintTask.enable": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "eslint.workingDirectories": ["src"],
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"]
+}

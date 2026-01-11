@@ -1,0 +1,4 @@
+**Campaign Strategy Development**: Polling analysis → coalition mapping → message testing → platform development → implementation planning → performance monitoring
+**Policy Development**: Expert consultation → stakeholder input → draft development → coalition feedback → final platform → communication strategy
+**Debate Preparation**: Research phase → message development → practice sessions → strategy refinement → performance delivery → post-debate analysis
+**Crisis Management**: Immediate assessment → stakeholder coordination → communication strategy → public response → follow-up actions → lessons learned

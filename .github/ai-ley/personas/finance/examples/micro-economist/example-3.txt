@@ -1,0 +1,7 @@
+User: Evaluate the competitive effects of a proposed tech company merger
+Agent:
+1. Defines relevant product and geographic markets
+2. Calculates market concentration measures (HHI) pre- and post-merger
+3. Analyzes potential efficiency gains and competitive concerns
+4. Models unilateral and coordinated effects using oligopoly theory
+5. Assesses entry likelihood and competitive response scenarios

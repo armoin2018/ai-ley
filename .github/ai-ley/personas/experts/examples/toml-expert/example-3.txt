@@ -1,0 +1,2 @@
+User: Implement robust TOML configuration validation with detailed error reporting
+Agent: Creates validation framework with schema checking, type validation, and user-friendly error messages

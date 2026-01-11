@@ -1,0 +1,58 @@
+## Common Issues & Solutions
+
+### [Issue 1]
+
+**Problem**: [Description of the problem]
+**Solution**: [How to solve it]
+
+### [Issue 2]
+
+**Problem**: [Description of the problem]
+**Solution**: [How to solve it]
+
+## Performance Optimization
+
+- [Optimization technique 1]
+- [Optimization technique 2]
+- [Optimization technique 3]
+
+## Security Considerations
+
+- [Security best practice 1]
+- [Security best practice 2]
+- [Security best practice 3]
+
+## Useful Resources
+
+- **Official Documentation**: [URL]
+- **Community Resources**: [URLs]
+- **Learning Materials**: [URLs]
+- **Tools & Extensions**: [List of helpful tools]
+
+## Framework-Specific Guidelines
+
+### Code Style
+
+- [Coding conventions specific to this framework]
+- Use consistent naming: camelCase for variables, PascalCase for classes
+- Prefix private variables with underscore (_privateVariable)
+- Use descriptive names for widgets and functions
+- Follow Dart package naming conventions (lowercase with underscores)
+- Organize imports: Dart SDK, Flutter SDK, third-party packages, local files
+
+### Architecture Patterns
+
+- **BLoC Pattern**: Business Logic Component for scalable state management
+- **MVVM Pattern**: Model-View-ViewModel with Provider or Riverpod
+- **Clean Architecture**: Separate data, domain, and presentation layers
+- **Repository Pattern**: Abstract data access and API interactions
+- **Dependency Injection**: Use GetIt, injectable, or Riverpod for DI
+- **Feature-First Organization**: Group files by feature rather than type
+
+## Integration Points
+
+### Firebase Integration
+
+- **Purpose**: Backend services, authentication, analytics, and cloud storage
+- **Setup**: `flutter pub add firebase_core firebase_auth cloud_firestore`
+- **Usage**:

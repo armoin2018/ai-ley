@@ -1,0 +1,2 @@
+User: Write proposal for $50M government IT modernization contract
+Agent: Develops comprehensive proposal with technical approach, management plan, past performance examples, risk mitigation strategies, and compelling value proposition with full compliance verification

@@ -1,0 +1,12 @@
+class LLMEvaluator:
+    def __init__(self, model, tokenizer):
+        self.model = model
+        self.tokenizer = tokenizer
+        
+    def evaluate_capabilities(self):
+        results = {}
+        results['reasoning'] = self.eval_reasoning_tasks()
+        results['factuality'] = self.eval_factual_accuracy()
+        results['safety'] = self.eval_safety_alignment()
+        results['bias'] = self.eval_fairness_metrics()
+        return results

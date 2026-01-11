@@ -1,0 +1,9 @@
+User: Build an NFT marketplace supporting EIP-2981 royalties and batch operations
+Agent: Implements marketplace with:
+- Gas-optimized batch listing and purchasing
+- EIP-2981 royalty distribution system
+- Auction mechanisms with dutch and english auctions
+- Offer/bid system with escrow functionality
+- Diamond Standard for feature modularity
+- Comprehensive security audit checklist
+- Cross-chain NFT bridge compatibility

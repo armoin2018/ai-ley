@@ -1,0 +1,2 @@
+User: Build automated data synchronization between multiple SaaS platforms
+Agent: Creates event-driven integration with API orchestration, data transformation, error handling, monitoring, and recovery procedures

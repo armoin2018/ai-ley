@@ -1,0 +1,872 @@
+#!/usr/bin/env python3
+# flipper-enterprise-manager.py - Advanced Flipper Zero enterprise security research framework
+
+import asyncio
+import json
+import yaml
+import logging
+import sqlite3
+import hashlib
+import time
+import serial
+from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional, Tuple
+from dataclasses import dataclass, asdict
+from pathlib import Path
+import re
+import subprocess
+from cryptography.fernet import Fernet
+import uuid
+
+@dataclass
+class SecurityTest:
+    """Security test configuration and metadata"""
+    test_id: str
+    test_name: str
+    test_type: str  # rf, nfc, rfid, ir, gpio
+    target_description: str
+    authorization_ref: str
+    researcher: str
+    timestamp: datetime
+    scope: List[str]
+    compliance_frameworks: List[str]
+    risk_level: str  # low, medium, high
+    approved_by: str
+    equipment_serial: str
+
+@dataclass
+class TestResult:
+    """Security test result data model"""
+    result_id: str
+    test_id: str
+    result_type: str
+    data_collected: Dict[str, Any]
+    findings: List[str]
+    vulnerabilities: List[Dict[str, Any]]
+    recommendations: List[str]
+    evidence_hash: str
+    chain_of_custody: List[Dict[str, Any]]
+
+class FlipperEnterpriseManager:
+    """Advanced Flipper Zero enterprise security research platform"""
+
+    def __init__(self, config_file: str):
+        self.config = self.load_configuration(config_file)
+        self.authorization_manager = AuthorizationManager()
+        self.compliance_engine = ComplianceEngine()
+        self.data_protection = DataProtectionManager()
+        self.research_orchestrator = ResearchOrchestrator()
+        self.evidence_manager = EvidenceManager()
+        self.reporting_engine = ReportingEngine()
+
+        # Secure database for research data
+        self.db_path = self.config.get('database_path', 'flipper_research.db')
+        self.encryption_key = self.load_or_generate_encryption_key()
+
+        # Setup comprehensive logging
+        self.setup_enterprise_logging()
+        self.logger = logging.getLogger(__name__)
+
+        # Initialize secure database
+        self.initialize_secure_database()
+
+    def setup_enterprise_logging(self):
+        """Setup comprehensive enterprise logging system"""
+        log_config = {
+            'version': 1,
+            'disable_existing_loggers': False,
+            'formatters': {
+                'audit': {
+                    'format': '%(asctime)s - AUDIT - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s'
+                },
+                'research': {
+                    'format': '%(asctime)s - RESEARCH - %(name)s - %(levelname)s - %(message)s'
+                },
+                'compliance': {
+                    'format': '%(asctime)s - COMPLIANCE - %(name)s - %(levelname)s - %(message)s'
+                }
+            },
+            'handlers': {
+                'audit_file': {
+                    'class': 'logging.handlers.RotatingFileHandler',
+                    'filename': 'flipper_audit.log',
+                    'maxBytes': 20971520,  # 20MB
+                    'backupCount': 50,
+                    'formatter': 'audit',
+                    'level': 'INFO'
+                },
+                'research_file': {
+                    'class': 'logging.handlers.RotatingFileHandler',
+                    'filename': 'flipper_research.log',
+                    'maxBytes': 10485760,  # 10MB
+                    'backupCount': 20,
+                    'formatter': 'research',
+                    'level': 'INFO'
+                },
+                'compliance_file': {
+                    'class': 'logging.handlers.RotatingFileHandler',
+                    'filename': 'flipper_compliance.log',
+                    'maxBytes': 10485760,  # 10MB
+                    'backupCount': 20,
+                    'formatter': 'compliance',
+                    'level': 'INFO'
+                },
+                'security_syslog': {
+                    'class': 'logging.handlers.SysLogHandler',
+                    'address': ('localhost', 514),
+                    'formatter': 'audit',
+                    'level': 'WARNING'
+                }
+            },
+            'loggers': {
+                '': {
+                    'handlers': ['audit_file', 'research_file', 'compliance_file', 'security_syslog'],
+                    'level': 'INFO',
+                    'propagate': False
+                }
+            }
+        }
+
+        logging.config.dictConfig(log_config)
+
+    def load_configuration(self, config_file: str) -> Dict[str, Any]:
+        """Load enterprise configuration with security validation"""
+        try:
+            with open(config_file, 'r') as f:
+                config = yaml.safe_load(f)
+
+            # Validate critical security settings
+            self.validate_security_config(config)
+            return config
+
+        except FileNotFoundError:
+            self.logger.warning(f"Config file {config_file} not found, using secure defaults")
+            return self.get_secure_default_config()
+
+    def get_secure_default_config(self) -> Dict[str, Any]:
+        """Get secure default enterprise configuration"""
+        return {
+            'organization': {
+                'name': 'Enterprise Security Research Lab',
+                'compliance_officer': 'security-officer@company.com',
+                'legal_contact': 'legal@company.com'
+            },
+            'security_policies': {
+                'require_authorization': True,
+                'max_test_duration': 3600,  # 1 hour
+                'auto_shutdown_on_violation': True,
+                'data_encryption_required': True,
+                'audit_all_activities': True
+            },
+            'compliance_frameworks': [
+                'ISO27001',
+                'NIST_CSF',
+                'SOC2',
+                'Internal_Policy'
+            ],
+            'flipper_devices': [],
+            'authorized_researchers': [],
+            'test_environments': {
+                'lab_network': '192.168.200.0/24',
+                'isolation_required': True,
+                'monitoring_enabled': True
+            }
+        }
+
+    def load_or_generate_encryption_key(self) -> bytes:
+        """Load or generate encryption key for data protection"""
+        key_file = Path('flipper_encryption.key')
+
+        if key_file.exists():
+            with open(key_file, 'rb') as f:
+                return f.read()
+        else:
+            key = Fernet.generate_key()
+            with open(key_file, 'wb') as f:
+                f.write(key)
+
+            # Set restrictive permissions
+            key_file.chmod(0o600)
+            return key
+
+    def initialize_secure_database(self):
+        """Initialize secure research database with encryption"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        # Create tables for research data
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS security_tests (
+                test_id TEXT PRIMARY KEY,
+                test_name TEXT NOT NULL,
+                test_type TEXT NOT NULL,
+                target_description TEXT NOT NULL,
+                authorization_ref TEXT NOT NULL,
+                researcher TEXT NOT NULL,
+                timestamp TEXT NOT NULL,
+                scope TEXT NOT NULL,
+                compliance_frameworks TEXT NOT NULL,
+                risk_level TEXT NOT NULL,
+                approved_by TEXT NOT NULL,
+                equipment_serial TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'planned'
+            )
+        ''')
+
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS test_results (
+                result_id TEXT PRIMARY KEY,
+                test_id TEXT NOT NULL,
+                result_type TEXT NOT NULL,
+                encrypted_data TEXT NOT NULL,
+                findings TEXT NOT NULL,
+                vulnerabilities TEXT NOT NULL,
+                recommendations TEXT NOT NULL,
+                evidence_hash TEXT NOT NULL,
+                chain_of_custody TEXT NOT NULL,
+                created_timestamp TEXT NOT NULL,
+                FOREIGN KEY (test_id) REFERENCES security_tests (test_id)
+            )
+        ''')
+
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS authorization_records (
+                auth_id TEXT PRIMARY KEY,
+                test_id TEXT NOT NULL,
+                authorization_type TEXT NOT NULL,
+                granted_by TEXT NOT NULL,
+                granted_timestamp TEXT NOT NULL,
+                valid_until TEXT NOT NULL,
+                scope_restrictions TEXT NOT NULL,
+                approval_document_hash TEXT NOT NULL
+            )
+        ''')
+
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS compliance_audits (
+                audit_id TEXT PRIMARY KEY,
+                test_id TEXT NOT NULL,
+                framework TEXT NOT NULL,
+                audit_timestamp TEXT NOT NULL,
+                compliance_status TEXT NOT NULL,
+                findings TEXT NOT NULL,
+                remediation_required TEXT NOT NULL
+            )
+        ''')
+
+        conn.commit()
+        conn.close()
+
+    async def initiate_security_research(self, test_config: Dict[str, Any]) -> Dict[str, Any]:
+        """Initiate comprehensive security research with full compliance"""
+        self.logger.info("Initiating enterprise security research session")
+
+        try:
+            # Step 1: Validate authorization
+            auth_result = await self.authorization_manager.validate_authorization(test_config)
+            if not auth_result['authorized']:
+                raise Exception(f"Authorization validation failed: {auth_result['reason']}")
+
+            # Step 2: Compliance pre-check
+            compliance_result = await self.compliance_engine.pre_test_compliance_check(test_config)
+            if not compliance_result['compliant']:
+                raise Exception(f"Compliance check failed: {compliance_result['issues']}")
+
+            # Step 3: Initialize secure test environment
+            test_env = await self.research_orchestrator.setup_test_environment(test_config)
+
+            # Step 4: Configure Flipper Zero device
+            device_config = await self.configure_flipper_device(test_config)
+
+            # Step 5: Start monitoring and logging
+            monitoring_result = await self.start_comprehensive_monitoring(test_config)
+
+            # Step 6: Execute research protocol
+            research_results = await self.execute_research_protocol(test_config, device_config)
+
+            # Step 7: Post-test compliance validation
+            post_compliance = await self.compliance_engine.post_test_compliance_check(research_results)
+
+            # Step 8: Secure data handling
+            evidence_result = await self.evidence_manager.secure_evidence_collection(research_results)
+
+            return {
+                'status': 'success',
+                'test_id': research_results['test_id'],
+                'authorization_validated': auth_result['authorized'],
+                'compliance_status': post_compliance['status'],
+                'evidence_secured': evidence_result['secured'],
+                'findings_count': len(research_results.get('findings', [])),
+                'vulnerabilities_found': len(research_results.get('vulnerabilities', []))
+            }
+
+        except Exception as e:
+            self.logger.error(f"Security research initiation failed: {e}")
+            await self.emergency_shutdown()
+            raise
+
+    async def configure_flipper_device(self, test_config: Dict[str, Any]) -> Dict[str, Any]:
+        """Configure Flipper Zero device for secure research"""
+        device_serial = test_config.get('device_serial')
+
+        if not device_serial:
+            raise Exception("Device serial number required for enterprise research")
+
+        # Connect to Flipper Zero
+        flipper_conn = await self.connect_to_flipper(device_serial)
+
+        # Verify firmware integrity
+        firmware_check = await self.verify_firmware_integrity(flipper_conn)
+        if not firmware_check['valid']:
+            raise Exception("Firmware integrity check failed")
+
+        # Configure security settings
+        security_config = {
+            'logging_enabled': True,
+            'max_session_time': test_config.get('max_duration', 3600),
+            'restricted_frequencies': test_config.get('restricted_frequencies', []),
+            'power_limits': test_config.get('power_limits', {}),
+            'allowed_protocols': test_config.get('allowed_protocols', [])
+        }
+
+        await self.apply_security_configuration(flipper_conn, security_config)
+
+        return {
+            'device_serial': device_serial,
+            'firmware_version': firmware_check['version'],
+            'security_config': security_config,
+            'connection_established': True
+        }
+
+    async def execute_research_protocol(self, test_config: Dict[str, Any], device_config: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute comprehensive security research protocol"""
+        test_id = str(uuid.uuid4())
+        research_results = {
+            'test_id': test_id,
+            'start_time': datetime.now().isoformat(),
+            'test_type': test_config['test_type'],
+            'findings': [],
+            'vulnerabilities': [],
+            'evidence': []
+        }
+
+        # Execute protocol based on test type
+        if test_config['test_type'] == 'rf_analysis':
+            rf_results = await self.execute_rf_analysis_protocol(test_config, device_config)
+            research_results.update(rf_results)
+
+        elif test_config['test_type'] == 'nfc_research':
+            nfc_results = await self.execute_nfc_research_protocol(test_config, device_config)
+            research_results.update(nfc_results)
+
+        elif test_config['test_type'] == 'rfid_assessment':
+            rfid_results = await self.execute_rfid_assessment_protocol(test_config, device_config)
+            research_results.update(rfid_results)
+
+        elif test_config['test_type'] == 'ir_analysis':
+            ir_results = await self.execute_ir_analysis_protocol(test_config, device_config)
+            research_results.update(ir_results)
+
+        elif test_config['test_type'] == 'gpio_testing':
+            gpio_results = await self.execute_gpio_testing_protocol(test_config, device_config)
+            research_results.update(gpio_results)
+
+        research_results['end_time'] = datetime.now().isoformat()
+        research_results['duration'] = self.calculate_test_duration(research_results['start_time'], research_results['end_time'])
+
+        # Store results in secure database
+        await self.store_research_results(research_results)
+
+        return research_results
+
+class AuthorizationManager:
+    """Advanced authorization and permission management"""
+
+    def __init__(self):
+        self.authorization_cache = {}
+        self.legal_frameworks = LegalFrameworksManager()
+
+    async def validate_authorization(self, test_config: Dict[str, Any]) -> Dict[str, Any]:
+        """Comprehensive authorization validation"""
+
+        # Check required authorization fields
+        required_fields = [
+            'authorization_ref',
+            'researcher_id',
+            'approving_manager',
+            'test_scope',
+            'target_ownership_proof',
+            'legal_clearance'
+        ]
+
+        for field in required_fields:
+            if field not in test_config:
+                return {
+                    'authorized': False,
+                    'reason': f'Missing required authorization field: {field}'
+                }
+
+        # Validate authorization reference
+        auth_valid = await self.validate_authorization_reference(test_config['authorization_ref'])
+        if not auth_valid['valid']:
+            return {
+                'authorized': False,
+                'reason': f'Invalid authorization reference: {auth_valid["reason"]}'
+            }
+
+        # Check researcher permissions
+        researcher_authorized = await self.validate_researcher_permissions(
+            test_config['researcher_id'],
+            test_config['test_type']
+        )
+
+        if not researcher_authorized['authorized']:
+            return {
+                'authorized': False,
+                'reason': f'Researcher not authorized: {researcher_authorized["reason"]}'
+            }
+
+        # Validate target ownership/permission
+        ownership_valid = await self.validate_target_ownership(test_config['target_ownership_proof'])
+        if not ownership_valid['valid']:
+            return {
+                'authorized': False,
+                'reason': f'Target ownership validation failed: {ownership_valid["reason"]}'
+            }
+
+        # Legal framework compliance check
+        legal_compliant = await self.legal_frameworks.validate_legal_compliance(test_config)
+        if not legal_compliant['compliant']:
+            return {
+                'authorized': False,
+                'reason': f'Legal compliance failed: {legal_compliant["issues"]}'
+            }
+
+        return {
+            'authorized': True,
+            'authorization_level': auth_valid.get('level', 'standard'),
+            'valid_until': auth_valid.get('valid_until'),
+            'restrictions': auth_valid.get('restrictions', [])
+        }
+
+class ComplianceEngine:
+    """Enterprise compliance and governance engine"""
+
+    def __init__(self):
+        self.compliance_frameworks = {
+            'ISO27001': ISO27001ComplianceChecker(),
+            'NIST_CSF': NISTCSFComplianceChecker(),
+            'SOC2': SOC2ComplianceChecker(),
+            'GDPR': GDPRComplianceChecker(),
+            'Internal_Policy': InternalPolicyChecker()
+        }
+
+    async def pre_test_compliance_check(self, test_config: Dict[str, Any]) -> Dict[str, Any]:
+        """Comprehensive pre-test compliance validation"""
+        compliance_results = {
+            'compliant': True,
+            'framework_results': {},
+            'issues': [],
+            'recommendations': []
+        }
+
+        frameworks = test_config.get('compliance_frameworks', ['Internal_Policy'])
+
+        for framework_name in frameworks:
+            if framework_name in self.compliance_frameworks:
+                checker = self.compliance_frameworks[framework_name]
+                result = await checker.pre_test_check(test_config)
+
+                compliance_results['framework_results'][framework_name] = result
+
+                if not result['compliant']:
+                    compliance_results['compliant'] = False
+                    compliance_results['issues'].extend(result.get('issues', []))
+
+                compliance_results['recommendations'].extend(result.get('recommendations', []))
+
+        return compliance_results
+
+    async def continuous_compliance_monitoring(self, test_session: Dict[str, Any]):
+        """Continuous compliance monitoring during testing"""
+        while test_session.get('active', False):
+            # Monitor test activities for compliance
+            current_activities = await self.get_current_test_activities(test_session['test_id'])
+
+            for framework_name, checker in self.compliance_frameworks.items():
+                compliance_status = await checker.monitor_activities(current_activities)
+
+                if not compliance_status['compliant']:
+                    # Trigger compliance violation response
+                    await self.handle_compliance_violation(
+                        test_session['test_id'],
+                        framework_name,
+                        compliance_status
+                    )
+
+            await asyncio.sleep(30)  # Check every 30 seconds
+
+class EvidenceManager:
+    """Secure evidence collection and chain of custody management"""
+
+    def __init__(self):
+        self.evidence_storage = SecureEvidenceStorage()
+        self.chain_of_custody = ChainOfCustodyManager()
+        self.digital_forensics = DigitalForensicsTools()
+
+    async def secure_evidence_collection(self, research_results: Dict[str, Any]) -> Dict[str, Any]:
+        """Secure evidence collection with chain of custody"""
+        evidence_package = {
+            'collection_id': str(uuid.uuid4()),
+            'test_id': research_results['test_id'],
+            'collection_timestamp': datetime.now().isoformat(),
+            'evidence_items': []
+        }
+
+        # Collect and secure evidence items
+        for evidence_item in research_results.get('evidence', []):
+            secured_item = await self.secure_evidence_item(evidence_item)
+            evidence_package['evidence_items'].append(secured_item)
+
+        # Create cryptographic hash of evidence package
+        evidence_hash = await self.create_evidence_hash(evidence_package)
+        evidence_package['package_hash'] = evidence_hash
+
+        # Initialize chain of custody
+        custody_record = await self.chain_of_custody.initialize_custody(evidence_package)
+        evidence_package['custody_id'] = custody_record['custody_id']
+
+        # Store in secure evidence vault
+        storage_result = await self.evidence_storage.store_evidence(evidence_package)
+
+        return {
+            'secured': storage_result['success'],
+            'evidence_id': evidence_package['collection_id'],
+            'custody_id': custody_record['custody_id'],
+            'hash_verification': evidence_hash,
+            'items_secured': len(evidence_package['evidence_items'])
+        }
+
+class ResearchOrchestrator:
+    """Advanced research orchestration and automation"""
+
+    def __init__(self):
+        self.test_protocols = TestProtocolLibrary()
+        self.automation_engine = AutomationEngine()
+        self.analysis_tools = AnalysisToolsManager()
+
+    async def execute_rf_analysis_protocol(self, test_config: Dict[str, Any], device_config: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute comprehensive RF analysis protocol"""
+        rf_results = {
+            'protocol_type': 'rf_analysis',
+            'frequency_scans': [],
+            'signal_analysis': [],
+            'protocol_identification': [],
+            'vulnerability_assessment': []
+        }
+
+        # Frequency sweep analysis
+        frequency_ranges = test_config.get('frequency_ranges', [
+            {'start': 300000000, 'end': 348000000},  # 300-348 MHz
+            {'start': 387000000, 'end': 464000000},  # 387-464 MHz
+            {'start': 779000000, 'end': 928000000},  # 779-928 MHz
+        ])
+
+        for freq_range in frequency_ranges:
+            scan_result = await self.perform_frequency_scan(
+                freq_range['start'],
+                freq_range['end'],
+                device_config
+            )
+            rf_results['frequency_scans'].append(scan_result)
+
+        # Signal analysis for detected transmissions
+        for scan in rf_results['frequency_scans']:
+            for signal in scan.get('detected_signals', []):
+                analysis = await self.analyze_rf_signal(signal, device_config)
+                rf_results['signal_analysis'].append(analysis)
+
+        # Protocol identification
+        protocols = await self.identify_rf_protocols(rf_results['signal_analysis'])
+        rf_results['protocol_identification'] = protocols
+
+        # Security vulnerability assessment
+        vulnerabilities = await self.assess_rf_vulnerabilities(protocols)
+        rf_results['vulnerability_assessment'] = vulnerabilities
+
+        return rf_results
+
+    async def execute_nfc_research_protocol(self, test_config: Dict[str, Any], device_config: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute comprehensive NFC research protocol"""
+        nfc_results = {
+            'protocol_type': 'nfc_research',
+            'card_enumeration': [],
+            'protocol_analysis': [],
+            'security_assessment': [],
+            'cloning_analysis': []
+        }
+
+        # NFC card enumeration and identification
+        detected_cards = await self.enumerate_nfc_cards(device_config)
+        nfc_results['card_enumeration'] = detected_cards
+
+        # Protocol analysis for each detected card
+        for card in detected_cards:
+            protocol_data = await self.analyze_nfc_protocol(card, device_config)
+            nfc_results['protocol_analysis'].append(protocol_data)
+
+        # Security assessment
+        for protocol in nfc_results['protocol_analysis']:
+            security_assessment = await self.assess_nfc_security(protocol)
+            nfc_results['security_assessment'].append(security_assessment)
+
+        # Cloning feasibility analysis (authorized research only)
+        if test_config.get('cloning_analysis_authorized', False):
+            cloning_analysis = await self.analyze_cloning_feasibility(nfc_results['protocol_analysis'])
+            nfc_results['cloning_analysis'] = cloning_analysis
+
+        return nfc_results
+
+# Docker Compose for Flipper Zero Enterprise Research Platform
+def generate_flipper_research_platform():
+    """Generate Docker Compose stack for Flipper Zero enterprise research"""
+
+    docker_compose = '''
+version: '3.8'
+
+services:
+  flipper-research-manager:
+    build:
+      context: ./flipper-research-manager
+      dockerfile: Dockerfile
+    container_name: flipper-research-manager
+    restart: unless-stopped
+    privileged: true
+    environment:
+      - DATABASE_URL=postgresql://flipper:password@postgres:5432/flipper_research
+      - REDIS_URL=redis://redis:6379/0
+      - LOG_LEVEL=INFO
+      - ENCRYPTION_ENABLED=true
+    volumes:
+      - ./config:/app/config
+      - ./research-data:/app/research-data
+      - ./evidence:/app/evidence
+      - ./logs:/app/logs
+      - ./keys:/app/keys:ro
+      - /dev:/dev  # Hardware access for Flipper Zero
+    ports:
+      - "8446:8443"  # Secure management UI
+      - "9098:9090"  # Metrics endpoint
+    networks:
+      - flipper_research
+    depends_on:
+      - postgres
+      - redis
+
+  compliance-monitor:
+    build:
+      context: ./compliance-monitor
+      dockerfile: Dockerfile
+    container_name: flipper-compliance-monitor
+    restart: unless-stopped
+    environment:
+      - COMPLIANCE_FRAMEWORKS=ISO27001,NIST_CSF,SOC2,GDPR
+      - ALERT_WEBHOOK_URL=${COMPLIANCE_ALERT_WEBHOOK}
+      - AUDIT_LOG_RETENTION=2555  # 7 years in days
+    volumes:
+      - ./compliance:/app/compliance
+      - ./logs:/app/logs:ro
+      - ./audit:/app/audit
+    networks:
+      - flipper_research
+    depends_on:
+      - flipper-research-manager
+
+  evidence-vault:
+    build:
+      context: ./evidence-vault
+      dockerfile: Dockerfile
+    container_name: flipper-evidence-vault
+    restart: unless-stopped
+    environment:
+      - VAULT_ENCRYPTION_KEY=${EVIDENCE_ENCRYPTION_KEY}
+      - CHAIN_OF_CUSTODY_ENABLED=true
+      - DIGITAL_SIGNATURES_REQUIRED=true
+    volumes:
+      - ./evidence:/app/evidence
+      - ./vault-config:/app/config:ro
+      - ./custody-records:/app/custody-records
+    networks:
+      - flipper_research
+    depends_on:
+      - postgres
+
+  legal-authorization:
+    build:
+      context: ./legal-authorization
+      dockerfile: Dockerfile
+    container_name: flipper-legal-authorization
+    restart: unless-stopped
+    environment:
+      - LEGAL_DATABASE_URL=postgresql://flipper:password@postgres:5432/legal_auth
+      - AUTHORIZATION_TIMEOUT=3600  # 1 hour default
+      - MULTI_APPROVAL_REQUIRED=true
+    volumes:
+      - ./legal:/app/legal
+      - ./authorization-docs:/app/authorization-docs:ro
+    networks:
+      - flipper_research
+    depends_on:
+      - postgres
+
+  research-analytics:
+    build:
+      context: ./research-analytics
+      dockerfile: Dockerfile
+    container_name: flipper-research-analytics
+    restart: unless-stopped
+    environment:
+      - ANALYTICS_DATABASE_URL=postgresql://flipper:password@postgres:5432/research_analytics
+      - ML_ENABLED=true
+      - ANOMALY_DETECTION=true
+    volumes:
+      - ./analytics:/app/analytics
+      - ./research-data:/app/research-data:ro
+    networks:
+      - flipper_research
+    depends_on:
+      - postgres
+      - redis
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: flipper-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=1y'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9099:9090"
+    networks:
+      - flipper_research
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: flipper-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_SERVER_ROOT_URL=https://flipper-research.company.com/grafana
+      - GF_DATABASE_TYPE=postgres
+      - GF_DATABASE_HOST=postgres:5432
+      - GF_DATABASE_NAME=flipper_grafana
+      - GF_DATABASE_USER=flipper
+      - GF_DATABASE_PASSWORD=password
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    ports:
+      - "3005:3000"
+    networks:
+      - flipper_research
+    depends_on:
+      - postgres
+      - prometheus
+
+  postgres:
+    image: postgres:14
+    container_name: flipper-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=flipper_research
+      - POSTGRES_USER=flipper
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - flipper_research
+
+  redis:
+    image: redis:7-alpine
+    container_name: flipper-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass password
+    volumes:
+      - redis_data:/data
+    networks:
+      - flipper_research
+
+  vault:
+    image: vault:latest
+    container_name: flipper-vault
+    restart: unless-stopped
+    cap_add:
+      - IPC_LOCK
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_ROOT_TOKEN}
+      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+    ports:
+      - "8200:8200"
+    networks:
+      - flipper_research
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  flipper_research:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.29.0.0/16
+'''
+
+    return docker_compose
+
+def main():
+    """Main function demonstrating Flipper Zero enterprise research platform"""
+
+    # Example secure research configuration
+    test_config = {
+        'test_type': 'rf_analysis',
+        'authorization_ref': 'AUTH-2025-001',
+        'researcher_id': 'researcher-001',
+        'approving_manager': 'security-manager@company.com',
+        'test_scope': ['frequency_analysis', 'protocol_identification'],
+        'target_ownership_proof': 'OWNERSHIP-DOC-001',
+        'legal_clearance': 'LEGAL-CLEAR-001',
+        'device_serial': 'FZ-DEV-001',
+        'compliance_frameworks': ['ISO27001', 'Internal_Policy'],
+        'max_duration': 1800,  # 30 minutes
+        'frequency_ranges': [
+            {'start': 433000000, 'end': 434000000}  # ISM band
+        ]
+    }
+
+    # Initialize enterprise manager
+    flipper_manager = FlipperEnterpriseManager('/tmp/flipper_config.yaml')
+
+    # Generate Docker platform
+    docker_platform = generate_flipper_research_platform()
+    print("Flipper Zero enterprise research platform generated")
+
+    # Run async research initiation
+    async def run_research():
+        result = await flipper_manager.initiate_security_research(test_config)
+        print(f"Flipper Zero enterprise research result: {result}")
+
+    # Execute research platform
+    asyncio.run(run_research())
+
+if __name__ == '__main__':
+    main()

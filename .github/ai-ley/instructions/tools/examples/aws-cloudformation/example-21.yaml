@@ -1,0 +1,281 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'SOC2 Compliant Infrastructure Foundation'
+
+Parameters:
+  Environment:
+    Type: String
+    AllowedValues: [dev, staging, production]
+    Default: dev
+  DataClassification:
+    Type: String
+    AllowedValues: [public, internal, confidential, restricted]
+    Default: internal
+  SecurityContactEmail:
+    Type: String
+    Description: Email for security notifications
+
+Resources:
+  # Comprehensive audit logging
+  SOC2CloudTrail:
+    Type: AWS::CloudTrail::Trail
+    Properties:
+      TrailName: !Sub 'soc2-audit-trail-${Environment}'
+      S3BucketName: !Ref SOC2AuditBucket
+      S3KeyPrefix: 'cloudtrail/'
+      IncludeGlobalServiceEvents: true
+      IsMultiRegionTrail: true
+      EnableLogFileValidation: true
+      InsightSelectors:
+        - InsightType: ApiCallRateInsight
+      EventSelectors:
+        - ReadWriteType: All
+          IncludeManagementEvents: true
+          DataResources:
+            - Type: AWS::S3::Object
+              Values: ['arn:aws:s3:::*/*']
+            - Type: AWS::Lambda::Function
+              Values: ['arn:aws:lambda:*']
+            - Type: AWS::DynamoDB::Table
+              Values: ['arn:aws:dynamodb:*']
+
+  SOC2AuditBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'soc2-audit-${AWS::AccountId}-${AWS::Region}-${Environment}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !Ref SOC2KMSKey
+            BucketKeyEnabled: true
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      ObjectLockEnabled: true
+      ObjectLockConfiguration:
+        ObjectLockEnabled: Enabled
+        Rule:
+          DefaultRetention:
+            Mode: COMPLIANCE
+            Years: 7
+      LifecycleConfiguration:
+        Rules:
+          - Id: SOC2RetentionPolicy
+            Status: Enabled
+            ExpirationInDays: 2555 # 7 years
+            NoncurrentVersionExpirationInDays: 30
+            Transitions:
+              - TransitionInDays: 30
+                StorageClass: STANDARD_IA
+              - TransitionInDays: 90
+                StorageClass: GLACIER
+              - TransitionInDays: 365
+                StorageClass: DEEP_ARCHIVE
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Function: !GetAtt SOC2AuditProcessor.Arn
+
+  SOC2KMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: !Sub 'SOC2 KMS Key for ${Environment} environment'
+      KeyPolicy:
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+          - Sid: Allow CloudTrail Service
+            Effect: Allow
+            Principal:
+              Service:
+                - cloudtrail.amazonaws.com
+                - s3.amazonaws.com
+                - logs.amazonaws.com
+            Action:
+              - kms:Decrypt
+              - kms:Encrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:CreateGrant
+              - kms:DescribeKey
+            Resource: '*'
+          - Sid: Allow Security Hub
+            Effect: Allow
+            Principal:
+              Service: securityhub.amazonaws.com
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+            Resource: '*'
+      KeyUsage: ENCRYPT_DECRYPT
+      KeySpec: SYMMETRIC_DEFAULT
+      MultiRegion: true
+      KeyRotationEnabled: true
+
+  # Access logging and monitoring
+  SOC2AccessLogsProcessor:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'soc2-access-processor-${Environment}'
+      Runtime: python3.9
+      Handler: index.handler
+      Timeout: 300
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          SECURITY_EMAIL: !Ref SecurityContactEmail
+          KMS_KEY_ID: !Ref SOC2KMSKey
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          import os
+          from datetime import datetime
+
+          def handler(event, context):
+              """Process SOC2 audit logs and detect anomalies"""
+              
+              security_email = os.environ['SECURITY_EMAIL']
+              
+              for record in event['Records']:
+                  if record['eventSource'] == 'aws:s3':
+                      process_s3_event(record, security_email)
+                  
+              return {'statusCode': 200}
+
+          def process_s3_event(record, security_email):
+              """Process S3 audit log events"""
+              
+              bucket = record['s3']['bucket']['name']
+              key = record['s3']['object']['key']
+              
+              # Check for sensitive operations
+              if any(pattern in key for pattern in ['cloudtrail', 'config', 'guardduty']):
+                  send_security_alert(f"Critical audit log created: {bucket}/{key}", security_email)
+                  
+          def send_security_alert(message, email):
+              """Send security alert via SNS"""
+              
+              sns = boto3.client('sns')
+              
+              try:
+                  sns.publish(
+                      TopicArn=f"arn:aws:sns:{boto3.Session().region_name}:{boto3.client('sts').get_caller_identity()['Account']}:soc2-security-alerts",
+                      Subject="SOC2 Security Alert",
+                      Message=f"SOC2 Security Alert:\n\n{message}\n\nTimestamp: {datetime.utcnow().isoformat()}Z"
+                  )
+              except Exception as e:
+                  print(f"Failed to send security alert: {str(e)}")
+      Role: !GetAtt SOC2LambdaRole.Arn
+
+  SOC2LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: SOC2AuditProcessing
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                  - kms:Decrypt
+                  - kms:Encrypt
+                  - s3:GetObject
+                Resource:
+                  - !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:soc2-*'
+                  - !GetAtt SOC2KMSKey.Arn
+                  - !Sub '${SOC2AuditBucket}/*'
+
+  # Data loss prevention
+  SOC2DataLossPrevention:
+    Type: AWS::Macie::FindingsFilter
+    Properties:
+      Name: SOC2-Sensitive-Data-Detection
+      Description: Detect sensitive data for SOC2 compliance
+      FindingCriteria:
+        Criterion:
+          type:
+            eq:
+              - SensitiveData:S3Object/Personal
+              - SensitiveData:S3Object/Financial
+              - SensitiveData:S3Object/Credentials
+      Action: ARCHIVE
+
+  # Backup and disaster recovery
+  SOC2BackupPlan:
+    Type: AWS::Backup::BackupPlan
+    Properties:
+      BackupPlan:
+        BackupPlanName: !Sub 'SOC2-Backup-Plan-${Environment}'
+        BackupPlanRule:
+          - RuleName: SOC2DailyBackup
+            TargetBackupVault: !Ref SOC2BackupVault
+            ScheduleExpression: cron(0 2 * * ? *) # Daily at 2 AM
+            StartWindowMinutes: 60
+            CompletionWindowMinutes: 120
+            Lifecycle:
+              DeleteAfterDays: 2555 # 7 years for SOC2 compliance
+              MoveToColdStorageAfterDays: 30
+            RecoveryPointTags:
+              BackupType: SOC2Daily
+              Environment: !Ref Environment
+              DataClassification: !Ref DataClassification
+
+  SOC2BackupVault:
+    Type: AWS::Backup::BackupVault
+    Properties:
+      BackupVaultName: !Sub 'SOC2-Vault-${Environment}'
+      EncryptionKeyArn: !GetAtt SOC2KMSKey.Arn
+      Notifications:
+        BackupVaultEvents:
+          - BACKUP_JOB_STARTED
+          - BACKUP_JOB_COMPLETED
+          - BACKUP_JOB_FAILED
+          - RESTORE_JOB_STARTED
+          - RESTORE_JOB_COMPLETED
+          - RESTORE_JOB_FAILED
+        SNSTopicArn: !Ref SOC2AlertsTopic
+
+  SOC2AlertsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub 'soc2-security-alerts-${Environment}'
+      DisplayName: SOC2 Security Alerts
+      KmsMasterKeyId: !Ref SOC2KMSKey
+
+Outputs:
+  AuditBucketName:
+    Description: SOC2 Audit Bucket Name
+    Value: !Ref SOC2AuditBucket
+    Export:
+      Name: !Sub '${AWS::StackName}-AuditBucket'
+
+  KMSKeyId:
+    Description: SOC2 KMS Key ID
+    Value: !Ref SOC2KMSKey
+    Export:
+      Name: !Sub '${AWS::StackName}-KMSKey'
+
+  BackupVaultArn:
+    Description: SOC2 Backup Vault ARN
+    Value: !GetAtt SOC2BackupVault.BackupVaultArn
+    Export:
+      Name: !Sub '${AWS::StackName}-BackupVault'

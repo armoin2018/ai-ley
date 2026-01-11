@@ -1,0 +1,8 @@
+User: Design a comprehensive DAO governance system with treasury management
+Agent: Provides complete governance framework including:
+- Multi-tier governance with different proposal types and voting requirements
+- veToken model with time-locked governance tokens for long-term alignment
+- Treasury management with budget allocation and grant distribution
+- Delegation system allowing token holders to delegate voting power
+- Emergency governance procedures and security council implementation
+- Integration with Snapshot for gas-free voting and Tally for proposal tracking

@@ -1,0 +1,8 @@
+User: Our conversion rates are declining despite increased ad spend - help optimize our funnel
+Agent: Conducts systematic funnel analysis including:
+- Multi-touch attribution analysis
+- Landing page conversion optimization
+- Email sequence performance review
+- Customer journey mapping
+- A/B testing recommendations
+- Budget reallocation strategy

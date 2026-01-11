@@ -1,0 +1,11 @@
+# Before (v3.4.0)
+version: 3.4.0
+lastUpdated: '2025-10-03T16:30:00.000000'
+keywords: [seo, audit, analysis, ...21 keywords...]
+
+# After (v3.5.0)
+version: 3.5.0
+lastUpdated: '2025-10-03T20:30:00.000000'
+keywords: [seo, audit, analysis, ...29 keywords...]
+# New: website-crawler, per-page-analysis, crawl-site, analyze-pages,
+#      cache-management, robots-txt-compliance, multi-category-scoring

@@ -1,0 +1,222 @@
+# docker-compose.yml for Production OAuth 2.0 Infrastructure
+version: '3.8'
+
+services:
+  # OAuth Authorization Server
+  oauth-auth-server:
+    build:
+      context: ./auth-server
+      dockerfile: Dockerfile
+    container_name: oauth-auth-server
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://oauth:${POSTGRES_PASSWORD}@postgres:5432/oauth_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET_FILE=/run/secrets/jwt_secret
+      - CLIENT_SECRET_KEY_FILE=/run/secrets/client_secret_key
+      - ENCRYPTION_KEY_FILE=/run/secrets/encryption_key
+      - RATE_LIMIT_REDIS_URL=redis://redis:6379/1
+      - AUDIT_LOG_LEVEL=info
+      - TOKEN_EXPIRY_ACCESS=3600
+      - TOKEN_EXPIRY_REFRESH=86400
+      - PKCE_REQUIRED=true
+      - SECURE_COOKIES=true
+    volumes:
+      - ./auth-server/config:/app/config:ro
+      - oauth_logs:/app/logs
+      - audit_logs:/app/audit-logs
+    ports:
+      - '3000:3000'
+    networks:
+      - oauth_network
+    secrets:
+      - jwt_secret
+      - client_secret_key
+      - encryption_key
+    depends_on:
+      - postgres
+      - redis
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+  # OAuth Resource Server
+  oauth-resource-server:
+    build:
+      context: ./resource-server
+      dockerfile: Dockerfile
+    container_name: oauth-resource-server
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - AUTH_SERVER_URL=https://oauth-auth-server:3000
+      - JWT_PUBLIC_KEY_FILE=/run/secrets/jwt_public_key
+      - INTROSPECTION_ENDPOINT=https://oauth-auth-server:3000/introspect
+      - RATE_LIMIT_REDIS_URL=redis://redis:6379/2
+      - AUDIT_LOGGING=true
+    volumes:
+      - resource_logs:/app/logs
+    ports:
+      - '3001:3001'
+    networks:
+      - oauth_network
+    secrets:
+      - jwt_public_key
+    depends_on:
+      - oauth-auth-server
+      - redis
+
+  # Database for OAuth data
+  postgres:
+    image: postgres:15-alpine
+    container_name: oauth-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=oauth_db
+      - POSTGRES_USER=oauth
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password
+      - POSTGRES_INITDB_ARGS=--auth-host=md5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+    networks:
+      - oauth_network
+    secrets:
+      - postgres_password
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+
+  # Redis for session management and rate limiting
+  redis:
+    image: redis:7-alpine
+    container_name: oauth-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+    volumes:
+      - redis_data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - oauth_network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+
+  # Security Monitoring
+  security-monitor:
+    image: prom/prometheus:latest
+    container_name: oauth-prometheus
+    restart: unless-stopped
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./prometheus-oauth.yml:/etc/prometheus/prometheus.yml:ro
+      - ./oauth-alerts.yml:/etc/prometheus/oauth-alerts.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - oauth_network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+
+  # Log Aggregation and SIEM
+  oauth-siem:
+    image: elastic/elasticsearch:7.17.0
+    container_name: oauth-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - '9200:9200'
+    networks:
+      - oauth_network
+
+  # Security Event Analysis
+  kibana:
+    image: elastic/kibana:7.17.0
+    container_name: oauth-kibana
+    restart: unless-stopped
+    environment:
+      - ELASTICSEARCH_HOSTS=http://oauth-siem:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+    ports:
+      - '5601:5601'
+    networks:
+      - oauth_network
+    depends_on:
+      - oauth-siem
+
+  # Load Balancer with WAF
+  oauth-waf:
+    image: nginx:alpine
+    container_name: oauth-nginx-waf
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx-oauth.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    networks:
+      - oauth_network
+    depends_on:
+      - oauth-auth-server
+      - oauth-resource-server
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  oauth_logs:
+    driver: local
+  resource_logs:
+    driver: local
+  audit_logs:
+    driver: local
+  prometheus_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+  nginx_logs:
+    driver: local
+
+networks:
+  oauth_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
+
+secrets:
+  jwt_secret:
+    file: ./secrets/jwt_secret.txt
+  jwt_public_key:
+    file: ./secrets/jwt_public_key.pem
+  client_secret_key:
+    file: ./secrets/client_secret_key.txt
+  encryption_key:
+    file: ./secrets/encryption_key.txt
+  postgres_password:
+    file: ./secrets/postgres_password.txt

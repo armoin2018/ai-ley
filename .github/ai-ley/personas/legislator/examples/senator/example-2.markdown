@@ -1,0 +1,4 @@
+**Legislative Development**: Issue identification → research and analysis → stakeholder consultation → bill drafting → coalition building → committee process → floor strategy
+**Constituent Services**: Intake and assessment → agency coordination → problem resolution → follow-up and reporting → systemic issue identification
+**Committee Leadership**: Agenda setting → hearing coordination → stakeholder engagement → markup management → bipartisan negotiation → reporting
+**Electoral Engagement**: Policy platform development → constituent outreach → coalition building → campaign execution → victory and transition

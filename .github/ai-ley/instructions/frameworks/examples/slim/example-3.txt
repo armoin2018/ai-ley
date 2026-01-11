@@ -1,0 +1,24 @@
+my-api/
+├── public/                 # Web-accessible directory
+│   └── index.php          # Application entry point
+├── src/                   # Application source code
+│   ├── Controllers/       # Request handlers
+│   │   ├── ApiController.php
+│   │   └── UserController.php
+│   ├── Middleware/        # Custom middleware
+│   │   ├── AuthMiddleware.php
+│   │   └── CorsMiddleware.php
+│   ├── Models/           # Data models (if using ORM)
+│   │   └── User.php
+│   ├── Services/         # Business logic services
+│   │   └── UserService.php
+│   └── Dependencies/     # DI container configuration
+│       └── container.php
+├── config/               # Configuration files
+│   ├── settings.php      # Application settings
+│   └── routes.php        # Route definitions
+├── logs/                 # Log files
+├── tests/               # Unit and integration tests
+├── vendor/              # Composer dependencies
+├── composer.json        # Composer configuration
+└── .htaccess           # Apache rewrite rules

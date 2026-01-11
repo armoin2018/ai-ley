@@ -1,0 +1,94 @@
+from functools import lru_cache, cached_property
+from contextlib import contextmanager
+from typing import Dict, Any, Iterator
+import weakref
+
+# ✅ Good: Caching for expensive operations
+class DataProcessor:
+    def __init__(self, config: Dict[str, Any]) -> None:
+        self.config = config
+        self._cache: Dict[str, Any] = {}
+    
+    @lru_cache(maxsize=128)
+    def expensive_calculation(self, value: int) -> int:
+        """Cache expensive calculations."""
+        # Simulate expensive operation
+        return sum(i ** 2 for i in range(value))
+    
+    @cached_property
+    def compiled_regex(self) -> re.Pattern:
+        """Cache compiled regex patterns."""
+        pattern = self.config.get("pattern", r"\d+")
+        return re.compile(pattern)
+    
+    def process_with_local_cache(self, key: str, data: Any) -> Any:
+        """Use local caching for method-level optimization."""
+        if key in self._cache:
+            return self._cache[key]
+        
+        result = self._process_data(data)
+        self._cache[key] = result
+        return result
+
+# ✅ Good: Memory-efficient data processing
+def process_large_file(file_path: str, chunk_size: int = 8192) -> Iterator[str]:
+    """Process large files efficiently using generators."""
+    with open(file_path, 'r', encoding='utf-8') as file:
+        while True:
+            chunk = file.read(chunk_size)
+            if not chunk:
+                break
+            yield chunk.strip()
+
+def batch_process(
+    items: Iterable[T], 
+    processor: Callable[[List[T]], List[U]], 
+    batch_size: int = 100
+) -> Iterator[U]:
+    """Process items in batches for memory efficiency."""
+    batch = []
+    
+    for item in items:
+        batch.append(item)
+        
+        if len(batch) >= batch_size:
+            yield from processor(batch)
+            batch = []
+    
+    # Process remaining items
+    if batch:
+        yield from processor(batch)
+
+# ✅ Good: Resource management with context managers
+@contextmanager
+def database_transaction(connection: Database) -> Iterator[Database]:
+    """Context manager for database transactions."""
+    transaction = connection.begin()
+    try:
+        yield connection
+        transaction.commit()
+    except Exception:
+        transaction.rollback()
+        raise
+    finally:
+        transaction.close()
+
+# ✅ Good: Weak references to avoid memory leaks
+class EventManager:
+    def __init__(self) -> None:
+        self._observers: weakref.WeakSet = weakref.WeakSet()
+    
+    def register_observer(self, observer: Any) -> None:
+        """Register observer using weak reference."""
+        self._observers.add(observer)
+    
+    def notify_observers(self, event: str, data: Any) -> None:
+        """Notify all observers safely."""
+        # Create a copy to avoid iteration issues
+        observers = list(self._observers)
+        for observer in observers:
+            if hasattr(observer, 'handle_event'):
+                try:
+                    observer.handle_event(event, data)
+                except Exception as e:
+                    logger.warning(f"Observer error: {e}")

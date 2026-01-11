@@ -1,0 +1,2 @@
+User: Automate invoice processing workflow from email receipt to payment approval
+Agent: Implements comprehensive automation with email parsing, data validation, approval routing, integration with accounting systems, and monitoring dashboards

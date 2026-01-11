@@ -1,0 +1,214 @@
+# k8s-nmap-scanner.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: security-scanning
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nmap-scanner
+  namespace: security-scanning
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: nmap-scanner
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "daemonsets", "statefulsets"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: nmap-scanner
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: nmap-scanner
+subjects:
+- kind: ServiceAccount
+  name: nmap-scanner
+  namespace: security-scanning
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nmap-enterprise-config
+  namespace: security-scanning
+data:
+  nmap-enterprise.yaml: |
+    database:
+      path: /data/nmap_enterprise.db
+      retention_days: 90
+    scanning:
+      max_threads: 20
+      default_timeout: 300
+      retry_attempts: 3
+      rate_limit: 2000
+    evasion:
+      enable_decoys: true
+      timing_template: T3
+      fragment_packets: false
+      randomize_order: true
+    reporting:
+      formats: ['json', 'xml', 'html']
+      email_alerts: true
+      siem_integration: true
+    threat_intelligence:
+      enable_cve_lookup: true
+      threat_feeds: []
+      reputation_apis: []
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nmap-data-pvc
+  namespace: security-scanning
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: fast-ssd
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nmap-enterprise-scanner
+  namespace: security-scanning
+  labels:
+    app: nmap-scanner
+    component: scanner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nmap-scanner
+      component: scanner
+  template:
+    metadata:
+      labels:
+        app: nmap-scanner
+        component: scanner
+    spec:
+      serviceAccountName: nmap-scanner
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      containers:
+      - name: nmap-scanner
+        image: nmap-enterprise:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: metrics
+        env:
+        - name: DATABASE_PATH
+          value: "/data/nmap_enterprise.db"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: KUBERNETES_MODE
+          value: "true"
+        volumeMounts:
+        - name: nmap-data
+          mountPath: /data
+        - name: nmap-config
+          mountPath: /app/config
+        - name: nmap-logs
+          mountPath: /app/logs
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          capabilities:
+            add:
+            - NET_RAW
+            drop:
+            - ALL
+      volumes:
+      - name: nmap-data
+        persistentVolumeClaim:
+          claimName: nmap-data-pvc
+      - name: nmap-config
+        configMap:
+          name: nmap-enterprise-config
+      - name: nmap-logs
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nmap-scanner-service
+  namespace: security-scanning
+  labels:
+    app: nmap-scanner
+spec:
+  selector:
+    app: nmap-scanner
+    component: scanner
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: metrics
+  type: ClusterIP
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: nmap-scheduled-scan
+  namespace: security-scanning
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: nmap-scanner
+          restartPolicy: OnFailure
+          containers:
+          - name: nmap-scanner
+            image: nmap-enterprise:latest
+            command:
+            - python3
+            - /app/nmap-enterprise-scanner.py
+            args:
+            - --targets
+            - "$(SCAN_TARGETS)"
+            - --scan-type
+            - comprehensive
+            - --evasion-level
+            - medium
+            - --output-dir
+            - /data/reports
+            env:
+            - name: SCAN_TARGETS
+              valueFrom:
+                configMapKeyRef:
+                  name: nmap-enterprise-config
+                  key: scan_targets
+            volumeMounts:
+            - name: nmap-data
+              mountPath: /data
+            - name: nmap-config
+              mountPath: /app/config
+          volumes:
+          - name: nmap-data
+            persistentVolumeClaim:
+              claimName: nmap-data-pvc
+          - name: nmap-config
+            configMap:
+              name: nmap-enterprise-config

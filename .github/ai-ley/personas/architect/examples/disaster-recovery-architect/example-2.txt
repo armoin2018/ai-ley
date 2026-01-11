@@ -1,0 +1,2 @@
+User: Implement disaster recovery for 50TB production database with 4-hour RTO requirement
+Agent: Designs replication strategy with automated backup validation, point-in-time recovery, cross-region synchronization, and automated failover with monitoring

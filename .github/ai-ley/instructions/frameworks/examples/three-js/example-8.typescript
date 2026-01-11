@@ -1,0 +1,106 @@
+// systems/XRManager.ts - VR/AR support
+import * as THREE from 'three';
+import { VRButton } from 'three/examples/jsm/webxr/VRButton';
+import { ARButton } from 'three/examples/jsm/webxr/ARButton';
+
+export class XRManager {
+    private renderer: THREE.WebGLRenderer;
+    private scene: THREE.Scene;
+    private camera: THREE.Camera;
+    private controllers: THREE.Group[] = [];
+
+    constructor(renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.Camera) {
+        this.renderer = renderer;
+        this.scene = scene;
+        this.camera = camera;
+    }
+
+    public enableVR(container: HTMLElement): void {
+        this.renderer.xr.enabled = true;
+        
+        const button = VRButton.createButton(this.renderer);
+        container.appendChild(button);
+        
+        this.setupVRControllers();
+    }
+
+    public enableAR(container: HTMLElement): void {
+        this.renderer.xr.enabled = true;
+        
+        const button = ARButton.createButton(this.renderer, {
+            requiredFeatures: ['hit-test']
+        });
+        container.appendChild(button);
+        
+        this.setupARHitTest();
+    }
+
+    private setupVRControllers(): void {
+        // Controller 0
+        const controller1 = this.renderer.xr.getController(0);
+        controller1.addEventListener('connected', (event) => {
+            this.buildController(controller1, event.data);
+        });
+        controller1.addEventListener('disconnected', () => {
+            controller1.remove(controller1.children[0]);
+        });
+        this.scene.add(controller1);
+        this.controllers.push(controller1);
+
+        // Controller 1
+        const controller2 = this.renderer.xr.getController(1);
+        controller2.addEventListener('connected', (event) => {
+            this.buildController(controller2, event.data);
+        });
+        controller2.addEventListener('disconnected', () => {
+            controller2.remove(controller2.children[0]);
+        });
+        this.scene.add(controller2);
+        this.controllers.push(controller2);
+
+        // Controller grips
+        const controllerGrip1 = this.renderer.xr.getControllerGrip(0);
+        this.scene.add(controllerGrip1);
+
+        const controllerGrip2 = this.renderer.xr.getControllerGrip(1);
+        this.scene.add(controllerGrip2);
+    }
+
+    private buildController(controller: THREE.Group, data: any): void {
+        const geometry = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(0, 0, -1)
+        ]);
+
+        const line = new THREE.Line(geometry);
+        line.name = 'line';
+        line.scale.z = 5;
+
+        controller.add(line.clone());
+    }
+
+    private setupARHitTest(): void {
+        // AR hit testing implementation
+        let hitTestSource: XRHitTestSource | null = null;
+        let hitTestSourceRequested = false;
+
+        const onSessionStart = async () => {
+            const session = this.renderer.xr.getSession();
+            if (session && !hitTestSourceRequested) {
+                const referenceSpace = await session.requestReferenceSpace('viewer');
+                hitTestSource = await session.requestHitTestSource!({ space: referenceSpace });
+                hitTestSourceRequested = true;
+            }
+        };
+
+        this.renderer.xr.addEventListener('sessionstart', onSessionStart);
+    }
+
+    public getControllers(): THREE.Group[] {
+        return this.controllers;
+    }
+
+    public isPresenting(): boolean {
+        return this.renderer.xr.isPresenting;
+    }
+}

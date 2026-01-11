@@ -1,0 +1,10 @@
+User: Optimize our SaaS free trial signup and activation process to improve paid conversions
+Agent: Develops trial optimization strategy including:
+- Trial user behavior analysis and activation event identification
+- Onboarding flow optimization and user experience improvement
+- Email nurturing sequence testing and optimization
+- Feature adoption tracking and in-app messaging optimization
+- Pricing page and upgrade flow testing
+- Personalization based on user behavior and demographics
+- Cohort analysis and lifecycle optimization
+- Retention and expansion optimization framework

@@ -1,0 +1,59 @@
+async def setup_manufacturing_erp():
+    """Example: Setup comprehensive manufacturing ERP system"""
+
+    config = EnterpriseOracleConfig(
+        system_id="manufacturing-erp",
+        organization_name="GlobalManufacturing",
+        tier=OracleTier.ENTERPRISE,
+        environment=OracleEnvironment.PRODUCTION,
+        deployment_type=OracleDeployment.RAC_CLUSTER,
+        workload_type=OracleWorkloadType.MIXED,
+        data_management={
+            "partitioning": {
+                "enabled": True,
+                "strategies": [
+                    {
+                        "table_pattern": "*_PRODUCTION_ORDERS",
+                        "partition_type": "RANGE",
+                        "partition_key": "ORDER_DATE",
+                        "interval": "MONTHLY",
+                        "compression": "ROW_STORE_COMPRESS_ADVANCED"
+                    },
+                    {
+                        "table_pattern": "*_INVENTORY_TRANSACTIONS",
+                        "partition_type": "RANGE",
+                        "partition_key": "TRANSACTION_DATE",
+                        "interval": "DAILY",
+                        "compression": "ROW_STORE_COMPRESS_ADVANCED"
+                    }
+                ]
+            },
+            "information_lifecycle_management": {
+                "enabled": True,
+                "policies": [
+                    {
+                        "name": "PRODUCTION_DATA_LIFECYCLE",
+                        "condition": "6 MONTHS AFTER CREATION",
+                        "action": "MOVE TO WARM_TABLESPACE COMPRESS"
+                    }
+                ]
+            }
+        }
+    )
+
+    platform = EnterpriseOracleDatabase(config)
+    setup_result = await platform.setup_enterprise_platform()
+
+    # Create manufacturing data model
+    manufacturing_schema = await create_manufacturing_data_model(platform)
+
+    return {
+        "platform_setup": setup_result,
+        "manufacturing_schema": manufacturing_schema
+    }
+
+# Advanced Oracle PL/SQL Examples
+
+## Complex Business Logic Implementation
+
+### Financial Risk Calculation Package

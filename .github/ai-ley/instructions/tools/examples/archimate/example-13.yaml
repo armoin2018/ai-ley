@@ -1,0 +1,17 @@
+# TOGAF to ArchiMate viewpoint mapping
+togaf_viewpoints:
+  stakeholder_view:
+    archimate_viewpoint: 'Stakeholder Viewpoint'
+    elements: [Stakeholder, Driver, Assessment, Goal]
+
+  business_model_view:
+    archimate_viewpoint: 'Business Model Viewpoint'
+    elements: [Value Proposition, Customer Segment, Revenue Stream]
+
+  capability_view:
+    archimate_viewpoint: 'Capability Map Viewpoint'
+    elements: [Capability, Resource, Business Service]
+
+  value_stream_view:
+    archimate_viewpoint: 'Value Stream Viewpoint'
+    elements: [Value Stream, Business Process, Stakeholder]

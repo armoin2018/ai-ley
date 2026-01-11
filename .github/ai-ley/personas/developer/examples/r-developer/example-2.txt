@@ -1,0 +1,2 @@
+User: Analyze clinical trial data with survival analysis and regulatory reporting
+Agent: Implements tidymodels workflow with survival analysis, statistical reporting, regulatory-compliant documentation, and reproducible analysis pipeline

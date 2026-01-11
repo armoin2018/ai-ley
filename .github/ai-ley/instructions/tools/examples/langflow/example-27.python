@@ -1,0 +1,70 @@
+# Compare responses from multiple LLMs
+parallel_comparison = {
+    "components": [
+        {
+            "type": "TextInput",
+            "name": "question"
+        },
+        {
+            "type": "OpenAI",
+            "name": "gpt4_response",
+            "config": {
+                "model": "gpt-4",
+                "temperature": 0.1
+            }
+        },
+        {
+            "type": "Anthropic",
+            "name": "claude_response",
+            "config": {
+                "model": "claude-3-sonnet-20240229",
+                "temperature": 0.1
+            }
+        },
+        {
+            "type": "HuggingFace",
+            "name": "llama_response",
+            "config": {
+                "model": "meta-llama/Llama-2-7b-chat-hf",
+                "temperature": 0.1
+            }
+        },
+        {
+            "type": "PythonFunction",
+            "name": "response_aggregator",
+            "config": {
+                "code": """
+def aggregate_responses(gpt4: str, claude: str, llama: str) -> dict:
+    responses = {
+        "GPT-4": gpt4,
+        "Claude": claude,
+        "Llama": llama
+    }
+
+    # Simple scoring based on length and completeness
+    scores = {}
+    for model, response in responses.items():
+        score = len(response.split()) / 10  # Simple word count score
+        scores[model] = min(score, 10)  # Cap at 10
+
+    best_model = max(scores, key=scores.get)
+
+    return {
+        "responses": responses,
+        "scores": scores,
+        "best_response": responses[best_model],
+        "best_model": best_model
+    }
+                """
+            }
+        }
+    ],
+    "connections": [
+        {"from": "question.text", "to": "gpt4_response.prompt"},
+        {"from": "question.text", "to": "claude_response.prompt"},
+        {"from": "question.text", "to": "llama_response.prompt"},
+        {"from": "gpt4_response.text", "to": "response_aggregator.gpt4"},
+        {"from": "claude_response.text", "to": "response_aggregator.claude"},
+        {"from": "llama_response.text", "to": "response_aggregator.llama"}
+    ]
+}

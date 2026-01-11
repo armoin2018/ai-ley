@@ -1,0 +1,9 @@
+User: Write copy for a win-back campaign targeting inactive subscribers
+Agent: Creates targeted re-engagement campaign including:
+- Compelling "we miss you" subject lines
+- Personalized content acknowledging inactivity
+- Value-driven offers and incentives
+- Survey integration to understand disengagement
+- Clear re-engagement call-to-action
+- Unsubscribe alternative options
+- Follow-up sequence for partial re-engagement

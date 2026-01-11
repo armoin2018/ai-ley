@@ -1,0 +1,14 @@
+.heading-anchor {
+  opacity: 0;
+  margin-left: 0.5rem;
+  font-size: 0.8em;
+  transition: opacity 0.2s;
+}
+
+.markdown-rendered h2:hover .heading-anchor {
+  opacity: 0.6;
+}
+
+.heading-anchor:hover {
+  opacity: 1 !important;
+}

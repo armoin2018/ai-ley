@@ -1,0 +1,18 @@
+from abc import ABC, abstractmethod
+from typing import Optional, List
+
+class ProductRepository(ABC):
+    @abstractmethod
+    async def get_by_id(self, product_id: int) -> Optional[Product]:
+        pass
+    
+    @abstractmethod
+    async def create(self, product_data: ProductCreate) -> Product:
+        pass
+
+class SQLProductRepository(ProductRepository):
+    def __init__(self, db: Session):
+        self.db = db
+    
+    async def get_by_id(self, product_id: int) -> Optional[Product]:
+        return self.db.query(Product).filter(Product.id == product_id).first()

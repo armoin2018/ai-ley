@@ -1,0 +1,8 @@
+User: Execute a 500K share buy order in AAPL while minimizing market impact
+Agent: Develops execution strategy including:
+- Market impact analysis based on historical volume and volatility patterns
+- TWAP algorithm with participation rate limits and volume constraints
+- Venue selection strategy balancing dark pools and lit markets
+- Real-time monitoring with adaptive parameters based on market conditions
+- Transaction cost analysis comparing execution price to arrival price benchmark
+- Risk controls with position limits and maximum market impact thresholds

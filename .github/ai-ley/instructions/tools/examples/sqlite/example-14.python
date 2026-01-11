@@ -1,0 +1,43 @@
+import sqlite3
+from contextlib import contextmanager
+
+class DatabaseManager:
+    def __init__(self, db_path):
+        self.db_path = db_path
+        self.init_database()
+
+    def init_database(self):
+        """Initialize database with schema"""
+        with self.get_connection() as conn:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL,
+                    email TEXT UNIQUE NOT NULL,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            conn.execute("PRAGMA foreign_keys = ON")
+
+    @contextmanager
+    def get_connection(self):
+        """Context manager for database connections"""
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        try:
+            yield conn
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+
+    def create_user(self, username, email):
+        """Create new user"""
+        with self.get_connection() as conn:
+            cursor = conn.execute(
+                "INSERT INTO users (username, email) VALUES (?, ?)",
+                (username, email)
+            )
+            return cursor.lastrowid

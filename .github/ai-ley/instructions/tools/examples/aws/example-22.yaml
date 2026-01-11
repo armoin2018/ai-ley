@@ -1,0 +1,25 @@
+# CloudWatch Log Group
+LogGroup:
+  Type: AWS::Logs::LogGroup
+  Properties:
+    LogGroupName: /aws/lambda/my-function
+    RetentionInDays: 14
+
+# CloudWatch Alarm
+CPUAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmName: HighCPUUtilization
+    AlarmDescription: Alert when CPU exceeds 80%
+    MetricName: CPUUtilization
+    Namespace: AWS/EC2
+    Statistic: Average
+    Period: 300
+    EvaluationPeriods: 2
+    Threshold: 80
+    ComparisonOperator: GreaterThanThreshold
+    Dimensions:
+      - Name: InstanceId
+        Value: !Ref WebServer
+    AlarmActions:
+      - !Ref SNSTopic

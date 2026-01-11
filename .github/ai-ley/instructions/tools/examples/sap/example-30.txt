@@ -1,0 +1,3 @@
+/nCG3Y        # Download from Server
+/nCG3Z        # Upload to Server
+/nAL11        # SAP Directories

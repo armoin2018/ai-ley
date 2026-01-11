@@ -1,0 +1,56 @@
+import { test, expect } from '@playwright/test'
+
+test.describe('Contact form', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/contact')
+  })
+
+  test('valid form submission', async ({ page }) => {
+    // Fill form fields
+    await page.fill('#name', 'John Doe')
+    await page.fill('#email', 'john@example.com')
+    await page.selectOption('#subject', 'general')
+    await page.fill('#message', 'This is a test message.')
+    await page.check('#terms')
+
+    // Submit form
+    await page.click('button[type="submit"]')
+
+    // Verify success
+    await expect(page.locator('.success-message')).toBeVisible()
+    await expect(page.locator('.success-message')).toContainText('Thank you')
+  })
+
+  test('form validation errors', async ({ page }) => {
+    // Try to submit empty form
+    await page.click('button[type="submit"]')
+
+    // Check validation errors
+    await expect(page.locator('#name-error')).toContainText('Name is required')
+    await expect(page.locator('#email-error')).toContainText('Email is required')
+    await expect(page.locator('#message-error')).toContainText('Message is required')
+  })
+
+  test('email format validation', async ({ page }) => {
+    await page.fill('#email', 'invalid-email')
+    await page.blur('#email')
+
+    await expect(page.locator('#email-error')).toContainText('Please enter a valid email')
+  })
+
+  test('file upload', async ({ page }) => {
+    // Upload file
+    await page.setInputFiles('#attachment', 'test-files/sample.pdf')
+
+    // Verify file selected
+    await expect(page.locator('.file-info')).toContainText('sample.pdf')
+
+    // Submit form
+    await page.fill('#name', 'John Doe')
+    await page.fill('#email', 'john@example.com')
+    await page.fill('#message', 'Message with attachment')
+    await page.click('button[type="submit"]')
+
+    await expect(page.locator('.success-message')).toBeVisible()
+  })
+})

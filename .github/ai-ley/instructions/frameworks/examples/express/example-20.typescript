@@ -1,0 +1,59 @@
+// src/tests/middleware/auth.test.ts
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+import { authMiddleware } from '../../middleware/auth';
+import { AppError } from '../../utils/AppError';
+
+describe('Auth Middleware', () => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let next: NextFunction;
+
+  beforeEach(() => {
+    req = {
+      headers: {},
+    };
+    res = {};
+    next = jest.fn();
+  });
+
+  it('should authenticate valid token', () => {
+    const payload = { id: 'user-id', email: 'test@example.com' };
+    const token = jwt.sign(payload, 'test-secret-key');
+
+    req.headers = {
+      authorization: `Bearer ${token}`,
+    };
+
+    authMiddleware(req as Request, res as Response, next);
+
+    expect(req.user).toEqual(payload);
+    expect(next).toHaveBeenCalledWith();
+  });
+
+  it('should reject request without token', () => {
+    authMiddleware(req as Request, res as Response, next);
+
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({
+        statusCode: 401,
+        message: 'Access denied. No token provided.',
+      })
+    );
+  });
+
+  it('should reject invalid token', () => {
+    req.headers = {
+      authorization: 'Bearer invalid-token',
+    };
+
+    authMiddleware(req as Request, res as Response, next);
+
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({
+        statusCode: 401,
+        message: 'Invalid token.',
+      })
+    );
+  });
+});

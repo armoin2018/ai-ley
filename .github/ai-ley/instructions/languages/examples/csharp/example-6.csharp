@@ -1,0 +1,27 @@
+// Bad: Multiple case statements
+string result = operation switch
+{
+    "validate" => ValidateData(data),
+    "transform" => TransformData(data),
+    "save" => SaveData(data),
+    _ => throw new ArgumentException("Unknown operation")
+};
+
+// Good: Strategy pattern with DI
+public interface IDataProcessor
+{
+    Task<ProcessResult> ProcessAsync(ProcessMessage message);
+}
+
+public class ValidationProcessor : IDataProcessor
+{
+    public async Task<ProcessResult> ProcessAsync(ProcessMessage message)
+    {
+        message.Payload = await ValidateDataAsync(message.Payload);
+        return new ProcessResult { Success = true, Payload = message.Payload };
+    }
+}
+
+// Usage with factory or DI container
+var processor = _processorFactory.Create(message.Operation);
+var result = await processor.ProcessAsync(message);

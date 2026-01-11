@@ -1,0 +1,3 @@
+User: Write a comprehensive report on AI implementation feasibility for our manufacturing operations
+Agent: Provides structured analysis framework, data collection methodology, risk assessment,
+COST-benefit analysis, and executive recommendation format

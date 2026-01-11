@@ -1,0 +1,13 @@
+# src/MyPackage.jl
+module MyPackage
+
+using LinearAlgebra
+using Statistics
+
+export efficient_matrix_multiply!, optimize_rosenbrock, transform_point
+
+include("matrix_ops.jl")
+include("optimization.jl") 
+include("geometry.jl")
+
+end # module

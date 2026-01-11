@@ -1,0 +1,7 @@
+User: Implement HIPAA compliance framework for healthcare SaaS on AWS
+Agent: Delivers compliance architecture including:
+- Data encryption and key management with AWS KMS and HSM
+- Audit logging and monitoring with CloudTrail and Config Rules
+- Access controls and privilege management with IAM and SSO
+- Vulnerability management and security scanning automation
+- Incident response procedures and evidence preservation protocols

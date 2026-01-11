@@ -1,0 +1,112 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "erc721a/contracts/ERC721A.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/interfaces/IERC2981.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+
+contract OptimizedNFTCollection is ERC721A, IERC2981, Ownable, ReentrancyGuard {
+    uint256 public constant MAX_SUPPLY = 10000;
+    uint256 public constant PUBLIC_PRICE = 0.05 ether;
+    uint256 public constant WHITELIST_PRICE = 0.03 ether;
+    uint256 public constant MAX_PER_WALLET = 5;
+    
+    bytes32 public merkleRoot;
+    string private _baseTokenURI;
+    string private _unrevealedURI;
+    bool public revealed;
+    bool public publicSaleActive;
+    bool public whitelistSaleActive;
+    
+    uint96 public royaltyFeeBps = 750; // 7.5%
+    address public royaltyReceiver;
+    
+    mapping(address => uint256) public whitelistMinted;
+    mapping(address => uint256) public publicMinted;
+    
+    event RoyaltyUpdated(address receiver, uint96 feeBps);
+    event BaseURIUpdated(string newBaseURI);
+    event Revealed(string baseURI);
+    
+    constructor(
+        string memory name,
+        string memory symbol,
+        string memory unrevealedURI,
+        address _royaltyReceiver,
+        bytes32 _merkleRoot
+    ) ERC721A(name, symbol) {
+        _unrevealedURI = unrevealedURI;
+        royaltyReceiver = _royaltyReceiver;
+        merkleRoot = _merkleRoot;
+    }
+    
+    function whitelistMint(
+        uint256 quantity,
+        bytes32[] calldata proof
+    ) external payable nonReentrant {
+        require(whitelistSaleActive, "Whitelist sale not active");
+        require(_totalMinted() + quantity <= MAX_SUPPLY, "Exceeds max supply");
+        require(whitelistMinted[msg.sender] + quantity <= MAX_PER_WALLET, "Exceeds wallet limit");
+        require(msg.value >= WHITELIST_PRICE * quantity, "Insufficient payment");
+        
+        // Verify merkle proof
+        bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
+        require(MerkleProof.verify(proof, merkleRoot, leaf), "Invalid proof");
+        
+        whitelistMinted[msg.sender] += quantity;
+        _mint(msg.sender, quantity);
+    }
+    
+    function publicMint(uint256 quantity) external payable nonReentrant {
+        require(publicSaleActive, "Public sale not active");
+        require(_totalMinted() + quantity <= MAX_SUPPLY, "Exceeds max supply");
+        require(publicMinted[msg.sender] + quantity <= MAX_PER_WALLET, "Exceeds wallet limit");
+        require(msg.value >= PUBLIC_PRICE * quantity, "Insufficient payment");
+        
+        publicMinted[msg.sender] += quantity;
+        _mint(msg.sender, quantity);
+    }
+    
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+        if (!_exists(tokenId)) revert URIQueryForNonexistentToken();
+        
+        if (!revealed) {
+            return _unrevealedURI;
+        }
+        
+        string memory baseURI = _baseURI();
+        return bytes(baseURI).length != 0 ? string(abi.encodePacked(baseURI, _toString(tokenId), ".json")) : "";
+    }
+    
+    function _baseURI() internal view virtual override returns (string memory) {
+        return _baseTokenURI;
+    }
+    
+    function reveal(string calldata baseURI) external onlyOwner {
+        _baseTokenURI = baseURI;
+        revealed = true;
+        emit Revealed(baseURI);
+    }
+    
+    // ERC-2981 Royalty Standard
+    function royaltyInfo(uint256, uint256 salePrice) 
+        external 
+        view 
+        override 
+        returns (address, uint256) 
+    {
+        return (royaltyReceiver, (salePrice * royaltyFeeBps) / 10000);
+    }
+    
+    function supportsInterface(bytes4 interfaceId) 
+        public 
+        view 
+        virtual 
+        override(ERC721A, IERC165) 
+        returns (bool) 
+    {
+        return interfaceId == type(IERC2981).interfaceId || super.supportsInterface(interfaceId);
+    }
+}

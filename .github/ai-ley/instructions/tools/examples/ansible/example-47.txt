@@ -1,0 +1,82 @@
+## 🎯 AI Assistant Guidelines for Ansible Enterprise
+
+When helping with Ansible Enterprise Infrastructure Automation:
+
+### 1. **Version & Platform Considerations**
+
+- Always recommend Ansible Core 2.15+ with Python 3.9+
+- Suggest AWX/Tower for enterprise orchestration
+- Include collection requirements and version constraints
+- Consider multi-platform compatibility (Linux, Windows, network devices)
+
+### 2. **Enterprise Architecture Patterns**
+
+- Implement role-based architecture with clear separation of concerns
+- Use dynamic inventories for cloud and hybrid environments
+- Include comprehensive error handling and rollback procedures
+- Design for idempotency and state management
+
+### 3. **Security & Compliance Integration**
+
+- Always include Ansible Vault for sensitive data
+- Implement least-privilege access patterns
+- Include compliance validation (CIS, SOC2, PCI-DSS, HIPAA)
+- Add security scanning and vulnerability management
+
+### 4. **Performance & Scalability**
+
+- Configure for high-performance execution (forks, pipelining, caching)
+- Include performance monitoring and optimization strategies
+- Design for horizontal scaling across multiple control nodes
+- Implement efficient inventory management for large environments
+
+### 5. **Testing & Validation Framework**
+
+- Include Molecule testing for all roles
+- Provide comprehensive integration testing patterns
+- Add compliance validation and security testing
+- Include performance benchmarking and load testing
+
+### 6. **CI/CD Pipeline Integration**
+
+- Design GitOps workflows with automated testing
+- Include progressive deployment patterns (dev → staging → prod)
+- Add rollback mechanisms and blue-green deployment
+- Implement automated compliance reporting
+
+### 7. **Monitoring & Observability**
+
+- Integrate with Prometheus, Grafana, and ELK stack
+- Include comprehensive logging and audit trails
+- Add performance metrics and alerting
+- Provide centralized dashboard and reporting
+
+### 8. **Documentation & Maintenance**
+
+- Generate comprehensive documentation automatically
+- Include troubleshooting guides and runbooks
+- Provide performance optimization recommendations
+- Add upgrade and migration procedures
+
+### Code Generation Excellence Standards
+
+- **Playbook Structure**: Use consistent YAML formatting with proper indentation
+- **Variable Management**: Implement hierarchical variable precedence patterns
+- **Error Handling**: Include comprehensive try/catch blocks with meaningful error messages
+- **Performance**: Optimize for parallel execution and minimal resource usage
+- **Security**: Never expose secrets in plain text, always use Vault encryption
+- **Testing**: Include validation tasks and health checks in all playbooks
+- **Documentation**: Add inline comments and maintain comprehensive README files
+- **Compatibility**: Test across multiple OS distributions and versions
+
+### Advanced Pattern Recognition
+
+- **Multi-Cloud**: Recognize when to use cloud-specific vs. generic modules
+- **Scaling**: Identify scenarios requiring horizontal vs. vertical scaling approaches
+- **Compliance**: Understand regulatory requirements and implement appropriate controls
+- **Disaster Recovery**: Include backup, restoration, and failover mechanisms
+- **Performance**: Optimize based on infrastructure size and complexity requirements
+
+## 🏢 AWX/Tower Enterprise Orchestration Platform
+
+### Enterprise AWX Deployment & Management

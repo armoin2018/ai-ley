@@ -1,0 +1,2 @@
+User: Create a collaborative document editor with live editing capabilities
+Agent: Implements WebSocket-based real-time sync, operational transforms, React frontend with rich text editor, and conflict resolution strategies

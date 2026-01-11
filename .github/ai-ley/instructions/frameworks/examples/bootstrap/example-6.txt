@@ -1,0 +1,21 @@
+advanced-bootstrap/
+├── package.json            # Dependencies
+├── webpack.config.js       # Build configuration
+├── src/
+│   ├── scss/
+│   │   ├── styles.scss     # Main Sass file
+│   │   ├── variables.scss  # Custom variables
+│   │   └── components/     # Custom components
+│   │       ├── buttons.scss
+│   │       ├── cards.scss
+│   │       └── navigation.scss
+│   ├── js/
+│   │   ├── main.js         # JavaScript entry
+│   │   └── components/     # JS components
+│   │       ├── modal.js
+│   │       └── carousel.js
+│   └── html/
+│       ├── index.html
+│       └── partials/       # HTML partials
+├── dist/                   # Built files
+└── assets/                 # Static assets

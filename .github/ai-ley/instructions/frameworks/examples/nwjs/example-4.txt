@@ -1,0 +1,29 @@
+nwjs-app/
+├── package.json             # NW.js app configuration
+├── src/
+│   ├── index.html           # Main HTML file
+│   ├── main.js              # Main application logic
+│   ├── style.css            # Application styles
+│   ├── components/          # UI components
+│   │   ├── header.js
+│   │   ├── sidebar.js
+│   │   └── main-content.js
+│   ├── modules/             # Node.js modules
+│   │   ├── file-manager.js
+│   │   ├── system-info.js
+│   │   └── database.js
+│   ├── utils/               # Utility functions
+│   │   ├── helpers.js
+│   │   └── constants.js
+│   └── assets/              # Static assets
+│       ├── images/
+│       ├── fonts/
+│       └── icons/
+├── node_modules/            # Node.js dependencies
+├── build/                   # Build scripts
+├── dist/                    # Built application
+├── assets/                  # Application icons
+│   ├── icon.icns           # macOS icon
+│   ├── icon.ico            # Windows icon
+│   └── icon.png            # Linux icon
+└── docs/                    # Documentation

@@ -1,0 +1,37 @@
+qt_python_app/
+├── main.py                  # Application entry point
+├── src/
+│   ├── __init__.py
+│   ├── application.py       # Main application class
+│   ├── mainwindow.py        # Main window
+│   ├── ui/                  # UI files
+│   │   ├── __init__.py
+│   │   ├── mainwindow.ui    # Designer files
+│   │   └── generated/       # Auto-generated UI code
+│   │       └── ui_mainwindow.py
+│   ├── widgets/             # Custom widgets
+│   │   ├── __init__.py
+│   │   ├── custom_button.py
+│   │   └── file_explorer.py
+│   ├── models/              # Data models
+│   │   ├── __init__.py
+│   │   ├── file_model.py
+│   │   └── settings_model.py
+│   ├── controllers/         # Business logic
+│   │   ├── __init__.py
+│   │   └── file_controller.py
+│   └── utils/               # Utilities
+│       ├── __init__.py
+│       ├── settings.py
+│       └── resources.py
+├── resources/               # Application resources
+│   ├── icons/
+│   ├── ui/
+│   ├── translations/
+│   └── resources.qrc
+├── tests/                   # Unit tests
+│   ├── test_models.py
+│   └── test_widgets.py
+├── requirements.txt         # Python dependencies
+├── setup.py                # Installation script
+└── pyproject.toml          # Modern Python project config

@@ -1,0 +1,15 @@
+src/
+  components/       # Reusable UI components (React/Vue)
+  controllers/      # API route handlers (Express)
+  services/         # Business logic layer
+  repositories/     # Data access layer
+  utils/           # Utility functions
+  types/           # Type definitions (JSDoc or TypeScript)
+  config/          # Configuration files
+  middleware/      # Express middleware
+tests/
+  unit/            # Unit tests
+  integration/     # Integration tests
+  e2e/            # End-to-end tests
+docs/              # Documentation
+public/           # Static assets (browser)

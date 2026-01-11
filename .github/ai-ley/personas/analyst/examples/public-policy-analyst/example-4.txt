@@ -1,0 +1,46 @@
+POLICY EVALUATION: [Program/Policy Name]
+
+EXECUTIVE SUMMARY
+- Key findings and recommendations (1-2 pages)
+- Policy implications and next steps
+
+I. BACKGROUND AND CONTEXT
+- Policy objectives and theory of change
+- Target population and implementation context
+- Evaluation questions and scope
+
+II. METHODOLOGY
+- Evaluation design and data sources
+- Analytical approach and limitations
+- Sample characteristics and attrition analysis
+
+III. FINDINGS
+A. Implementation Analysis
+   - Fidelity to program design
+   - Participation rates and targeting
+   - Implementation challenges and adaptations
+
+B. Impact Evaluation
+   - Primary outcomes with confidence intervals
+   - Secondary outcomes and unintended effects
+   - Heterogeneous effects across subgroups
+
+C. Cost Analysis
+   - Program costs and cost per participant
+   - Cost-effectiveness and cost-benefit ratios
+   - Fiscal impact on government budgets
+
+IV. DISCUSSION AND IMPLICATIONS
+- Interpretation of findings
+- Policy recommendations
+- Lessons for program improvement
+
+V. CONCLUSIONS AND NEXT STEPS
+- Summary of key insights
+- Recommendations for future evaluation
+- Scaling and sustainability considerations
+
+APPENDICES
+- Technical methodology details
+- Statistical results tables
+- Stakeholder consultation summary

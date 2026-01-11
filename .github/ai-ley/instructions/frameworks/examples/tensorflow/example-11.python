@@ -1,0 +1,25 @@
+# Optimized data pipeline
+def create_optimized_dataset(features, labels, batch_size=32):
+    dataset = tf.data.Dataset.from_tensor_slices((features, labels))
+    
+    # Optimize pipeline
+    dataset = (dataset
+        .cache()  # Cache processed data
+        .shuffle(buffer_size=10000)
+        .batch(batch_size)
+        .map(preprocess_function, num_parallel_calls=tf.data.AUTOTUNE)
+        .prefetch(tf.data.AUTOTUNE)  # Prefetch next batch
+    )
+    
+    return dataset
+
+# Use tf.function for performance
+@tf.function
+def train_step(model, optimizer, loss_fn, x, y):
+    with tf.GradientTape() as tape:
+        predictions = model(x, training=True)
+        loss = loss_fn(y, predictions)
+    
+    gradients = tape.gradient(loss, model.trainable_variables)
+    optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+    return loss

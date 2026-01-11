@@ -1,0 +1,128 @@
+using UnityEngine;
+using System.Collections;
+
+// Player controller component
+public class PlayerController : MonoBehaviour
+{
+    [Header("Movement Settings")]
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float jumpForce = 10f;
+    
+    [Header("Ground Detection")]
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private float groundCheckRadius = 0.2f;
+    
+    // Component references
+    private Rigidbody2D rb;
+    private Animator animator;
+    private SpriteRenderer spriteRenderer;
+    
+    // Input and state
+    private Vector2 moveInput;
+    private bool isGrounded;
+    private bool facingRight = true;
+    
+    // Animation hashes for performance
+    private int speedHash;
+    private int jumpHash;
+    private int groundedHash;
+    
+    void Awake()
+    {
+        // Cache component references
+        rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        
+        // Cache animation parameter hashes
+        speedHash = Animator.StringToHash("Speed");
+        jumpHash = Animator.StringToHash("Jump");
+        groundedHash = Animator.StringToHash("IsGrounded");
+    }
+    
+    void Start()
+    {
+        // Initialize player state
+        if (rb == null)
+        {
+            Debug.LogError("Rigidbody2D component missing on " + gameObject.name);
+        }
+    }
+    
+    void Update()
+    {
+        HandleInput();
+        CheckGrounded();
+        UpdateAnimations();
+    }
+    
+    void FixedUpdate()
+    {
+        HandleMovement();
+    }
+    
+    private void HandleInput()
+    {
+        // Get input from Input System or legacy Input Manager
+        moveInput.x = Input.GetAxisRaw("Horizontal");
+        
+        // Jump input with ground check
+        if (Input.GetButtonDown("Jump") && isGrounded)
+        {
+            Jump();
+        }
+    }
+    
+    private void HandleMovement()
+    {
+        // Apply horizontal movement
+        Vector2 velocity = rb.velocity;
+        velocity.x = moveInput.x * moveSpeed;
+        rb.velocity = velocity;
+        
+        // Handle sprite flipping
+        if (moveInput.x > 0 && !facingRight)
+        {
+            Flip();
+        }
+        else if (moveInput.x < 0 && facingRight)
+        {
+            Flip();
+        }
+    }
+    
+    private void Jump()
+    {
+        rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+        animator.SetTrigger(jumpHash);
+    }
+    
+    private void CheckGrounded()
+    {
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+        animator.SetBool(groundedHash, isGrounded);
+    }
+    
+    private void UpdateAnimations()
+    {
+        // Update animator parameters
+        animator.SetFloat(speedHash, Mathf.Abs(moveInput.x));
+    }
+    
+    private void Flip()
+    {
+        facingRight = !facingRight;
+        spriteRenderer.flipX = !facingRight;
+    }
+    
+    // Gizmos for debugging
+    void OnDrawGizmosSelected()
+    {
+        if (groundCheck != null)
+        {
+            Gizmos.color = isGrounded ? Color.green : Color.red;
+            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+        }
+    }
+}

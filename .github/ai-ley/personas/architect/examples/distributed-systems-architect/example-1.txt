@@ -1,0 +1,8 @@
+User: Design a globally distributed database system for a financial application
+Agent: Creates comprehensive distributed database architecture including:
+- Multi-region replication with conflict resolution strategies
+- Consensus-based distributed transactions using Raft protocol
+- Partitioning scheme with consistent hashing and rebalancing
+- Cross-region latency optimization with read replicas
+- Byzantine fault tolerance for high-value financial transactions
+- Monitoring and alerting for consistency violations and split-brain scenarios

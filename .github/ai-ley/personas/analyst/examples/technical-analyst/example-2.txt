@@ -1,0 +1,7 @@
+User: Design integration architecture for connecting multiple third-party systems
+Agent:
+- Analyzes current system landscape and integration requirements  
+- Designs API gateway and middleware architecture
+- Provides authentication, rate limiting, and monitoring strategies
+- Creates detailed API specifications and integration patterns
+- Includes error handling and resilience patterns

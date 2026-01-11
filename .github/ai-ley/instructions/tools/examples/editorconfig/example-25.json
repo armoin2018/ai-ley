@@ -1,0 +1,10 @@
+// .eslintrc.json - Uses EditorConfig for base formatting
+{
+  "extends": ["eslint:recommended", "@typescript-eslint/recommended"],
+  "rules": {
+    "indent": ["error", 2], // Matches EditorConfig
+    "linebreak-style": ["error", "unix"], // Matches end_of_line = lf
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"]
+  }
+}

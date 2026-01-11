@@ -1,0 +1,61 @@
+{
+  "title": "Layer Toggle with Visual Feedback",
+  "rules": [
+    {
+      "description": "Spacebar held → Navigation layer active",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "spacebar",
+            "modifiers": {
+              "optional": ["any"]
+            }
+          },
+          "to": [
+            {
+              "set_variable": {
+                "name": "nav_layer",
+                "value": 1
+              }
+            }
+          ],
+          "to_after_key_up": [
+            {
+              "set_variable": {
+                "name": "nav_layer",
+                "value": 0
+              }
+            }
+          ],
+          "to_if_alone": [
+            {
+              "key_code": "spacebar"
+            }
+          ],
+          "parameters": {
+            "basic.to_if_alone_timeout_milliseconds": 300
+          }
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "h"
+          },
+          "to": [
+            {
+              "key_code": "left_arrow"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "nav_layer",
+              "value": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

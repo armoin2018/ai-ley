@@ -1,0 +1,98 @@
+describe('UsersController (Integration)', () => {
+  let app: INestApplication;
+  let usersService: UsersService;
+
+  const mockUsersService = {
+    findAll: jest.fn(),
+    findOne: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    remove: jest.fn(),
+  };
+
+  beforeEach(async () => {
+    const moduleRef: TestingModule = await Test.createTestingModule({
+      controllers: [UsersController],
+      providers: [
+        {
+          provide: UsersService,
+          useValue: mockUsersService,
+        },
+      ],
+    })
+    .overrideGuard(JwtAuthGuard)
+    .useValue({ canActivate: jest.fn(() => true) })
+    .compile();
+
+    app = moduleRef.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({ transform: true }));
+    await app.init();
+
+    usersService = moduleRef.get<UsersService>(UsersService);
+  });
+
+  afterEach(async () => {
+    await app.close();
+    jest.clearAllMocks();
+  });
+
+  describe('GET /users', () => {
+    it('should return an array of users', async () => {
+      const expectedUsers = [
+        { id: '1', email: 'user1@example.com', name: 'User 1' },
+        { id: '2', email: 'user2@example.com', name: 'User 2' },
+      ];
+
+      mockUsersService.findAll.mockResolvedValue(expectedUsers);
+
+      const response = await request(app.getHttpServer())
+        .get('/users')
+        .expect(200);
+
+      expect(response.body).toEqual(expectedUsers);
+      expect(usersService.findAll).toHaveBeenCalled();
+    });
+  });
+
+  describe('POST /users', () => {
+    it('should create a new user', async () => {
+      const createUserDto = {
+        email: 'newuser@example.com',
+        name: 'New User',
+        password: 'password123',
+      };
+
+      const createdUser = {
+        id: 'new-uuid',
+        ...createUserDto,
+        createdAt: new Date(),
+      };
+
+      mockUsersService.create.mockResolvedValue(createdUser);
+
+      const response = await request(app.getHttpServer())
+        .post('/users')
+        .send(createUserDto)
+        .expect(201);
+
+      expect(response.body).toEqual(createdUser);
+      expect(usersService.create).toHaveBeenCalledWith(createUserDto);
+    });
+
+    it('should return 400 for invalid input', async () => {
+      const invalidDto = {
+        email: 'invalid-email', // Invalid email format
+        name: '', // Empty name
+      };
+
+      await request(app.getHttpServer())
+        .post('/users')
+        .send(invalidDto)
+        .expect(400)
+        .expect(res => {
+          expect(res.body.message).toContain('email must be an email');
+          expect(res.body.message).toContain('name should not be empty');
+        });
+    });
+  });
+});

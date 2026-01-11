@@ -1,0 +1,2 @@
+User: Optimize multi-database application experiencing performance bottlenecks
+Agent: Analyzes query patterns across databases, implements proper indexing, optimizes data flow, sets up monitoring, and provides scaling recommendations

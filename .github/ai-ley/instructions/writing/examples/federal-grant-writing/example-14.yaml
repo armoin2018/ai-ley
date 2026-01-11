@@ -1,0 +1,26 @@
+# Federal Grant Management Workflow
+federal_grant_pipeline:
+  - stage: registration
+    tools: [sam_gov, grants_gov, agency_portals]
+    outputs: [active_registrations, user_accounts, system_access]
+    timeline: "30-45 days before first application"
+
+  - stage: opportunity_identification
+    tools: [grants_gov_search, agency_websites, rss_feeds, professional_networks]
+    outputs: [opportunity_list, alignment_matrix, competitive_analysis]
+    timeline: "6-12 months before application deadline"
+
+  - stage: proposal_development
+    tools: [collaborative_platforms, budget_calculators, compliance_checklists]
+    outputs: [proposal_narrative, detailed_budget, supporting_documents]
+    timeline: "3-6 months development period"
+
+  - stage: submission
+    tools: [grants_gov_workspace, pdf_converters, format_validators]
+    outputs: [submitted_application, confirmation_receipts, tracking_numbers]
+    timeline: "48 hours before deadline"
+
+  - stage: post_award_management
+    tools: [financial_systems, reporting_platforms, compliance_trackers]
+    outputs: [progress_reports, financial_reports, compliance_documentation]
+    timeline: "Award duration plus 90 days"

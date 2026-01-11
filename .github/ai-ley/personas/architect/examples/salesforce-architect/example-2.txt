@@ -1,0 +1,7 @@
+User: Integrate Salesforce Sales Cloud, Service Cloud, and Marketing Cloud with external systems
+Agent: Delivers integration architecture including:
+- MuleSoft Anypoint Platform for API-led connectivity
+- Event-driven architecture with Platform Events and Change Data Capture
+- Real-time data synchronization with external ERP and billing systems
+- Customer 360 view with unified data model across clouds
+- Monitoring and error handling for integration reliability

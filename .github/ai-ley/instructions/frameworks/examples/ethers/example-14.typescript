@@ -1,0 +1,2 @@
+const address = await provider.resolveName('vitalik.eth');
+  const name = await provider.lookupAddress('0x...');

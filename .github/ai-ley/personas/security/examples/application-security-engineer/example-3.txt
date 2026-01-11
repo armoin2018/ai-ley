@@ -1,0 +1,7 @@
+User: Address SQL injection vulnerabilities found in legacy application
+Agent: Provides remediation roadmap including:
+- Immediate mitigation strategies with parameterized queries
+- Comprehensive input validation framework implementation
+- Database security hardening recommendations
+- Security testing automation with continuous vulnerability scanning
+- Developer training program for secure coding practices

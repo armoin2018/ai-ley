@@ -1,0 +1,75 @@
+# tests/test_file_controller.py
+import pytest
+import tempfile
+import os
+from pathlib import Path
+
+from PySide6.QtCore import QObject
+from PySide6.QtTest import QTest
+from PySide6.QtWidgets import QApplication
+
+from src.controllers.file_controller import FileController
+
+class TestFileController:
+    @pytest.fixture(autouse=True)
+    def setup(self, qtbot):
+        self.app = QApplication.instance()
+        if self.app is None:
+            self.app = QApplication([])
+
+        self.controller = FileController()
+        qtbot.addWidget(self.controller)
+
+        # Create temporary test file
+        self.temp_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        self.temp_file.write("Hello, Qt Test!
+Line 2
+")
+        self.temp_file.close()
+
+        yield
+
+        # Cleanup
+        os.unlink(self.temp_file.name)
+
+    def test_open_existing_file(self, qtbot):
+        content, error = self.controller.open_file(self.temp_file.name)
+
+        assert error is None
+        assert "Hello, Qt Test!" in content
+        assert "Line 2" in content
+
+    def test_open_nonexistent_file(self, qtbot):
+        content, error = self.controller.open_file("/nonexistent/file.txt")
+
+        assert error is not None
+        assert content is None
+
+    def test_save_file(self, qtbot):
+        with tempfile.NamedTemporaryFile(delete=False) as temp:
+            temp_path = temp.name
+
+        content = "Test content
+Second line"
+        error = self.controller.save_file(temp_path, content)
+
+        assert error is None
+
+        # Verify content
+        with open(temp_path, 'r') as f:
+            saved_content = f.read()
+
+        assert saved_content == content
+
+        # Cleanup
+        os.unlink(temp_path)
+
+    def test_file_info(self, qtbot):
+        info = self.controller.get_file_info(self.temp_file.name)
+
+        assert info.file_name
+        assert info.size > 0
+        assert info.is_readable
+        assert info.category == "text"
+
+# Run with: pytest tests/test_file_controller.py -v

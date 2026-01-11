@@ -1,0 +1,29 @@
+// src/tests/setup.ts
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import mongoose from 'mongoose';
+
+// Increase timeout for database operations
+jest.setTimeout(10000);
+
+// Mock console methods in tests
+global.console = {
+  ...console,
+  log: jest.fn(),
+  debug: jest.fn(),
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+};
+
+// Global test setup
+beforeAll(async () => {
+  process.env.NODE_ENV = 'test';
+  process.env.JWT_SECRET = 'test-secret-key';
+});
+
+// Clean up after tests
+afterAll(async () => {
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.disconnect();
+  }
+});

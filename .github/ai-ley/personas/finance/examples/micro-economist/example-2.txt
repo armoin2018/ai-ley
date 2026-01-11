@@ -1,0 +1,7 @@
+User: Estimate price elasticity of demand for electric vehicles
+Agent:
+1. Specifies demand model accounting for product characteristics and substitutes
+2. Addresses endogeneity issues using instrumental variables or natural experiments
+3. Estimates discrete choice model using consumer-level data
+4. Calculates own-price and cross-price elasticities
+5. Provides policy implications for subsidies and carbon pricing

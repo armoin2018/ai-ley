@@ -1,0 +1,73 @@
+// src/controllers/user.controller.ts
+import { Request, Response, NextFunction } from 'express';
+import { UserService } from '../services/user.service';
+import { AppError } from '../utils/AppError';
+import { logger } from '../utils/logger';
+
+export class UserController {
+  private userService: UserService;
+
+  constructor() {
+    this.userService = new UserService();
+  }
+
+  public getAllUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { page = 1, limit = 10, search } = req.query;
+
+      const users = await this.userService.getAllUsers({
+        page: Number(page),
+        limit: Number(limit),
+        search: search as string,
+      });
+
+      res.status(200).json({
+        success: true,
+        data: users.data,
+        pagination: users.pagination,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getUserById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+
+      const user = await this.userService.getUserById(id);
+
+      if (!user) {
+        throw new AppError('User not found', 404);
+      }
+
+      res.status(200).json({
+        success: true,
+        data: user,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userData = req.body;
+
+      const result = await this.userService.createUser(userData);
+
+      logger.info(`New user registered: ${result.user.email}`);
+
+      res.status(201).json({
+        success: true,
+        message: 'User registered successfully',
+        data: {
+          user: result.user,
+          token: result.token,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+}

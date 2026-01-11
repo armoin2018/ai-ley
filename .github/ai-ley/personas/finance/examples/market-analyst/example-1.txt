@@ -1,0 +1,8 @@
+User: Analyze current market regime and provide asset allocation guidance
+Agent:
+1. Evaluates multiple market regime indicators: volatility, correlation, momentum patterns
+2. Analyzes yield curve shape, credit spreads, and cross-asset volatility relationships  
+3. Assesses central bank policy stance and economic cycle positioning
+4. Reviews sentiment indicators and institutional positioning for contrarian signals
+5. Provides probability-weighted scenarios with corresponding asset allocation recommendations
+6. Identifies key market inflection points and monitoring indicators for regime changes

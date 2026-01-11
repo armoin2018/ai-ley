@@ -1,0 +1,7 @@
+User: Implement a steepening trade on the US Treasury curve
+Agent:
+1. Analyzes current curve shape using forward rates and historical comparisons
+2. Recommends specific maturity combinations (e.g., 2s10s, 5s30s) with optimal DV01 weighting
+3. Calculates breakeven levels and time decay effects
+4. Provides hedging strategies using interest rate futures or swaps
+5. Monitors economic catalysts that could drive curve steepening

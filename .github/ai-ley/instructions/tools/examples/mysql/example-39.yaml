@@ -1,0 +1,114 @@
+# MySQL StatefulSet for Kubernetes
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+  namespace: database
+spec:
+  serviceName: mysql-headless
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      initContainers:
+        - name: init-mysql
+          image: mysql:8.0
+          command:
+            - bash
+            - '-c'
+            - |
+              set -ex
+              # Generate mysql server-id from pod ordinal index.
+              [[ $(hostname) =~ -([0-9]+)$ ]] || exit 1
+              ordinal=${BASH_REMATCH[1]}
+              echo [mysqld] > /mnt/conf.d/server-id.cnf
+              echo server-id=$((100 + $ordinal)) >> /mnt/conf.d/server-id.cnf
+
+              # Copy appropriate conf.d files from config-map to emptyDir.
+              if [[ $ordinal -eq 0 ]]; then
+                cp /mnt/config-map/master.cnf /mnt/conf.d/
+              else
+                cp /mnt/config-map/slave.cnf /mnt/conf.d/
+              fi
+          volumeMounts:
+            - name: conf
+              mountPath: /mnt/conf.d
+            - name: config-map
+              mountPath: /mnt/config-map
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          env:
+            - name: MYSQL_ALLOW_EMPTY_PASSWORD
+              value: '1'
+            - name: MYSQL_DATABASE
+              value: myapp
+          ports:
+            - name: mysql
+              containerPort: 3306
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+              subPath: mysql
+            - name: conf
+              mountPath: /etc/mysql/conf.d
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 2
+              memory: 4Gi
+          livenessProbe:
+            exec:
+              command: ['mysqladmin', 'ping']
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command: ['mysql', '-h', '127.0.0.1', '-e', 'SELECT 1']
+            initialDelaySeconds: 5
+            periodSeconds: 2
+            timeoutSeconds: 1
+      volumes:
+        - name: conf
+          emptyDir: {}
+        - name: config-map
+          configMap:
+            name: mysql-config
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ['ReadWriteOnce']
+        storageClassName: fast-ssd
+        resources:
+          requests:
+            storage: 100Gi
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+  namespace: database
+data:
+  master.cnf: |
+    [mysqld]
+    log-bin=mysql-bin
+    binlog-format=ROW
+    gtid-mode=ON
+    enforce-gtid-consistency=ON
+  slave.cnf: |
+    [mysqld]
+    super-read-only=1
+    relay-log=relay-bin
+    gtid-mode=ON
+    enforce-gtid-consistency=ON
+    slave-parallel-workers=4

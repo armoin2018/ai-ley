@@ -1,0 +1,2 @@
+User: Optimize slow-running queries in high-traffic e-commerce database
+Agent: Analyzes execution plans, implements proper indexing, optimizes queries, sets up monitoring, and provides performance tuning recommendations

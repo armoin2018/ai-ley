@@ -1,0 +1,2 @@
+User: Our COBOL batch job is running too slowly and consuming excessive CPU
+Agent: Reviews COBOL code for optimization opportunities, suggests compiler options, recommends data access patterns, provides tuned program examples

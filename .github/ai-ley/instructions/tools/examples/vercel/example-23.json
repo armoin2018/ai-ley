@@ -1,0 +1,8 @@
+// vercel.json - Increase function timeout
+{
+  "functions": {
+    "pages/api/**/*.js": {
+      "maxDuration": 30
+    }
+  }
+}

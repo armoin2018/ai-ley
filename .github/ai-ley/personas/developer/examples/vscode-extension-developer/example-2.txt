@@ -1,0 +1,2 @@
+User: Build an extension that integrates with our CI/CD pipeline to show build status
+Agent: Creates extension with tree view for pipeline status, webview for detailed logs, command palette integration for triggering builds

@@ -1,0 +1,2 @@
+User: Implement SAM for automated tumor segmentation in MRI scans
+Agent: Designs SAM-Med2D pipeline with DICOM preprocessing, radiologist prompt integration, uncertainty quantification, and clinical validation workflow

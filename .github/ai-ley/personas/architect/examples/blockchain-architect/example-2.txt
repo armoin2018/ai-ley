@@ -1,0 +1,7 @@
+User: Architect a hybrid blockchain solution for supply chain tracking with both public and private components
+Agent: Delivers comprehensive design including:
+- Permissioned Hyperledger Fabric network for sensitive data
+- Public Ethereum anchoring for transparency
+- Oracle integration for real-world data
+- Identity management and access control
+- Compliance framework for regulatory requirements

@@ -1,0 +1,119 @@
+from __future__ import annotations
+from typing import Protocol, ClassVar, Generic, TypeVar
+from dataclasses import dataclass, field
+from abc import ABC, abstractmethod
+from contextlib import contextmanager
+
+T = TypeVar('T')
+
+# ✅ Good: Protocol for interface definition
+class Cacheable(Protocol):
+    def cache_key(self) -> str: ...
+    def from_cache_data(self, data: Dict[str, Any]) -> Cacheable: ...
+
+# ✅ Good: Abstract base class with proper typing
+class BaseRepository(ABC, Generic[T]):
+    """Abstract base repository with type safety."""
+    
+    model_class: ClassVar[type[T]]
+    
+    def __init__(self, database: Database) -> None:
+        self._database = database
+        self._logger = structlog.get_logger().bind(
+            repository=self.__class__.__name__
+        )
+    
+    @abstractmethod
+    async def find_by_id(self, id_: str) -> Optional[T]:
+        """Find entity by ID."""
+        pass
+    
+    @abstractmethod
+    async def save(self, entity: T) -> T:
+        """Save entity to database."""
+        pass
+    
+    @abstractmethod
+    async def delete(self, id_: str) -> bool:
+        """Delete entity by ID."""
+        pass
+
+# ✅ Good: Concrete implementation with proper encapsulation
+@dataclass
+class User:
+    id: str
+    name: str
+    email: str
+    is_active: bool = True
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    preferences: Dict[str, Any] = field(default_factory=dict)
+    
+    def cache_key(self) -> str:
+        return f"user:{self.id}"
+    
+    @classmethod
+    def from_cache_data(cls, data: Dict[str, Any]) -> User:
+        return cls(**data)
+    
+    def validate(self) -> None:
+        """Validate user data."""
+        if not self.email or "@" not in self.email:
+            raise ValidationError("Invalid email address", field="email", value=self.email)
+        
+        if not self.name.strip():
+            raise ValidationError("Name cannot be empty", field="name")
+
+class UserRepository(BaseRepository[User]):
+    model_class = User
+    
+    async def find_by_id(self, user_id: str) -> Optional[User]:
+        """Find user by ID with caching."""
+        try:
+            data = await self._database.fetch_one(
+                "SELECT * FROM users WHERE id = $1", user_id
+            )
+            
+            if not data:
+                return None
+                
+            return User(**dict(data))
+            
+        except Exception as e:
+            self._logger.error(
+                "Failed to find user", 
+                user_id=user_id, 
+                error=str(e)
+            )
+            raise
+    
+    async def save(self, user: User) -> User:
+        """Save user with validation."""
+        user.validate()
+        
+        query = """
+            INSERT INTO users (id, name, email, is_active, preferences)
+            VALUES ($1, $2, $3, $4, $5)
+            ON CONFLICT (id) DO UPDATE SET
+                name = EXCLUDED.name,
+                email = EXCLUDED.email,
+                is_active = EXCLUDED.is_active,
+                preferences = EXCLUDED.preferences
+            RETURNING *
+        """
+        
+        try:
+            data = await self._database.fetch_one(
+                query, 
+                user.id, user.name, user.email, 
+                user.is_active, user.preferences
+            )
+            
+            return User(**dict(data))
+            
+        except Exception as e:
+            self._logger.error(
+                "Failed to save user", 
+                user_id=user.id, 
+                error=str(e)
+            )
+            raise

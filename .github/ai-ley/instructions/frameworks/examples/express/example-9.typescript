@@ -1,0 +1,102 @@
+// src/services/user.service.ts
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { User, IUser } from '../models/user.model';
+import { AppError } from '../utils/AppError';
+
+interface CreateUserData {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
+interface UserPagination {
+  data: IUser[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
+export class UserService {
+  async getAllUsers(options: {
+    page: number;
+    limit: number;
+    search?: string;
+  }): Promise<UserPagination> {
+    const { page, limit, search } = options;
+    const skip = (page - 1) * limit;
+
+    let query = {};
+    if (search) {
+      query = {
+        $or: [
+          { firstName: { $regex: search, $options: 'i' } },
+          { lastName: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } },
+        ],
+      };
+    }
+
+    const [users, total] = await Promise.all([
+      User.find(query).select('-password').skip(skip).limit(limit).sort({ createdAt: -1 }),
+      User.countDocuments(query),
+    ]);
+
+    return {
+      data: users,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getUserById(id: string): Promise<IUser | null> {
+    return User.findById(id).select('-password');
+  }
+
+  async createUser(userData: CreateUserData): Promise<{
+    user: IUser;
+    token: string;
+  }> {
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: userData.email });
+    if (existingUser) {
+      throw new AppError('User with this email already exists', 400);
+    }
+
+    // Hash password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
+
+    // Create user
+    const user = new User({
+      ...userData,
+      password: hashedPassword,
+    });
+
+    await user.save();
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET!,
+      { expiresIn: process.env.JWT_EXPIRE || '7d' },
+    );
+
+    // Remove password from response
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    return {
+      user: userResponse as IUser,
+      token,
+    };
+  }
+}

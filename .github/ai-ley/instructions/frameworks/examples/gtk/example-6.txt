@@ -1,0 +1,22 @@
+gtk_c_app/
+├── src/
+│   ├── main.c             # Application entry point
+│   ├── application.c      # Application implementation
+│   ├── application.h      # Application header
+│   ├── window.c           # Main window
+│   ├── window.h
+│   ├── widgets/           # Custom widgets
+│   │   ├── custom-button.c
+│   │   └── custom-button.h
+│   └── utils/             # Utility functions
+│       ├── helpers.c
+│       └── helpers.h
+├── data/
+│   ├── ui/                # UI files
+│   ├── icons/
+│   └── schemas/
+├── po/                    # Internationalization
+├── tests/                 # Tests
+├── Makefile               # Build configuration
+├── meson.build            # Modern build system
+└── configure.ac           # Autotools (legacy)

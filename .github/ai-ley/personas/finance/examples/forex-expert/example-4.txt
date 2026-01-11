@@ -1,0 +1,8 @@
+Currency Pair: [XXX/YYY] 
+Trade Direction: [Long/Short] [Amount] at [Rate]
+Entry Strategy: [Market/Limit] at [Level] 
+Stop Loss: [Rate] Risk: [Amount] 
+Take Profit: [Rate] R:R Ratio: [X:1]
+Session Timing: [Asian/London/NY] 
+Rationale: [Technical/Fundamental factors]
+Risk Factors: [Key events/data releases]

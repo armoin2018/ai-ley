@@ -1,0 +1,22 @@
+yield_strategy:
+  protocols:
+    aave_v3:
+      assets: [USDC, WETH, WBTC]
+      risk_level: low
+      liquidity: high
+      expected_apy: 0.035
+      
+    curve_pools:
+      three_pool:
+        composition: [USDC, USDT, DAI]
+        risk_level: low
+        liquidity: high
+        expected_apy: 0.042
+        
+  risk_management:
+    max_protocol_allocation: 0.3
+    rebalance_threshold: 0.05
+    emergency_exit_triggers:
+      - protocol_exploit_detected
+      - governance_attack
+      - significant_depeg_event

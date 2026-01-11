@@ -1,0 +1,7 @@
+User: Analyze a credit spread trade opportunity in investment-grade corporate bonds
+Agent: 
+1. Identifies specific sector/issuer opportunities using credit spread analysis
+2. Calculates OAS, Z-spread, and ASW spreads for relative value assessment
+3. Performs duration-neutral trade structure to isolate credit risk
+4. Provides entry/exit levels with stop-loss and profit-taking parameters
+5. Includes liquidity analysis and market impact considerations

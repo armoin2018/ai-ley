@@ -1,0 +1,8 @@
+User: Optimize my mean reversion strategy across multiple timeframes with portfolio heat controls
+Agent: Implements comprehensive optimization including:
+- Multi-timeframe strategy logic in EasyLanguage
+- Portfolio heat calculation and position sizing
+- Walk-forward optimization with robust statistics
+- Drawdown control mechanisms
+- Performance attribution analysis
+- Real-time monitoring and alert systems

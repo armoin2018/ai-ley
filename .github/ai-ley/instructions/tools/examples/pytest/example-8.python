@@ -1,0 +1,71 @@
+import pytest
+from unittest.mock import Mock, patch
+import tempfile
+import os
+
+@pytest.fixture(scope="session")
+def test_config():
+    """Test configuration that persists across test session."""
+    return {
+        "database_url": "sqlite:///test.db",
+        "redis_url": "redis://localhost:6379/1",
+        "secret_key": "test-secret-key"
+    }
+
+@pytest.fixture(scope="function")
+def temp_file():
+    """Create temporary file for each test."""
+    fd, path = tempfile.mkstemp()
+    yield path
+    os.close(fd)
+    os.unlink(path)
+
+@pytest.fixture
+def mock_file_system():
+    """Mock file system operations."""
+    with patch('builtins.open') as mock_open, \
+         patch('os.path.exists') as mock_exists, \
+         patch('os.makedirs') as mock_makedirs:
+
+        mock_exists.return_value = True
+        yield {
+            'open': mock_open,
+            'exists': mock_exists,
+            'makedirs': mock_makedirs
+        }
+
+@pytest.fixture(autouse=True)
+def reset_singletons():
+    """Automatically reset singleton instances after each test."""
+    yield
+    # Reset any singleton instances here
+    from myapp.services import UserService
+    UserService._instance = None
+
+class TestFileOperations:
+    def test_read_file(self, temp_file):
+        """Test file reading with real temporary file."""
+        # Arrange
+        test_content = "Hello, World!"
+        with open(temp_file, 'w') as f:
+            f.write(test_content)
+
+        # Act
+        with open(temp_file, 'r') as f:
+            content = f.read()
+
+        # Assert
+        assert content == test_content
+
+    def test_file_operations_mocked(self, mock_file_system):
+        """Test file operations with mocked filesystem."""
+        # Arrange
+        mock_file_system['open'].return_value.__enter__.return_value.read.return_value = "mocked content"
+
+        # Act
+        from myapp.utils import read_config_file
+        content = read_config_file("config.json")
+
+        # Assert
+        assert content == "mocked content"
+        mock_file_system['open'].assert_called_once_with("config.json", 'r')

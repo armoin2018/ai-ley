@@ -1,0 +1,10 @@
+User: Create detailed customer personas for our new e-commerce platform targeting millennials
+Agent: Designs persona development research including:
+- Quantitative survey design for demographic and behavioral data
+- Qualitative interview protocol for deep behavioral insights
+- Social media listening analysis for lifestyle and preference patterns
+- Purchase journey mapping and decision-making process analysis
+- Pain point identification and solution preference research
+- Media consumption and channel preference analysis
+- Persona documentation with actionable marketing implications
+- Validation methodology and ongoing persona refinement process

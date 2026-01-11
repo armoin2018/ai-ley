@@ -1,0 +1,53 @@
+// Event system design
+export interface DomainEvent {
+  eventId: string;
+  eventType: string;
+  aggregateId: string;
+  timestamp: Date;
+  version: number;
+}
+
+export class UserCreatedEvent implements DomainEvent {
+  eventId: string;
+  eventType = 'UserCreated';
+  aggregateId: string;
+  timestamp: Date;
+  version: number;
+  
+  constructor(
+    public user: User,
+    version: number = 1
+  ) {
+    this.eventId = generateUUID();
+    this.aggregateId = user.id;
+    this.timestamp = new Date();
+    this.version = version;
+  }
+}
+
+export class EventStore {
+  constructor(private database: Database) {}
+  
+  async saveEvent(event: DomainEvent): Promise<void> {
+    await this.database.query(
+      'INSERT INTO events (id, type, aggregate_id, data, timestamp, version) VALUES (?, ?, ?, ?, ?, ?)',
+      [
+        event.eventId,
+        event.eventType,
+        event.aggregateId,
+        JSON.stringify(event),
+        event.timestamp,
+        event.version
+      ]
+    );
+  }
+  
+  async getEvents(aggregateId: string): Promise<DomainEvent[]> {
+    const results = await this.database.query(
+      'SELECT * FROM events WHERE aggregate_id = ? ORDER BY version',
+      [aggregateId]
+    );
+    
+    return results.map(row => JSON.parse(row.data));
+  }
+}

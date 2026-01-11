@@ -1,0 +1,8 @@
+// Enhanced store configuration with DevTools
+export const store = configureStore({
+  reducer: rootReducer,
+  devTools: process.env.NODE_ENV !== 'production' && {
+    trace: true,
+    traceLimit: 25,
+  },
+})

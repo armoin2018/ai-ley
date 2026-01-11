@@ -1,0 +1,81 @@
+// forge.config.ts - Security-focused configuration
+import type { ForgeConfig } from '@electron-forge/shared-types';
+
+const config: ForgeConfig = {
+  packagerConfig: {
+    // Code signing configuration
+    osxSign: {
+      identity: process.env.APPLE_IDENTITY,
+      'hardened-runtime': true,
+      'gatekeeper-assess': false,
+      entitlements: 'build/entitlements.plist',
+      'entitlements-inherit': 'build/entitlements.plist',
+    },
+    osxNotarize: {
+      appleId: process.env.APPLE_ID!,
+      appleIdPassword: process.env.APPLE_APP_PASSWORD!,
+      teamId: process.env.APPLE_TEAM_ID!,
+    },
+    // Windows code signing
+    win32metadata: {
+      CompanyName: 'Your Company',
+      ProductName: 'Your App',
+      FileDescription: 'Your app description',
+    },
+  },
+  makers: [
+    {
+      name: '@electron-forge/maker-squirrel',
+      config: {
+        // Windows installer configuration
+        certificateFile: process.env.WINDOWS_CERTIFICATE_FILE,
+        certificatePassword: process.env.WINDOWS_CERTIFICATE_PASSWORD,
+      },
+    },
+    {
+      name: '@electron-forge/maker-dmg',
+      config: {
+        // macOS DMG configuration
+        background: './assets/dmg-background.png',
+        icon: './assets/icon.icns',
+      },
+    },
+    {
+      name: '@electron-forge/maker-deb',
+      config: {
+        // Linux DEB configuration
+        options: {
+          maintainer: 'Your Name',
+          homepage: 'https://yourwebsite.com',
+        },
+      },
+    },
+  ],
+  plugins: [
+    {
+      name: '@electron-forge/plugin-auto-unpack-natives',
+      config: {},
+    },
+    {
+      name: '@electron-forge/plugin-webpack',
+      config: {
+        mainConfig: './webpack.main.config.js',
+        renderer: {
+          config: './webpack.renderer.config.js',
+          entryPoints: [
+            {
+              html: './src/index.html',
+              js: './src/renderer.ts',
+              name: 'main_window',
+              preload: {
+                js: './src/preload.ts',
+              },
+            },
+          ],
+        },
+      },
+    },
+  ],
+};
+
+export default config;

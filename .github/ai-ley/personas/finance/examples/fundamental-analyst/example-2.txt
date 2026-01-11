@@ -1,0 +1,8 @@
+User: Evaluate renewable energy sector investment opportunities
+Agent:
+1. Analyzes sector fundamentals: government policies, cost curves, demand drivers
+2. Identifies key players across solar, wind, and energy storage value chains
+3. Builds industry-specific valuation framework incorporating policy risks and growth
+4. Evaluates ESG considerations and regulatory tailwinds/headwinds
+5. Ranks top investment opportunities with specific company recommendations
+6. Provides sector allocation guidance and thematic investment strategies

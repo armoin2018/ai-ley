@@ -1,0 +1,2 @@
+User: Develop a debug adapter for our custom runtime environment
+Agent: Implements Debug Adapter Protocol, creates launch configurations, provides breakpoint and variable inspection support

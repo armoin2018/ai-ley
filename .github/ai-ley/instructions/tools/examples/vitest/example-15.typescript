@@ -1,0 +1,74 @@
+// src/hooks/useCounter.ts
+import { useState, useCallback } from 'react'
+
+export function useCounter(initialValue = 0) {
+  const [count, setCount] = useState(initialValue)
+
+  const increment = useCallback(() => {
+    setCount(prev => prev + 1)
+  }, [])
+
+  const decrement = useCallback(() => {
+    setCount(prev => prev - 1)
+  }, [])
+
+  const reset = useCallback(() => {
+    setCount(initialValue)
+  }, [initialValue])
+
+  return { count, increment, decrement, reset }
+}
+
+// src/hooks/__tests__/useCounter.test.ts
+import { renderHook, act } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
+import { useCounter } from '../useCounter'
+
+describe('useCounter', () => {
+  it('initializes with default value', () => {
+    const { result } = renderHook(() => useCounter())
+    expect(result.current.count).toBe(0)
+  })
+
+  it('initializes with custom value', () => {
+    const { result } = renderHook(() => useCounter(10))
+    expect(result.current.count).toBe(10)
+  })
+
+  it('increments count', () => {
+    const { result } = renderHook(() => useCounter(5))
+
+    act(() => {
+      result.current.increment()
+    })
+
+    expect(result.current.count).toBe(6)
+  })
+
+  it('decrements count', () => {
+    const { result } = renderHook(() => useCounter(5))
+
+    act(() => {
+      result.current.decrement()
+    })
+
+    expect(result.current.count).toBe(4)
+  })
+
+  it('resets to initial value', () => {
+    const { result } = renderHook(() => useCounter(10))
+
+    act(() => {
+      result.current.increment()
+      result.current.increment()
+    })
+
+    expect(result.current.count).toBe(12)
+
+    act(() => {
+      result.current.reset()
+    })
+
+    expect(result.current.count).toBe(10)
+  })
+})

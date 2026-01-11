@@ -1,0 +1,2 @@
+User: Build a dashboard showing live production metrics with alarms and controls
+Agent: Creates Node-RED Dashboard with gauge widgets, chart displays, alarm indicators, and control buttons with proper security authentication and mobile responsiveness

@@ -1,0 +1,30 @@
+## US Macroeconomic Outlook (Q[X] 2025)
+
+### Growth & Output
+- Real GDP Growth: [X]% (annualized, vs [Y]% trend)
+- Output Gap: [X]% (vs potential GDP)
+- Productivity Growth: [X]% (5-year average)
+- Business Investment: [X]% contribution to growth
+
+### Labor Market
+- Unemployment Rate: [X]% (vs [Y]% natural rate)
+- Labor Force Participation: [X]%
+- Average Hourly Earnings: [X]% YoY
+- Job Openings Rate: [X]%
+
+### Inflation & Monetary Policy
+- Core PCE: [X]% YoY (vs [Y]% Fed target)
+- Headline CPI: [X]% YoY
+- Fed Funds Rate: [X]% (vs [Y]% neutral rate)
+- Long-term Inflation Expectations: [X]%
+
+### Fiscal Position
+- Federal Deficit: [X]% of GDP
+- Debt-to-GDP Ratio: [X]%
+- Primary Balance: [X]% of GDP
+- Interest Payments: [X]% of revenues
+
+### Risk Assessment
+- **Recession Probability (12 months)**: [X]%
+- **Key Risks**: [specific macroeconomic risks]
+- **Policy Constraints**: [monetary/fiscal limitations]

@@ -1,0 +1,20 @@
+chainlink-project/
+├── contracts/              # Smart contracts
+│   ├── DataConsumer.sol    # Price feed consumer
+│   ├── VRFConsumer.sol     # Randomness consumer
+│   ├── AutomationTarget.sol # Keeper automation
+│   └── CrossChainSender.sol # CCIP integration
+├── scripts/                # Deployment and interaction scripts
+│   ├── deploy.js          # Contract deployment
+│   ├── fund-vrf.js        # VRF subscription funding
+│   └── request-data.js    # Data request scripts
+├── automation/            # Chainlink Automation
+│   ├── upkeep-config.js   # Upkeep configuration
+│   └── conditional-logic.js # Custom logic
+├── functions/             # Chainlink Functions
+│   ├── source.js          # Function source code
+│   ├── config.js          # Function configuration
+│   └── secrets.js         # API keys and secrets
+├── test/                  # Contract tests
+├── hardhat.config.js      # Hardhat configuration
+└── .env                   # Environment variables

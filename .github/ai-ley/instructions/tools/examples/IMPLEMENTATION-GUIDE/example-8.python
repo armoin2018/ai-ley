@@ -1,0 +1,14 @@
+# Automated performance optimization
+from cloud_platforms.optimization import PerformanceOptimizer
+
+optimizer = PerformanceOptimizer({
+    "platforms": ["aws", "azure", "gcp", "vercel", "digital_ocean", "netlify"],
+    "optimization_level": "aggressive",
+    "performance_targets": {
+        "response_time": "< 200ms",
+        "availability": "> 99.9%",
+        "throughput": "> 10000 rps"
+    }
+})
+
+optimization_result = await optimizer.optimize_all_platforms()

@@ -1,0 +1,8 @@
+User: Rebalance $500M portfolio across 200 positions with sector rotation and risk budget constraints
+Agent:
+1. Analyzes portfolio transition requirements and identifies optimal netting opportunities
+2. Prioritizes trades by urgency, liquidity, and market impact considerations
+3. Coordinates execution timing to minimize cross-asset correlations and concentration risk
+4. Implements basket algorithms for highly liquid names and care algorithms for less liquid positions
+5. Monitors portfolio risk exposure throughout execution process and adjusts for market moves
+6. Provides comprehensive execution report with cost attribution and performance analysis

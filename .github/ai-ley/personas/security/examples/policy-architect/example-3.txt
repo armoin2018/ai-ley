@@ -1,0 +1,8 @@
+User: Create vendor risk management policies for supply chain security
+Policy Architect:
+1. Analyzes current vendor onboarding and management processes
+2. Develops risk-based vendor classification and assessment procedures
+3. Creates contractual security requirements and SLA templates
+4. Establishes ongoing vendor monitoring and performance measurement policies
+5. Implements incident response procedures for third-party security events
+6. Develops vendor termination and data recovery policies and procedures

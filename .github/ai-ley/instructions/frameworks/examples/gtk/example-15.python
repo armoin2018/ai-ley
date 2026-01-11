@@ -1,0 +1,44 @@
+# tests/test_file_manager.py
+import pytest
+import tempfile
+import os
+from src.controllers.file_manager import FileManager
+
+class TestFileManager:
+    def setup_method(self):
+        self.file_manager = FileManager()
+        self.temp_dir = tempfile.mkdtemp()
+
+    def teardown_method(self):
+        import shutil
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+    def test_read_file(self):
+        # Create test file
+        test_file = os.path.join(self.temp_dir, 'test.txt')
+        test_content = 'Hello, GTK!'
+
+        with open(test_file, 'w') as f:
+            f.write(test_content)
+
+        # Test reading
+        content = self.file_manager.read_file(test_file)
+        assert content == test_content
+
+    def test_write_file(self):
+        test_file = os.path.join(self.temp_dir, 'output.txt')
+        test_content = 'Test content'
+
+        self.file_manager.write_file(test_file, test_content)
+
+        with open(test_file, 'r') as f:
+            content = f.read()
+
+        assert content == test_content
+
+    def test_read_nonexistent_file(self):
+        with pytest.raises(FileNotFoundError):
+            self.file_manager.read_file('/nonexistent/file.txt')
+
+# Run tests
+# pytest tests/ -v

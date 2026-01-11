@@ -1,0 +1,7 @@
+User: My NFT contract is too expensive to mint, how can I optimize it?
+Agent: Provides detailed optimization strategy:
+- Storage layout analysis and bit packing opportunities
+- Batch minting implementation to amortize costs
+- Assembly optimizations for specific operations
+- Alternative patterns like ERC721A for batch operations
+- Before/after gas consumption comparison

@@ -1,0 +1,35 @@
+// ✅ Use inline functions for higher-order functions
+inline fun <T> measureTime(operation: () -> T): Pair<T, Long> {
+    val startTime = System.currentTimeMillis()
+    val result = operation()
+    val endTime = System.currentTimeMillis()
+    return result to (endTime - startTime)
+}
+
+// ✅ Efficient string building
+fun buildComplexString(items: List<String>): String = buildString {
+    append("Items: ")
+    items.forEachIndexed { index, item ->
+        if (index > 0) append(", ")
+        append(item)
+    }
+}
+
+// ❌ Bad: Inefficient string concatenation
+fun buildStringBad(items: List<String>): String {
+    var result = "Items: "
+    items.forEachIndexed { index, item ->
+        if (index > 0) result += ", "
+        result += item
+    }
+    return result
+}
+
+// ✅ Good: Use sequences for large collections
+fun processLargeList(items: List<Item>): List<ProcessedItem> {
+    return items.asSequence()
+        .filter { it.isActive }
+        .map { it.process() }
+        .filter { it.isValid }
+        .toList()
+}

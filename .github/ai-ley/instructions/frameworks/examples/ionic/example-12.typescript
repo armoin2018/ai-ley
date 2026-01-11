@@ -1,0 +1,30 @@
+// Image optimization
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-optimized-image',
+  template: `
+    <ion-img
+      [src]="imageUrl"
+      [alt]="altText"
+      loading="lazy"
+      (ionImgDidLoad)="onImageLoad()"
+      (ionError)="onImageError()"
+    >
+    </ion-img>
+  `,
+})
+export class OptimizedImageComponent {
+  imageUrl = 'https://example.com/image.jpg';
+  altText = 'Description';
+
+  onImageLoad() {
+    console.log('Image loaded successfully');
+  }
+
+  onImageError() {
+    console.error('Failed to load image');
+    // Set fallback image
+    this.imageUrl = 'assets/fallback-image.jpg';
+  }
+}

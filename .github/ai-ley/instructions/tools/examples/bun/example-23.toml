@@ -1,0 +1,13 @@
+# bunfig.toml (development)
+[install]
+dev = true
+optional = true
+production = false
+
+[run]
+bun = true
+silent = false
+
+[test]
+coverage = true
+watch = true

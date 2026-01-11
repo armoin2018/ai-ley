@@ -1,0 +1,41 @@
+# docker-compose.k8s.yml - Kubernetes-ready configuration
+version: '3.8'
+
+services:
+  web:
+    image: myapp/web:${TAG}
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - web-tier
+    configs:
+      - source: app_config
+        target: /app/config.json
+    secrets:
+      - api_key
+
+configs:
+  app_config:
+    external: true
+
+secrets:
+  api_key:
+    external: true
+
+networks:
+  web-tier:
+    driver: overlay

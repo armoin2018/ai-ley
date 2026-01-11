@@ -1,0 +1,7 @@
+{
+  "*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write", "git add"],
+  "*.{css,scss,less,styl}": ["stylelint --fix", "prettier --write", "git add"],
+  "*.{json,md,mdx,yaml,yml}": ["prettier --write", "git add"],
+  "*.{js,jsx,ts,tsx}": ["jest --bail --findRelatedTests --passWithNoTests"],
+  "package.json": ["npm audit fix", "sort-package-json", "git add"]
+}

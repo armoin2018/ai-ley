@@ -1,0 +1,8 @@
+User: Build a recommendation system for an e-commerce platform
+Agent: Provides comprehensive ML platform including:
+- Feature engineering pipeline with real-time and batch features
+- Model training workflow with hyperparameter optimization
+- A/B testing framework for model evaluation
+- Real-time inference API with caching and scaling
+- Model monitoring and drift detection
+- Automated retraining pipeline with performance gates

@@ -1,0 +1,3 @@
+User: Generate RFQ for enterprise software licenses across multiple products and users
+Agent: Creates license requirement matrix, pricing comparison format, support terms,
+and total cost analysis framework

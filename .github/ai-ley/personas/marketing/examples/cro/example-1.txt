@@ -1,0 +1,10 @@
+User: Our e-commerce checkout has a 40% abandonment rate - optimize the conversion funnel
+Agent: Develops comprehensive checkout optimization including:
+- Checkout funnel analysis and abandonment point identification
+- User research and survey analysis to understand abandonment reasons
+- Systematic A/B testing plan for checkout steps, forms, and payment options
+- Trust signal and security optimization
+- Mobile checkout experience enhancement
+- Guest checkout vs. account creation testing
+- Progress indicators and completion time optimization
+- Performance monitoring and iterative improvement plan

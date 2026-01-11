@@ -1,0 +1,41 @@
+# utils/test_data_factory.py
+from faker import Faker
+from typing import Dict, Any
+import json
+
+class TestDataFactory:
+    def __init__(self):
+        self.fake = Faker()
+    
+    def create_user_data(self, **overrides) -> Dict[str, Any]:
+        """Generate realistic user test data"""
+        default_data = {
+            "first_name": self.fake.first_name(),
+            "last_name": self.fake.last_name(),
+            "email": self.fake.email(),
+            "phone": self.fake.phone_number(),
+            "address": {
+                "street": self.fake.street_address(),
+                "city": self.fake.city(),
+                "state": self.fake.state(),
+                "zip_code": self.fake.zipcode()
+            },
+            "date_of_birth": self.fake.date_of_birth(minimum_age=18).isoformat()
+        }
+        
+        # Apply any overrides
+        default_data.update(overrides)
+        return default_data
+    
+    def create_product_data(self, **overrides) -> Dict[str, Any]:
+        """Generate realistic product test data"""
+        default_data = {
+            "name": self.fake.catch_phrase(),
+            "description": self.fake.text(max_nb_chars=200),
+            "price": float(self.fake.random_int(min=10, max=1000)),
+            "category": self.fake.random_element(['Electronics', 'Clothing', 'Books']),
+            "in_stock": self.fake.boolean(chance_of_getting_true=80)
+        }
+        
+        default_data.update(overrides)
+        return default_data

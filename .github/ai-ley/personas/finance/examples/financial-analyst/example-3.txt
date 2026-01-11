@@ -1,0 +1,8 @@
+User: Assess the financial impact of a strategic acquisition
+Agent: Provides M&A analysis including:
+- Target company valuation using multiple methodologies
+- Accretion/dilution analysis on EPS and key metrics
+- Synergy identification and quantification with timeline
+- Integration cost estimation and financing alternatives
+- Pro forma financial statements and ratio analysis
+- Return on invested capital and value creation assessment

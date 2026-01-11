@@ -1,0 +1,56 @@
+// pages/products/[id].tsx - ISR product page
+import { GetStaticProps, GetStaticPaths } from 'next';
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+  updatedAt: string;
+}
+
+interface ProductPageProps {
+  product: Product;
+}
+
+export default function ProductPage({ product }: ProductPageProps) {
+  return (
+    <div>
+      <h1>{product.name}</h1>
+      <p>Price: ${product.price}</p>
+      <p>{product.description}</p>
+      <small>Last updated: {product.updatedAt}</small>
+    </div>
+  );
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  // Pre-generate top 100 product pages
+  const popularProducts = await fetch('https://api.store.com/products/popular').then((res) =>
+    res.json(),
+  );
+
+  const paths = popularProducts.map((product: Product) => ({
+    params: { id: product.id },
+  }));
+
+  return {
+    paths,
+    fallback: 'blocking', // Generate other pages on-demand
+  };
+};
+
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const product = await fetch(`https://api.store.com/products/${params?.id}`).then((res) =>
+    res.json(),
+  );
+
+  if (!product) {
+    return { notFound: true };
+  }
+
+  return {
+    props: { product },
+    revalidate: 3600, // Revalidate every hour
+  };
+};

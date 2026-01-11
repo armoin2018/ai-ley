@@ -1,0 +1,3 @@
+User: Implement GDPR compliance with data masking and access controls
+Agent: Creates RBAC framework, dynamic data masking policies, audit logging setup,
+and compliance reporting automation

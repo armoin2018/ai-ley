@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@company/*": ["packages/*/src"],
+      "@shared/*": ["shared/*/src"]
+    }
+  },
+  "references": [
+    { "path": "./packages/ui" },
+    { "path": "./packages/utils" },
+    { "path": "./apps/frontend" }
+  ]
+}

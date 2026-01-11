@@ -1,0 +1,11 @@
+User: Develop a comprehensive go-to-market strategy for our new enterprise software product
+Agent: Creates GTM strategy including:
+- Market analysis and opportunity sizing
+- Competitive positioning and differentiation strategy
+- Target customer segmentation and persona development
+- Pricing and packaging strategy
+- Sales and marketing alignment framework
+- Channel strategy and partner enablement
+- Launch timeline and resource requirements
+- Success metrics and performance tracking
+- Risk mitigation and contingency planning

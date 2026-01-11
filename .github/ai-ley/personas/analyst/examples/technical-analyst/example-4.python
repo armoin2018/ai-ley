@@ -1,0 +1,113 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from datetime import datetime, timedelta
+import requests
+import json
+
+class SystemAnalyzer:
+    def __init__(self, system_name):
+        self.system_name = system_name
+        self.metrics = {}
+        self.analysis_results = {}
+        
+    def collect_performance_metrics(self, monitoring_endpoint):
+        """Collect system performance data"""
+        try:
+            response = requests.get(monitoring_endpoint)
+            metrics_data = response.json()
+            
+            self.metrics = {
+                'cpu_utilization': metrics_data.get('cpu_usage', []),
+                'memory_usage': metrics_data.get('memory_usage', []),
+                'response_times': metrics_data.get('response_times', []),
+                'error_rates': metrics_data.get('error_rates', []),
+                'throughput': metrics_data.get('requests_per_second', [])
+            }
+            
+        except Exception as e:
+            print(f"Error collecting metrics: {e}")
+            
+    def analyze_performance_trends(self):
+        """Analyze performance trends and identify issues"""
+        results = {}
+        
+        # CPU Analysis
+        cpu_data = self.metrics.get('cpu_utilization', [])
+        if cpu_data:
+            results['cpu'] = {
+                'average': np.mean(cpu_data),
+                'peak': np.max(cpu_data),
+                'trend': 'increasing' if cpu_data[-1] > cpu_data[0] else 'stable'
+            }
+        
+        # Response Time Analysis
+        response_times = self.metrics.get('response_times', [])
+        if response_times:
+            results['response_time'] = {
+                'average': np.mean(response_times),
+                'p95': np.percentile(response_times, 95),
+                'p99': np.percentile(response_times, 99)
+            }
+            
+        # Error Rate Analysis
+        error_rates = self.metrics.get('error_rates', [])
+        if error_rates:
+            results['errors'] = {
+                'average_error_rate': np.mean(error_rates),
+                'error_trend': 'increasing' if error_rates[-1] > error_rates[0] else 'stable'
+            }
+            
+        self.analysis_results = results
+        return results
+    
+    def generate_recommendations(self):
+        """Generate optimization recommendations based on analysis"""
+        recommendations = []
+        
+        if 'cpu' in self.analysis_results:
+            cpu_avg = self.analysis_results['cpu']['average']
+            if cpu_avg > 80:
+                recommendations.append({
+                    'priority': 'high',
+                    'area': 'infrastructure',
+                    'recommendation': 'Scale up CPU resources or optimize application performance',
+                    'impact': 'Improved response times and system stability'
+                })
+                
+        if 'response_time' in self.analysis_results:
+            p95_time = self.analysis_results['response_time']['p95']
+            if p95_time > 5000:  # 5 seconds
+                recommendations.append({
+                    'priority': 'medium',
+                    'area': 'application',
+                    'recommendation': 'Implement caching and database query optimization',
+                    'impact': 'Reduced response times and improved user experience'
+                })
+                
+        return recommendations
+    
+    def create_analysis_report(self):
+        """Generate comprehensive analysis report"""
+        report = {
+            'system': self.system_name,
+            'analysis_date': datetime.now().isoformat(),
+            'performance_summary': self.analysis_results,
+            'recommendations': self.generate_recommendations(),
+            'next_steps': [
+                'Implement monitoring dashboards',
+                'Set up automated alerts',
+                'Plan capacity scaling strategy',
+                'Schedule performance optimization sprint'
+            ]
+        }
+        
+        return report
+
+# Usage example
+analyzer = SystemAnalyzer("E-commerce Platform")
+analyzer.collect_performance_metrics("https://monitoring.example.com/api/metrics")
+analyzer.analyze_performance_trends()
+report = analyzer.create_analysis_report()
+
+print(json.dumps(report, indent=2))

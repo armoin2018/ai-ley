@@ -1,0 +1,8 @@
+User: Develop comprehensive cybersecurity policy framework for multinational organization
+Policy Architect:
+1. Conducts regulatory landscape analysis across operating jurisdictions
+2. Performs current state policy assessment and gap analysis
+3. Designs hierarchical policy framework with global/local policy structures
+4. Establishes governance committees and approval workflows
+5. Creates implementation roadmap with training and awareness programs
+6. Implements policy monitoring and effectiveness measurement systems

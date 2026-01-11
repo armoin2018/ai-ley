@@ -1,0 +1,30 @@
+# Enterprise multi-tier application deployment playbook
+---
+- name: Enterprise Application Deployment Pipeline
+  hosts: all
+  strategy: linear
+  serial: "{{ rolling_update_batch_size | default('25%') }}"
+  gather_facts: true
+  vars_files:
+    - 'vars/{{ ansible_environment }}/main.yml'
+    - 'vars/{{ ansible_environment }}/secrets.yml'
+
+  pre_tasks:
+    - name: Validate deployment prerequisites
+      include_tasks: tasks/validation/pre_deployment_checks.yml
+
+    - name: Backup current state
+      include_tasks: tasks/backup/create_snapshot.yml
+      when: backup_before_deployment | bool
+
+  roles:
+    - { role: security.baseline, tags: ['security'] }
+    - { role: monitoring.agent, tags: ['monitoring'] }
+    - { role: application.deploy, tags: ['deploy'] }
+
+  post_tasks:
+    - name: Health check validation
+      include_tasks: tasks/validation/health_checks.yml
+
+    - name: Update monitoring dashboards
+      include_tasks: tasks/monitoring/update_dashboards.yml

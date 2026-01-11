@@ -1,0 +1,103 @@
+# provisioning/compliance-validation.yml - Ansible compliance playbook
+---
+- name: Enterprise Compliance Validation
+  hosts: all
+  become: true
+  vars:
+    compliance_framework: "{{ ansible_compliance_framework | default('SOC2') }}"
+    environment_type: "{{ ansible_environment | default('development') }}"
+
+  tasks:
+    - name: Load compliance requirements
+      include_vars: "vars/compliance/{{ compliance_framework | lower }}.yml"
+
+    - name: Create compliance report directory
+      file:
+        path: "/var/log/compliance"
+        state: directory
+        mode: '0755'
+
+    - name: Run OpenSCAP security scan
+      shell: |
+        oscap xccdf eval
+          --profile "{{ compliance_profile }}"
+          --results "/var/log/compliance/oscap-{{ ansible_hostname }}-{{ ansible_date_time.date }}.xml"
+          --report "/var/log/compliance/oscap-{{ ansible_hostname }}-{{ ansible_date_time.date }}.html"
+          /usr/share/xml/scap/ssg/content/ssg-ubuntu2204-ds.xml
+      register: oscap_scan
+      failed_when: false
+      when: compliance_framework in ['SOC2', 'PCI-DSS', 'HIPAA']
+
+    - name: Validate SSH configuration
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        state: present
+      loop:
+        - { regexp: '^PermitRootLogin', line: 'PermitRootLogin no' }
+        - { regexp: '^PasswordAuthentication', line: 'PasswordAuthentication no' }
+        - { regexp: '^X11Forwarding', line: 'X11Forwarding no' }
+        - { regexp: '^MaxAuthTries', line: 'MaxAuthTries 3' }
+      register: ssh_validation
+
+    - name: Check firewall status
+      command: ufw status
+      register: firewall_status
+      changed_when: false
+
+    - name: Validate file permissions
+      file:
+        path: "{{ item.path }}"
+        mode: "{{ item.mode }}"
+        owner: "{{ item.owner | default('root') }}"
+        group: "{{ item.group | default('root') }}"
+      loop:
+        - { path: '/etc/passwd', mode: '0644' }
+        - { path: '/etc/shadow', mode: '0640', group: 'shadow' }
+        - { path: '/etc/ssh/sshd_config', mode: '0600' }
+        - { path: '/var/log', mode: '0755' }
+      register: file_permissions
+
+    - name: Check for required security packages
+      package_facts:
+        manager: "auto"
+
+    - name: Validate security packages are installed
+      assert:
+        that:
+          - "'fail2ban' in ansible_facts.packages"
+          - "'ufw' in ansible_facts.packages"
+          - "'aide' in ansible_facts.packages"
+          - "'auditd' in ansible_facts.packages"
+        fail_msg: "Required security packages are not installed"
+        success_msg: "All required security packages are installed"
+
+    - name: Generate compliance report
+      template:
+        src: compliance-report.j2
+        dest: "/var/log/compliance/compliance-report-{{ ansible_hostname }}-{{ ansible_date_time.date }}.json"
+      vars:
+        hostname: "{{ ansible_hostname }}"
+        framework: "{{ compliance_framework }}"
+        scan_date: "{{ ansible_date_time.date }}"
+        ssh_config: "{{ ssh_validation.changed }}"
+        firewall_enabled: "{{ 'Status: active' in firewall_status.stdout }}"
+        security_packages: "{{ ansible_facts.packages.keys() | list }}"
+        file_permissions_ok: "{{ file_permissions.changed == false }}"
+
+    - name: Upload compliance results to central server
+      uri:
+        url: "{{ compliance_server }}/api/v1/compliance/vagrant"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ compliance_api_token }}"
+          Content-Type: "application/json"
+        body_format: json
+        body:
+          hostname: "{{ ansible_hostname }}"
+          environment: "{{ environment_type }}"
+          framework: "{{ compliance_framework }}"
+          timestamp: "{{ ansible_date_time.iso8601 }}"
+          results: "{{ lookup('file', '/var/log/compliance/compliance-report-' + ansible_hostname + '-' + ansible_date_time.date + '.json') | from_json }}"
+      when: compliance_server is defined

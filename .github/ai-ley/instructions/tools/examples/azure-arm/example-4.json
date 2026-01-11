@@ -1,0 +1,160 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "3.0.0.0",
+  "metadata": {
+    "title": "Enterprise Foundation Template",
+    "description": "Comprehensive enterprise foundation with multi-subscription governance, compliance frameworks, security automation, monitoring integration, and cost optimization",
+    "author": "Enterprise Platform Team",
+    "version": "3.0.0",
+    "lastModified": "2025-09-05",
+    "compliance": ["SOC2", "PCI-DSS", "HIPAA", "CIS", "NIST"],
+    "environments": ["dev", "staging", "production"],
+    "regions": ["eastus", "westus", "westeurope", "eastus2"],
+    "subscriptions": "multi-subscription-aware",
+    "governance": "Azure Policy integrated",
+    "monitoring": "Azure Monitor native",
+    "security": "Key Vault + Managed Identity",
+    "cost-optimization": "Azure Advisor integrated",
+    "disaster-recovery": "multi-region-capable"
+  },
+  "parameters": {
+    "enterprisePrefix": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 10,
+      "defaultValue": "enterprise",
+      "metadata": {
+        "description": "Enterprise naming prefix for all resources"
+      }
+    },
+    "environment": {
+      "type": "string",
+      "allowedValues": ["dev", "staging", "production"],
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "Target deployment environment"
+      }
+    },
+    "complianceFramework": {
+      "type": "string",
+      "allowedValues": ["SOC2", "PCI-DSS", "HIPAA", "CIS", "NIST"],
+      "defaultValue": "SOC2",
+      "metadata": {
+        "description": "Primary compliance framework to implement"
+      }
+    },
+    "primaryRegion": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Primary Azure region for resource deployment"
+      }
+    },
+    "enableAdvancedSecurity": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable advanced security features (Key Vault, Defender, etc.)"
+      }
+    },
+    "enableComplianceMonitoring": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable compliance monitoring and reporting"
+      }
+    },
+    "enableCostOptimization": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable cost optimization features and budgets"
+      }
+    }
+  },
+  "variables": {
+    "namingConvention": {
+      "resourceGroup": "[concat(parameters('enterprisePrefix'), '-', parameters('environment'), '-rg')]",
+      "keyVault": "[concat(parameters('enterprisePrefix'), '-', parameters('environment'), '-kv-', uniqueString(resourceGroup().id))]",
+      "logAnalytics": "[concat(parameters('enterprisePrefix'), '-', parameters('environment'), '-law-', uniqueString(resourceGroup().id))]",
+      "managedIdentity": "[concat(parameters('enterprisePrefix'), '-', parameters('environment'), '-mi')]"
+    },
+    "complianceConfiguration": {
+      "SOC2": {
+        "auditRetentionDays": 2555,
+        "encryptionRequired": true,
+        "backupRequired": true,
+        "monitoringLevel": "comprehensive"
+      },
+      "PCI-DSS": {
+        "auditRetentionDays": 365,
+        "encryptionRequired": true,
+        "networkSegmentation": true,
+        "monitoringLevel": "detailed"
+      },
+      "HIPAA": {
+        "auditRetentionDays": 2190,
+        "encryptionRequired": true,
+        "accessLogging": true,
+        "monitoringLevel": "comprehensive"
+      }
+    },
+    "currentCompliance": "[variables('complianceConfiguration')[parameters('complianceFramework')]]",
+    "enterpriseTags": {
+      "Environment": "[parameters('environment')]",
+      "ComplianceFramework": "[parameters('complianceFramework')]",
+      "ManagedBy": "ARM-Templates",
+      "DeploymentDate": "[utcNow('yyyy-MM-dd')]",
+      "SecurityEnabled": "[parameters('enableAdvancedSecurity')]",
+      "ComplianceMonitoring": "[parameters('enableComplianceMonitoring')]",
+      "CostOptimization": "[parameters('enableCostOptimization')]"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "[variables('namingConvention').managedIdentity]",
+      "location": "[parameters('primaryRegion')]",
+      "tags": "[variables('enterpriseTags')]"
+    },
+    {
+      "condition": "[parameters('enableAdvancedSecurity')]",
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2023-07-01",
+      "name": "[variables('namingConvention').keyVault]",
+      "location": "[parameters('primaryRegion')]",
+      "tags": "[variables('enterpriseTags')]",
+      "properties": {
+        "sku": {
+          "family": "A",
+          "name": "[if(equals(parameters('environment'), 'production'), 'premium', 'standard')]"
+        },
+        "tenantId": "[subscription().tenantId]",
+        "enabledForDeployment": true,
+        "enabledForTemplateDeployment": true,
+        "enabledForDiskEncryption": true,
+        "enableRbacAuthorization": true,
+        "enableSoftDelete": true,
+        "enablePurgeProtection": "[if(equals(parameters('environment'), 'production'), true, false)]",
+        "softDeleteRetentionInDays": "[variables('currentCompliance').auditRetentionDays]",
+        "publicNetworkAccess": "Disabled",
+        "networkAcls": {
+          "defaultAction": "Deny",
+          "bypass": "AzureServices"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "managedIdentityPrincipalId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('namingConvention').managedIdentity), '2023-01-31').principalId]"
+    },
+    "keyVaultUri": {
+      "condition": "[parameters('enableAdvancedSecurity')]",
+      "type": "string",
+      "value": "[if(parameters('enableAdvancedSecurity'), reference(resourceId('Microsoft.KeyVault/vaults', variables('namingConvention').keyVault), '2023-07-01').vaultUri, '')]"
+    }
+  }
+}

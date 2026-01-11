@@ -1,0 +1,4 @@
+#### Issue 2: Update Requires Replacement
+
+**Problem**: Stack update requires resource replacement, causing downtime
+**Solution**: Use change sets to preview changes

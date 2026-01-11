@@ -1,0 +1,52 @@
+# Discrete Choice Demand Model Implementation
+import numpy as np
+import pandas as pd
+from scipy.optimize import minimize
+import statsmodels.api as sm
+
+class DiscreteChoiceModel:
+    def __init__(self, data):
+        self.data = data
+        self.parameters = None
+        
+    def logit_demand(self, params, X, market_shares):
+        """
+        Estimate multinomial logit demand model
+        """
+        # Calculate utility for each product
+        delta = X @ params  # Linear utility
+        exp_delta = np.exp(delta)
+        
+        # Calculate predicted market shares
+        denominator = 1 + np.sum(exp_delta)
+        predicted_shares = exp_delta / denominator
+        
+        # Return log-likelihood
+        return -np.sum(market_shares * np.log(predicted_shares))
+    
+    def estimate(self):
+        # Initial parameter guess
+        initial_params = np.zeros(self.data.shape[1] - 1)
+        
+        # Optimization
+        result = minimize(
+            self.logit_demand,
+            initial_params,
+            args=(self.data.iloc[:, :-1], self.data.iloc[:, -1]),
+            method='BFGS'
+        )
+        
+        self.parameters = result.x
+        return result
+    
+    def elasticities(self):
+        """
+        Calculate own-price and cross-price elasticities
+        """
+        if self.parameters is None:
+            raise ValueError("Model must be estimated first")
+        
+        # Calculate elasticity matrix
+        # Own-price elasticity: α * p * (1 - s)
+        # Cross-price elasticity: α * p * s_j
+        pass

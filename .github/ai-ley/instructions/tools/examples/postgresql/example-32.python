@@ -1,0 +1,46 @@
+# Repository pattern with connection pooling
+import psycopg2.pool
+from contextlib import contextmanager
+
+class DatabaseManager:
+    def __init__(self, connection_config):
+        self.pool = psycopg2.pool.ThreadedConnectionPool(
+            minconn=1, maxconn=20, **connection_config
+        )
+
+    @contextmanager
+    def get_connection(self):
+        conn = self.pool.getconn()
+        try:
+            yield conn
+        except Exception as e:
+            conn.rollback()
+            raise
+        else:
+            conn.commit()
+        finally:
+            self.pool.putconn(conn)
+
+class UserRepository:
+    def __init__(self, db_manager):
+        self.db = db_manager
+
+    def create_user(self, email, username, password_hash):
+        with self.db.get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "INSERT INTO users (email, username, password_hash) "
+                    "VALUES (%s, %s, %s) RETURNING id, created_at",
+                    (email, username, password_hash)
+                )
+                return cursor.fetchone()
+
+    def get_user_by_email(self, email):
+        with self.db.get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "SELECT id, email, username, created_at "
+                    "FROM users WHERE email = %s AND is_active = true",
+                    (email,)
+                )
+                return cursor.fetchone()

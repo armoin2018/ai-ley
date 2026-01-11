@@ -1,0 +1,18 @@
+from sklearn.ensemble import IsolationForest
+from sklearn.preprocessing import StandardScaler
+import pandas as pd
+
+class AnomalyDetector:
+    def __init__(self, contamination=0.1):
+        self.scaler = StandardScaler()
+        self.model = IsolationForest(contamination=contamination, random_state=42)
+        
+    def train(self, metrics_data):
+        scaled_data = self.scaler.fit_transform(metrics_data)
+        self.model.fit(scaled_data)
+        
+    def detect_anomalies(self, new_data):
+        scaled_data = self.scaler.transform(new_data)
+        anomaly_scores = self.model.decision_function(scaled_data)
+        is_anomaly = self.model.predict(scaled_data) == -1
+        return anomaly_scores, is_anomaly

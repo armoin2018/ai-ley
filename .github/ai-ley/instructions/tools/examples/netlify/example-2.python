@@ -1,0 +1,137 @@
+async def deploy_marketing_platform():
+    """Example: Deploy multi-site marketing platform with A/B testing"""
+
+    config = EnterpriseNetlifyConfig(
+        team_id="marketing-team",
+        organization_name="MarketingCorp",
+        tier=NetlifyTier.PRO,
+        environment=NetlifyEnvironment.PRODUCTION,
+        site_type=NetlifySiteType.JAMSTACK,
+        framework=NetlifyFramework.NEXTJS,
+        domains_config={
+            "custom_domains": [
+                "marketingcorp.com", "www.marketingcorp.com",
+                "blog.marketingcorp.com", "events.marketingcorp.com"
+            ],
+            "ssl_certificates": "automatic",
+            "domain_redirects": {
+                "marketingcorp.net": "marketingcorp.com",
+                "old-blog.marketingcorp.com": "blog.marketingcorp.com"
+            }
+        },
+        performance_config={
+            "optimization": {
+                "image_optimization": {
+                    "enabled": True,
+                    "formats": ["webp", "avif"],
+                    "quality": 85
+                },
+                "asset_optimization": {
+                    "minify_css": True,
+                    "minify_js": True,
+                    "tree_shaking": True
+                },
+                "prerendering": {
+                    "enabled": True,
+                    "routes": ["/", "/about", "/services", "/contact"]
+                }
+            },
+            "loading_optimization": {
+                "preload_critical_assets": True,
+                "lazy_load_images": True,
+                "service_worker": True
+            }
+        }
+    )
+
+    platform = EnterpriseNetlifyPlatform(config)
+    setup_result = await platform.setup_enterprise_platform()
+
+    # Deploy main marketing site
+    main_site = {
+        "name": "marketing-main",
+        "repo": "github:marketingcorp/main-site",
+        "build_settings": {
+            "build_command": "next build && next export",
+            "publish_directory": "out",
+            "node_version": "18"
+        },
+        "functions": {
+            "contact-form": {
+                "handler": "netlify/functions/contact.js",
+                "runtime": "nodejs18.x"
+            },
+            "newsletter-signup": {
+                "handler": "netlify/functions/newsletter.js",
+                "runtime": "nodejs18.x"
+            }
+        }
+    }
+
+    # Deploy blog site
+    blog_site = {
+        "name": "marketing-blog",
+        "repo": "github:marketingcorp/blog",
+        "build_settings": {
+            "build_command": "gatsby build",
+            "publish_directory": "public"
+        },
+        "functions": {
+            "blog-search": {
+                "handler": "netlify/functions/search.js",
+                "runtime": "nodejs18.x"
+            },
+            "comment-system": {
+                "handler": "netlify/functions/comments.js",
+                "runtime": "nodejs18.x"
+            }
+        }
+    }
+
+    # Deploy event site
+    events_site = {
+        "name": "marketing-events",
+        "repo": "github:marketingcorp/events",
+        "build_settings": {
+            "build_command": "vue-cli-service build",
+            "publish_directory": "dist"
+        },
+        "functions": {
+            "event-registration": {
+                "handler": "netlify/functions/register.js",
+                "runtime": "nodejs18.x"
+            }
+        }
+    }
+
+    sites = [main_site, blog_site, events_site]
+    deployment_results = []
+
+    for site in sites:
+        result = await platform.deploy_enterprise_site(site)
+        deployment_results.append(result)
+
+    # Setup A/B testing for main site
+    deployment_manager = EnterpriseNetlifyDeploymentManager(config)
+    await deployment_manager.setup_deployment_strategies()
+
+    split_test_config = {
+        "strategy": "split_testing",
+        "test_branches": ["main", "new-landing-page"],
+        "traffic_allocation": {"main": 60, "new-landing-page": 40},
+        "success_metrics": ["conversion_rate", "bounce_rate", "time_on_page"]
+    }
+
+    split_test = await deployment_manager.execute_deployment(
+        "marketing-main",
+        split_test_config
+    )
+
+    return {
+        "platform_setup": setup_result,
+        "sites_deployed": len(deployment_results),
+        "split_test": split_test,
+        "deployment_results": deployment_results
+    }
+
+### Example 3: SaaS Application with Microservices

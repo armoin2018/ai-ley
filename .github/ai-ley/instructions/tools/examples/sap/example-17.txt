@@ -1,0 +1,4 @@
+/nSM13        # Update Records (for failed updates)
+/nSE16        # Data Browser (for data verification)
+/nSU53        # Authorization Check
+/nST22        # ABAP Dump Analysis

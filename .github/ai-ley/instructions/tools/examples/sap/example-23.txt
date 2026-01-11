@@ -1,0 +1,5 @@
+1. Create Purchase Requisition (/nME51N)
+2. Convert to Purchase Order (/nME21N)
+3. Receive Goods (/nMIGO)
+4. Verify Invoice (/nMIRO)
+5. Post Payment (/nF-53)

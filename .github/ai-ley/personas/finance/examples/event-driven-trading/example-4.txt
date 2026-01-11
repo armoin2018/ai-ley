@@ -1,0 +1,30 @@
+## Event Analysis: [Company/Event Type] (Date)
+
+### Event Overview
+- **Event Type**: [Merger, Earnings, Spin-off, Activist, etc.]
+- **Announcement Date**: [Date and market reaction]
+- **Expected Timeline**: [Key milestones and completion date]
+- **Market Context**: [Sector trends, market conditions]
+
+### Probability Assessment
+- **Base Case Probability**: [X]% - [scenario description]
+- **Bull Case Probability**: [Y]% - [upside scenario]
+- **Bear Case Probability**: [Z]% - [downside scenario]
+- **Key Risk Factors**: [regulatory, financing, market, operational]
+
+### Financial Analysis
+- **Current Price**: $[X] vs. Deal Price: $[Y]
+- **Gross Spread**: [X]% | Annualized Return: [Y]%
+- **Downside Risk**: [X]% to $[Y] target
+- **Risk-Adjusted Return**: [Sharpe ratio, risk-return profile]
+
+### Risk Management
+- **Position Size**: [X]% of portfolio (max [Y]%)
+- **Hedging Strategy**: [sector hedge, options protection, pairs]
+- **Stop Loss**: [technical/fundamental levels]
+- **Monitoring Points**: [key milestones and decision points]
+
+### Execution Plan
+- **Entry Strategy**: [gradual accumulation vs. immediate position]
+- **Exit Strategy**: [target levels, time-based exits]
+- **Hedging Implementation**: [timing and instruments]

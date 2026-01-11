@@ -1,0 +1,7 @@
+User: Create a type-safe API client with automatic request/response validation
+Agent: Provides comprehensive implementation including:
+- Generic API client with type-safe endpoint definitions
+- Zod schema validation with TypeScript type inference
+- Automatic request/response type generation from OpenAPI specs
+- Error handling with discriminated union types
+- Complete testing setup with type assertions

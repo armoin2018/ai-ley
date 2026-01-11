@@ -1,0 +1,28 @@
+# Configure pricing engines based on requirements
+class PricingEngineFactory:
+    """Factory for creating appropriate pricing engines."""
+    
+    @staticmethod
+    def create_option_engine(option_type, model_type, process, **kwargs):
+        """Create option pricing engine."""
+        if option_type == 'european':
+            if model_type == 'black_scholes':
+                return ql.AnalyticEuropeanEngine(process)
+            elif model_type == 'heston':
+                return ql.AnalyticHestonEngine(process)
+        
+        elif option_type == 'american':
+            steps = kwargs.get('steps', 100)
+            if model_type == 'binomial':
+                return ql.BinomialVanillaEngine(process, "crr", steps)
+            elif model_type == 'finite_difference':
+                return ql.FDAmericanEngine(process, steps, steps-1)
+        
+        elif option_type == 'bermudan':
+            steps = kwargs.get('steps', 100)
+            return ql.BinomialVanillaEngine(process, "crr", steps)
+        
+        raise ValueError(f"Unsupported option type: {option_type}")
+
+# Performance optimization settings
+ql.Settings.instance().includeReferenceDateEvents = True

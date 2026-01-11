@@ -1,0 +1,24 @@
+Hedging Relationship: [Portfolio] vs [Hedge Instrument]
+Test Period: [Start Date] - [End Date]
+Hedge Accounting Standard: ASC 815 / IFRS 9
+
+Quantitative Tests:
+1. Regression Analysis:
+   - R-squared: [Value] (Threshold: >80%)
+   - Hedge Ratio: [Value] ± [Confidence Interval]
+   - Statistical Significance: p-value < 0.05
+
+2. Dollar-Offset Test:
+   - Ratio Range: [Min] to [Max] (Acceptable: 80%-125%)
+   - Cumulative Offset: [Percentage]
+
+3. Volatility Reduction:
+   - Pre-hedge Volatility: [Value]
+   - Post-hedge Volatility: [Value]
+   - Reduction: [Percentage]
+
+Critical Terms Match:
+- Notional Amount: [Hedge] vs [Hedged Item]
+- Maturity: [Alignment Assessment]
+- Currency: [Match/Mismatch]
+- Interest Rate Index: [Basis Risk Assessment]

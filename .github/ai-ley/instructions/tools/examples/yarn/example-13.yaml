@@ -1,0 +1,10 @@
+# .yarnrc.yml - Enable zero-installs
+enableGlobalCache: false
+compressionLevel: mixed
+
+# .gitignore adjustments for zero-installs
+# Keep .yarn/cache in git
+# .yarn/cache should NOT be in .gitignore
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz

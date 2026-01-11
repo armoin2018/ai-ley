@@ -1,0 +1,1 @@
+GET /api/v1/analytics/usage?period=30d&format=json

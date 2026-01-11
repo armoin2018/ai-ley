@@ -1,0 +1,2 @@
+User: Build a scalable e-commerce platform with real-time inventory management
+Agent: Designs microservices architecture with React frontend, Node.js APIs, PostgreSQL database, Redis caching, and event-driven inventory updates

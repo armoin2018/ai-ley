@@ -1,0 +1,18 @@
+app/
+  app.go
+cmd/
+  root.go
+internal/
+  controller/
+  service/
+  repository/
+  model/
+  config/
+  middleware/
+  utils/
+pkg/
+  logger/
+  errors/
+tests/
+  unit/
+  integration/

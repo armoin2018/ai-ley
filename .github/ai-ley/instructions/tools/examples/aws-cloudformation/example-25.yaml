@@ -1,0 +1,227 @@
+# .github/workflows/cloudformation-deployment.yml
+name: CloudFormation Enterprise Deployment
+
+on:
+  push:
+    branches: [main, develop]
+    paths: ['infrastructure/**']
+  pull_request:
+    branches: [main]
+    paths: ['infrastructure/**']
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Validate CloudFormation Templates
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install validation tools
+        run: |
+          pip install cfn-lint checkov
+          npm install -g cfn-nag
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Validate template syntax
+        run: |
+          find infrastructure/ -name "*.yaml" -o -name "*.yml" | while read template; do
+            echo "Validating: $template"
+            aws cloudformation validate-template --template-body file://$template
+          done
+
+      - name: Lint templates with cfn-lint
+        run: |
+          cfn-lint infrastructure/**/*.yaml infrastructure/**/*.yml
+
+      - name: Security analysis with cfn-nag
+        run: |
+          cfn_nag_scan --input-path infrastructure/ --output-format json
+
+      - name: Compliance analysis with checkov
+        run: |
+          checkov -f infrastructure/ --framework cloudformation --output json --output-file checkov-results.json
+
+      - name: Upload Checkov results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: checkov-results
+          path: checkov-results.json
+
+  security-scan:
+    runs-on: ubuntu-latest
+    name: Security Scanning
+    needs: validate
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run Prowler Security Assessment
+        run: |
+          docker run --rm -v $PWD:/app -w /app \
+            -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+            -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+            -e AWS_DEFAULT_REGION=${{ env.AWS_REGION }} \
+            toniblyx/prowler:latest \
+            -M json -f /app/prowler-results.json
+
+      - name: Upload security results
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-results
+          path: prowler-results.json
+
+  deploy-dev:
+    runs-on: ubuntu-latest
+    name: Deploy to Development
+    needs: [validate, security-scan]
+    if: github.ref == 'refs/heads/develop'
+
+    environment: development
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy CloudFormation stack
+        run: |
+          aws cloudformation deploy \
+            --template-file infrastructure/main.yaml \
+            --stack-name enterprise-infrastructure-dev \
+            --parameter-overrides \
+              Environment=dev \
+              EnableDetailedMonitoring=false \
+              RetentionPeriod=30 \
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
+            --tags Environment=dev Project=Enterprise DeployedBy=GitHubActions
+
+      - name: Run integration tests
+        run: |
+          python -m pytest tests/integration/ -v --stack-name=enterprise-infrastructure-dev
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    name: Deploy to Production
+    needs: [validate, security-scan]
+    if: github.ref == 'refs/heads/main'
+
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_PRODUCTION_ROLE_ARN }}
+          role-duration-seconds: 1200
+
+      - name: Create CloudFormation changeset
+        run: |
+          aws cloudformation create-change-set \
+            --stack-name enterprise-infrastructure-production \
+            --template-body file://infrastructure/main.yaml \
+            --parameters ParameterKey=Environment,ParameterValue=production \
+                        ParameterKey=EnableDetailedMonitoring,ParameterValue=true \
+                        ParameterKey=RetentionPeriod,ParameterValue=365 \
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
+            --change-set-name github-actions-changeset-$(date +%Y%m%d-%H%M%S)
+
+      - name: Wait for changeset creation
+        run: |
+          aws cloudformation wait change-set-create-complete \
+            --stack-name enterprise-infrastructure-production \
+            --change-set-name github-actions-changeset-$(date +%Y%m%d-%H%M%S)
+
+      - name: Execute changeset
+        run: |
+          aws cloudformation execute-change-set \
+            --stack-name enterprise-infrastructure-production \
+            --change-set-name github-actions-changeset-$(date +%Y%m%d-%H%M%S)
+
+      - name: Wait for stack update
+        run: |
+          aws cloudformation wait stack-update-complete \
+            --stack-name enterprise-infrastructure-production
+
+      - name: Enable termination protection
+        run: |
+          aws cloudformation update-termination-protection \
+            --enable-termination-protection \
+            --stack-name enterprise-infrastructure-production
+
+  cleanup:
+    runs-on: ubuntu-latest
+    name: Cleanup Resources
+    needs: [deploy-dev, deploy-production]
+    if: always()
+
+    steps:
+      - name: Clean up old changesets
+        run: |
+          # Clean up changesets older than 7 days
+          cutoff_date=$(date -d '7 days ago' +%Y-%m-%d)
+          aws cloudformation list-change-sets \
+            --stack-name enterprise-infrastructure-production \
+            --query "Summaries[?CreationTime<'$cutoff_date'].ChangeSetName" \
+            --output text | while read changeset; do
+              if [ ! -z "$changeset" ]; then
+                aws cloudformation delete-change-set \
+                  --stack-name enterprise-infrastructure-production \
+                  --change-set-name $changeset
+              fi
+            done
+
+  notifications:
+    runs-on: ubuntu-latest
+    name: Send Notifications
+    needs: [deploy-dev, deploy-production]
+    if: always()
+
+    steps:
+      - name: Notify Slack on success
+        if: success()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          text: 'CloudFormation deployment completed successfully!'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify Slack on failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: 'CloudFormation deployment failed!'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

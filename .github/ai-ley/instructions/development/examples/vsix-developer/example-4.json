@@ -1,0 +1,11 @@
+{
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [{
+        "id": "myContainer",
+        "title": "My Container",
+        "icon": "resources/icon.svg"
+      }]
+    }
+  }
+}

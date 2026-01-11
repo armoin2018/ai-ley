@@ -1,0 +1,79 @@
+import numpy as np
+from scipy import linalg, sparse
+from scipy.optimize import minimize_scalar
+import warnings
+
+class NumericalComputer:
+    """Robust numerical computation with error handling."""
+    
+    def __init__(self, tolerance=1e-12):
+        self.tolerance = tolerance
+        self.warnings_enabled = True
+    
+    def solve_linear_system(self, A, b, method='auto'):
+        """Solve linear system with automatic method selection."""
+        try:
+            # Check matrix properties
+            condition_number = np.linalg.cond(A)
+            
+            if condition_number > 1e12:
+                warnings.warn(f"Matrix is ill-conditioned (cond={condition_number:.2e})")
+            
+            # Choose appropriate solver
+            if sparse.issparse(A):
+                return sparse.linalg.spsolve(A, b)
+            elif A.shape[0] == A.shape[1]:
+                # Square matrix - use LU decomposition
+                return linalg.solve(A, b)
+            else:
+                # Overdetermined system - use least squares
+                return linalg.lstsq(A, b)[0]
+                
+        except linalg.LinAlgError as e:
+            print(f"Linear algebra error: {e}")
+            # Fallback to pseudo-inverse
+            return np.linalg.pinv(A) @ b
+    
+    def robust_optimization(self, func, bounds, method='differential_evolution'):
+        """Robust optimization with multiple methods."""
+        methods = ['differential_evolution', 'basin_hopping', 'shgo']
+        
+        best_result = None
+        best_value = np.inf
+        
+        for opt_method in methods:
+            try:
+                if opt_method == 'differential_evolution':
+                    result = optimize.differential_evolution(func, bounds)
+                elif opt_method == 'basin_hopping':
+                    x0 = np.mean(bounds, axis=1)
+                    result = optimize.basinhopping(func, x0)
+                elif opt_method == 'shgo':
+                    result = optimize.shgo(func, bounds)
+                
+                if result.success and result.fun < best_value:
+                    best_result = result
+                    best_value = result.fun
+                    
+            except Exception as e:
+                if self.warnings_enabled:
+                    warnings.warn(f"Optimization method {opt_method} failed: {e}")
+        
+        return best_result
+    
+    def adaptive_integration(self, func, a, b, method='quad'):
+        """Adaptive numerical integration with error estimation."""
+        try:
+            if method == 'quad':
+                result, error = integrate.quad(func, a, b, epsabs=self.tolerance)
+            elif method == 'quadrature':
+                result, error = integrate.quadrature(func, a, b, tol=self.tolerance)
+            
+            if error > self.tolerance:
+                warnings.warn(f"Integration error {error:.2e} exceeds tolerance")
+            
+            return result, error
+            
+        except Exception as e:
+            print(f"Integration failed: {e}")
+            return None, None

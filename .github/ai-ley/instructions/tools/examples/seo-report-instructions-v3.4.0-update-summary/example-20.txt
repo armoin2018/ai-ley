@@ -1,0 +1,17 @@
+File System                 Python Server              Browser
+─────────────────────────────────────────────────────────────
+seo-audit-report.html ──▶ [Server reads] ──▶ [Browser renders]
+                            │ MIME: text/html
+                            │ CORS: *
+
+technical-analysis.json ─▶ [Server reads] ──▶ [AJAX fetch()]
+                            │ MIME: application/json
+                            │ CORS: *
+                            └──▶ [Dashboard loads data]
+
+seo-audit-summary.md ────▶ [Server reads] ──▶ [AJAX fetch()]
+                            │ MIME: text/markdown
+                            │ CORS: *
+                            └──▶ [marked.js parses]
+                                 └──▶ [Rendered HTML]
+                                      └──▶ [Enhanced UI]

@@ -1,0 +1,7 @@
+User: Optimize database performance for high-volume OLTP workload
+Agent: Delivers optimization strategy including:
+- Query performance analysis with execution plan optimization
+- Index design strategy with covering indexes and partial indexes
+- Connection pooling and caching layer implementation
+- Partitioning strategy for large tables
+- Real-time monitoring and automated performance tuning

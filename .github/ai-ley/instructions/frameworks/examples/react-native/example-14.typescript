@@ -1,0 +1,43 @@
+// __tests__/UserCard.test.tsx
+import React from 'react';
+import { render, fireEvent } from '@testing-library/react-native';
+import { UserCard } from '../components/ui/UserCard';
+
+describe('UserCard', () => {
+  const mockUser = {
+    id: '1',
+    name: 'John Doe',
+    email: 'john@example.com',
+    avatar: 'https://example.com/avatar.jpg',
+  };
+
+  const mockProps = {
+    user: mockUser,
+    onEdit: jest.fn(),
+    onDelete: jest.fn(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('renders user information correctly', () => {
+    const { getByText } = render(<UserCard {...mockProps} />);
+
+    expect(getByText('John Doe')).toBeTruthy();
+    expect(getByText('john@example.com')).toBeTruthy();
+  });
+
+  it('calls onEdit when edit button is pressed', () => {
+    const { getByText } = render(<UserCard {...mockProps} />);
+
+    fireEvent.press(getByText('Edit'));
+    expect(mockProps.onEdit).toHaveBeenCalledWith(mockUser);
+  });
+
+  it('shows loading state correctly', () => {
+    const { getByText } = render(<UserCard {...mockProps} loading={true} />);
+
+    expect(getByText('Loading...')).toBeTruthy();
+  });
+});
